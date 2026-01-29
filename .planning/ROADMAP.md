@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: TBD
 
 Plans:
-- [ ] 01-01: Connect via WIX MCP and map site structure, pages, and navigation
+- [x] 01-01: Connect via WIX MCP and map site structure, pages, and navigation
 - [ ] 01-02: Audit product catalog — categories, variants, images, descriptions
 - [ ] 01-03: Identify UX issues — navigation gaps, mobile problems, checkout friction points
 
@@ -147,7 +147,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Site Audit & Discovery | 0/3 | Not started | - |
+| 1. Site Audit & Discovery | 1/3 | In progress | - |
 | 2. Navigation & Product Discovery | 0/3 | Not started | - |
 | 3. Mobile Experience Optimization | 0/3 | Not started | - |
 | 4. Checkout & Conversion Optimization | 0/3 | Not started | - |
