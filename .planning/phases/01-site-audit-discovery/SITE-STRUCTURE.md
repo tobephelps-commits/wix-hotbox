@@ -79,36 +79,203 @@ The site has a large number of installed apps (68+ app instances). Below are the
 - **Product-type collections (3):** Clothing, Fun Shirts, Graphics
 - **Status collections (1):** PreOrder
 - **System collections (1):** All Products
-- **LMNT** -- unclear if this is a client or a product line; needs browser verification.
+- **LMNT** -- confirmed via browser: this is a product line (electrolyte drink mixes) sold as pickup-only, with its own page at `/shop-5` labeled "Shop" in nav.
 
 ---
 
-## Page Inventory (from Sitemap)
+## Page Inventory (from Sitemap + Browser Verification)
 
-Pages discovered via `pages-sitemap.xml` (13 static pages):
+Pages discovered via `pages-sitemap.xml` and verified via Playwright browser inspection (13 static pages + 105 product pages):
 
-| # | URL Path | Likely Type | Notes |
-|---|----------|-------------|-------|
-| 1 | `/` | Homepage | Main entry point |
-| 2 | `/shop` | Store page | Primary shop view |
-| 3 | `/shop-1` | Store page | Variant shop page |
-| 4 | `/shop-2` | Store page | Variant shop page |
-| 5 | `/shop-3` | Store page | Variant shop page |
-| 6 | `/shop-4` | Store page | Variant shop page |
-| 7 | `/shop-5` | Store page | Variant shop page |
-| 8 | `/fun-shirts` | Collection page | Maps to Fun Shirts collection |
-| 9 | `/blank-2` | Unknown/Blank | Placeholder or client landing page |
-| 10 | `/blank-3` | Unknown/Blank | Placeholder or client landing page |
-| 11 | `/blank-4` | Unknown/Blank | Placeholder or client landing page |
-| 12 | `/payment-request-page` | Payment | Custom payment request page |
-| 13 | `/gift-card` | Gift Card | Gift card purchase page |
+| # | URL Path | Page Title | Actual Purpose | Products Visible | Gallery Layout |
+|---|----------|-----------|----------------|-----------------|----------------|
+| 1 | `/` | Home | Homepage -- hero, product carousel, contact form, subscribe | ~15 (carousel) | Slider/carousel |
+| 2 | `/shop` | Big Barn Crossfit | Client landing: Big Barn CrossFit gym | 20 clothing + 22 graphics | Grid + slider |
+| 3 | `/shop-1` | Artistry in Motion | Client landing: Artistry in Motion studio | 6 | Grid |
+| 4 | `/shop-2` | Fall PreOrder | Seasonal pre-order page | 2 | Grid |
+| 5 | `/shop-3` | UNMH | Client landing: UNM Hospital | 15 | Grid |
+| 6 | `/shop-4` | Board 30 | Client landing: Board 30 fitness studio | 17 | Grid w/ Add to Cart |
+| 7 | `/shop-5` | Shop | LMNT product page (mislabeled "Shop") | 2 (pickup only) | Grid |
+| 8 | `/fun-shirts` | Fun Shirts | Novelty/humor CrossFit shirts | 14 | Grid |
+| 9 | `/blank-2` | Contact | Contact Us form | 0 | N/A |
+| 10 | `/blank-3` | Support | Support ticket form (with issue dropdown) | 0 | N/A |
+| 11 | `/blank-4` | Store Policies | Returns/refunds policy | 0 | N/A |
+| 12 | `/payment-request-page` | Payment Request | Custom payment request (not in nav) | 0 | N/A |
+| 13 | `/gift-card` | Gift Card | Gift card purchase (in More dropdown) | 0 | N/A |
 
 **Product pages:** 105 dynamic product pages at `/product-page/{slug}` (from `store-products-sitemap.xml`).
 
-**Immediate red flags from page inventory:**
-- **Six "shop" pages** (`/shop`, `/shop-1` through `/shop-5`) -- why are there six variants of the shop page? These are likely the client-specific landing pages or represent duplicated/abandoned page iterations. This is confusing for navigation.
-- **Three "blank" pages** (`/blank-2`, `/blank-3`, `/blank-4`) -- pages with default/placeholder names that were never renamed. These could be unused, in-progress, or hidden client pages.
-- **No clear client page naming** -- if Artistry In Motion, Big Barn, Board30, and LovelaceUNM have dedicated pages, they are likely hiding behind the generic `/shop-N` or `/blank-N` URLs. There is no URL like `/big-barn-crossfit` or `/board30` -- customers cannot tell from the URL which client page they are on.
+**Critical findings from browser verification:**
+- **Every "shop-N" page is a client landing page** -- not a generic shop variant. The URL slugs are meaningless (`/shop`, `/shop-1`, `/shop-2`, etc.) and tell the visitor nothing about what they will find.
+- **The "blank-N" pages are real utility pages** -- Contact, Support, and Store Policies are all functional but have unprofessional URL slugs that were never renamed from their WIX defaults.
+- **`/shop-5` is mislabeled** -- the nav calls it "Shop" but it only sells 2 LMNT drink products. A customer clicking "Shop" expecting to see all products would be confused.
+- **No "All Products" shop page exists** -- there is no page showing all 105 products. Each page is a silo.
+- **`/shop-3` (UNMH) has mismatched heading** -- the page heading says "Fall Pre-Order" with a wildflower image, but the nav says "UNMH" and the products are professional workplace clothing (North Face jackets, Adidas, polos). This is confusing.
+- **`/shop-2` (Fall PreOrder) has a typo** -- the description reads "March 1st 20256" instead of "2026".
+
+---
+
+## Navigation Hierarchy (from Live Browser Inspection)
+
+### Header Navigation (left to right)
+
+The site uses a single horizontal navigation bar with a "More" overflow dropdown.
+
+```
+[Logo: Hotbox_edited.jpg -> /]                    [Cart] [Log In]
+
+Home | Contact | Support | Store Policies | Big Barn Crossfit | Fun Shirts | Artistry in Motion | Fall PreOrder | UNMH | Board 30 | More v
+                                                                                                                                    |-- Gift Card
+                                                                                                                                    |-- Shop
+```
+
+**Navigation Link Mapping:**
+
+| Nav Label | Target URL | Actual Page Content |
+|-----------|-----------|-------------------|
+| Home | `/` | Homepage |
+| Contact | `/blank-2` | Contact form |
+| Support | `/blank-3` | Support ticket form |
+| Store Policies | `/blank-4` | Returns/refunds policy |
+| Big Barn Crossfit | `/shop` | Big Barn CrossFit products |
+| Fun Shirts | `/fun-shirts` | Novelty CrossFit shirts |
+| Artistry in Motion | `/shop-1` | Artistry in Motion products |
+| Fall PreOrder | `/shop-2` | Pre-order items (2 products) |
+| UNMH | `/shop-3` | UNM Hospital branded clothing |
+| Board 30 | `/shop-4` | Board 30 fitness products |
+| **More** (dropdown) | | |
+| -- Gift Card | `/gift-card` | Gift card purchase |
+| -- Shop | `/shop-5` | LMNT drink mixes only |
+
+### Footer
+
+Minimal footer with:
+- Email link: admin@hotboxclothing.shop
+- Copyright: "(c)2022 by Hot Box Clothing. Proudly created with Wix.com"
+- No navigation links, no social media, no additional pages
+
+### Other UI Elements
+
+- **"Let's Chat!" button** -- Wix Chat widget (iframe) on all pages
+- **Subscribe Form** -- Email subscription form on homepage only
+- **Contact form** -- Duplicated on homepage AND on `/blank-2` (Contact page)
+
+---
+
+## Client Landing Pages (Detailed Assessment)
+
+### 1. Big Barn Crossfit (`/shop` -- page title: "Big Barn Crossfit")
+
+| Attribute | Detail |
+|-----------|--------|
+| **URL** | `/shop` (generic, not descriptive) |
+| **Heading** | "Welcome to the Big Barn Store" |
+| **Subheading** | "Choose Your Garment or go to www.CompanyCasuals.com to find the clothing you want and send an email requesting a quote." |
+| **Products (clothing)** | 20 items (shirts, hoodies, tanks, vests, joggers, jackets, leggings) |
+| **Products (graphics)** | 22 items in a "Choose your Graphics" section (logos, flags, patches, $1-$10 each) |
+| **Price range** | $8.50 - $50.00 (clothing), $1.00 - $10.00 (graphics) |
+| **Layout** | Two-section: product gallery grid + graphics slider carousel |
+| **External link** | Links to www.CompanyCasuals.com (SanMar's retail portal) |
+| **Issues** | URL gives no brand identity; external link sends customers away from the store; 2 graphics items on clearance ($1) |
+
+### 2. Artistry in Motion (`/shop-1` -- page title: "Artistry in Motion")
+
+| Attribute | Detail |
+|-----------|--------|
+| **URL** | `/shop-1` (generic) |
+| **Logo** | Large circular black logo displayed prominently |
+| **Products** | 6 items (hoodies, tanks, long sleeve tees, v-necks) |
+| **Price range** | $30.00 - $50.00 |
+| **Layout** | Logo header + product gallery grid |
+| **Issues** | Small product selection; URL is meaningless; all products are Bella+Canvas brand |
+
+### 3. Fall PreOrder (`/shop-2` -- page title: "Fall PreOrder")
+
+| Attribute | Detail |
+|-----------|--------|
+| **URL** | `/shop-2` (generic) |
+| **Heading** | "Winter 2026 Pre-order" |
+| **Description** | "You can pre-order until March 1st **20256** Delivery will be periodic based on number of orders.." |
+| **Products** | 2 items (Stanley/Stella hooded sweatshirts) |
+| **Price range** | $45.00 - $47.00 |
+| **Issues** | TYPO in description ("20256" instead of "2026"); only 2 products; nav says "Fall PreOrder" but page says "Winter 2026 Pre-order" -- seasonal mismatch; double period at end of description |
+
+### 4. UNMH (`/shop-3` -- page title: "UNMH")
+
+| Attribute | Detail |
+|-----------|--------|
+| **URL** | `/shop-3` (generic) |
+| **Image** | "Wildflowers 01.png" header image |
+| **Heading** | "Fall Pre-Order" (WRONG -- should be UNMH or UNM Hospital) |
+| **Products** | 15 items (North Face jackets, Adidas quarter-zips, District hoodies/crews, fleece vests, polos, bleach wash tees, Yeti rambler) |
+| **Price range** | $17.00 - $85.00 |
+| **Issues** | Page heading says "Fall Pre-Order" but nav says "UNMH" -- identity crisis; maps to LovelaceUNM collection; professional clothing mixed with casual items; wildflower image doesn't match medical/hospital branding; this is the most confusing page on the site |
+
+### 5. Board 30 (`/shop-4` -- page title: "Board 30")
+
+| Attribute | Detail |
+|-----------|--------|
+| **URL** | `/shop-4` (generic) |
+| **Logo** | "board30logotypeblack.png" displayed at top |
+| **Products** | 17 items (tanks, crop tops, hoodies, leggings, shorts, performance tees, zip hoodies, sweatshirts) |
+| **Price range** | $18.00 - $63.00 |
+| **Layout** | Logo + product grid with **"Add to Cart" buttons visible** (different from other pages which only show Quick View) |
+| **Issues** | URL is meaningless; different product gallery component/layout than other client pages (inconsistent UX); fitness-focused product selection is well-curated |
+
+### 6. LMNT / "Shop" (`/shop-5` -- page title: "Shop")
+
+| Attribute | Detail |
+|-----------|--------|
+| **URL** | `/shop-5` (generic) |
+| **Nav Label** | "Shop" (misleading -- not a general shop) |
+| **Products** | 2 items (LMNT Drink Mix Box $45.00, LMNT Drink Case $32.99) |
+| **Special note** | Both products are **pickup only, no shipping** |
+| **Issues** | Labeled "Shop" but only has 2 drink products; hidden behind "More" dropdown; pickup-only products mixed into online store; worst-named page on the site |
+
+---
+
+## Structural Observations (Brutally Honest)
+
+### Critical Issues
+
+1. **No general "Shop All" page** -- There is no way for a customer to browse all 105 products. Every shop page is siloed by client or collection. A first-time visitor has no path to see the full catalog.
+
+2. **URL slugs are unprofessional garbage** -- `/shop`, `/shop-1`, `/shop-2`, `/shop-3`, `/shop-4`, `/shop-5`, `/blank-2`, `/blank-3`, `/blank-4` are all WIX default slugs that were never renamed. This hurts SEO, looks amateurish in the browser address bar, and makes navigation impossible by URL alone.
+
+3. **Navigation is client-centric, not customer-centric** -- The nav bar lists 5 specific businesses (Big Barn, Artistry in Motion, UNMH, Board 30) alongside utility pages and a "Fun Shirts" collection. A new visitor does not know what Big Barn Crossfit is or why they should click it. The navigation reads like an internal org chart, not a shopping experience.
+
+4. **"Shop" link is buried and misleading** -- The only page labeled "Shop" (in the "More" dropdown) shows just 2 LMNT drink mixes. This is the worst possible experience for someone expecting to browse products.
+
+5. **UNMH page has wrong heading** -- The nav says "UNMH" but the page says "Fall Pre-Order". This is a copy-paste error from another page setup and was never corrected.
+
+6. **Fall PreOrder has a typo** -- "March 1st 20256" is visible to customers. Minor but unprofessional.
+
+7. **Inconsistent product gallery layouts** -- Board 30 shows "Add to Cart" buttons directly; Big Barn has a two-section layout with a separate graphics slider; other pages use a simple grid. There is no consistent shopping UX across client pages.
+
+### Navigation Dead Ends and Orphan Pages
+
+- **`/payment-request-page`** -- exists in sitemap but has NO navigation link anywhere on the site. Orphan page (accessible only by direct URL).
+- **No dead links found** -- all navigation links point to valid, loading pages.
+- **Homepage has duplicate contact form** -- the homepage contains a full contact form section identical to `/blank-2`, creating redundancy.
+
+### Console Errors
+
+- **Warning:** "Unrecognized feature: 'vr'" on every page (harmless VR API feature detection).
+- **Warning:** Firebase already defined (Wix Chat widget conflict).
+- **Error (intermittent):** "ErrorOnConnectToRealtime FirebaseError" on `/shop-5` (Firebase network timeout for chat widget).
+- **No critical JavaScript errors** affecting store functionality.
+
+---
+
+## Screenshots Index
+
+All screenshots captured via Playwright browser automation (stored in `/tmp/playwright-output/`):
+
+| # | Filename | Page | Description |
+|---|----------|------|-------------|
+| 1 | `homepage-full.png` | `/` (Homepage) | Full-page screenshot showing hero section, product carousel, custom team shirts section, contact form, and subscribe form |
+| 2 | `big-barn-crossfit.png` | `/shop` (Big Barn) | Viewport screenshot showing navigation bar, page heading, and beginning of product section |
+| 3 | `artistry-in-motion.png` | `/shop-1` (Artistry in Motion) | Viewport screenshot showing navigation bar and large circular logo |
 
 ---
 
@@ -130,4 +297,4 @@ Pages discovered via `pages-sitemap.xml` (13 static pages):
 
 ---
 
-*Task 1 complete. Task 2 will add: Navigation Hierarchy, Client Landing Pages deep dive, Structural Observations, and Screenshots Index via live browser inspection.*
+*Document complete. Both API extraction (Task 1) and live browser inspection (Task 2) data integrated.*
