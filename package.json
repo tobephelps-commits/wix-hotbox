@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "demo": "npx tsx scripts/sanmar/demo.ts",
+    "demo:style": "npx tsx scripts/sanmar/demo.ts"
   },
   "keywords": [],
   "author": "",
