@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 2 In Progress -- Navigation & Product Discovery (4/5 plans complete)
+**Current focus:** Phase 2 Complete -- Navigation & Product Discovery (5/5 plans complete)
 
 ## Current Position
 
 Phase: 2 of 10 (Navigation & Product Discovery)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-01-30 -- Completed 02-04-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-01-30 -- Completed 02-05-PLAN.md
 
-Progress: ██████░░░░ ~27%
+Progress: ██████░░░░ ~29%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: ~1 session
-- Total execution time: 7 sessions
+- Total execution time: 8 sessions
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Site Audit | 3/3 | 3 sessions | 1 session |
-| 2. Navigation | 4/5 | 4 sessions | 1 session |
+| 2. Navigation | 5/5 | 5 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 01-03, 02-01, 02-02, 02-03, 02-04
+- Last 5 plans: 02-01, 02-02, 02-03, 02-04, 02-05
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -55,6 +55,8 @@ Recent decisions affecting current work:
 - WIX Site Search app requires WIX Editor installation (appDefId not in documented API)
 - Category filter on Shop All, Price + Product Options filters on all client collection pages
 - All 4 sort options (Price low/high, Newest, Name A-Z) enabled on all collection pages
+- WIX Recommendations API has 4 active algorithms; "From Similar Categories" recommended as primary for Related Products widget
+- Board 30 is the only collection page with Add to Cart in gallery; all others need this enabled in WIX Editor
 
 ### Key Findings (Phase 1)
 
@@ -78,6 +80,8 @@ Recent decisions affecting current work:
 - **NAVIGATION-RESTRUCTURE.md** (02-03) -- Manual instructions for restructuring navigation to customer-centric hierarchy
 - **SITE-SEARCH-SETUP.md** (02-04) -- Manual instructions for installing Wix Site Search app and configuring search bar
 - **PRODUCT-FILTERS-SORTING.md** (02-04) -- Manual instructions for enabling product filters and sorting on 7 collection pages
+- **RELATED-PRODUCTS.md** (02-05) -- Manual instructions for adding Related Products widget to product pages with algorithm recommendations
+- **GALLERY-STANDARDIZATION.md** (02-05) -- Manual instructions for enabling Add to Cart on all collection page galleries
 
 ### Manual Fixes Pending (Require WIX Editor)
 
@@ -103,14 +107,19 @@ From Plan 02-04:
 13. Install Wix Site Search app and configure search bar (see SITE-SEARCH-SETUP.md)
 14. Enable product filters and sorting on 7 collection pages (see PRODUCT-FILTERS-SORTING.md)
 
+From Plan 02-05:
+15. Add Related Products widget to product page template (see RELATED-PRODUCTS.md)
+16. Enable Add to Cart on all collection page galleries (see GALLERY-STANDARDIZATION.md)
+17. Update Big Barn graphics section heading (see GALLERY-STANDARDIZATION.md)
+
 ### Blockers/Concerns
 
 - SanMar API credentials not yet provisioned -- Phase 5 blocked until enabled (contact sanmarintegrations@sanmar.com)
-- WIX page content editing requires WIX Editor -- 14 manual fixes pending for store owner
-- **Recommendation:** Store owner should execute all pending WIX Editor changes before Phase 3 begins (mobile experience should be tested against the new navigation structure)
+- WIX page content editing requires WIX Editor -- 17 manual fixes pending for store owner
+- **Recommendation:** Store owner should execute all pending WIX Editor changes before Phase 3 begins (mobile experience should be tested against the new navigation structure and gallery layouts)
 
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 02-04-PLAN.md (search functionality & product filtering/sorting documentation). Phase 2 has 1 more plan (02-05).
-Resume file: .planning/phases/02-navigation-product-discovery/02-04-SUMMARY.md
+Stopped at: Completed 02-05-PLAN.md (cross-selling & gallery standardization). Phase 2 complete (5/5 plans).
+Resume file: .planning/phases/02-navigation-product-discovery/02-05-SUMMARY.md

@@ -17,7 +17,7 @@ None
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Site Audit & Discovery** - Audit current WIX store structure, navigation, products, and UX via MCP
-- [ ] **Phase 2: Navigation & Product Discovery** - Improve filtering, categorization, search, and information architecture
+- [x] **Phase 2: Navigation & Product Discovery** - Improve filtering, categorization, search, and information architecture
 - [ ] **Phase 3: Mobile Experience Optimization** - Optimize layouts, touch targets, and flows for 50% mobile traffic
 - [ ] **Phase 4: Checkout & Conversion Optimization** - Reduce cart abandonment and streamline checkout flow
 - [ ] **Phase 5: SanMar API Foundation** - Build SanMar API client for product data, pricing, and inventory queries
@@ -51,7 +51,7 @@ Plans:
 - [x] 02-02: Implement filtering and search improvements
 - [x] 02-03: Improve product pages — layout, descriptions, cross-selling
 - [x] 02-04: Add search functionality and product filtering/sorting
-- [ ] 02-05: Add related products / cross-selling and standardize gallery layouts
+- [x] 02-05: Add related products / cross-selling and standardize gallery layouts
 
 ### Phase 3: Mobile Experience Optimization
 **Goal**: Mobile visitors (50% of traffic) get a smooth, conversion-friendly shopping experience
@@ -150,7 +150,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Site Audit & Discovery | 3/3 | Complete | 2026-01-29 |
-| 2. Navigation & Product Discovery | 4/5 | In progress | - |
+| 2. Navigation & Product Discovery | 5/5 | Complete | 2026-01-30 |
 | 3. Mobile Experience Optimization | 0/3 | Not started | - |
 | 4. Checkout & Conversion Optimization | 0/3 | Not started | - |
 | 5. SanMar API Foundation | 0/3 | Not started | - |
