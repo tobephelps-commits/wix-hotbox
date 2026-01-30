@@ -1,0 +1,22 @@
+{
+  "name": "hotbox-sanmar",
+  "version": "1.0.0",
+  "description": "SanMar API client for HotBox Clothing store",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "soap": "^1.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
