@@ -47,7 +47,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 02-01: Restructure product categories and navigation hierarchy
+- [x] 02-01: Restructure product categories and navigation hierarchy
 - [ ] 02-02: Implement filtering and search improvements
 - [ ] 02-03: Improve product pages — layout, descriptions, cross-selling
 
@@ -148,7 +148,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Site Audit & Discovery | 3/3 | Complete | 2026-01-29 |
-| 2. Navigation & Product Discovery | 0/3 | Not started | - |
+| 2. Navigation & Product Discovery | 1/3 | In progress | - |
 | 3. Mobile Experience Optimization | 0/3 | Not started | - |
 | 4. Checkout & Conversion Optimization | 0/3 | Not started | - |
 | 5. SanMar API Foundation | 0/3 | Not started | - |
