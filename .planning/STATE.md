@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 3 Complete -- Mobile Experience Optimization (3/3 plans complete). Ready for Phase 4.
+**Current focus:** Phase 4 In Progress -- Checkout & Conversion Optimization (1/3 plans complete).
 
 ## Current Position
 
-Phase: 3 of 10 (Mobile Experience Optimization)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-01-30 -- Completed 03-03-PLAN.md
+Phase: 4 of 10 (Checkout & Conversion Optimization)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-01-30 -- Completed 04-01-PLAN.md
 
-Progress: ████░░░░░░ ~39%
+Progress: ████░░░░░░ ~43%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: ~1 session
-- Total execution time: 11 sessions
+- Total execution time: 12 sessions
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: ████░░░░░░ ~39%
 | 1. Site Audit | 3/3 | 3 sessions | 1 session |
 | 2. Navigation | 5/5 | 5 sessions | 1 session |
 | 3. Mobile | 3/3 | 3 sessions | 1 session |
+| 4. Checkout | 1/3 | 1 session | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 02-04, 02-05, 03-01, 03-02, 03-03
+- Last 5 plans: 02-05, 03-01, 03-02, 03-03, 04-01
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -59,6 +60,9 @@ Recent decisions affecting current work:
 - Side cart (mini-cart drawer) is best mobile cart component -- fills viewport correctly
 - WIX checkout page has its own responsive layout -- likely already mobile-optimized
 - Master mobile guide organized in 3 priority tiers: Critical (3), High-Impact (5), Checkout (2)
+- WIX customPolicy slot used as "Shipping Policy" (no dedicated shipping policy field exists)
+- Digital Item Policy kept hidden -- HotBox sells physical apparel only
+- Checkout policies are live immediately via API -- no WIX Editor needed
 
 ### Key Findings (Phase 1)
 
@@ -88,6 +92,12 @@ Recent decisions affecting current work:
 - **Chat widget REMOVED** -- Uninstalled Wix Inbox app; product interaction now unblocked
 - **LMNT products HIDDEN** -- Both broken 404 pages no longer reachable via storefront
 - **Big Barn Team Hat** -- Added product description (still needs images from owner)
+
+### Key Fixes Applied (Phase 4, Plan 04-01)
+
+- **5 checkout policies CONFIGURED** -- Terms, Privacy, Return, Contact Us, Shipping Policy all visible at checkout
+- **CK-1 RESOLVED** -- Zero checkout policies was top-5 conversion killer; now 5 policies in checkout footer
+- **Verified via Playwright** -- All 5 policy links confirmed on live checkout page with popup content
 
 ### Documentation Created (Phase 2)
 
@@ -137,6 +147,6 @@ From Plan 03-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 03-03-PLAN.md (mobile cart/checkout audit + master guide). Phase 3 complete (3/3 plans).
-Resume file: .planning/phases/03-mobile-optimization/03-03-SUMMARY.md
-Next: Phase 4 -- Checkout & Conversion Optimization (04-01-PLAN.md)
+Stopped at: Completed 04-01-PLAN.md (checkout policies configured via API + Playwright verified). Phase 4 in progress (1/3 plans).
+Resume file: .planning/phases/04-checkout-conversion/04-01-SUMMARY.md
+Next: 04-02-PLAN.md (trust signals, urgency elements, and recovery mechanisms)
