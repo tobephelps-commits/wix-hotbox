@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 1 of 10 (Site Audit & Discovery)
-Plan: 01-01 complete, ready for 01-02
+Plan: 01-02 complete, ready for 01-03
 Status: In progress
-Last activity: 2026-01-29 — Plan 01-01 (Site Structure Mapping) complete
+Last activity: 2026-01-29 — Plan 01-02 (Product Catalog Audit) complete
 
-Progress: █░░░░░░░░░ ~3%
+Progress: █░░░░░░░░░ ~7%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
+- Total plans completed: 2
 - Average duration: ~1 session
-- Total execution time: 1 session
+- Total execution time: 2 sessions
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Site Audit | 1/3 | 1 session | 1 session |
+| 1. Site Audit | 2/3 | 2 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 01-01
-- Trend: First plan complete
+- Last 5 plans: 01-01, 01-02
+- Trend: Consistent 1-session execution
 
 ## Accumulated Context
 
@@ -57,6 +57,24 @@ Recent decisions affecting current work:
 - **Unusual apps installed:** Bookings, Video, Subscriptions on a clothing store
 - **WIX has no REST API for page listing or navigation menus** -- requires sitemap.xml and browser inspection
 
+### Key Findings (Phase 1, Plan 01-02)
+
+- **Zero inventory tracking** -- ALL 105 products have `trackInventory: false`, `manageVariants: false`. The store blindly accepts orders regardless of SanMar blank availability. Biggest operational risk.
+- **2 broken product pages** -- Both LMNT drink product pages return 404 "This product couldn't be found". Products exist in API but storefront pages are broken.
+- **No filtering, sorting, or search** on any category/product listing page
+- **Chat widget blocks product interaction** -- "Let's Chat!" popover intercepts clicks on color swatches and option controls
+- **No cross-selling** -- Zero related products, "you might also like", or upsell sections on any product page
+- **No size guides** -- Clothing store with multiple brands but no size chart anywhere
+- **32 color radio buttons on Fun Shirts** -- Full Gildan 8000 palette creates decision paralysis
+- **Variant selection does not update product image** -- No visual preview when changing colors
+- **Incorrect breadcrumbs** -- Products show wrong collection in breadcrumb navigation
+- **SanMar catalog descriptions copy-pasted** -- ~40 products have raw manufacturer descriptions
+- **Big Barn Team Hat: $28 with zero images, zero description, zero options**
+- **1 duplicate product** -- Stanley/Stella Nora Hoodie in Board30 + PreOrder
+- **1 orphan product** -- New Era 1/4-Zip not in any client collection
+- **Only Board 30 has "Add to Cart" buttons** in gallery; all others require clicking into detail page
+- **Severe lazy-loading issue** -- Product images fail to render below fold, making store appear empty
+
 ### Pending Todos
 
 None yet.
@@ -68,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-29
-Stopped at: Plan 01-01 complete. Ready for Plan 01-02 (Product Catalog Audit).
-Resume file: .planning/phases/01-site-audit-discovery/01-01-SUMMARY.md
+Stopped at: Plan 01-02 complete. Ready for Plan 01-03 (UX Issues Identification).
+Resume file: .planning/phases/01-site-audit-discovery/01-02-SUMMARY.md
