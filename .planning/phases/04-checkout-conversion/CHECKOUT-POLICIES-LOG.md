@@ -37,12 +37,27 @@ Orders are shipped via USPS or UPS. Standard shipping typically takes 7-14 busin
 
 ## Verification
 
+### API Verification
 - GET checkout settings confirmed all 5 active policies have `visible: true` and non-empty content
 - digitalItemPolicy confirmed `visible: false`
 - `updatedDate: 2026-01-30T17:37:33.349Z`
+
+### Playwright Browser Verification
+- Added Sport-Tek Ultimate Performance Crew (Black, M, $25.00) to cart on /shop-4
+- Navigated to /cart-page, clicked "Secure Checkout"
+- On checkout page (`/checkout?checkoutId=...`), verified footer contains all 5 policy links:
+  1. "Terms & Conditions" -- clickable link present
+  2. "Privacy Policy" -- clickable link present
+  3. "Return Policy" -- clickable link present, opened popup dialog confirming exact content
+  4. "Contact Us" -- clickable link present
+  5. "Shipping Policy" -- clickable link present (custom policy with title)
+- "Secure Checkout" badge also displayed in footer
+- Screenshot captured: Return Policy popup showing full policy text
+- Digital Item Policy correctly absent from footer (visible: false)
 
 ## Impact
 
 - Resolves CK-1 (zero checkout policies) from Phase 1 audit
 - 5 of 6 checkout policy slots populated with content appropriate for a custom apparel business
 - Policies appear as clickable links in checkout page footer
+- Clicking a policy opens a popup dialog with full policy text
