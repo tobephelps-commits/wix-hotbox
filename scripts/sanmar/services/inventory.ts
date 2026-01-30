@@ -16,8 +16,8 @@
  * A value of 1500 means "1500 or more" -- treat as "well stocked".
  */
 
-import { getInventoryClient, getPSInventoryClient } from '../client.js';
-import { getSanMarAuth, getPromoStandardsAuth } from '../auth.js';
+import { getPSInventoryClient } from '../client.js';
+import { getPromoStandardsAuth } from '../auth.js';
 import type {
   SkuInventory,
   InventoryResponse,
@@ -47,81 +47,96 @@ export interface InventoryQuery {
 }
 
 // =============================================================================
-// Core Inventory Function (SanMar Standard)
+// Core Inventory Function (PromoStandards)
 // =============================================================================
 
 /**
- * Query SanMar for inventory data by style, color, and/or size.
+ * Query SanMar for inventory data by style.
  *
- * Uses the SanMar Standard getInventoryQtyForStyleColorSize endpoint.
- * Returns per-warehouse breakdown for all matching SKUs.
+ * Uses the PromoStandards getInventoryLevels v2.0.0 endpoint, which supports
+ * style-level queries (returns ALL colors and sizes with per-warehouse
+ * breakdown). The SanMar Standard endpoint requires specific color+size and
+ * does NOT support style-only queries.
  *
- * NOTE: Inventory service uses positional args (arg0-arg5), NOT named
- * object args like product info. This matches SanMar's WSDL definition.
- *
- * @param query - Style (required), color and size (optional)
+ * @param style - SanMar style number (e.g., "PC61", "K420")
  * @returns Parsed InventoryResponse with per-SKU, per-warehouse data
  * @throws SanMarError if API returns an error or network fails after retries
  */
 export async function getInventory(query: InventoryQuery): Promise<InventoryResponse> {
-  const client = await getInventoryClient();
-  const auth = getSanMarAuth();
+  const client = await getPSInventoryClient();
+  const auth = getPromoStandardsAuth('2.0.0');
 
-  // SanMar Standard inventory uses positional args (arg0-arg5)
-  const args = {
-    arg0: auth.sanMarCustomerNumber,
-    arg1: auth.sanMarUserName,
-    arg2: auth.sanMarUserPassword,
-    arg3: query.style,
-    arg4: query.color ?? '',
-    arg5: query.size ?? '',
+  // PromoStandards getInventoryLevels uses flat args (not wrapped)
+  const args: Record<string, unknown> = {
+    wsVersion: auth.wsVersion,
+    id: auth.id,
+    password: auth.password,
+    productId: query.style,
   };
 
+  // If color or size is specified, use filter
+  if (query.color || query.size) {
+    const filter: Record<string, unknown> = {};
+    if (query.color) {
+      filter.PartColorArray = { partColor: [query.color] };
+    }
+    if (query.size) {
+      filter.LabelSizeArray = { labelSize: [query.size] };
+    }
+    args.Filter = filter;
+  }
+
   // node-soap's *Async methods return [result, rawResponse, soapHeader, rawRequest]
+  // PS Inventory WSDL exposes "getInventoryLevels" (lowercase g)
   const soapResult = await withRetry(
-    () => client.getInventoryQtyForStyleColorSizeAsync(args) as Promise<unknown[]>
+    () => client.getInventoryLevelsAsync(args) as Promise<unknown[]>
   );
 
   // Extract the data result (first element)
   const result = soapResult[0] as Record<string, unknown> | undefined;
-  const response = (result?.return ?? result) as Record<string, unknown> | undefined;
 
-  // Check for SanMar response-level errors
-  if (response?.errorOccured === true || response?.errorOccured === 'true') {
-    const errorMsg = String(response?.message ?? 'Unknown inventory error');
-    throw classifyError({ errorOccured: true, message: errorMsg });
-  }
+  // Parse PromoStandards inventory response
+  const inventory = result?.Inventory as Record<string, unknown> | undefined;
+  const partArray = inventory?.PartInventoryArray as Record<string, unknown> | undefined;
+  const rawParts = normalizeArray(partArray?.PartInventory);
 
-  // Parse response -- handle nested structure
-  const responseData = (response?.response ?? response) as Record<string, unknown> | undefined;
-  const style = String(responseData?.style ?? query.style);
+  // Convert PromoStandards PartInventory to SkuInventory format
+  const skus: SkuInventory[] = rawParts.map((rawPart) => {
+    const part = rawPart as Record<string, unknown>;
 
-  // Parse SKU array from response
-  const skusWrapper = responseData?.skus as Record<string, unknown> | undefined;
-  const rawSkuArray = normalizeArray(skusWrapper?.sku);
+    // Parse per-location inventory
+    const locArray = part.InventoryLocationArray as Record<string, unknown> | undefined;
+    const rawLocs = normalizeArray(locArray?.InventoryLocation);
 
-  const skus: SkuInventory[] = rawSkuArray.map((rawSku) => {
-    const sku = rawSku as Record<string, unknown>;
-    const rawWhse = normalizeArray(sku.whse);
+    const whse: WarehouseInventory[] = rawLocs.map((rawLoc) => {
+      const loc = rawLoc as Record<string, unknown>;
 
-    const whse: WarehouseInventory[] = rawWhse.map((rawW) => {
-      const w = rawW as Record<string, unknown>;
+      // Location quantity may be nested in inventoryLocationQuantity.Quantity.value
+      let qty = 0;
+      const locQty = loc.inventoryLocationQuantity as Record<string, unknown> | undefined;
+      if (locQty) {
+        const qtyObj = locQty.Quantity as Record<string, unknown> | undefined;
+        qty = Number(qtyObj?.value ?? locQty.value ?? 0);
+      } else {
+        qty = Number(loc.qty ?? 0);
+      }
+
       return {
-        whseID: Number(w.whseID ?? 0),
-        whseName: String(w.whseName ?? ''),
-        qty: Number(w.qty ?? 0),
+        whseID: Number(loc.inventoryLocationId ?? 0),
+        whseName: String(loc.inventoryLocationName ?? ''),
+        qty,
       };
     });
 
     return {
-      color: String(sku.color ?? ''),
-      size: String(sku.size ?? ''),
+      color: String(part.partColor ?? ''),
+      size: String(part.labelSize ?? ''),
       whse,
     };
   });
 
   return {
-    style,
+    style: String(inventory?.productId ?? query.style),
     skus: { sku: skus },
   };
 }
@@ -133,9 +148,8 @@ export async function getInventory(query: InventoryQuery): Promise<InventoryResp
 /**
  * Get all SKU inventory for a style number.
  *
- * Returns array of all SKU inventory (all colors and sizes) with
- * per-warehouse breakdown. This is the primary query for checking
- * a full style's stock.
+ * Uses PromoStandards getInventoryLevels v2.0.0, which returns per-part
+ * inventory with warehouse-level detail for all colors and sizes.
  *
  * @param style - SanMar style number (e.g., "PC61")
  * @returns Array of SkuInventory items with warehouse breakdowns
@@ -223,23 +237,22 @@ export async function getInventoryBatch(partIds: string[]): Promise<PSPartInvent
 
   // Process chunks sequentially (do NOT parallelize -- respect SanMar server load)
   for (const chunk of chunks) {
+    // PS Inventory WSDL exposes "getInventoryLevels" (lowercase g) with flat args
     const args = {
-      GetInventoryLevelsRequest: {
-        wsVersion: auth.wsVersion,
-        id: auth.id,
-        password: auth.password,
-        productId: chunk[0], // Required but ignored when using partIdArray
-        Filter: {
-          partIdArray: {
-            partId: chunk,
-          },
+      wsVersion: auth.wsVersion,
+      id: auth.id,
+      password: auth.password,
+      productId: chunk[0], // Required but ignored when using partIdArray
+      Filter: {
+        partIdArray: {
+          partId: chunk,
         },
       },
     };
 
     // node-soap's *Async methods return [result, rawResponse, soapHeader, rawRequest]
     const soapResult = await withRetry(
-      () => client.GetInventoryLevelsAsync(args) as Promise<unknown[]>
+      () => client.getInventoryLevelsAsync(args) as Promise<unknown[]>
     );
 
     const result = soapResult[0] as Record<string, unknown> | undefined;
@@ -258,10 +271,21 @@ export async function getInventoryBatch(partIds: string[]): Promise<PSPartInvent
 
       const locations: PSInventoryLocation[] = rawLocs.map((rawLoc) => {
         const loc = rawLoc as Record<string, unknown>;
+
+        // Location quantity may be nested in inventoryLocationQuantity.Quantity.value
+        let locQty = 0;
+        const locQtyField = loc.inventoryLocationQuantity as Record<string, unknown> | undefined;
+        if (locQtyField) {
+          const qtyObj = locQtyField.Quantity as Record<string, unknown> | undefined;
+          locQty = Number(qtyObj?.value ?? locQtyField.value ?? 0);
+        } else {
+          locQty = Number(loc.qty ?? 0);
+        }
+
         return {
           inventoryLocationId: Number(loc.inventoryLocationId ?? 0),
           inventoryLocationName: String(loc.inventoryLocationName ?? ''),
-          qty: Number(loc.qty ?? 0),
+          qty: locQty,
         };
       });
 

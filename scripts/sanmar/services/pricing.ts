@@ -57,12 +57,13 @@ export async function getPricing(query: PricingQuery): Promise<PricingResponse> 
   const client = await getPricingClient();
   const auth = getSanMarAuth();
 
+  // WSDL defines arg0 as an array (arg0[]) -- wrap query in array
   const args = {
-    arg0: {
+    arg0: [{
       style: query.style,
       color: query.color ?? '',
       size: query.size ?? '',
-    },
+    }],
     arg1: {
       sanMarCustomerNumber: auth.sanMarCustomerNumber,
       sanMarUserName: auth.sanMarUserName,
@@ -82,30 +83,35 @@ export async function getPricing(query: PricingQuery): Promise<PricingResponse> 
   const response = (result?.return ?? result) as Record<string, unknown> | undefined;
 
   // Check for SanMar response-level errors
-  if (response?.errorOccured === true || response?.errorOccured === 'true') {
+  // NOTE: Pricing WSDL uses "errorOccurred" (double-r), unlike product info's "errorOccured" (single-r).
+  // Check both spellings for safety.
+  const hasError =
+    response?.errorOccurred === true || response?.errorOccurred === 'true' ||
+    response?.errorOccured === true || response?.errorOccured === 'true';
+  if (hasError) {
     const errorMsg = response?.message ?? 'Unknown pricing error';
     throw classifyError({ errorOccured: true, message: errorMsg });
   }
 
   // Extract pricing info from response
-  // SanMar getPricing may return data nested in listResponse[0].productPriceInfo
-  // or directly as a pricing object, depending on the query
-  const listResponse = response?.listResponse as Record<string, unknown>[] | undefined;
-  const firstItem = listResponse?.[0] as Record<string, unknown> | undefined;
-  const priceInfoFromList = firstItem?.productPriceInfo as Record<string, unknown> | undefined;
-  const directPricing = response?.pricing as Record<string, unknown> | undefined;
-  const pricingData = priceInfoFromList ?? directPricing ?? null;
+  // SanMar getPricing returns listResponse[] where each item has pricing fields directly
+  // (piecePrice, casePrice, etc.) -- NOT nested under productPriceInfo.
+  // The listResponse is an array of per-color/size pricing items.
+  // For style-level queries, take the first item as the base price.
+  const rawListResponse = response?.listResponse;
+  const listResponse = normalizeArray(rawListResponse);
+  const firstItem = listResponse[0] as Record<string, unknown> | undefined;
 
-  const pricing: PricingInfo | null = pricingData
+  const pricing: PricingInfo | null = firstItem
     ? {
-        piecePrice: Number(pricingData.piecePrice ?? 0),
-        casePrice: Number(pricingData.casePrice ?? 0),
-        pieceSalePrice: Number(pricingData.pieceSalePrice ?? 0),
-        caseSalePrice: Number(pricingData.caseSalePrice ?? 0),
-        priceCode: String(pricingData.priceCode ?? ''),
-        priceText: String(pricingData.priceText ?? ''),
-        saleStartDate: (pricingData.saleStartDate as string | null) ?? null,
-        saleEndDate: (pricingData.saleEndDate as string | null) ?? null,
+        piecePrice: Number(firstItem.piecePrice ?? 0),
+        casePrice: Number(firstItem.casePrice ?? 0),
+        pieceSalePrice: Number(firstItem.pieceSalePrice ?? firstItem.salePrice ?? 0),
+        caseSalePrice: Number(firstItem.caseSalePrice ?? 0),
+        priceCode: String(firstItem.priceCode ?? ''),
+        priceText: String(firstItem.priceText ?? ''),
+        saleStartDate: (firstItem.saleStartDate as string | null) ?? null,
+        saleEndDate: (firstItem.saleEndDate as string | null) ?? null,
       }
     : null;
 
@@ -282,4 +288,19 @@ export function formatPricingSummary(pricing: PricingInfo): string {
   }
 
   return parts.join(', ');
+}
+
+// =============================================================================
+// Internal Helpers
+// =============================================================================
+
+/**
+ * Normalize a value to always be an array.
+ * Handles cases where SOAP returns a single object instead of an array.
+ */
+function normalizeArray<T>(value: T | T[] | undefined | null): T[] {
+  if (value === undefined || value === null) {
+    return [];
+  }
+  return Array.isArray(value) ? value : [value];
 }

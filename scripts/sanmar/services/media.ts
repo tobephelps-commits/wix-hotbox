@@ -17,11 +17,12 @@
  * Mockup images are added separately in the WIX product creation flow (Phase 6).
  */
 
-import { getPSMediaClient } from '../client.js';
+import { getPSMediaClient, getLastResponse } from '../client.js';
 import { getPromoStandardsAuth } from '../auth.js';
 import type { MediaContent } from '../types/index.js';
 import { MEDIA_CLASS_TYPES } from '../types/media.js';
 import { withRetry } from '../utils/retry.js';
+import type * as soap from 'soap';
 
 // =============================================================================
 // Types
@@ -77,28 +78,42 @@ export async function getMediaContent(
     requestArgs.classType = query.classType;
   }
 
-  const args = {
-    GetMediaContentRequest: requestArgs,
-  };
+  // WSDL exposes "getMediaContent" (lowercase g), not "GetMediaContent".
+  // Pass request fields directly -- the WSDL input is flat (not wrapped).
+  const args = requestArgs;
 
-  // Call with retry for transient errors
-  // node-soap's *Async methods return [result, rawResponse, soapHeader, rawRequest]
-  const soapResult = await withRetry(
-    () => client.GetMediaContentAsync(args) as Promise<unknown[]>
-  );
+  // The media WSDL has namespace collisions ("Target-Namespace already in use")
+  // that cause node-soap to fail during response parsing, even though the SOAP
+  // request succeeds and the server returns valid data. We catch the parse
+  // error and fall back to parsing the raw XML response from client.lastResponse.
+  try {
+    // Try the normal node-soap path first
+    const soapResult = await withRetry(
+      () => client.getMediaContentAsync(args) as Promise<unknown[]>
+    );
 
-  // Extract the data result (first element of the array)
-  const result = soapResult[0] as Record<string, unknown> | undefined;
+    // Extract the data result (first element of the array)
+    const result = soapResult[0] as Record<string, unknown> | undefined;
 
-  // Parse response: extract MediaContentArray.MediaContent
-  // May be array, single object, or undefined
-  const mediaContentArray = result?.MediaContentArray as
-    | Record<string, unknown>
-    | undefined;
-  const rawContent = mediaContentArray?.MediaContent;
+    // Parse response: extract MediaContentArray.MediaContent
+    const mediaContentArray = result?.MediaContentArray as
+      | Record<string, unknown>
+      | undefined;
+    const rawContent = mediaContentArray?.MediaContent;
 
-  // Normalize to always return an array
-  return normalizeMediaContent(rawContent);
+    return normalizeMediaContent(rawContent);
+  } catch (error: unknown) {
+    // node-soap's response parser fails on this WSDL due to namespace collisions.
+    // The SOAP request DID succeed -- the raw XML response is in client.lastResponse.
+    // Fall back to parsing the raw XML response.
+    const rawXml = getLastResponse(client as soap.Client);
+    if (rawXml && rawXml.includes('MediaContent')) {
+      return parseMediaContentFromXml(rawXml);
+    }
+
+    // If there's no valid response, re-throw the original error
+    throw error;
+  }
 }
 
 // =============================================================================
@@ -279,4 +294,81 @@ function extractClassType(
     classTypeId: 0,
     classTypeName: 'Unknown',
   };
+}
+
+// =============================================================================
+// XML Fallback Parser
+// =============================================================================
+
+/**
+ * Parse media content directly from raw SOAP XML response.
+ *
+ * This is a fallback for when node-soap's auto-parser fails due to namespace
+ * collisions in the MediaContent WSDL. The XML structure is consistent and
+ * well-defined, so regex-based extraction is reliable here.
+ *
+ * Expected XML structure per MediaContent element:
+ *   <ns2:MediaContent>
+ *     <productId>K420</productId>
+ *     <ns2:url>https://cdnm.sanmar.com/imglib/...</ns2:url>
+ *     <mediaType>Image</mediaType>
+ *     <ns2:ClassTypeArray>
+ *       <ns2:ClassType>
+ *         <ns2:classTypeId>1008</ns2:classTypeId>
+ *         <ns2:classTypeName>Rear</ns2:classTypeName>
+ *       </ns2:ClassType>
+ *     </ns2:ClassTypeArray>
+ *     <ns2:color>Black</ns2:color>
+ *     <ns2:singlePart>true</ns2:singlePart>
+ *   </ns2:MediaContent>
+ */
+function parseMediaContentFromXml(xml: string): MediaContent[] {
+  const results: MediaContent[] = [];
+
+  // Check for error response first
+  const errorMatch = xml.match(/<(?:\w+:)?errorMessage>[\s\S]*?<(?:\w+:)?description>(.*?)<\/(?:\w+:)?description>/);
+  if (errorMatch) {
+    // API returned an error -- return empty array (no images available)
+    return [];
+  }
+
+  // Extract each MediaContent block (handles ns2: prefix or no prefix)
+  const mediaContentRegex = /<(?:\w+:)?MediaContent>([\s\S]*?)<\/(?:\w+:)?MediaContent>/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = mediaContentRegex.exec(xml)) !== null) {
+    const block = match[1];
+
+    const productId = extractXmlField(block, 'productId') ?? '';
+    const url = extractXmlField(block, 'url') ?? '';
+    const mediaType = extractXmlField(block, 'mediaType') ?? 'Image';
+    const color = extractXmlField(block, 'color') ?? '';
+    const partId = extractXmlField(block, 'partId');
+
+    // Extract classType from nested ClassType element
+    const classTypeId = Number(extractXmlField(block, 'classTypeId') ?? '0');
+    const classTypeName = extractXmlField(block, 'classTypeName') ?? 'Unknown';
+
+    results.push({
+      productId,
+      partId: partId ?? null,
+      url,
+      mediaType,
+      classType: { classTypeId, classTypeName },
+      color,
+    });
+  }
+
+  return results;
+}
+
+/**
+ * Extract a field value from an XML block.
+ * Handles namespace-prefixed tags (e.g., <ns2:url>value</ns2:url>).
+ */
+function extractXmlField(xml: string, fieldName: string): string | null {
+  // Match both prefixed and non-prefixed: <ns2:fieldName>value</ns2:fieldName> or <fieldName>value</fieldName>
+  const regex = new RegExp(`<(?:\\w+:)?${fieldName}>(.*?)<\\/(?:\\w+:)?${fieldName}>`);
+  const match = xml.match(regex);
+  return match ? match[1] : null;
 }
