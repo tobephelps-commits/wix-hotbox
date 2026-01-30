@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 2 In Progress -- Navigation & Product Discovery (3/5 plans complete)
+**Current focus:** Phase 2 In Progress -- Navigation & Product Discovery (4/5 plans complete)
 
 ## Current Position
 
 Phase: 2 of 10 (Navigation & Product Discovery)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-30 -- Completed 02-03-PLAN.md
+Last activity: 2026-01-30 -- Completed 02-04-PLAN.md
 
-Progress: █████░░░░░ ~23%
+Progress: ██████░░░░ ~27%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: ~1 session
-- Total execution time: 6 sessions
+- Total execution time: 7 sessions
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Site Audit | 3/3 | 3 sessions | 1 session |
-| 2. Navigation | 3/5 | 3 sessions | 1 session |
+| 2. Navigation | 4/5 | 4 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 01-02, 01-03, 02-01, 02-02, 02-03
+- Last 5 plans: 01-03, 02-01, 02-02, 02-03, 02-04
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -52,6 +52,9 @@ Recent decisions affecting current work:
 - Repurpose /shop-5 as Shop All page (has existing Product Gallery widget, just needs collection changed to All Products)
 - "Our Teams" recommended as dropdown label for grouped client pages in restructured navigation
 - 6-item nav bar: Home | Shop All | Fun Shirts | Our Teams dropdown | Gift Card | Contact
+- WIX Site Search app requires WIX Editor installation (appDefId not in documented API)
+- Category filter on Shop All, Price + Product Options filters on all client collection pages
+- All 4 sort options (Price low/high, Newest, Name A-Z) enabled on all collection pages
 
 ### Key Findings (Phase 1)
 
@@ -73,6 +76,8 @@ Recent decisions affecting current work:
 - **ACCESSIBILITY-FIXES.md** (02-02) -- Manual instructions for homepage H1, image alt text, footer nav, and breadcrumb verification
 - **SHOP-ALL-PAGE.md** (02-03) -- Manual instructions for creating Shop All page (repurpose /shop-5 with All Products collection)
 - **NAVIGATION-RESTRUCTURE.md** (02-03) -- Manual instructions for restructuring navigation to customer-centric hierarchy
+- **SITE-SEARCH-SETUP.md** (02-04) -- Manual instructions for installing Wix Site Search app and configuring search bar
+- **PRODUCT-FILTERS-SORTING.md** (02-04) -- Manual instructions for enabling product filters and sorting on 7 collection pages
 
 ### Manual Fixes Pending (Require WIX Editor)
 
@@ -94,14 +99,18 @@ From Plan 02-03:
 11. Create Shop All page at /shop-all (see SHOP-ALL-PAGE.md)
 12. Restructure navigation hierarchy (see NAVIGATION-RESTRUCTURE.md)
 
+From Plan 02-04:
+13. Install Wix Site Search app and configure search bar (see SITE-SEARCH-SETUP.md)
+14. Enable product filters and sorting on 7 collection pages (see PRODUCT-FILTERS-SORTING.md)
+
 ### Blockers/Concerns
 
 - SanMar API credentials not yet provisioned -- Phase 5 blocked until enabled (contact sanmarintegrations@sanmar.com)
-- WIX page content editing requires WIX Editor -- 12 manual fixes pending for store owner
+- WIX page content editing requires WIX Editor -- 14 manual fixes pending for store owner
 - **Recommendation:** Store owner should execute all pending WIX Editor changes before Phase 3 begins (mobile experience should be tested against the new navigation structure)
 
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 02-03-PLAN.md (Shop All page & navigation restructure documentation). Phase 2 has 2 more plans (02-04, 02-05).
-Resume file: .planning/phases/02-navigation-product-discovery/02-03-SUMMARY.md
+Stopped at: Completed 02-04-PLAN.md (search functionality & product filtering/sorting documentation). Phase 2 has 1 more plan (02-05).
+Resume file: .planning/phases/02-navigation-product-discovery/02-04-SUMMARY.md
