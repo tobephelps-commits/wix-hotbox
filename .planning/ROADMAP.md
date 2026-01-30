@@ -80,12 +80,15 @@ Plans:
 **Depends on**: Nothing (can start in parallel with UX work once API credentials obtained)
 **Research**: Likely (external API integration)
 **Research topics**: SanMar API authentication and credential setup, available endpoints (product/pricing/inventory), data formats and schemas, rate limits, SDK or client library availability
-**Plans**: TBD
+**Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 05-01: Research SanMar API documentation and authentication setup
-- [ ] 05-02: Build API client with product data and pricing queries
-- [ ] 05-03: Add inventory query capabilities and error handling
+- [x] 05-00: Research SanMar API documentation and ecosystem (completed via /gsd:research-phase)
+- [ ] 05-01: Project setup, TypeScript config, constants, types, and auth module
+- [ ] 05-02: SOAP client factory and error handling utilities
+- [ ] 05-03: Product data and media content services
+- [ ] 05-04: Pricing and inventory services
+- [ ] 05-05: Public API export and integration demo script
 
 ### Phase 6: Product Creation Pipeline
 **Goal**: Enter a SanMar style number → get a draft WIX product with pricing, variants, and images ready for review
