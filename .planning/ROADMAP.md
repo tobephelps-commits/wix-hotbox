@@ -72,7 +72,7 @@ Plans:
 
 Plans:
 - [x] 04-01: Configure checkout policies (terms, privacy, return, contact, shipping)
-- [ ] 04-02: Add trust signals, urgency elements, and recovery mechanisms
+- [x] 04-02: Add brand-specific size guide info sections to all products
 - [ ] 04-03: Configure shipping, payment, and post-purchase experience
 
 ### Phase 5: SanMar API Foundation
@@ -152,7 +152,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 1. Site Audit & Discovery | 3/3 | Complete | 2026-01-29 |
 | 2. Navigation & Product Discovery | 5/5 | Complete | 2026-01-30 |
 | 3. Mobile Experience Optimization | 3/3 | Complete | 2026-01-30 |
-| 4. Checkout & Conversion Optimization | 1/3 | In progress | - |
+| 4. Checkout & Conversion Optimization | 2/3 | In progress | - |
 | 5. SanMar API Foundation | 0/3 | Not started | - |
 | 6. Product Creation Pipeline | 0/3 | Not started | - |
 | 7. Pricing & Variant Logic | 0/2 | Not started | - |

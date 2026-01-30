@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 4 In Progress -- Checkout & Conversion Optimization (1/3 plans complete).
+**Current focus:** Phase 4 In Progress -- Checkout & Conversion Optimization (2/3 plans complete).
 
 ## Current Position
 
 Phase: 4 of 10 (Checkout & Conversion Optimization)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-30 -- Completed 04-01-PLAN.md
+Last activity: 2026-01-30 -- Completed 04-02-PLAN.md
 
-Progress: ████░░░░░░ ~43%
+Progress: ████░░░░░░ ~46%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: ~1 session
-- Total execution time: 12 sessions
+- Total execution time: 13 sessions
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: ████░░░░░░ ~43%
 | 1. Site Audit | 3/3 | 3 sessions | 1 session |
 | 2. Navigation | 5/5 | 5 sessions | 1 session |
 | 3. Mobile | 3/3 | 3 sessions | 1 session |
-| 4. Checkout | 1/3 | 1 session | 1 session |
+| 4. Checkout | 2/3 | 2 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 02-05, 03-01, 03-02, 03-03, 04-01
+- Last 5 plans: 03-01, 03-02, 03-03, 04-01, 04-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -63,6 +63,8 @@ Recent decisions affecting current work:
 - WIX customPolicy slot used as "Shipping Policy" (no dedicated shipping policy field exists)
 - Digital Item Policy kept hidden -- HotBox sells physical apparel only
 - Checkout policies are live immediately via API -- no WIX Editor needed
+- V1 additionalInfoSections used for size guides (site is Catalog V1, not V3)
+- Non-apparel products excluded from size guides (Graphics, LMNT, accessories)
 
 ### Key Findings (Phase 1)
 
@@ -98,6 +100,13 @@ Recent decisions affecting current work:
 - **5 checkout policies CONFIGURED** -- Terms, Privacy, Return, Contact Us, Shipping Policy all visible at checkout
 - **CK-1 RESOLVED** -- Zero checkout policies was top-5 conversion killer; now 5 policies in checkout footer
 - **Verified via Playwright** -- All 5 policy links confirmed on live checkout page with popup content
+
+### Key Fixes Applied (Phase 4, Plan 04-02)
+
+- **Size guide info sections ADDED** -- 15 brand-specific size charts + "How to Measure" on all clothing products
+- **CK-2 RESOLVED** -- No size guide was HIGH severity issue; now all apparel has brand-specific sizing info
+- **15 brands identified** -- Bella+Canvas, Next Level, Gildan, Sport-Tek, District, Stanley/Stella, Allmade, North Face, Adidas, Port & Company, Port Authority, Columbia, New Era, TriDri, Mercer+Mettle, Devon & Jones
+- **Verified via API** -- Multiple sample products confirmed across different brands
 
 ### Documentation Created (Phase 2)
 
@@ -147,6 +156,6 @@ From Plan 03-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 04-01-PLAN.md (checkout policies configured via API + Playwright verified). Phase 4 in progress (1/3 plans).
-Resume file: .planning/phases/04-checkout-conversion/04-01-SUMMARY.md
-Next: 04-02-PLAN.md (trust signals, urgency elements, and recovery mechanisms)
+Stopped at: Completed 04-02-PLAN.md (brand-specific size guides added to all clothing products via API). Phase 4 in progress (2/3 plans).
+Resume file: .planning/phases/04-checkout-conversion/04-02-SUMMARY.md
+Next: 04-03-PLAN.md (shipping, payment, and post-purchase experience)
