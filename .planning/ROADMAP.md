@@ -48,8 +48,10 @@ Plans:
 
 Plans:
 - [x] 02-01: Restructure product categories and navigation hierarchy
-- [ ] 02-02: Implement filtering and search improvements
-- [ ] 02-03: Improve product pages — layout, descriptions, cross-selling
+- [x] 02-02: Implement filtering and search improvements
+- [x] 02-03: Improve product pages — layout, descriptions, cross-selling
+- [ ] 02-04: Add search functionality and product filtering/sorting
+- [ ] 02-05: Add related products / cross-selling and standardize gallery layouts
 
 ### Phase 3: Mobile Experience Optimization
 **Goal**: Mobile visitors (50% of traffic) get a smooth, conversion-friendly shopping experience
@@ -148,7 +150,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Site Audit & Discovery | 3/3 | Complete | 2026-01-29 |
-| 2. Navigation & Product Discovery | 2/3 | In progress | - |
+| 2. Navigation & Product Discovery | 3/5 | In progress | - |
 | 3. Mobile Experience Optimization | 0/3 | Not started | - |
 | 4. Checkout & Conversion Optimization | 0/3 | Not started | - |
 | 5. SanMar API Foundation | 0/3 | Not started | - |
