@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 4 Complete -- Checkout & Conversion Optimization (3/3 plans complete). Ready for Phase 5.
+**Current focus:** Phase 5 In Progress -- SanMar API Foundation (1/5 plans complete).
 
 ## Current Position
 
-Phase: 4 of 10 (Checkout & Conversion Optimization)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-01-30 -- Completed 04-03-PLAN.md
+Phase: 5 of 10 (SanMar API Foundation)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-01-30 -- Completed 05-01-PLAN.md
 
-Progress: █████░░░░░ ~50%
+Progress: █████░░░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: ~1 session
-- Total execution time: 14 sessions
+- Total execution time: 15 sessions
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: █████░░░░░ ~50%
 | 2. Navigation | 5/5 | 5 sessions | 1 session |
 | 3. Mobile | 3/3 | 3 sessions | 1 session |
 | 4. Checkout | 3/3 | 3 sessions | 1 session |
+| 5. SanMar API | 1/5 | 1 session | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 03-02, 03-03, 04-01, 04-02, 04-03
+- Last 5 plans: 03-03, 04-01, 04-02, 04-03, 05-01
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -68,6 +69,11 @@ Recent decisions affecting current work:
 - Abandoned cart recovery emails identified as #1 ROI conversion optimization (0 abandoned checkouts recorded)
 - CK-3 variant image switching requires both media upload AND WIX Editor gallery-to-variant linking
 - 7 remaining manual checkout/conversion fixes documented in CHECKOUT-CONVERSION-GUIDE.md
+- ESM module system (type: module) for SanMar API client project
+- NodeNext module resolution with .js extensions in TypeScript imports
+- Interface over type alias for all API response shapes (extensibility)
+- Separate auth objects for SanMar Standard vs PromoStandards API families
+- Preserved SanMar API typo "errorOccured" in types to match actual responses
 
 ### Key Findings (Phase 1)
 
@@ -173,6 +179,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 04-03-PLAN.md (checkout flow audit + conversion guide). Phase 4 complete (3/3 plans).
-Resume file: .planning/phases/04-checkout-conversion/04-03-SUMMARY.md
-Next: Phase 5 -- SanMar API Foundation (requires API credentials)
+Stopped at: Completed 05-01-PLAN.md (project setup, types, constants, auth module). Phase 5 in progress (1/5 plans).
+Resume file: .planning/phases/05-sanmar-api-foundation/05-01-SUMMARY.md
+Next: 05-02 -- SOAP client factory and error handling utilities
