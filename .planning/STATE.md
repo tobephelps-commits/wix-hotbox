@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 5 In Progress -- SanMar API Foundation (4/5 plans complete).
+**Current focus:** Phase 5 COMPLETE -- SanMar API Foundation. Ready for Phase 6.
 
 ## Current Position
 
-Phase: 5 of 10 (SanMar API Foundation)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-01-30 -- Completed 05-04-PLAN.md
+Phase: 5 of 10 (SanMar API Foundation) -- COMPLETE
+Plan: 5 of 5 in current phase -- COMPLETE
+Status: Phase complete
+Last activity: 2026-01-30 -- Completed 05-05-PLAN.md (public API export, demo, bug fixes)
 
 Progress: ██████░░░░ 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: ~1 session
-- Total execution time: 18 sessions
+- Total execution time: 19 sessions
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: ██████░░░░ 60%
 | 2. Navigation | 5/5 | 5 sessions | 1 session |
 | 3. Mobile | 3/3 | 3 sessions | 1 session |
 | 4. Checkout | 3/3 | 3 sessions | 1 session |
-| 5. SanMar API | 4/5 | 4 sessions | 1 session |
+| 5. SanMar API | 5/5 | 5 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 04-03, 05-01, 05-02, 05-03, 05-04
+- Last 5 plans: 05-01, 05-02, 05-03, 05-04, 05-05
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -86,6 +86,14 @@ Recent decisions affecting current work:
 - Batch inventory chunks at 200 partIds sequentially (not parallel) for SanMar server load
 - Inventory cap 1500 treated as "well stocked" indicator (actual qty is higher)
 - Dozen pricing completely ignored per deprecation notice
+- Pricing WSDL arg0 is array type -- must wrap query in array unlike product info
+- Pricing response has fields directly in listResponse items (not nested under productPriceInfo)
+- Media WSDL has namespace collisions -- XML fallback parser extracts data from raw SOAP response
+- Media method is getMediaContent (lowercase g), not GetMediaContent
+- SanMar Standard inventory requires specific color+size -- switched to PromoStandards getInventoryLevels for style-level queries
+- errorOccurred (double-r) in pricing/inventory WSDLs vs errorOccured (single-r) in product info WSDL
+- PromoStandards inventory returns actual counts (not capped at 1500) unlike Standard endpoint
+- describeClient() + raw response inspection are essential for discovering actual WSDL method signatures
 
 ### Key Findings (Phase 1)
 
@@ -182,15 +190,15 @@ From Plan 04-03:
 
 ### Blockers/Concerns
 
-- SanMar API credentials not yet provisioned -- Phase 5 blocked until enabled (contact sanmarintegrations@sanmar.com)
+- ~~SanMar API credentials not yet provisioned~~ -- RESOLVED: credentials active, all endpoints verified
 - WIX page content editing requires WIX Editor -- 32 manual fixes pending for store owner
-- **Recommendation:** Store owner should execute all pending WIX Editor/Dashboard changes before Phase 5
+- **Recommendation:** Store owner should execute all pending WIX Editor/Dashboard changes before Phase 6
 - **Dependency:** MOBILE-NAV-OPTIMIZATION.md requires NAVIGATION-RESTRUCTURE.md first
 - **Dependency:** MOBILE-PRODUCT-PAGES.md requires GALLERY-STANDARDIZATION.md and MOBILE-NAV-OPTIMIZATION.md first
 
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 05-04-PLAN.md (pricing and inventory services). Phase 5 in progress (4/5 plans).
-Resume file: .planning/phases/05-sanmar-api-foundation/05-04-SUMMARY.md
-Next: 05-05 -- Public API export and integration demo script
+Stopped at: Completed 05-05-PLAN.md (public API export, demo, bug fixes). Phase 5 COMPLETE.
+Resume file: .planning/phases/05-sanmar-api-foundation/05-05-SUMMARY.md
+Next: Phase 6 -- Product Creation Pipeline (SanMar style number -> WIX product draft)
