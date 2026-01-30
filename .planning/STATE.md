@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 3 In Progress -- Mobile Experience Optimization (1/3 plans complete)
+**Current focus:** Phase 3 In Progress -- Mobile Experience Optimization (2/3 plans complete)
 
 ## Current Position
 
 Phase: 3 of 10 (Mobile Experience Optimization)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Plan complete
-Last activity: 2026-01-30 -- Completed 03-01-PLAN.md
+Last activity: 2026-01-30 -- Completed 03-02-PLAN.md
 
-Progress: ██████░░░░ ~32%
+Progress: ██████░░░░ ~35%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: ~1 session
-- Total execution time: 9 sessions
+- Total execution time: 10 sessions
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: ██████░░░░ ~32%
 |-------|-------|-------|----------|
 | 1. Site Audit | 3/3 | 3 sessions | 1 session |
 | 2. Navigation | 5/5 | 5 sessions | 1 session |
-| 3. Mobile | 1/3 | 1 session | 1 session |
+| 3. Mobile | 2/3 | 2 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 02-02, 02-03, 02-04, 02-05, 03-01
+- Last 5 plans: 02-03, 02-04, 02-05, 03-01, 03-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -78,6 +78,16 @@ Recent decisions affecting current work:
 - **WIX has 7 media queries** with breakpoints at 749px/750px but nav does not participate in responsive behavior
 - **Product galleries** render at 980px fixed width on mobile -- only 1/43 items partially visible
 
+### Key Findings (Phase 3, Plan 03-02)
+
+- **ALL product content off-screen on mobile** -- Product info column at x=350 (nearly invisible at 375px viewport)
+- **Add to Cart doubly inaccessible** -- y=1447-1540 (2 screens down) AND x=350 (off-screen horizontally); only ~25px of 280px button visible
+- **Color swatches 32x32px** on all products -- 27% below 44px WCAG 2.1 minimum
+- **32-color Fun Shirts** -- Densely packed swatches in 280px container, completely unusable on mobile
+- **Board 30 is the only functional mobile collection page** -- Only page with Add to Cart buttons in gallery
+- **PT-1 root cause identified** -- Lazy-loading failure caused by elements positioned at desktop coordinates beyond mobile viewport (intersection observer never triggers)
+- **Side-by-side product layout does not reflow** -- WIX product page template uses two-column desktop layout that does not switch to stacked vertical on mobile
+
 ### Key Fixes Applied (Phase 2, Plan 02-01)
 
 - **Chat widget REMOVED** -- Uninstalled Wix Inbox app; product interaction now unblocked
@@ -98,6 +108,7 @@ Recent decisions affecting current work:
 ### Documentation Created (Phase 3)
 
 - **MOBILE-NAV-OPTIMIZATION.md** (03-01) -- Manual instructions for mobile menu, touch targets, header layout, and responsive navigation
+- **MOBILE-PRODUCT-PAGES.md** (03-02) -- Manual instructions for mobile product gallery layout, product detail page optimization, swatch sizing, and image loading
 
 ### Manual Fixes Pending (Require WIX Editor)
 
@@ -133,15 +144,21 @@ From Plan 03-01:
 19. Configure mobile header layout with proper touch targets (see MOBILE-NAV-OPTIMIZATION.md)
 20. Test and verify responsive behavior at 375px, 768px, and 1024px (see MOBILE-NAV-OPTIMIZATION.md)
 
+From Plan 03-02:
+21. Configure mobile product gallery layout (1-2 columns, full width) on all collection pages (see MOBILE-PRODUCT-PAGES.md)
+22. Optimize product detail page for mobile (stacked layout, ATC repositioning, swatch sizing) (see MOBILE-PRODUCT-PAGES.md)
+23. Verify product image lazy-loading works after mobile layout fixes (see MOBILE-PRODUCT-PAGES.md)
+
 ### Blockers/Concerns
 
 - SanMar API credentials not yet provisioned -- Phase 5 blocked until enabled (contact sanmarintegrations@sanmar.com)
-- WIX page content editing requires WIX Editor -- 20 manual fixes pending for store owner
+- WIX page content editing requires WIX Editor -- 23 manual fixes pending for store owner
 - **Recommendation:** Store owner should execute all pending WIX Editor changes before continuing Phase 3 (mobile experience should be tested against the new navigation structure and gallery layouts)
 - **Dependency:** MOBILE-NAV-OPTIMIZATION.md requires NAVIGATION-RESTRUCTURE.md to be completed first
+- **Dependency:** MOBILE-PRODUCT-PAGES.md requires GALLERY-STANDARDIZATION.md and MOBILE-NAV-OPTIMIZATION.md to be completed first
 
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 03-01-PLAN.md (mobile navigation audit & documentation). Phase 3 in progress (1/3 plans).
-Resume file: .planning/phases/03-mobile-optimization/03-01-SUMMARY.md
+Stopped at: Completed 03-02-PLAN.md (mobile product page audit & documentation). Phase 3 in progress (2/3 plans).
+Resume file: .planning/phases/03-mobile-optimization/03-02-SUMMARY.md
