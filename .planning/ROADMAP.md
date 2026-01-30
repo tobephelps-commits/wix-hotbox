@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Site Audit & Discovery** - Audit current WIX store structure, navigation, products, and UX via MCP
 - [x] **Phase 2: Navigation & Product Discovery** - Improve filtering, categorization, search, and information architecture
 - [x] **Phase 3: Mobile Experience Optimization** - Optimize layouts, touch targets, and flows for 50% mobile traffic
-- [ ] **Phase 4: Checkout & Conversion Optimization** - Reduce cart abandonment and streamline checkout flow
+- [x] **Phase 4: Checkout & Conversion Optimization** - Reduce cart abandonment and streamline checkout flow
 - [ ] **Phase 5: SanMar API Foundation** - Build SanMar API client for product data, pricing, and inventory queries
 - [ ] **Phase 6: Product Creation Pipeline** - SanMar style number → configured WIX product draft with variants and images
 - [ ] **Phase 7: Pricing & Variant Logic** - Variable pricing rules by product type + per-product variant curation
@@ -73,7 +73,7 @@ Plans:
 Plans:
 - [x] 04-01: Configure checkout policies (terms, privacy, return, contact, shipping)
 - [x] 04-02: Add brand-specific size guide info sections to all products
-- [ ] 04-03: Configure shipping, payment, and post-purchase experience
+- [x] 04-03: Configure shipping, payment, and post-purchase experience
 
 ### Phase 5: SanMar API Foundation
 **Goal**: Working SanMar API client that can query product data, pricing, and inventory
@@ -152,7 +152,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 1. Site Audit & Discovery | 3/3 | Complete | 2026-01-29 |
 | 2. Navigation & Product Discovery | 5/5 | Complete | 2026-01-30 |
 | 3. Mobile Experience Optimization | 3/3 | Complete | 2026-01-30 |
-| 4. Checkout & Conversion Optimization | 2/3 | In progress | - |
+| 4. Checkout & Conversion Optimization | 3/3 | Complete | 2026-01-30 |
 | 5. SanMar API Foundation | 0/3 | Not started | - |
 | 6. Product Creation Pipeline | 0/3 | Not started | - |
 | 7. Pricing & Variant Logic | 0/2 | Not started | - |

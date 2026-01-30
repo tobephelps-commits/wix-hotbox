@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 4 In Progress -- Checkout & Conversion Optimization (2/3 plans complete).
+**Current focus:** Phase 4 Complete -- Checkout & Conversion Optimization (3/3 plans complete). Ready for Phase 5.
 
 ## Current Position
 
 Phase: 4 of 10 (Checkout & Conversion Optimization)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-01-30 -- Completed 04-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-30 -- Completed 04-03-PLAN.md
 
-Progress: ████░░░░░░ ~46%
+Progress: █████░░░░░ ~50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: ~1 session
-- Total execution time: 13 sessions
+- Total execution time: 14 sessions
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: ████░░░░░░ ~46%
 | 1. Site Audit | 3/3 | 3 sessions | 1 session |
 | 2. Navigation | 5/5 | 5 sessions | 1 session |
 | 3. Mobile | 3/3 | 3 sessions | 1 session |
-| 4. Checkout | 2/3 | 2 sessions | 1 session |
+| 4. Checkout | 3/3 | 3 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 03-01, 03-02, 03-03, 04-01, 04-02
+- Last 5 plans: 03-02, 03-03, 04-01, 04-02, 04-03
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -65,6 +65,9 @@ Recent decisions affecting current work:
 - Checkout policies are live immediately via API -- no WIX Editor needed
 - V1 additionalInfoSections used for size guides (site is Catalog V1, not V3)
 - Non-apparel products excluded from size guides (Graphics, LMNT, accessories)
+- Abandoned cart recovery emails identified as #1 ROI conversion optimization (0 abandoned checkouts recorded)
+- CK-3 variant image switching requires both media upload AND WIX Editor gallery-to-variant linking
+- 7 remaining manual checkout/conversion fixes documented in CHECKOUT-CONVERSION-GUIDE.md
 
 ### Key Findings (Phase 1)
 
@@ -126,6 +129,11 @@ Recent decisions affecting current work:
 - **MOBILE-CHECKOUT-FLOW.md** (03-03) -- Mobile cart/checkout audit and WIX Editor instructions
 - **MOBILE-OPTIMIZATION-MASTER.md** (03-03) -- Consolidated master guide with all Phase 3 fixes prioritized
 
+### Documentation Created (Phase 4)
+
+- **CHECKOUT-POLICIES-LOG.md** (04-01) -- Full API change log for checkout policy configuration
+- **CHECKOUT-CONVERSION-GUIDE.md** (04-03) -- All remaining checkout/conversion optimizations (7 manual fixes)
+
 ### Manual Fixes Pending (Require WIX Editor)
 
 From Phase 2 (Plans 02-01 through 02-05): 17 fixes
@@ -145,17 +153,26 @@ From Plan 03-03:
 24. Configure side cart as primary mobile cart experience (see MOBILE-CHECKOUT-FLOW.md)
 25. Verify Sezzle BNPL widget visibility on mobile checkout (see MOBILE-CHECKOUT-FLOW.md)
 
+From Plan 04-03:
+26. Enable abandoned cart recovery emails (see CHECKOUT-CONVERSION-GUIDE.md)
+27. CK-3: Configure variant image switching -- upload color-specific mockups + enable gallery-variant linking (see CHECKOUT-CONVERSION-GUIDE.md)
+28. Customize order confirmation and shipping notification emails (see CHECKOUT-CONVERSION-GUIDE.md)
+29. Review shipping settings and consider free shipping threshold (see CHECKOUT-CONVERSION-GUIDE.md)
+30. Add trust signals to product pages (see CHECKOUT-CONVERSION-GUIDE.md)
+31. Add cart page upsell/cross-sell suggestions (see CHECKOUT-CONVERSION-GUIDE.md)
+32. Configure free shipping threshold messaging (see CHECKOUT-CONVERSION-GUIDE.md)
+
 ### Blockers/Concerns
 
 - SanMar API credentials not yet provisioned -- Phase 5 blocked until enabled (contact sanmarintegrations@sanmar.com)
-- WIX page content editing requires WIX Editor -- 25 manual fixes pending for store owner
-- **Recommendation:** Store owner should execute all pending WIX Editor changes before Phase 4
+- WIX page content editing requires WIX Editor -- 32 manual fixes pending for store owner
+- **Recommendation:** Store owner should execute all pending WIX Editor/Dashboard changes before Phase 5
 - **Dependency:** MOBILE-NAV-OPTIMIZATION.md requires NAVIGATION-RESTRUCTURE.md first
 - **Dependency:** MOBILE-PRODUCT-PAGES.md requires GALLERY-STANDARDIZATION.md and MOBILE-NAV-OPTIMIZATION.md first
 
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 04-02-PLAN.md (brand-specific size guides added to all clothing products via API). Phase 4 in progress (2/3 plans).
-Resume file: .planning/phases/04-checkout-conversion/04-02-SUMMARY.md
-Next: 04-03-PLAN.md (shipping, payment, and post-purchase experience)
+Stopped at: Completed 04-03-PLAN.md (checkout flow audit + conversion guide). Phase 4 complete (3/3 plans).
+Resume file: .planning/phases/04-checkout-conversion/04-03-SUMMARY.md
+Next: Phase 5 -- SanMar API Foundation (requires API credentials)
