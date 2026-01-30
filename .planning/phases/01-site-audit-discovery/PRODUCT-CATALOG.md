@@ -419,17 +419,118 @@ The PreOrder version has an additional "Silicone Logo Color" option (black/red) 
 
 ---
 
-## Product Page UX (from API Data Perspective)
+## Product Page UX (Browser Inspection)
 
-### Observations Before Browser Inspection
+### Category Page Layouts
 
-Based on API data structure:
-- **No cross-selling data** -- products have no "related products" or "recommended" metadata
-- **No product badges/ribbons** -- all `ribbons: []`, no "New", "Popular", "Sale" badges
-- **No additional info sections** -- all `additionalInfoSections: []`, no size guides, care instructions, or shipping info as structured sections
-- **Custom text fields** -- ~20 products have them, mostly for Graphics placement instructions and optional name embroidery. These require user input before adding to cart.
-- **Product URLs** -- all follow `/product-page/{slug}` format, slugs are manufacturer-style (e.g., `district-women-s-perfect-tri-fleece-1-2-zip-pullover`) rather than customer-friendly
+Each client landing page uses a different layout pattern -- there is no consistency:
+
+| Page | URL | Products | Layout Style | Header | Add to Cart | Filters/Sort |
+|------|-----|----------|-------------|--------|------------|-------------|
+| **Big Barn Crossfit** | `/shop` | 20 clothing + 22 graphics | Product grid + horizontal graphics carousel | "Welcome to the Big Barn Store" heading + CompanyCasuals.com link | No (Quick View only) | **None** |
+| **Board 30** | `/shop-4` | 17 | Product grid with Add to Cart buttons | Board30 logo banner (oversized/cropped) | **Yes** (green button per product) | **None** |
+| **Artistry in Motion** | `/shop-1` | 6 | Product grid | AIM logo (full-width image) | No (Quick View only) | **None** |
+| **UNMH** | `/shop-3` | 15 | Product grid | **WRONG heading: "Fall Pre-Order"** (should be UNMH) + wildflower image | No (Quick View only) | **None** |
+| **Fall PreOrder** | `/shop-2` | 2 | Product grid | "Winter 2026 Pre-order" heading + **typo: "March 1st 20256"** | No (Quick View only) | **None** |
+| **Fun Shirts** | `/fun-shirts` | 13 | Product grid (no header) | None | No (Quick View only) | **None** |
+| **Homepage** | `/blank` | ~15 (carousel) | Horizontal product slider + custom team promo + contact form | HotBox logo + "Box Friendly Clothing" tagline | No (Quick View only) | **None** |
+
+**Critical layout issues:**
+1. **No filters or sorting on any page** -- customers cannot filter by size, color, price, or garment type
+2. **No search functionality** on any product listing page
+3. **Only Board 30 has "Add to Cart" buttons** on the gallery -- all other pages require clicking into product detail first
+4. **Inconsistent header treatments** -- some have logo images, some have text headings, Fun Shirts has no header at all
+
+### Product Gallery Rendering Issue
+
+**All pages suffer from severe lazy-loading problems in full-page view:**
+- Product images fail to render below the fold, leaving enormous white space
+- The Big Barn page shows only 2 product images out of 20 in a full-page screenshot
+- Board 30 shows only 3 out of 17
+- Artistry in Motion shows only the logo banner with products invisible
+- This makes the store look broken or empty on first impression
+
+### Product Detail Page Analysis
+
+Inspected 6 representative product detail pages:
+
+| Product | Page | Images | Options | Description | SKU | Sezzle | Social |
+|---------|------|--------|---------|-------------|-----|--------|--------|
+| BELLA+CANVAS Triblend Tee | Big Barn | 6 (carousel) | Color (4 radio), Size (dropdown), Screen Print Logo (dropdown) | Bullet-point specs | No | Yes ($4.25 x4) | FB, Pin, WA, X |
+| Sport-Tek Women's Short | Board 30 | 1 | Color (4 radio), Size (dropdown) | "3x3 B logo on right leg" + specs | LST485 | Not visible | FB, Pin, WA, X |
+| Lifting Chakras | Fun Shirt | 3 (carousel) | Size (dropdown), Color (**32** radio buttons) | One-liner | No | Not visible | FB, Pin, WA, X |
+| 18oz Yeti Hotshot Rambler | UNMH | 4 (carousel) | Color (2 radio), Engraved Logo (dropdown), **Optional Name (text, 20 char)** | Detailed bullet specs | No | Not visible | FB, Pin, WA, X |
+| Big Barn Team Hat | Big Barn | **Placeholder only** | **None** | **Empty** | No | Not visible | FB, Pin, WA, X |
+| LMNT Drink Mix | LMNT | **404 ERROR** | N/A | N/A | N/A | N/A | N/A |
+
+### Product Detail Page UX Issues
+
+1. **"Let's Chat!" widget blocks product interaction** -- The Wix chat popover intercepts clicks on color swatches and other options. Users must close or scroll past it to select options. This is a conversion killer.
+
+2. **No related/recommended products** -- Every product page ends with social sharing icons and then the footer. Zero cross-selling. No "You might also like" or "Customers also bought" sections.
+
+3. **No size guide** -- Customers see size dropdowns (S, M, L, XL...) but have no size chart or fit guide. For a clothing store selling multiple brands with different fits, this is a major gap.
+
+4. **No breadcrumb consistency** -- The breadcrumb on BELLA+CANVAS Triblend Tee shows "Home / Fall PreOrder / ..." even though this product is primarily a Big Barn item. WIX appears to pick the first collection alphabetically or by ID.
+
+5. **32 color radio buttons on Fun Shirts** -- Lifting Chakras shows 32 color swatches in a massive grid. This is the full Gildan 8000 color palette. On mobile this would be extremely difficult to navigate. Most of these colors will never be ordered.
+
+6. **Color swatch with typo** -- "Jade Done" should be "Jade Dome" on Fun Shirt color options.
+
+7. **Sezzle buy-now-pay-later** -- Only visible on some products ($4.25 x4 payments shown for the $17 Triblend Tee). It appears to load asynchronously and may not appear consistently.
+
+8. **Image quality varies wildly** -- From professional model photography (Stanley/Stella, North Face) to placeholder images (Big Barn Team Hat with blank default).
+
+9. **Variant selection does not update product image** -- Selecting a different color (e.g., Orchid) does not change the product photo. Customer cannot preview their color choice.
+
+### Broken Product Pages
+
+**Both LMNT products return 404 "This product couldn't be found":**
+- `/product-page/element-electrolyte-drink-mix-sample-pack` -- 404
+- `/product-page/lmnt-zero-sugar-electrolytes-30-count-citrus-salt` -- 404
+
+These products exist in the WIX API catalog but their product pages are broken. The "Continue Shopping" link on the 404 page incorrectly points to `/blank` (the homepage slug).
+
+Additionally, the Fall PreOrder page had a **Firebase error** in the console: `ErrorOnConnectToRealtime FirebaseError: Firebase: A network AuthError (such as timeout, interrupted connection)...`
+
+### Client-Product Mapping (Live Browser)
+
+| Page (URL) | Product Count (Live) | Matches API? | Notes |
+|------------|---------------------|-------------|-------|
+| Big Barn (`/shop`) | 20 clothing + 22 graphics | Yes | Graphics in separate horizontal carousel section |
+| Board 30 (`/shop-4`) | 17 | Yes | All fitness apparel, all with Add to Cart buttons |
+| UNMH (`/shop-3`) | 15 | Yes | Wrong heading "Fall Pre-Order", mixed professional + casual |
+| AIM (`/shop-1`) | 6 | Yes | All $30-$50, consistent presentation |
+| Fun Shirts (`/fun-shirts`) | 13 | ~Yes | API showed 14, browser shows 13 (1 may be hidden or miscounted) |
+| Fall PreOrder (`/shop-2`) | 2 | Yes | Stanley/Stella items only, typo "20256" confirmed |
+| Homepage (`/blank`) | ~15 (carousel) | N/A | Subset of products in horizontal slider |
+| LMNT (in More > Shop) | 0 (broken) | **No** | Products exist in API but pages are 404 |
+
+### Console Errors Summary
+
+| Page | Errors | Warnings |
+|------|--------|----------|
+| All pages | None critical | "Unrecognized feature: 'vr'" (VR permission policy, harmless) |
+| Fall PreOrder | Firebase AuthError | Connection timeout on Firebase realtime |
+| LMNT product pages | **404 resource not found** | Standard VR warning |
+| All pages | None | @firebase/app-compat re-definition warning (duplicate Firebase init) |
 
 ---
 
-*API data extraction complete. 105 products cataloged across 10 collections. Browser inspection (Task 2) will add visual evidence, product page UX assessment, and client-product mapping from live site.*
+## Screenshots Index
+
+All screenshots captured via Playwright browser automation:
+
+| # | File | Page | Key Observations |
+|---|------|------|-----------------|
+| 1 | `shop-bigbarn-page.png` | Big Barn (`/shop`) | Only 2/20 product images rendered, massive whitespace, graphics carousel at bottom |
+| 2 | `shop-board30-page.png` | Board 30 (`/shop-4`) | Only 3/17 images rendered, oversized cropped logo banner, green Add to Cart buttons |
+| 3 | `shop-aim-page.png` | Artistry in Motion (`/shop-1`) | Only logo visible, zero products rendered in screenshot |
+| 4 | `product-detail-triblend-tee.png` | Product Detail | Breadcrumb shows wrong collection, product image top half visible |
+| 5 | `product-detail-options-area.png` | Product Detail (scrolled) | Size/Logo dropdowns empty, Quantity control, Add to Cart button |
+
+Screenshots saved to Playwright output directory (`/tmp/playwright-output/`).
+
+---
+
+*Product catalog audit complete. 105 products cataloged across 10 collections via API. 6 category pages and 6 product detail pages inspected via browser. 2 broken product pages (LMNT) identified. Zero filtering, sorting, or search capability on any page.*
