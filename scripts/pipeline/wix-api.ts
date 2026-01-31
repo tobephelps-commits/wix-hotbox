@@ -80,6 +80,13 @@ export interface WixProduct {
   [key: string]: unknown;
 }
 
+/** WIX collection returned from API */
+export interface WixCollection {
+  id: string;
+  name: string;
+  [key: string]: unknown;
+}
+
 // =============================================================================
 // Internal Helpers
 // =============================================================================
@@ -399,4 +406,125 @@ export async function listAllProducts(): Promise<WixProduct[]> {
   const products = await queryProducts();
   console.log(`[WIX API] Found ${products.length} total products.`);
   return products;
+}
+
+// =============================================================================
+// Collection Functions (Phase 12: Multi-Collection Product Routing)
+// =============================================================================
+
+/**
+ * List all collections in the WIX store.
+ *
+ * POST /stores/v1/collections/query
+ *
+ * Paginates through all collections using the same query pattern as queryProducts.
+ *
+ * @returns Array of all collections with id and name
+ */
+export async function listCollections(): Promise<WixCollection[]> {
+  const endpoint = `${WIX_API_BASE}/collections/query`;
+  const pageSize = 100;
+  const allCollections: WixCollection[] = [];
+  let offset = 0;
+
+  console.log('[WIX API] Listing all collections...');
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const body = {
+      query: {
+        paging: { limit: pageSize, offset },
+      },
+    };
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      await handleErrorResponse(response, endpoint, 'listCollections');
+    }
+
+    const data = await response.json() as {
+      collections: WixCollection[];
+      totalResults: number;
+    };
+
+    allCollections.push(...data.collections);
+
+    // Check if there are more pages
+    if (allCollections.length >= data.totalResults || data.collections.length < pageSize) {
+      break;
+    }
+
+    offset += pageSize;
+  }
+
+  console.log(`[WIX API] Found ${allCollections.length} collections.`);
+  return allCollections;
+}
+
+/**
+ * Get a collection by name (case-insensitive match).
+ *
+ * Queries all collections and finds one matching the given name.
+ * Throws a descriptive error listing available collections if not found.
+ *
+ * @param name - Collection name to search for (case-insensitive)
+ * @returns The matching WixCollection
+ */
+export async function getCollectionByName(name: string): Promise<WixCollection> {
+  const collections = await listCollections();
+  const match = collections.find(
+    (c) => c.name.toLowerCase() === name.toLowerCase(),
+  );
+
+  if (!match) {
+    const available = collections.map((c) => `  - "${c.name}" (${c.id})`).join('\n');
+    throw new Error(
+      `Collection "${name}" not found.\n` +
+      `Available collections:\n${available}`,
+    );
+  }
+
+  return match;
+}
+
+// =============================================================================
+// CLI Runner (Phase 12)
+// =============================================================================
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+import { writeFileSync } from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  const command = process.argv[2];
+
+  if (command === '--list-collections') {
+    try {
+      const collections = await listCollections();
+      console.log(`\nFound ${collections.length} collections:\n`);
+      for (const col of collections) {
+        console.log(`  ${col.name} -> ${col.id}`);
+      }
+
+      // Write to data/collections.json
+      const outPath = path.resolve(path.dirname(__filename), '../../data/collections.json');
+      const output = {
+        collections: collections.map((c) => ({ id: c.id, name: c.name })),
+        lastUpdated: new Date().toISOString(),
+      };
+      writeFileSync(outPath, JSON.stringify(output, null, 2) + '\n');
+      console.log(`\nWritten to ${outPath}`);
+    } catch (err) {
+      console.error('Error:', err instanceof Error ? err.message : String(err));
+      process.exit(1);
+    }
+  } else {
+    console.log('Usage: npx tsx scripts/pipeline/wix-api.ts --list-collections');
+  }
 }
