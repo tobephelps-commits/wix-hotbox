@@ -20,6 +20,7 @@ export type {
   ProductPreview,
   ColorPreview,
   PricingPreview,
+  ProductTemplate,
 } from './types.js';
 
 // Mapper functions
@@ -60,3 +61,12 @@ export type {
   WixProductPageUrl,
   WixCollection,
 } from './wix-api.js';
+
+// Template system
+export {
+  loadTemplates,
+  saveTemplate,
+  getTemplate,
+  deleteTemplate,
+  listTemplates,
+} from './templates.js';

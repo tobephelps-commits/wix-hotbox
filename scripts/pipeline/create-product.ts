@@ -34,6 +34,7 @@ import {
   getCollectionByName,
 } from './wix-api.js';
 import { calculateRetailPrice, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
+import { listTemplates } from './templates.js';
 
 // =============================================================================
 // Types
@@ -211,6 +212,32 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.log('Available pricing presets:');
     for (const [key, preset] of Object.entries(PRICING_PRESETS)) {
       console.log(`  ${key.padEnd(18)} ${preset.name} (${preset.config.markupPercent}% markup) - ${preset.description}`);
+    }
+    process.exit(0);
+  }
+
+  // --list-templates: print all saved product templates and exit (no style needed)
+  if (process.argv.includes('--list-templates')) {
+    const templates = await listTemplates();
+    if (templates.length === 0) {
+      console.log('Saved templates:');
+      console.log('  (none saved)');
+    } else {
+      console.log('Saved templates:');
+      for (const t of templates) {
+        const presetInfo = t.pricingPreset
+          ? `Preset: ${t.pricingPreset}`
+          : t.pricingConfig
+          ? `Custom: ${t.pricingConfig.markupPercent}%`
+          : 'No pricing';
+        const sizesInfo = t.selectedSizes
+          ? `Sizes: ${t.selectedSizes.join(',')}`
+          : 'All sizes';
+        const collectionsInfo = t.collections && t.collections.length > 0
+          ? `Collections: ${t.collections.join(', ')}`
+          : 'No collections';
+        console.log(`  ${t.name.padEnd(20)} ${presetInfo} | ${sizesInfo} | ${collectionsInfo}`);
+      }
     }
     process.exit(0);
   }
