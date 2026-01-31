@@ -161,21 +161,101 @@ async function checkSanMarDataFetch(style?: string): Promise<ProductData | null>
     record('PASS', `Pricing data: wholesale $${wholesale.toFixed(2)}, retail $${retail.toFixed(2)}`);
 
     // Inventory
-    const inStockSkus = data.inventory.filter((i) => {
-      // Each SkuInventory item has locations with quantities
-      return true; // Just count total items
-    });
     record('PASS', `Inventory data: ${data.inventory.length} SKUs returned`);
 
     // Media
     const imageCount = data.images.length;
     record('PASS', `Media data: ${imageCount} images across ${colorCount} colors`);
 
+    // Data quality warnings (step 3 extension)
+    checkDataQuality(data);
+
     return data;
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     record('FAIL', `SanMar data fetch failed for style '${style}': ${message}`);
     return null;
+  }
+}
+
+// =============================================================================
+// 3a. Data Quality Warnings (extension of step 3)
+// =============================================================================
+
+/** Front-view image classTypeId from SanMar PromoStandards */
+const CLASS_TYPE_FRONT = 1007;
+
+/** Common/standard apparel sizes for gap detection */
+const COMMON_SIZES = ['S', 'M', 'L', 'XL'];
+
+function checkDataQuality(data: ProductData): void {
+  console.log('\n   Data Quality Checks:');
+
+  const colors = data.preview.availableColors;
+  const totalColors = colors.length;
+
+  // 1. Missing front images
+  const colorsWithoutFront = colors.filter((c) => !c.frontImageUrl);
+  if (colorsWithoutFront.length > 0) {
+    const pct = Math.round((colorsWithoutFront.length / totalColors) * 100);
+    if (pct > 20) {
+      record('WARN', `${colorsWithoutFront.length}/${totalColors} colors have no front image -- these will appear without product photos in WIX`);
+    } else {
+      record('INFO', `${colorsWithoutFront.length}/${totalColors} colors missing front image (${pct}%)`);
+    }
+  }
+
+  // 2. Zero inventory colors (all sizes out of stock for a color)
+  const colorInventoryMap = new Map<string, number>();
+  for (const sku of data.inventory) {
+    const totalQty = sku.whse.reduce((sum, w) => sum + w.qty, 0);
+    colorInventoryMap.set(
+      sku.color,
+      (colorInventoryMap.get(sku.color) ?? 0) + totalQty,
+    );
+  }
+  const zeroStockColors: string[] = [];
+  for (const [color, qty] of colorInventoryMap) {
+    if (qty === 0) {
+      zeroStockColors.push(color);
+    }
+  }
+  if (zeroStockColors.length > 0) {
+    const list = zeroStockColors.length <= 5
+      ? zeroStockColors.join(', ')
+      : zeroStockColors.slice(0, 5).join(', ') + ` (+${zeroStockColors.length - 5} more)`;
+    record('INFO', `${zeroStockColors.length} colors are completely out of stock: ${list}`);
+  }
+
+  // 3. Weight missing
+  const zeroWeightCount = data.products.filter(
+    (p) => !p.productBasicInfo.pieceWeight || p.productBasicInfo.pieceWeight === 0,
+  ).length;
+  if (zeroWeightCount > 0) {
+    record('WARN', `${zeroWeightCount} variants have no weight data -- shipping calculations may be affected`);
+  }
+
+  // 4. Price sanity check
+  const wholesale = data.preview.pricing.wholesalePrice;
+  if (wholesale <= 0) {
+    record('WARN', `Wholesale price is $${wholesale.toFixed(2)} -- pricing calculations will produce $0 retail`);
+  } else if (wholesale > 100) {
+    record('WARN', `Wholesale price is $${wholesale.toFixed(2)} -- verify this is correct (unusually high for SanMar blanks)`);
+  }
+
+  // 5. Description check
+  const description = data.preview.description ?? '';
+  if (description.length < 20) {
+    record('WARN', `Product description is very short (${description.length} chars) -- consider adding a description in WIX after creation`);
+  }
+
+  // 6. Size gaps
+  const availableSizes = data.preview.availableSizes;
+  const missingSizes = COMMON_SIZES.filter(
+    (s) => !availableSizes.some((as) => as.toUpperCase() === s),
+  );
+  if (missingSizes.length > 0 && missingSizes.length < COMMON_SIZES.length) {
+    record('WARN', `Missing common sizes: ${missingSizes.join(', ')} -- this style may only come in limited sizes`);
   }
 }
 
@@ -396,9 +476,6 @@ async function main(): Promise<void> {
 
   // Summary
   const allPassed = printSummary();
-
-  // Data quality warnings are printed as part of step 3 if productData is available
-  // (added in Task 2)
 
   process.exit(allPassed ? 0 : 1);
 }
