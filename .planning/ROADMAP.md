@@ -71,7 +71,8 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 13-01: TBD
+- [x] 13-01: Build template system foundation with CRUD and --preset CLI flag
+- [ ] 13-02: TBD
 
 #### Phase 14: Logo Overlay Engine
 
@@ -167,7 +168,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 10. Integration Polish | v0.1 | 3/3 | Complete | 2026-01-31 |
 | 11. Automate WIX Editor Fixes | v0.2 | 4/4 | Complete | 2026-01-31 |
 | 12. Multi-Collection Product Routing | v0.2 | 1/1 | Complete | 2026-01-31 |
-| 13. Template Presets & Pipeline Speed | v0.2 | 0/? | Not started | - |
+| 13. Template Presets & Pipeline Speed | v0.2 | 1/2 | In progress | - |
 | 14. Logo Overlay Engine | v0.2 | 0/? | Not started | - |
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 0/? | Not started | - |
 | 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 0/? | Not started | - |

@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 12 of 20 (Multi-Collection Product Routing)
-Plan: 1 of 1 in current phase
-Status: Phase 12 complete
-Last activity: 2026-01-31 — Completed 12-01-PLAN.md
+Phase: 13 of 20 (Template Presets & Pipeline Speed)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-31 — Completed 13-01-PLAN.md
 
-Progress: ████░░░░░░ 12%
+Progress: ██░░░░░░░░ 25%
 
 ## Performance Metrics
 
@@ -57,6 +57,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 12-01 | Collection names preferred over UUIDs in CLI; UUID fallback supported | Ergonomic CLI usage: `--collection "Big Barn Crossfit"` instead of requiring UUIDs |
 | 12-01 | data/collections.json gitignored as local cache | Regenerated via `--list-collections`; avoids committing live API data |
 | 12-01 | Phase 12 complete — collection routing integrated as pipeline Step 5 | Products assigned to collections during creation; backward compatible |
+| 13-01 | Templates stored in local JSON file (data/templates.json) | Same gitignored pattern as collections.json; local-first CLI tool |
+| 13-01 | Template names normalized to lowercase for case-insensitive matching | Prevents duplicates from case variations |
+| 13-01 | --list-presets and --list-templates exit before style arg required | Early-exit pattern for info-only CLI commands |
 
 ### Blockers/Concerns
 
@@ -71,5 +74,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 12-01-PLAN.md (Phase 12 complete)
+Stopped at: Completed 13-01-PLAN.md (Phase 13, 1/2 plans done)
 Resume file: None
