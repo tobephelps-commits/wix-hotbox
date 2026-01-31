@@ -65,7 +65,7 @@ const DEFAULT_REGISTRY: LogoRegistry = {
     'left-chest': { x: 0.35, y: 0.28 },
     'full-front': { x: 0.5, y: 0.40 },
     'center-back': { x: 0.5, y: 0.30 },
-    'left-sleeve': { x: 0.25, y: 0.25 },
+    'left-sleeve': { x: 0.80, y: 0.32 },
   },
 };
 
