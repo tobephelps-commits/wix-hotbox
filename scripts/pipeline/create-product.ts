@@ -30,6 +30,8 @@ import {
   addProductMedia,
   updateProductVariants,
   getProduct,
+  addProductToCollection,
+  getCollectionByName,
 } from './wix-api.js';
 import { calculateRetailPrice, getPresetConfig } from './pricing-rules.js';
 
@@ -56,6 +58,8 @@ export interface CreationResult {
   status: 'draft';
   /** Warnings from partial failures (empty on full success) */
   warnings: string[];
+  /** Collections this product was added to (empty if none specified) */
+  collectionsAssigned: string[];
 }
 
 // =============================================================================
@@ -147,6 +151,41 @@ export async function createWixProduct(
     console.warn(`  \u2717 ${warning}`);
   }
 
+  // Step 5: Assign to collections (OPTIONAL -- continue on failure per collection)
+  const collectionsAssigned: string[] = [];
+  if (curated.collections && curated.collections.length > 0) {
+    for (const collectionRef of curated.collections) {
+      try {
+        // Determine if it's a UUID or a name to resolve
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f-]+$/i.test(collectionRef) && collectionRef.length >= 36;
+        let collectionId: string;
+        let collectionName: string;
+
+        if (isUuid) {
+          collectionId = collectionRef;
+          collectionName = collectionRef; // UUID used as display name
+        } else {
+          const collection = await getCollectionByName(collectionRef);
+          collectionId = collection.id;
+          collectionName = collection.name;
+        }
+
+        await addProductToCollection(productId, collectionId);
+        collectionsAssigned.push(collectionName);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        const warning = `Collection assignment failed for "${collectionRef}": ${msg}. Product created but needs manual collection assignment.`;
+        warnings.push(warning);
+        console.warn(`  \u2717 ${warning}`);
+      }
+    }
+    if (collectionsAssigned.length > 0) {
+      console.log(
+        `  \u2713 Collections: added to ${collectionsAssigned.length} collections (${collectionsAssigned.join(', ')})`,
+      );
+    }
+  }
+
   console.log(`\nDraft product ready for review:`);
   console.log(`  ${productUrl}`);
 
@@ -157,6 +196,7 @@ export async function createWixProduct(
     mediaAdded: mediaCount,
     status: 'draft',
     warnings,
+    collectionsAssigned,
   };
 }
 
@@ -167,17 +207,36 @@ export async function createWixProduct(
 const __filename = fileURLToPath(import.meta.url);
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const style = process.argv[2];
-  if (!style) {
+  if (!style || style === '--help') {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--price N]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--price N] [--collection "Name" ...]',
     );
-    process.exit(1);
+    console.error('');
+    console.error('Options:');
+    console.error('  --price N              Set retail price (overrides preset pricing)');
+    console.error('  --collection "Name"    Assign to WIX collection (repeatable)');
+    console.error('');
+    console.error('Examples:');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --price 24.99');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --collection "Big Barn Crossfit" --collection "Clothing"');
+    if (!style) process.exit(1);
+    process.exit(0);
   }
 
   // Parse optional --price argument
   const priceArgIdx = process.argv.indexOf('--price');
   const price =
     priceArgIdx !== -1 ? parseFloat(process.argv[priceArgIdx + 1]) : null;
+
+  // Parse optional --collection arguments (repeatable)
+  const collections: string[] = [];
+  for (let i = 2; i < process.argv.length; i++) {
+    if (process.argv[i] === '--collection' && i + 1 < process.argv.length) {
+      collections.push(process.argv[i + 1]);
+      i++; // skip the value
+    }
+  }
 
   try {
     const data = await fetchProductData(style);
@@ -197,6 +256,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         ? { markupPercent: ((price / data.preview.pricing.wholesalePrice) - 1) * 100, rounding: 'none' as const, sizeUpcharges: {} }
         : getPresetConfig('standard-tee'),
       wholesaleCost: data.preview.pricing.wholesalePrice,
+      ...(collections.length > 0 ? { collections } : {}),
     };
 
     const result = await createWixProduct(curated, data);
@@ -205,6 +265,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.log(`  URL: ${result.productUrl}`);
     console.log(`  Variants: ${result.variantsCreated}`);
     console.log(`  Media: ${result.mediaAdded}`);
+    console.log(`  Collections: ${result.collectionsAssigned.length > 0 ? result.collectionsAssigned.join(', ') : '(none)'}`);
     console.log(`  Status: ${result.status}`);
 
     if (result.warnings.length > 0) {

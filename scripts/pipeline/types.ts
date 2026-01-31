@@ -172,6 +172,8 @@ export interface CuratedProduct {
   pricingConfig: PricingConfig;
   /** SanMar effective wholesale cost */
   wholesaleCost: number;
+  /** Target WIX collection names or IDs for this product (optional) */
+  collections?: string[];
 }
 
 /**

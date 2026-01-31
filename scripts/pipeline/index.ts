@@ -47,6 +47,8 @@ export {
   addProductToCollection,
   queryProducts,
   listAllProducts,
+  listCollections,
+  getCollectionByName,
 } from './wix-api.js';
 
 export type {
@@ -56,4 +58,5 @@ export type {
   WixVariantPriceData,
   WixVariantStock,
   WixProductPageUrl,
+  WixCollection,
 } from './wix-api.js';
