@@ -123,7 +123,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: Build inventory polling system with configurable check intervals
+- [x] 08-01: Build inventory polling system with configurable check intervals
 - [ ] 08-02: Implement alert thresholds and low-stock/out-of-stock detection
 
 ### Phase 9: Automated Stock Sync
@@ -162,6 +162,6 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 5. SanMar API Foundation | 5/5 | Complete | 2026-01-30 |
 | 6. Product Creation Pipeline | 5/5 | Complete | 2026-01-30 |
 | 7. Pricing & Variant Logic | 3/3 | Complete | 2026-01-30 |
-| 8. Inventory Monitoring | 0/2 | Not started | - |
+| 8. Inventory Monitoring | 1/2 | In progress | - |
 | 9. Automated Stock Sync | 0/2 | Not started | - |
 | 10. Integration Polish | 0/2 | Not started | - |

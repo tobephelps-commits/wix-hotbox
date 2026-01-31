@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 7 COMPLETE -- Pricing & Variant Logic. All 3 plans done. Ready for Phase 8.
+**Current focus:** Phase 8 IN PROGRESS -- Inventory Monitoring. Plan 01 done, Plan 02 next.
 
 ## Current Position
 
-Phase: 7 of 10 (Pricing & Variant Logic)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-01-30 -- Completed 07-03-PLAN.md (preview UI pricing controls)
+Phase: 8 of 10 (Inventory Monitoring)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-31 -- Completed 08-01-PLAN.md (monitoring foundation)
 
-Progress: █████████░ 84%
+Progress: █████████░ 87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 27
 - Average duration: ~1 session
-- Total execution time: 26 sessions
+- Total execution time: 27 sessions
 
 **By Phase:**
 
@@ -34,9 +34,10 @@ Progress: █████████░ 84%
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 | 6. Product Pipeline | 5/5 | 5 sessions | 1 session |
 | 7. Pricing & Variant | 3/3 | 3 sessions | 1 session |
+| 8. Inventory Monitor | 1/2 | 1 session | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 06-05, 07-01, 07-02, 07-03
+- Last 5 plans: 07-01, 07-02, 07-03, 08-01
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -125,6 +126,9 @@ Recent decisions affecting current work:
 - Color cards sorted in-stock first, then alphabetical by displayColor for curation efficiency
 - Color filter uses CSS display:none toggling (no DOM removal) for performance with 40+ color styles
 - Preview UI preset dropdown auto-populates controls; manual edits switch to "Custom" preset automatically
+- Only latest inventory snapshot persisted per style (overwrite, not append) for simple change detection
+- data/ directory gitignored -- monitor state is runtime data, not source control
+- Style numbers normalized to uppercase on CLI add/remove for SanMar API consistency
 
 ### Key Findings (Phase 1)
 
@@ -229,7 +233,7 @@ From Plan 04-03:
 
 ## Session Continuity
 
-Last session: 2026-01-30
-Stopped at: Completed 07-03-PLAN.md (preview UI pricing controls). Phase 7 complete.
-Resume file: .planning/phases/07-pricing-variant-logic/07-03-SUMMARY.md
-Next: Plan Phase 8 (Inventory Monitoring)
+Last session: 2026-01-31
+Stopped at: Completed 08-01-PLAN.md (monitoring foundation). Phase 8 plan 1 of 2 done.
+Resume file: .planning/phases/08-inventory-monitoring/08-01-SUMMARY.md
+Next: Execute 08-02-PLAN.md (alert thresholds and low-stock detection)
