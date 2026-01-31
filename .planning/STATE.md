@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 14 of 20 (Logo Overlay Engine)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 14-01-PLAN.md
+Last activity: 2026-01-31 — Completed 14-02-PLAN.md
 
-Progress: ████░░░░░░ 35%
+Progress: ████░░░░░░ 37%
 
 ## Performance Metrics
 
@@ -67,6 +67,8 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 14-01 | Proportional coordinates (0.0-1.0) for logo positioning | Works across all image sizes without pixel recalculation |
 | 14-01 | Multiply blend mode default for screen-print effect | Logo appears as if printed on garment fabric |
 | 14-01 | data/logos.json NOT gitignored — project configuration | Unlike collections.json/templates.json which are local caches |
+| 14-02 | Logo overlay precedence: CLI --logo > template logoOverlay > none | Consistent with pricing precedence pattern |
+| 14-02 | Overlaid images saved locally for manual WIX upload | Matches existing workflow: owner replaces SanMar photos with mockups post-creation |
 
 ### Blockers/Concerns
 
@@ -81,5 +83,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 14-01-PLAN.md
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
