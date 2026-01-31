@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 9 IN PROGRESS -- Automated Stock Sync. Plan 01 complete, Plan 02 next.
+**Current focus:** Phase 9 COMPLETE -- Automated Stock Sync. Phase 10 next.
 
 ## Current Position
 
 Phase: 9 of 10 (Automated Stock Sync)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-31 -- Completed 09-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-01-31 -- Completed 09-02-PLAN.md
 
-Progress: █████████░ 91%
+Progress: █████████░ 94%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30
+- Total plans completed: 31
 - Average duration: ~1 session
-- Total execution time: 30 sessions
+- Total execution time: 31 sessions
 
 **By Phase:**
 
@@ -36,8 +36,10 @@ Progress: █████████░ 91%
 | 7. Pricing & Variant | 3/3 | 3 sessions | 1 session |
 | 8. Inventory Monitor | 2/2 | 2 sessions | 1 session |
 
+| 9. Stock Sync | 2/2 | 2 sessions | 1 session |
+
 **Recent Trend:**
-- Last 5 plans: 07-03, 08-01, 08-02, 09-01
+- Last 5 plans: 08-01, 08-02, 09-01, 09-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -137,6 +139,11 @@ Recent decisions affecting current work:
 - Visibility-only variant updates: carry over existing price/weight/SKU, change only visible field
 - Product mapping store (data/sync/product-map.json) links SanMar styles to WIX product IDs
 - WIX V1 product query endpoint uses stringified filter object (V1 API quirk)
+- Nodemailer for SMTP email delivery -- zero external service dependencies, works with any SMTP provider
+- SMTP credentials from environment variables (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, NOTIFY_TO, NOTIFY_FROM, NOTIFY_ENABLED)
+- Email skipped when no changes detected (no alerts AND no variant visibility changes)
+- Auto-scan matches WIX variant SKU prefixes against tracked SanMar styles for product mapping discovery
+- Best-effort email delivery: catch and log failures, never crash the sync loop
 
 ### Key Findings (Phase 1)
 
@@ -242,6 +249,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 09-01-PLAN.md (WIX stock sync service)
-Resume file: .planning/phases/09-automated-stock-sync/09-02-PLAN.md
-Next: Execute 09-02 (notification system for stock alerts)
+Stopped at: Completed 09-02-PLAN.md (notification system and sync CLI)
+Resume file: None
+Next: Phase 10 -- Integration Polish (plan-phase needed)
