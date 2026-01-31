@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 13 of 20 (Template Presets & Pipeline Speed)
-Plan: 2 of 2 in current phase (PHASE COMPLETE)
-Status: Phase 13 complete
-Last activity: 2026-01-31 — Completed 13-02-PLAN.md
+Phase: 14 of 20 (Logo Overlay Engine)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-01-31 — Completed 14-01-PLAN.md
 
-Progress: ███░░░░░░░ 30%
+Progress: ████░░░░░░ 35%
 
 ## Performance Metrics
 
@@ -64,6 +64,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 13-02 | CLI --collection flags additive to template collections | Templates provide defaults; CLI adds, never replaces |
 | 13-02 | RESTful template CRUD on preview server with proper HTTP status codes | Standard REST patterns (201 created, 404 not found) for future UI integration |
 | 13-02 | Phase 13 complete — template system fully integrated into CLI and preview server | Templates usable via --template CLI flag and HTTP API; ready for Phase 14 |
+| 14-01 | Proportional coordinates (0.0-1.0) for logo positioning | Works across all image sizes without pixel recalculation |
+| 14-01 | Multiply blend mode default for screen-print effect | Logo appears as if printed on garment fabric |
+| 14-01 | data/logos.json NOT gitignored — project configuration | Unlike collections.json/templates.json which are local caches |
 
 ### Blockers/Concerns
 
@@ -78,5 +81,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 13-02-PLAN.md (Phase 13 complete, ready for Phase 14)
+Stopped at: Completed 14-01-PLAN.md
 Resume file: None
