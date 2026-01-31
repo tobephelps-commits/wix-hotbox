@@ -2,7 +2,7 @@
 
 ## Overview
 
-Transform HotBox Clothing from a manually-managed WIX store into a streamlined operation with optimized storefront UX and automated SanMar product pipeline. The first half focuses on conversion -- fixing navigation, mobile experience, and checkout on the live store. The second half builds the SanMar integration that eliminates manual product creation, adds inventory monitoring, and automates stock-level responses.
+Transform HotBox Clothing from a manually-managed WIX store into a streamlined operation with optimized storefront UX and automated SanMar product pipeline. The first half focuses on conversion -- fixing navigation, mobile experience, and checkout on the live store. The second half builds the SanMar integration that eliminates manual product creation, adds inventory monitoring, and automates stock-level responses. v0.2 extends into multi-brand operations with secondary vendor fallback, order fulfillment automation, and advanced pricing/inventory capabilities.
 
 ## Domain Expertise
 
@@ -10,7 +10,8 @@ None
 
 ## Milestones
 
-- SHIPPED **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
+- ✅ **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
+- 🚧 **v0.2 Multi-Brand Operations** -- Phases 11-20 (in progress)
 
 ## Completed Milestones
 
@@ -19,7 +20,7 @@ None
 ## Phases
 
 <details>
-<summary>v0.1 MVP (Phases 1-10) -- SHIPPED 2026-01-31</summary>
+<summary>✅ v0.1 MVP (Phases 1-10) -- SHIPPED 2026-01-31</summary>
 
 - [x] Phase 1: Site Audit & Discovery (3/3 plans) -- completed 2026-01-29
 - [x] Phase 2: Navigation & Product Discovery (5/5 plans) -- completed 2026-01-30
@@ -34,7 +35,120 @@ None
 
 </details>
 
+### 🚧 v0.2 Multi-Brand Operations (In Progress)
+
+**Milestone Goal:** Transform from single-pipeline MVP into a multi-brand, multi-vendor operation with order fulfillment automation and advanced pricing/inventory capabilities.
+
+#### Phase 11: Automate WIX Editor Fixes
+
+**Goal**: Use WIX APIs/Velo to automate the 32 pending manual fixes from v0.1 (chat widget removal, mobile responsive issues, abandoned cart setup, etc.)
+**Depends on**: v0.1 complete
+**Research**: Likely (WIX Velo/API capabilities for editor automation)
+**Research topics**: WIX Velo scripting capabilities, which of the 32 fixes are automatable via API vs require manual Editor work
+**Plans**: TBD
+
+Plans:
+- [ ] 11-01: TBD (run /gsd:plan-phase 11 to break down)
+
+#### Phase 12: Multi-Collection Product Routing
+
+**Goal**: Route products to existing BigBarn, Board30, or other collections during the product creation pipeline
+**Depends on**: Phase 11
+**Research**: Unlikely (internal patterns, WIX API already integrated)
+**Plans**: TBD
+
+Plans:
+- [ ] 12-01: TBD
+
+#### Phase 13: Template Presets & Pipeline Speed
+
+**Goal**: Save and load pricing/variant configurations to reuse across products, speeding up the pipeline
+**Depends on**: Phase 12
+**Research**: Unlikely (internal patterns, local storage)
+**Plans**: TBD
+
+Plans:
+- [ ] 13-01: TBD
+
+#### Phase 14: Logo Overlay Engine
+
+**Goal**: Place brand logos on SanMar product images with configurable placement rules (logo files ready, placement rules need definition per product/collection)
+**Depends on**: Phase 13
+**Research**: Likely (image compositing library selection — Sharp/Canvas, placement algorithms)
+**Research topics**: Sharp vs node-canvas for image compositing, alpha blending, configurable placement coordinates
+**Plans**: TBD
+
+Plans:
+- [ ] 14-01: TBD
+
+#### Phase 15: Cost Tracking & Sale/Promo Pricing
+
+**Goal**: Track per-product profitability, cost changes, margins, and support time-limited discounts, coupon codes, and flash sales
+**Depends on**: Phase 14
+**Research**: Unlikely (internal patterns, WIX pricing API known)
+**Plans**: TBD
+
+Plans:
+- [ ] 15-01: TBD
+
+#### Phase 16: Real-time Stock Sync & Multi-warehouse
+
+**Goal**: Continuous inventory monitoring instead of manual/scheduled checks, with tracking across SanMar warehouse locations
+**Depends on**: Phase 15
+**Research**: Likely (continuous polling/webhook architecture, multi-warehouse SanMar API endpoints)
+**Research topics**: SanMar inventory API warehouse location fields, polling interval optimization, event-driven vs scheduled sync
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: TBD
+
+#### Phase 17: S&S Activewear API Integration
+
+**Goal**: Secondary vendor fallback when SanMar doesn't have a product — query S&S Activewear catalog and inventory
+**Depends on**: Phase 16
+**Research**: Likely (new external API integration, need current S&S Activewear API docs)
+**Research topics**: S&S Activewear API authentication, product search, inventory endpoints, response format mapping to existing pipeline
+**Plans**: TBD
+
+Plans:
+- [ ] 17-01: TBD
+
+#### Phase 18: Order Management — Invoice & Label Printing
+
+**Goal**: Print invoices and shipping labels from both WIX and manual orders
+**Depends on**: Phase 17
+**Research**: Likely (PDF generation libraries, shipping label format standards, printing integration)
+**Research topics**: PDFKit vs Puppeteer for PDF generation, USPS/UPS label API formats, thermal printer support
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: TBD
+
+#### Phase 19: Order Management — SanMar Cart Automation
+
+**Goal**: Auto-add order items to SanMar web shopping cart for fulfillment
+**Depends on**: Phase 18
+**Research**: Likely (browser automation for SanMar.com web cart)
+**Research topics**: Puppeteer/Playwright for SanMar.com cart automation, session management, cart item mapping
+**Plans**: TBD
+
+Plans:
+- [ ] 19-01: TBD
+
+#### Phase 20: Integration Testing & Polish
+
+**Goal**: End-to-end validation of all v0.2 features, documentation, and operational readiness
+**Depends on**: Phase 19
+**Research**: Unlikely (internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 20-01: TBD
+
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|---------------|--------|-----------|
@@ -48,3 +162,13 @@ None
 | 8. Inventory Monitoring | v0.1 | 2/2 | Complete | 2026-01-30 |
 | 9. Automated Stock Sync | v0.1 | 2/2 | Complete | 2026-01-31 |
 | 10. Integration Polish | v0.1 | 3/3 | Complete | 2026-01-31 |
+| 11. Automate WIX Editor Fixes | v0.2 | 0/? | Not started | - |
+| 12. Multi-Collection Product Routing | v0.2 | 0/? | Not started | - |
+| 13. Template Presets & Pipeline Speed | v0.2 | 0/? | Not started | - |
+| 14. Logo Overlay Engine | v0.2 | 0/? | Not started | - |
+| 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 0/? | Not started | - |
+| 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 0/? | Not started | - |
+| 17. S&S Activewear API Integration | v0.2 | 0/? | Not started | - |
+| 18. Order Management — Invoice & Label Printing | v0.2 | 0/? | Not started | - |
+| 19. Order Management — SanMar Cart Automation | v0.2 | 0/? | Not started | - |
+| 20. Integration Testing & Polish | v0.2 | 0/? | Not started | - |

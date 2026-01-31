@@ -5,25 +5,25 @@
 See: .planning/PROJECT.md (updated 2026-01-31)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** v0.1 MVP SHIPPED. Planning next milestone or done.
+**Current focus:** v0.2 Multi-Brand Operations — automate WIX fixes, multi-collection routing, logo overlays, secondary vendor, order management.
 
 ## Current Position
 
-Phase: 10 of 10 (Integration Polish)
-Plan: All complete
-Status: v0.1 milestone shipped
-Last activity: 2026-01-31 -- v0.1 milestone complete
+Phase: 11 of 20 (Automate WIX Editor Fixes)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-31 — Milestone v0.2 created
 
-Progress: SHIPPED 100%
+Progress: ░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34
+- Total plans completed: 34 (v0.1)
 - Average duration: ~1 session per plan
 - Total execution time: 34 sessions across 3 days
 
-**By Phase:**
+**By Phase (v0.1):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
@@ -47,13 +47,16 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 
 ### Blockers/Concerns
 
-- 32 WIX Editor manual fixes pending for store owner (documented in phase summaries and guide files)
-- Mobile responsive design requires WIX Editor (zero REST API endpoints)
-- Abandoned cart recovery emails require WIX Dashboard setup
+None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
+
+### Roadmap Evolution
+
+- Milestone v0.1 created: storefront UX + SanMar pipeline, 10 phases (Phase 1-10)
+- Milestone v0.1 shipped: 2026-01-31, 34 plans, 3 days
+- Milestone v0.2 created: multi-brand operations, 10 phases (Phase 11-20)
 
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: v0.1 milestone complete
+Stopped at: Milestone v0.2 initialization
 Resume file: None
-Next: Plan next milestone or done.
