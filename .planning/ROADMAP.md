@@ -85,7 +85,7 @@ Plans:
 Plans:
 - [x] 14-01: Build overlay engine core with Sharp compositing and logo registry
 - [x] 14-02: Add --logo CLI flags and template integration to create-product
-- [ ] 14-03: Add overlay preview API and UI to preview server
+- [x] 14-03: Add overlay preview API and UI to preview server
 
 #### Phase 15: Cost Tracking & Sale/Promo Pricing
 
@@ -171,7 +171,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 11. Automate WIX Editor Fixes | v0.2 | 4/4 | Complete | 2026-01-31 |
 | 12. Multi-Collection Product Routing | v0.2 | 1/1 | Complete | 2026-01-31 |
 | 13. Template Presets & Pipeline Speed | v0.2 | 2/2 | Complete | 2026-01-31 |
-| 14. Logo Overlay Engine | v0.2 | 2/3 | In progress | - |
+| 14. Logo Overlay Engine | v0.2 | 3/3 | Complete | 2026-01-31 |
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 0/? | Not started | - |
 | 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 0/? | Not started | - |
 | 17. S&S Activewear API Integration | v0.2 | 0/? | Not started | - |

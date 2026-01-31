@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 14 of 20 (Logo Overlay Engine)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-01-31 — Completed 14-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-31 — Completed 14-03-PLAN.md
 
-Progress: ████░░░░░░ 37%
+Progress: ████░░░░░░ 40%
 
 ## Performance Metrics
 
@@ -69,6 +69,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 14-01 | data/logos.json NOT gitignored — project configuration | Unlike collections.json/templates.json which are local caches |
 | 14-02 | Logo overlay precedence: CLI --logo > template logoOverlay > none | Consistent with pricing precedence pattern |
 | 14-02 | Overlaid images saved locally for manual WIX upload | Matches existing workflow: owner replaces SanMar photos with mockups post-creation |
+| 14-03 | Preview overlay is visual verification only -- CLI handles actual overlay | Keeps preview simple; no need to pass overlay config through create endpoint |
+| 14-03 | Left-sleeve position corrected from (0.25,0.25) to (0.80,0.32) | Original coordinates placed logo on wrong side; corrected to center of wearer's left sleeve facing outward |
+| 14-03 | Phase 14 complete -- overlay engine core, CLI integration, and preview UI all functional | Logo files must be added to media/logos/ and registered in data/logos.json for production use |
 
 ### Blockers/Concerns
 
@@ -83,5 +86,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 14-02-PLAN.md
+Stopped at: Completed 14-03-PLAN.md (Phase 14 complete)
 Resume file: None
