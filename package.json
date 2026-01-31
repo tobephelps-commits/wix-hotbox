@@ -31,6 +31,7 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "nodemailer": "^7.0.13",
+    "sharp": "^0.34.5",
     "soap": "^1.6.4"
   },
   "devDependencies": {

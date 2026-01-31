@@ -291,3 +291,66 @@ export interface PricingPreview {
   /** Whether a SanMar sale is currently active for this style */
   saleActive: boolean;
 }
+
+// =============================================================================
+// Logo Overlay Types
+// =============================================================================
+
+/**
+ * Logo placement position as proportional coordinates (0.0-1.0).
+ *
+ * Phase 14: Logo Overlay Engine
+ */
+export interface LogoPosition {
+  /** Horizontal center point (0.0 = left edge, 0.5 = center, 1.0 = right edge) */
+  x: number;
+  /** Vertical center point (0.0 = top, 0.5 = center, 1.0 = bottom) */
+  y: number;
+}
+
+/**
+ * Logo overlay configuration for a single product.
+ *
+ * Phase 14: Logo Overlay Engine
+ */
+export interface LogoOverlayConfig {
+  /** Logo name (key in logos.json registry) */
+  logoName: string;
+  /** Position on the product image (proportional coordinates) */
+  position: LogoPosition;
+  /** Logo size as proportion of product image width (0.0-1.0, default 0.25) */
+  scale?: number;
+  /** Opacity (0.0-1.0, default 0.88) */
+  opacity?: number;
+  /** Blend mode for screen-print effect (default "multiply") */
+  blendMode?: string;
+}
+
+/**
+ * Logo entry in the logo registry (data/logos.json).
+ *
+ * Phase 14: Logo Overlay Engine
+ */
+export interface LogoRegistryEntry {
+  /** Display name (e.g., "Big Barn Crossfit") */
+  displayName: string;
+  /** Path to PNG file relative to project root (e.g., "media/logos/bigbarn.png") */
+  filePath: string;
+  /** Default scale when applied (0.0-1.0) */
+  defaultScale: number;
+  /** Default blend mode */
+  defaultBlendMode: string;
+  /** Default opacity */
+  defaultOpacity: number;
+}
+
+/**
+ * Logo registry file structure (data/logos.json).
+ *
+ * Phase 14: Logo Overlay Engine
+ */
+export interface LogoRegistry {
+  logos: Record<string, LogoRegistryEntry>;
+  /** Named position presets for quick placement */
+  positionPresets: Record<string, LogoPosition>;
+}
