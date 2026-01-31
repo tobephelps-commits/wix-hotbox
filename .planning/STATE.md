@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 13 of 20 (Template Presets & Pipeline Speed)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-31 — Completed 13-01-PLAN.md
+Plan: 2 of 2 in current phase (PHASE COMPLETE)
+Status: Phase 13 complete
+Last activity: 2026-01-31 — Completed 13-02-PLAN.md
 
-Progress: ██░░░░░░░░ 25%
+Progress: ███░░░░░░░ 30%
 
 ## Performance Metrics
 
@@ -60,6 +60,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 13-01 | Templates stored in local JSON file (data/templates.json) | Same gitignored pattern as collections.json; local-first CLI tool |
 | 13-01 | Template names normalized to lowercase for case-insensitive matching | Prevents duplicates from case variations |
 | 13-01 | --list-presets and --list-templates exit before style arg required | Early-exit pattern for info-only CLI commands |
+| 13-02 | Template pricing precedence: --price > --preset > --template > default | Clear override chain prevents confusion when multiple pricing sources specified |
+| 13-02 | CLI --collection flags additive to template collections | Templates provide defaults; CLI adds, never replaces |
+| 13-02 | RESTful template CRUD on preview server with proper HTTP status codes | Standard REST patterns (201 created, 404 not found) for future UI integration |
+| 13-02 | Phase 13 complete — template system fully integrated into CLI and preview server | Templates usable via --template CLI flag and HTTP API; ready for Phase 14 |
 
 ### Blockers/Concerns
 
@@ -74,5 +78,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 13-01-PLAN.md (Phase 13, 1/2 plans done)
+Stopped at: Completed 13-02-PLAN.md (Phase 13 complete, ready for Phase 14)
 Resume file: None
