@@ -15,9 +15,10 @@
  * - ALWAYS use displayColor (not catalogColor) in WIX-facing data
  * - Use catalogColor ONLY for SanMar API queries
  * - Products are ALWAYS created as invisible (draft-first workflow)
- * - Price is uniform across variants for Phase 6 (Phase 7 adds variable pricing)
+ * - Price is per-variant: standard sizes get base price, extended sizes get upcharges
  *
  * Phase 6: Product Creation Pipeline
+ * Phase 7: Per-variant pricing via PricingConfig (size upcharges for extended sizes)
  */
 
 import type {
@@ -45,6 +46,8 @@ import type {
   PricingPreview,
   CuratedProduct,
 } from './types.js';
+
+import { calculateVariantPrice, calculateRetailPrice } from './pricing-rules.js';
 
 // =============================================================================
 // Media Class Type IDs (from SanMar PromoStandards)
@@ -162,7 +165,8 @@ export function buildProductPreview(
  * - Name: "{brandName} {productTitle}" truncated to 80 chars
  * - productType: "physical", visible: false, manageVariants: true
  * - Product options: Color (type "color") and Size (type "drop_down")
- * - Price and cost from curated selections
+ * - Price: base retail (standard size, no upcharges) as product listing price
+ * - Cost from curated wholesale cost
  *
  * @param curated - The curated product with owner's selections
  * @returns WixCreateProductRequest ready for the WIX API
@@ -206,7 +210,7 @@ export function buildCreateProductPayload(
       weight: 0, // Will be set per-variant; placeholder for base product
       manageVariants: true,
       priceData: {
-        price: curated.basePrice,
+        price: calculateRetailPrice(curated.wholesaleCost, curated.pricingConfig.markupPercent, curated.pricingConfig.rounding),
       },
       costAndProfitData: {
         itemCost: curated.wholesaleCost,
@@ -302,7 +306,7 @@ export function buildMediaPayload(
  *
  * For each combination:
  * - choices: { "Color": displayColor, "Size": size }
- * - price: curated.basePrice (uniform in Phase 6, variable in Phase 7)
+ * - price: per-variant price from calculateVariantPrice (size upcharges for 2XL+)
  * - cost: wholesale effective price
  * - weight: pieceWeight from matching ProductInfo
  * - sku: "{style}-{catalogColor}-{size}" format
@@ -356,7 +360,7 @@ export function buildVariantUpdates(
           Color: color.displayColor, // ALWAYS displayColor for WIX-facing data
           Size: size,
         },
-        price: curated.basePrice,
+        price: calculateVariantPrice(curated.wholesaleCost, size, curated.pricingConfig),
         cost: wholesaleCost,
         weight,
         sku,

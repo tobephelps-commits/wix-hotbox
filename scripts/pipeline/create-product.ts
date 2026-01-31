@@ -11,6 +11,7 @@
  *   fetchProductData(style) -> curate (UI) -> createWixProduct(curated, data)
  *
  * Phase 6: Product Creation Pipeline
+ * Phase 7: Per-variant pricing via PricingConfig
  */
 
 import { fileURLToPath } from 'url';
@@ -30,6 +31,7 @@ import {
   updateProductVariants,
   getProduct,
 } from './wix-api.js';
+import { calculateRetailPrice, getPresetConfig } from './pricing-rules.js';
 
 // =============================================================================
 // Types
@@ -105,8 +107,9 @@ export async function createWixProduct(
   // Step 4: Verify creation
   const verified = await getProduct(productId);
   const variantCount = verified.variants?.length ?? variantUpdates.length;
+  const basePrice = calculateRetailPrice(curated.wholesaleCost, curated.pricingConfig.markupPercent, curated.pricingConfig.rounding);
   console.log(
-    `  \u2713 Verified: ${variantCount} variants, all priced at $${curated.basePrice.toFixed(2)}`,
+    `  \u2713 Verified: ${variantCount} variants, base price $${basePrice.toFixed(2)} (${curated.pricingConfig.markupPercent}% markup)`,
   );
 
   // Build product URL
@@ -159,7 +162,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         displayColor: c.displayColor,
       })),
       selectedSizes: data.preview.availableSizes,
-      basePrice: price ?? data.preview.pricing.suggestedRetail,
+      pricingConfig: price != null
+        ? { markupPercent: ((price / data.preview.pricing.wholesalePrice) - 1) * 100, rounding: 'none' as const, sizeUpcharges: {} }
+        : getPresetConfig('standard-tee'),
       wholesaleCost: data.preview.pricing.wholesalePrice,
     };
 
