@@ -95,7 +95,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 15-01: TBD
+- [x] 15-01: Build cost tracking data model with decoration cost and margin report CLI
 
 #### Phase 16: Real-time Stock Sync & Multi-warehouse
 
@@ -172,7 +172,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 12. Multi-Collection Product Routing | v0.2 | 1/1 | Complete | 2026-01-31 |
 | 13. Template Presets & Pipeline Speed | v0.2 | 2/2 | Complete | 2026-01-31 |
 | 14. Logo Overlay Engine | v0.2 | 3/3 | Complete | 2026-01-31 |
-| 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 0/? | Not started | - |
+| 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 1/? | In progress | - |
 | 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 0/? | Not started | - |
 | 17. S&S Activewear API Integration | v0.2 | 0/? | Not started | - |
 | 18. Order Management — Invoice & Label Printing | v0.2 | 0/? | Not started | - |
