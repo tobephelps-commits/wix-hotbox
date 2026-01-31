@@ -272,7 +272,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         const collectionsInfo = t.collections && t.collections.length > 0
           ? `Collections: ${t.collections.join(', ')}`
           : 'No collections';
-        console.log(`  ${t.name.padEnd(20)} ${presetInfo} | ${sizesInfo} | ${collectionsInfo}`);
+        const logoInfo = t.logoOverlay
+          ? `Logo: ${t.logoOverlay.logoName} at ${t.logoOverlay.position}`
+          : 'No logo';
+        console.log(`  ${t.name.padEnd(20)} ${presetInfo} | ${sizesInfo} | ${collectionsInfo} | ${logoInfo}`);
       }
     }
     process.exit(0);
@@ -539,7 +542,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         ...(logoOverlayConfig ? {
           logoOverlay: {
             logoName: logoOverlayConfig.logoName,
-            position: logoPositionArg ?? 'center-chest',
+            position: logoPositionArg ?? template?.logoOverlay?.position ?? 'center-chest',
             scale: logoOverlayConfig.scale,
             opacity: logoOverlayConfig.opacity,
           },
