@@ -108,11 +108,12 @@ Plans:
 **Goal**: Flexible pricing rules by product type and per-product variant curation (which colors/sizes to offer)
 **Depends on**: Phase 6
 **Research**: Unlikely (internal business logic building on established patterns)
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 07-01: Implement variable pricing logic with markup rules by product type
-- [ ] 07-02: Build per-product variant curation — color/size selection interface
+- [ ] 07-01: Pricing rules engine with markup presets and size upcharges
+- [ ] 07-02: Pipeline integration — wire pricing config into mapper, types, and create flow
+- [ ] 07-03: Preview UI pricing controls and curation UX improvements
 
 ### Phase 8: Inventory Monitoring
 **Goal**: Automated monitoring of SanMar blank inventory with configurable alert thresholds
