@@ -12,8 +12,8 @@
 
 | Metric | Count |
 |--------|-------|
-| **Total fixes identified** | 37 |
-| **Already completed (v0.1 API)** | 7 |
+| **Total fixes identified** | 38 |
+| **Already completed (v0.1 API)** | 8 |
 | **Pending manual fixes** | 30 |
 | **Automatable via API (Plan 11-03)** | 3 |
 | **WIX Editor only** | 20 |
@@ -56,8 +56,9 @@ These fixes were resolved by automated API work during v0.1. No manual action ne
 | 5 | CK-1e | Shipping Policy (custom slot) | API | 04-01 | 2026-01-30 |
 | 6 | CK-2 | Size guides for all 105 products (15 brands) | API | 04-02 | 2026-01-30 |
 | 7 | CR-2 | Chat widget blocking product interaction (hidden) | API | 02-01 | 2026-01-30 |
+| 8 | CR-4 | LMNT product pages returning 404 (products hidden) | API | 02-01 | 2026-01-30 |
 
-**Note:** CR-4 (LMNT 404 pages) was resolved by hiding the 2 LMNT products via API in Plan 02-01. CL-4 (Big Barn Team Hat) was identified but not resolved via API -- it requires product media upload (see fix #29 below).
+**Note:** CL-4 (Big Barn Team Hat with zero content) was identified in Phase 1 but not resolved via API -- it requires product media/description upload by the store owner. CR-3 (Zero Inventory Tracking) was addressed by the Inventory Monitor and Stock Sync systems in Phases 8-9.
 
 ---
 
