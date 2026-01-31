@@ -128,34 +128,140 @@
     font-size: 11px;
     font-weight: 600;
   }
-  .retail-input-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-    padding-top: 12px;
+
+  /* Pricing config section */
+  .pricing-config {
+    margin-top: 12px;
+    padding-top: 16px;
     border-top: 1px solid #eee;
   }
-  .retail-input-group label {
+  .pricing-config-title {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: #333;
+    margin-bottom: 12px;
   }
-  .retail-input-group .note {
+  .pricing-controls {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .pricing-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .pricing-control label {
     font-size: 12px;
-    color: #999;
-    margin-left: 8px;
+    font-weight: 500;
+    color: #666;
   }
-  .retail-input {
-    width: 100px;
+  .pricing-control select,
+  .pricing-control input[type="number"] {
     padding: 6px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  .pricing-control select:focus,
+  .pricing-control input[type="number"]:focus {
+    border-color: #6c63ff;
+  }
+  .pricing-control select { min-width: 200px; }
+  .pricing-control input[type="number"] { width: 100px; }
+
+  .price-display {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .price-display .base-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+  }
+  .margin-good { color: #27ae60; }
+  .margin-thin { color: #e67e22; }
+  .margin-bad { color: #e74c3c; }
+
+  /* Size upcharge table */
+  .upcharge-section {
+    margin-top: 12px;
+    display: none;
+  }
+  .upcharge-section.visible { display: block; }
+  .upcharge-title {
+    font-size: 13px;
     font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  .upcharge-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  .upcharge-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f8f8f8;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .upcharge-item .up-size {
+    font-weight: 600;
+    color: #333;
+    min-width: 32px;
+  }
+  .upcharge-item input[type="number"] {
+    width: 60px;
+    padding: 3px 6px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 13px;
     outline: none;
   }
-  .retail-input:focus { border-color: #6c63ff; }
+  .upcharge-item input[type="number"]:focus { border-color: #6c63ff; }
+  .upcharge-item .up-retail {
+    color: #666;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  /* Price summary */
+  .price-summary {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #f0f7ff;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #444;
+    display: none;
+  }
+  .price-summary.visible { display: block; }
+  .price-summary-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+  }
+  .price-summary-line .ps-label { color: #666; }
+  .price-summary-line .ps-value { font-weight: 600; color: #333; }
+  .price-summary-line .ps-upcharge { color: #999; font-size: 12px; }
+  .price-summary .margin-range {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dde5f0;
+    font-weight: 500;
+  }
 
   /* Section headers */
   .section {
@@ -188,6 +294,35 @@
   .section-actions {
     display: flex;
     gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  /* Color filter */
+  .color-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .color-filter input[type="text"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 200px;
+    outline: none;
+  }
+  .color-filter input[type="text"]:focus { border-color: #6c63ff; }
+  .color-filter .filter-count {
+    font-size: 12px;
+    color: #999;
+  }
+  .color-filter .filter-clear {
+    font-size: 12px;
+    color: #6c63ff;
+    cursor: pointer;
+    text-decoration: underline;
+    display: none;
   }
 
   /* Color cards grid */
@@ -206,6 +341,7 @@
   }
   .color-card.selected { border-color: #6c63ff; }
   .color-card.out-of-stock { opacity: 0.5; }
+  .color-card.filtered-out { display: none; }
   .color-card:hover { border-color: #6c63ff; }
   .color-card-image {
     width: 100%;
@@ -354,6 +490,14 @@
     color: #999;
     font-size: 16px;
   }
+
+  /* Responsive stacking for pricing controls */
+  @media (max-width: 640px) {
+    .pricing-controls { flex-direction: column; }
+    .pricing-control select { min-width: 100%; }
+    .price-display { flex-direction: column; gap: 8px; }
+    .upcharge-table { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -390,10 +534,54 @@
       </div>
       <span class="sale-badge" id="saleBadge" style="display:none;">SALE ACTIVE</span>
     </div>
-    <div class="retail-input-group">
-      <label for="retailPrice">Retail Price: $</label>
-      <input type="number" id="retailPrice" class="retail-input" step="0.01" min="0">
-      <span class="note">This is the price customers will see</span>
+
+    <!-- Pricing Configuration -->
+    <div class="pricing-config">
+      <div class="pricing-config-title">Pricing Configuration</div>
+      <div class="pricing-controls">
+        <div class="pricing-control">
+          <label for="presetSelect">Preset</label>
+          <select id="presetSelect">
+            <option value="standard-tee">Standard T-Shirt (100%)</option>
+            <option value="premium-tee">Premium T-Shirt (120%)</option>
+            <option value="hoodie-fleece">Hoodie / Fleece (80%)</option>
+            <option value="polo-woven">Polo / Woven (90%)</option>
+            <option value="outerwear">Outerwear / Jacket (70%)</option>
+            <option value="headwear">Headwear (100%)</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="pricing-control">
+          <label for="markupInput">Markup %</label>
+          <input type="number" id="markupInput" value="100" step="5" min="0" max="500">
+        </div>
+        <div class="pricing-control">
+          <label for="roundingSelect">Rounding</label>
+          <select id="roundingSelect">
+            <option value="nearest-99">Nearest .99</option>
+            <option value="nearest-dollar">Nearest dollar</option>
+            <option value="none">No rounding</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Base price and margin display -->
+      <div class="price-display" id="priceDisplay">
+        <div>
+          <span style="font-size:12px;color:#999;">Base Retail:</span>
+          <span class="base-price" id="baseRetailPrice">$0.00</span>
+        </div>
+        <div id="marginDisplay" style="font-size:14px;"></div>
+      </div>
+
+      <!-- Size upcharge table -->
+      <div class="upcharge-section" id="upchargeSection">
+        <div class="upcharge-title">Size Upcharges (extended sizes)</div>
+        <div class="upcharge-table" id="upchargeTable"></div>
+      </div>
+
+      <!-- Price summary -->
+      <div class="price-summary" id="priceSummary"></div>
     </div>
   </div>
 
@@ -408,6 +596,11 @@
         <button type="button" class="btn btn-sm btn-outline" id="clearAllColors">Clear</button>
       </div>
     </div>
+    <div class="color-filter" id="colorFilter" style="display:none;">
+      <input type="text" id="colorFilterInput" placeholder="Filter colors...">
+      <span class="filter-count" id="filterCount"></span>
+      <span class="filter-clear" id="filterClear">clear</span>
+    </div>
     <div class="color-grid" id="colorGrid"></div>
   </div>
 
@@ -416,6 +609,8 @@
     <div class="section-header">
       <div class="section-title">SIZES</div>
       <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-outline" id="quickStandard">S-XL</button>
+        <button type="button" class="btn btn-sm btn-outline" id="quickStandard2xl">S-2XL</button>
         <button type="button" class="btn btn-sm btn-outline" id="selectAllSizes">Select All</button>
         <button type="button" class="btn btn-sm btn-outline" id="clearAllSizes">Clear</button>
       </div>
@@ -439,36 +634,97 @@
   'use strict';
 
   // =========================================================================
+  // Pricing Presets (mirrors pricing-rules.ts)
+  // =========================================================================
+
+  var PRICING_PRESETS = {
+    'standard-tee':  { name: 'Standard T-Shirt',    markupPercent: 100, rounding: 'nearest-99', sizeUpcharges: { '2XL': 2, '3XL': 3, '4XL': 4, '5XL': 5, '6XL': 6 } },
+    'premium-tee':   { name: 'Premium T-Shirt',     markupPercent: 120, rounding: 'nearest-99', sizeUpcharges: { '2XL': 2, '3XL': 3, '4XL': 4, '5XL': 5, '6XL': 6 } },
+    'hoodie-fleece': { name: 'Hoodie / Fleece',      markupPercent: 80,  rounding: 'nearest-99', sizeUpcharges: { '2XL': 3, '3XL': 4, '4XL': 5, '5XL': 6, '6XL': 7 } },
+    'polo-woven':    { name: 'Polo / Woven',         markupPercent: 90,  rounding: 'nearest-99', sizeUpcharges: { '2XL': 2, '3XL': 3, '4XL': 4, '5XL': 5, '6XL': 6 } },
+    'outerwear':     { name: 'Outerwear / Jacket',   markupPercent: 70,  rounding: 'nearest-99', sizeUpcharges: { '2XL': 4, '3XL': 5, '4XL': 6, '5XL': 8, '6XL': 10 } },
+    'headwear':      { name: 'Headwear',             markupPercent: 100, rounding: 'nearest-99', sizeUpcharges: {} },
+    'custom':        { name: 'Custom',               markupPercent: 100, rounding: 'nearest-99', sizeUpcharges: { '2XL': 2, '3XL': 3, '4XL': 4, '5XL': 5, '6XL': 6 } }
+  };
+
+  var UPCHARGE_SIZES = ['2XL', '3XL', '4XL', '5XL', '6XL'];
+  var STANDARD_QUICK_SIZES = ['S', 'M', 'L', 'XL'];
+  var STANDARD_PLUS_2XL = ['S', 'M', 'L', 'XL', '2XL'];
+
+  // =========================================================================
+  // Pricing Calculation Functions (mirrors pricing-rules.ts)
+  // =========================================================================
+
+  function calcRetailPrice(wholesale, markupPercent, rounding) {
+    var price = wholesale * (1 + markupPercent / 100);
+    if (rounding === 'nearest-99') return Math.floor(price) + 0.99;
+    if (rounding === 'nearest-dollar') return Math.round(price);
+    return Math.round(price * 100) / 100;
+  }
+
+  function calcVariantPrice(wholesale, size, config) {
+    var base = calcRetailPrice(wholesale, config.markupPercent, config.rounding);
+    var upcharge = config.sizeUpcharges[size] || 0;
+    return Math.round((base + upcharge) * 100) / 100;
+  }
+
+  function calcMargin(retail, wholesale) {
+    var dollars = Math.round((retail - wholesale) * 100) / 100;
+    var percent = retail > 0 ? Math.round(((retail - wholesale) / retail) * 10000) / 100 : 0;
+    return { dollars: dollars, percent: percent };
+  }
+
+  // =========================================================================
   // State
   // =========================================================================
 
-  let productData = null;   // ProductPreview from server
-  let selectedColors = {};  // { catalogColor: true/false }
-  let selectedSizes = {};   // { size: true/false }
+  var productData = null;   // ProductPreview from server
+  var selectedColors = {};  // { catalogColor: true/false }
+  var selectedSizes = {};   // { size: true/false }
+  var pricingConfig = {
+    markupPercent: 100,
+    rounding: 'nearest-99',
+    sizeUpcharges: { '2XL': 2, '3XL': 3, '4XL': 4, '5XL': 5, '6XL': 6 }
+  };
+  var currentPreset = 'standard-tee';
+  var colorFilterText = '';
 
   // =========================================================================
   // DOM refs
   // =========================================================================
 
-  const styleInput = document.getElementById('styleInput');
-  const fetchBtn = document.getElementById('fetchBtn');
-  const searchForm = document.getElementById('searchForm');
-  const initialPrompt = document.getElementById('initialPrompt');
-  const productInfo = document.getElementById('productInfo');
-  const productName = document.getElementById('productName');
-  const wholesalePrice = document.getElementById('wholesalePrice');
-  const suggestedRetail = document.getElementById('suggestedRetail');
-  const saleBadge = document.getElementById('saleBadge');
-  const retailPrice = document.getElementById('retailPrice');
-  const colorsSection = document.getElementById('colorsSection');
-  const colorCount = document.getElementById('colorCount');
-  const colorGrid = document.getElementById('colorGrid');
-  const sizesSection = document.getElementById('sizesSection');
-  const sizeGrid = document.getElementById('sizeGrid');
-  const summaryBar = document.getElementById('summaryBar');
-  const summaryText = document.getElementById('summaryText');
-  const createBtn = document.getElementById('createBtn');
-  const statusBar = document.getElementById('statusBar');
+  var styleInput = document.getElementById('styleInput');
+  var fetchBtn = document.getElementById('fetchBtn');
+  var searchForm = document.getElementById('searchForm');
+  var initialPrompt = document.getElementById('initialPrompt');
+  var productInfo = document.getElementById('productInfo');
+  var productName = document.getElementById('productName');
+  var wholesalePrice = document.getElementById('wholesalePrice');
+  var suggestedRetail = document.getElementById('suggestedRetail');
+  var saleBadge = document.getElementById('saleBadge');
+  var colorsSection = document.getElementById('colorsSection');
+  var colorCount = document.getElementById('colorCount');
+  var colorGrid = document.getElementById('colorGrid');
+  var colorFilterEl = document.getElementById('colorFilter');
+  var colorFilterInput = document.getElementById('colorFilterInput');
+  var filterCount = document.getElementById('filterCount');
+  var filterClear = document.getElementById('filterClear');
+  var sizesSection = document.getElementById('sizesSection');
+  var sizeGrid = document.getElementById('sizeGrid');
+  var summaryBar = document.getElementById('summaryBar');
+  var summaryText = document.getElementById('summaryText');
+  var createBtn = document.getElementById('createBtn');
+  var statusBar = document.getElementById('statusBar');
+
+  // Pricing DOM refs
+  var presetSelect = document.getElementById('presetSelect');
+  var markupInput = document.getElementById('markupInput');
+  var roundingSelect = document.getElementById('roundingSelect');
+  var baseRetailPrice = document.getElementById('baseRetailPrice');
+  var marginDisplay = document.getElementById('marginDisplay');
+  var upchargeSection = document.getElementById('upchargeSection');
+  var upchargeTable = document.getElementById('upchargeTable');
+  var priceSummary = document.getElementById('priceSummary');
 
   // =========================================================================
   // Status helpers
@@ -489,7 +745,7 @@
 
   searchForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    const style = styleInput.value.trim().toUpperCase();
+    var style = styleInput.value.trim().toUpperCase();
     if (!style) return;
     fetchProduct(style);
   });
@@ -500,8 +756,8 @@
     initialPrompt.style.display = 'none';
 
     try {
-      const res = await fetch('/api/product/' + encodeURIComponent(style));
-      const json = await res.json();
+      var res = await fetch('/api/product/' + encodeURIComponent(style));
+      var json = await res.json();
 
       if (!json.ok) {
         setStatus('Error: ' + json.error, 'error');
@@ -511,7 +767,7 @@
 
       productData = json.data;
       renderProduct();
-      setStatus('Ready to curate. Select colors and sizes, set price, then create.', '');
+      setStatus('Ready to curate. Select colors and sizes, configure pricing, then create.', '');
     } catch (err) {
       setStatus('Error: ' + (err.message || err), 'error');
     }
@@ -525,7 +781,7 @@
 
   function renderProduct() {
     if (!productData) return;
-    const p = productData;
+    var p = productData;
 
     // Show sections
     productInfo.classList.add('visible');
@@ -538,7 +794,6 @@
     wholesalePrice.textContent = '$' + p.pricing.wholesalePrice.toFixed(2);
     suggestedRetail.textContent = '$' + p.pricing.suggestedRetail.toFixed(2);
     saleBadge.style.display = p.pricing.saleActive ? 'inline' : 'none';
-    retailPrice.value = p.pricing.suggestedRetail.toFixed(2);
 
     // Init color selections (in-stock checked by default)
     selectedColors = {};
@@ -552,9 +807,24 @@
       selectedSizes[s] = true;
     });
 
+    // Reset filter
+    colorFilterText = '';
+    colorFilterInput.value = '';
+
+    // Apply default pricing preset
+    applyPreset('standard-tee');
+
     renderColors();
     renderSizes();
+    updatePricingDisplay();
     updateSummary();
+
+    // Show color filter if many colors
+    if (p.availableColors.length > 10) {
+      colorFilterEl.style.display = 'flex';
+    } else {
+      colorFilterEl.style.display = 'none';
+    }
 
     // Warn if no colors are in stock
     var inStockCount = p.availableColors.filter(function(c) { return c.inStock; }).length;
@@ -564,15 +834,231 @@
   }
 
   // =========================================================================
-  // Render colors
+  // Pricing controls
+  // =========================================================================
+
+  function applyPreset(key) {
+    var preset = PRICING_PRESETS[key];
+    if (!preset) preset = PRICING_PRESETS['custom'];
+    currentPreset = key;
+    presetSelect.value = key;
+    markupInput.value = preset.markupPercent;
+    roundingSelect.value = preset.rounding;
+    pricingConfig.markupPercent = preset.markupPercent;
+    pricingConfig.rounding = preset.rounding;
+    // Deep copy upcharges
+    pricingConfig.sizeUpcharges = {};
+    for (var s in preset.sizeUpcharges) {
+      pricingConfig.sizeUpcharges[s] = preset.sizeUpcharges[s];
+    }
+  }
+
+  function checkIfCustom() {
+    // If current values don't match any preset, switch to Custom
+    var keys = Object.keys(PRICING_PRESETS);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      if (key === 'custom') continue;
+      var preset = PRICING_PRESETS[key];
+      if (preset.markupPercent === pricingConfig.markupPercent &&
+          preset.rounding === pricingConfig.rounding &&
+          upchargesMatch(preset.sizeUpcharges, pricingConfig.sizeUpcharges)) {
+        if (currentPreset !== key) {
+          currentPreset = key;
+          presetSelect.value = key;
+        }
+        return;
+      }
+    }
+    // No match -- set to custom
+    if (currentPreset !== 'custom') {
+      currentPreset = 'custom';
+      presetSelect.value = 'custom';
+    }
+  }
+
+  function upchargesMatch(a, b) {
+    var allKeys = {};
+    for (var k in a) allKeys[k] = true;
+    for (var k2 in b) allKeys[k2] = true;
+    for (var k3 in allKeys) {
+      if ((a[k3] || 0) !== (b[k3] || 0)) return false;
+    }
+    return true;
+  }
+
+  presetSelect.addEventListener('change', function() {
+    applyPreset(presetSelect.value);
+    updatePricingDisplay();
+    renderUpchargeTable();
+    updatePriceSummary();
+  });
+
+  markupInput.addEventListener('input', function() {
+    pricingConfig.markupPercent = parseFloat(markupInput.value) || 0;
+    checkIfCustom();
+    updatePricingDisplay();
+    updatePriceSummary();
+  });
+
+  roundingSelect.addEventListener('change', function() {
+    pricingConfig.rounding = roundingSelect.value;
+    checkIfCustom();
+    updatePricingDisplay();
+    updatePriceSummary();
+  });
+
+  // =========================================================================
+  // Pricing display updates
+  // =========================================================================
+
+  function updatePricingDisplay() {
+    if (!productData) return;
+    var wholesale = productData.pricing.wholesalePrice;
+    var baseRetail = calcRetailPrice(wholesale, pricingConfig.markupPercent, pricingConfig.rounding);
+    baseRetailPrice.textContent = '$' + baseRetail.toFixed(2);
+
+    var margin = calcMargin(baseRetail, wholesale);
+    var marginClass = margin.percent >= 40 ? 'margin-good' : (margin.percent >= 25 ? 'margin-thin' : 'margin-bad');
+    marginDisplay.innerHTML = '<span class="' + marginClass + '">$' + margin.dollars.toFixed(2) + ' profit (' + margin.percent.toFixed(1) + '% margin)</span>';
+
+    renderUpchargeTable();
+    updatePriceSummary();
+  }
+
+  function renderUpchargeTable() {
+    if (!productData) return;
+    // Show upcharge section only if selected sizes include any upcharge size
+    var hasUpchargeSizes = false;
+    UPCHARGE_SIZES.forEach(function(s) {
+      if (selectedSizes[s]) hasUpchargeSizes = true;
+    });
+    // Also check available sizes (to show potential upcharges)
+    if (!hasUpchargeSizes) {
+      productData.availableSizes.forEach(function(s) {
+        if (UPCHARGE_SIZES.indexOf(s) >= 0) hasUpchargeSizes = true;
+      });
+    }
+
+    if (hasUpchargeSizes) {
+      upchargeSection.classList.add('visible');
+    } else {
+      upchargeSection.classList.remove('visible');
+      return;
+    }
+
+    var wholesale = productData.pricing.wholesalePrice;
+    upchargeTable.innerHTML = '';
+
+    UPCHARGE_SIZES.forEach(function(size) {
+      // Only show if this size is available for the product
+      if (productData.availableSizes.indexOf(size) < 0) return;
+
+      var item = document.createElement('div');
+      item.className = 'upcharge-item';
+
+      var sizeLabel = document.createElement('span');
+      sizeLabel.className = 'up-size';
+      sizeLabel.textContent = size;
+      item.appendChild(sizeLabel);
+
+      var plusSign = document.createTextNode('+$');
+      item.appendChild(plusSign);
+
+      var upInput = document.createElement('input');
+      upInput.type = 'number';
+      upInput.step = '0.50';
+      upInput.min = '0';
+      upInput.max = '50';
+      upInput.value = (pricingConfig.sizeUpcharges[size] || 0).toFixed(2);
+      upInput.dataset.size = size;
+      upInput.addEventListener('input', function() {
+        pricingConfig.sizeUpcharges[size] = parseFloat(upInput.value) || 0;
+        // Update the retail display for this row
+        var variantRetail = calcVariantPrice(wholesale, size, pricingConfig);
+        retailSpan.textContent = '= $' + variantRetail.toFixed(2);
+        checkIfCustom();
+        updatePriceSummary();
+      });
+      item.appendChild(upInput);
+
+      var retailSpan = document.createElement('span');
+      retailSpan.className = 'up-retail';
+      var variantRetail = calcVariantPrice(wholesale, size, pricingConfig);
+      retailSpan.textContent = '= $' + variantRetail.toFixed(2);
+      item.appendChild(retailSpan);
+
+      upchargeTable.appendChild(item);
+    });
+  }
+
+  function updatePriceSummary() {
+    if (!productData) return;
+
+    var wholesale = productData.pricing.wholesalePrice;
+    var baseRetail = calcRetailPrice(wholesale, pricingConfig.markupPercent, pricingConfig.rounding);
+    var lines = [];
+    var minRetail = baseRetail;
+    var maxRetail = baseRetail;
+
+    // Standard sizes line
+    lines.push({ label: 'Standard sizes (S-XL)', value: '$' + baseRetail.toFixed(2), upcharge: '' });
+
+    // Upcharge sizes
+    var selSizes = Object.keys(selectedSizes).filter(function(s) { return selectedSizes[s]; });
+    UPCHARGE_SIZES.forEach(function(size) {
+      if (productData.availableSizes.indexOf(size) < 0) return;
+      var upcharge = pricingConfig.sizeUpcharges[size] || 0;
+      if (upcharge > 0 || selSizes.indexOf(size) >= 0) {
+        var sizeRetail = calcVariantPrice(wholesale, size, pricingConfig);
+        if (sizeRetail > maxRetail) maxRetail = sizeRetail;
+        if (sizeRetail < minRetail) minRetail = sizeRetail;
+        var upText = upcharge > 0 ? ' (+$' + upcharge.toFixed(2) + ')' : '';
+        lines.push({ label: size, value: '$' + sizeRetail.toFixed(2), upcharge: upText });
+      }
+    });
+
+    // Margin range
+    var minMargin = calcMargin(minRetail, wholesale);
+    var maxMargin = calcMargin(maxRetail, wholesale);
+
+    var html = '';
+    lines.forEach(function(line) {
+      html += '<div class="price-summary-line">';
+      html += '<span class="ps-label">' + escHtml(line.label) + '</span>';
+      html += '<span><span class="ps-value">' + line.value + '</span>';
+      if (line.upcharge) html += ' <span class="ps-upcharge">' + line.upcharge + '</span>';
+      html += '</span>';
+      html += '</div>';
+    });
+
+    // Margin range line
+    var marginClass = minMargin.percent >= 40 ? 'margin-good' : (minMargin.percent >= 25 ? 'margin-thin' : 'margin-bad');
+    if (minRetail === maxRetail) {
+      html += '<div class="margin-range ' + marginClass + '">Margin: $' + minMargin.dollars.toFixed(2) + ' per unit (' + minMargin.percent.toFixed(1) + '%)</div>';
+    } else {
+      html += '<div class="margin-range ' + marginClass + '">Margin: $' + minMargin.dollars.toFixed(2) + ' - $' + maxMargin.dollars.toFixed(2) + ' per unit (' + minMargin.percent.toFixed(1) + '% - ' + maxMargin.percent.toFixed(1) + '%)</div>';
+    }
+
+    priceSummary.innerHTML = html;
+    priceSummary.classList.add('visible');
+  }
+
+  // =========================================================================
+  // Render colors (sorted: in-stock first, then alphabetical)
   // =========================================================================
 
   function renderColors() {
     if (!productData) return;
-    const colors = productData.availableColors;
+    // Sort: in-stock first, then alphabetical by displayColor
+    var colors = productData.availableColors.slice().sort(function(a, b) {
+      if (a.inStock && !b.inStock) return -1;
+      if (!a.inStock && b.inStock) return 1;
+      return a.displayColor.localeCompare(b.displayColor);
+    });
 
     // Count
-    const inStockCount = colors.filter(function(c) { return c.inStock; }).length;
+    var inStockCount = colors.filter(function(c) { return c.inStock; }).length;
     colorCount.textContent = '(' + inStockCount + ' of ' + colors.length + ' in stock)';
 
     // Build cards
@@ -582,6 +1068,12 @@
       var card = document.createElement('div');
       card.className = 'color-card' + (isSelected ? ' selected' : '') + (!color.inStock ? ' out-of-stock' : '');
       card.dataset.color = color.catalogColor;
+      card.dataset.displayColor = color.displayColor.toLowerCase();
+
+      // Apply filter
+      if (colorFilterText && color.displayColor.toLowerCase().indexOf(colorFilterText) < 0) {
+        card.classList.add('filtered-out');
+      }
 
       // Image
       if (color.frontImageUrl) {
@@ -638,6 +1130,8 @@
 
       colorGrid.appendChild(card);
     });
+
+    updateFilterCount();
   }
 
   function toggleColor(catalogColor, isOn) {
@@ -650,6 +1144,50 @@
       }
     });
     updateSummary();
+  }
+
+  // =========================================================================
+  // Color filter
+  // =========================================================================
+
+  colorFilterInput.addEventListener('keyup', function() {
+    colorFilterText = colorFilterInput.value.trim().toLowerCase();
+    applyColorFilter();
+  });
+
+  filterClear.addEventListener('click', function() {
+    colorFilterText = '';
+    colorFilterInput.value = '';
+    applyColorFilter();
+  });
+
+  function applyColorFilter() {
+    var cards = colorGrid.querySelectorAll('.color-card');
+    cards.forEach(function(card) {
+      var displayColor = card.dataset.displayColor || '';
+      if (colorFilterText && displayColor.indexOf(colorFilterText) < 0) {
+        card.classList.add('filtered-out');
+      } else {
+        card.classList.remove('filtered-out');
+      }
+    });
+    updateFilterCount();
+    filterClear.style.display = colorFilterText ? 'inline' : 'none';
+  }
+
+  function updateFilterCount() {
+    if (!productData) return;
+    var total = productData.availableColors.length;
+    var cards = colorGrid.querySelectorAll('.color-card');
+    var visible = 0;
+    cards.forEach(function(card) {
+      if (!card.classList.contains('filtered-out')) visible++;
+    });
+    if (colorFilterText) {
+      filterCount.textContent = '(' + visible + ' of ' + total + ' visible)';
+    } else {
+      filterCount.textContent = '';
+    }
   }
 
   // =========================================================================
@@ -671,6 +1209,8 @@
         selectedSizes[size] = cb.checked;
         item.classList.toggle('selected', cb.checked);
         updateSummary();
+        renderUpchargeTable();
+        updatePriceSummary();
       });
       item.appendChild(cb);
 
@@ -686,25 +1226,25 @@
   // =========================================================================
 
   function updateSummary() {
-    var colorCount = Object.values(selectedColors).filter(Boolean).length;
-    var sizeCount = Object.values(selectedSizes).filter(Boolean).length;
-    var variantCount = colorCount * sizeCount;
+    var colorNum = Object.values(selectedColors).filter(Boolean).length;
+    var sizeNum = Object.values(selectedSizes).filter(Boolean).length;
+    var variantCount = colorNum * sizeNum;
 
-    if (colorCount === 0 && sizeCount === 0) {
+    if (colorNum === 0 && sizeNum === 0) {
       summaryText.innerHTML = 'Select at least <strong>1 color</strong> and <strong>1 size</strong> to create a draft';
-    } else if (colorCount === 0) {
+    } else if (colorNum === 0) {
       summaryText.innerHTML = 'Select at least <strong>1 color</strong> to create a draft';
-    } else if (sizeCount === 0) {
+    } else if (sizeNum === 0) {
       summaryText.innerHTML = 'Select at least <strong>1 size</strong> to create a draft';
     } else {
-      summaryText.innerHTML = '<strong>' + colorCount + '</strong> colors &times; <strong>' + sizeCount + '</strong> sizes = <strong>' + variantCount + '</strong> variants';
+      summaryText.innerHTML = '<strong>' + colorNum + '</strong> colors &times; <strong>' + sizeNum + '</strong> sizes = <strong>' + variantCount + '</strong> variants';
     }
 
     createBtn.disabled = variantCount === 0;
   }
 
   // =========================================================================
-  // Select All / Clear All
+  // Select All / Clear All / Quick Select
   // =========================================================================
 
   document.getElementById('selectAllColors').addEventListener('click', function() {
@@ -729,6 +1269,8 @@
     });
     renderSizes();
     updateSummary();
+    renderUpchargeTable();
+    updatePriceSummary();
   });
 
   document.getElementById('clearAllSizes').addEventListener('click', function() {
@@ -737,6 +1279,30 @@
     });
     renderSizes();
     updateSummary();
+    renderUpchargeTable();
+    updatePriceSummary();
+  });
+
+  // Quick-select: Standard (S-XL)
+  document.getElementById('quickStandard').addEventListener('click', function() {
+    Object.keys(selectedSizes).forEach(function(k) {
+      selectedSizes[k] = STANDARD_QUICK_SIZES.indexOf(k) >= 0;
+    });
+    renderSizes();
+    updateSummary();
+    renderUpchargeTable();
+    updatePriceSummary();
+  });
+
+  // Quick-select: S-2XL
+  document.getElementById('quickStandard2xl').addEventListener('click', function() {
+    Object.keys(selectedSizes).forEach(function(k) {
+      selectedSizes[k] = STANDARD_PLUS_2XL.indexOf(k) >= 0;
+    });
+    renderSizes();
+    updateSummary();
+    renderUpchargeTable();
+    updatePriceSummary();
   });
 
   // =========================================================================
@@ -779,9 +1345,8 @@
       return;
     }
 
-    var price = parseFloat(retailPrice.value);
-    if (isNaN(price) || price <= 0) {
-      setStatus('Please enter a valid retail price greater than $0.', 'error');
+    if (pricingConfig.markupPercent <= 0) {
+      setStatus('Please enter a markup percentage greater than 0.', 'error');
       return;
     }
 
@@ -792,9 +1357,20 @@
       description: p.description,
       selectedColors: curatedColors,
       selectedSizes: curatedSizes,
-      basePrice: price,
+      pricingConfig: {
+        markupPercent: pricingConfig.markupPercent,
+        rounding: pricingConfig.rounding,
+        sizeUpcharges: {}
+      },
       wholesaleCost: p.pricing.wholesalePrice
     };
+
+    // Only include upcharges for selected sizes that have upcharges
+    UPCHARGE_SIZES.forEach(function(size) {
+      if (selectedSizes[size] && pricingConfig.sizeUpcharges[size]) {
+        curated.pricingConfig.sizeUpcharges[size] = pricingConfig.sizeUpcharges[size];
+      }
+    });
 
     createBtn.disabled = true;
     showSpinner('Creating WIX draft... This may take 10-20 seconds.');
