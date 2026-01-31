@@ -10,6 +10,8 @@
  * 1. calculateRetailPrice  - wholesale + markup% -> retail price
  * 2. calculateVariantPrice - retail + size upcharge -> final variant price
  * 3. calculateMargin       - retail vs wholesale -> profit dollars and percent
+ * 4. getPricingPreset      - get named preset by key (fallback to 'custom')
+ * 5. getPresetConfig       - get just the PricingConfig from a preset
  *
  * Phase 7: Pricing & Variant Logic
  */
@@ -121,4 +123,123 @@ export function calculateMargin(
     ? Math.round(((retailPrice - wholesaleCost) / retailPrice) * 10000) / 100
     : 0;
   return { dollars, percent };
+}
+
+// =============================================================================
+// Pricing Presets
+// =============================================================================
+
+/** Named pricing presets for common product categories */
+export interface PricingPreset {
+  /** Preset display name */
+  name: string;
+  /** Description of when to use this preset */
+  description: string;
+  /** The pricing configuration */
+  config: PricingConfig;
+}
+
+/** Built-in pricing presets */
+export const PRICING_PRESETS: Record<string, PricingPreset> = {
+  'standard-tee': {
+    name: 'Standard T-Shirt',
+    description: 'Basic tees (PC61, 3001C, etc.) - 100% markup',
+    config: {
+      markupPercent: 100,
+      rounding: 'nearest-99',
+      sizeUpcharges: { ...DEFAULT_SIZE_UPCHARGES },
+    },
+  },
+  'premium-tee': {
+    name: 'Premium T-Shirt',
+    description: 'Tri-blend, fashion fit tees - 120% markup',
+    config: {
+      markupPercent: 120,
+      rounding: 'nearest-99',
+      sizeUpcharges: { ...DEFAULT_SIZE_UPCHARGES },
+    },
+  },
+  'hoodie-fleece': {
+    name: 'Hoodie / Fleece',
+    description: 'Hoodies, crewnecks, fleece - 80% markup',
+    config: {
+      markupPercent: 80,
+      rounding: 'nearest-99',
+      sizeUpcharges: {
+        '2XL': 3.00,
+        '3XL': 4.00,
+        '4XL': 5.00,
+        '5XL': 6.00,
+        '6XL': 7.00,
+      },
+    },
+  },
+  'polo-woven': {
+    name: 'Polo / Woven',
+    description: 'Polos, button-downs, woven shirts - 90% markup',
+    config: {
+      markupPercent: 90,
+      rounding: 'nearest-99',
+      sizeUpcharges: { ...DEFAULT_SIZE_UPCHARGES },
+    },
+  },
+  'outerwear': {
+    name: 'Outerwear / Jacket',
+    description: 'Jackets, vests, rain gear - 70% markup',
+    config: {
+      markupPercent: 70,
+      rounding: 'nearest-99',
+      sizeUpcharges: {
+        '2XL': 4.00,
+        '3XL': 5.00,
+        '4XL': 6.00,
+        '5XL': 8.00,
+        '6XL': 10.00,
+      },
+    },
+  },
+  'headwear': {
+    name: 'Headwear',
+    description: 'Caps, beanies, visors - 100% markup, no size upcharges',
+    config: {
+      markupPercent: 100,
+      rounding: 'nearest-99',
+      sizeUpcharges: {},
+    },
+  },
+  'custom': {
+    name: 'Custom',
+    description: 'Manual markup and upcharges',
+    config: {
+      markupPercent: 100,
+      rounding: 'nearest-99',
+      sizeUpcharges: { ...DEFAULT_SIZE_UPCHARGES },
+    },
+  },
+};
+
+// =============================================================================
+// Preset Helpers
+// =============================================================================
+
+/**
+ * Get a pricing preset by key, falling back to 'custom' if not found.
+ *
+ * @param key - Preset key (e.g., 'standard-tee', 'hoodie-fleece')
+ * @returns The matching PricingPreset, or the 'custom' preset if key not found
+ */
+export function getPricingPreset(key: string): PricingPreset {
+  return PRICING_PRESETS[key] ?? PRICING_PRESETS['custom'];
+}
+
+/**
+ * Get just the config from a preset.
+ *
+ * Convenience wrapper for getPricingPreset(key).config.
+ *
+ * @param key - Preset key (e.g., 'standard-tee', 'hoodie-fleece')
+ * @returns The PricingConfig from the matching preset
+ */
+export function getPresetConfig(key: string): PricingConfig {
+  return getPricingPreset(key).config;
 }
