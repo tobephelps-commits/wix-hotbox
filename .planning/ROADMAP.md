@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Mobile Experience Optimization** - Optimize layouts, touch targets, and flows for 50% mobile traffic
 - [x] **Phase 4: Checkout & Conversion Optimization** - Reduce cart abandonment and streamline checkout flow
 - [x] **Phase 5: SanMar API Foundation** - Build SanMar API client for product data, pricing, and inventory queries
-- [ ] **Phase 6: Product Creation Pipeline** (In progress) - SanMar style number → configured WIX product draft with variants and images
+- [x] **Phase 6: Product Creation Pipeline** - SanMar style number → configured WIX product draft with variants and images
 - [ ] **Phase 7: Pricing & Variant Logic** - Variable pricing rules by product type + per-product variant curation
 - [ ] **Phase 8: Inventory Monitoring** - SanMar blank stock monitoring with low-stock and out-of-stock alerts
 - [ ] **Phase 9: Automated Stock Sync** - WIX product status updates based on SanMar stock levels + notifications
@@ -102,7 +102,7 @@ Plans:
 - [x] 06-02: Build WIX V1 product creation service module
 - [x] 06-03: Build pipeline orchestrator (fetch + create product scripts)
 - [x] 06-04: Build local web preview server for visual curation
-- [ ] 06-05: TBD
+- [x] 06-05: Wire preview UI to pipeline backend and verify end-to-end flow
 
 ### Phase 7: Pricing & Variant Logic
 **Goal**: Flexible pricing rules by product type and per-product variant curation (which colors/sizes to offer)
@@ -159,7 +159,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 3. Mobile Experience Optimization | 3/3 | Complete | 2026-01-30 |
 | 4. Checkout & Conversion Optimization | 3/3 | Complete | 2026-01-30 |
 | 5. SanMar API Foundation | 5/5 | Complete | 2026-01-30 |
-| 6. Product Creation Pipeline | 4/5 | In progress | - |
+| 6. Product Creation Pipeline | 5/5 | Complete | 2026-01-30 |
 | 7. Pricing & Variant Logic | 0/2 | Not started | - |
 | 8. Inventory Monitoring | 0/2 | Not started | - |
 | 9. Automated Stock Sync | 0/2 | Not started | - |
