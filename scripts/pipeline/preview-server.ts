@@ -144,10 +144,29 @@ async function handleCreateProduct(
     const curated: CuratedProduct = JSON.parse(body);
 
     // Validate required fields
-    if (!curated.style || !curated.selectedColors?.length || !curated.selectedSizes?.length) {
+    if (
+      !curated.style ||
+      !curated.selectedColors?.length ||
+      !curated.selectedSizes?.length ||
+      !curated.pricingConfig
+    ) {
       sendJson(res, 200, {
         ok: false,
-        error: 'Missing required fields: style, selectedColors, selectedSizes',
+        error:
+          'Missing required fields: style, selectedColors, selectedSizes, pricingConfig',
+      });
+      return;
+    }
+
+    // Validate pricingConfig
+    if (
+      typeof curated.pricingConfig.markupPercent !== 'number' ||
+      curated.pricingConfig.markupPercent < 0
+    ) {
+      sendJson(res, 200, {
+        ok: false,
+        error:
+          'Invalid pricingConfig: markupPercent must be a non-negative number',
       });
       return;
     }
@@ -160,7 +179,9 @@ async function handleCreateProduct(
       productCache.set(curated.style.toUpperCase(), productData);
     }
 
-    console.log(`[Preview] Creating WIX draft for ${curated.style}...`);
+    console.log(
+      `[Preview] Creating WIX draft for ${curated.style} (${curated.pricingConfig.markupPercent}% markup, ${curated.pricingConfig.rounding} rounding)...`,
+    );
     const result = await createWixProduct(curated, productData);
 
     sendJson(res, 200, { ok: true, result });
