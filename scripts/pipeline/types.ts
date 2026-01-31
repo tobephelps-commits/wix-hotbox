@@ -47,6 +47,17 @@ export interface ProductTemplate {
   colorFilter?: 'all' | string[];
   /** Default collection names */
   collections?: string[];
+  /** Logo overlay settings (optional) */
+  logoOverlay?: {
+    /** Logo name from registry */
+    logoName: string;
+    /** Position preset name or custom coordinates */
+    position: string;
+    /** Scale override (if different from logo registry default) */
+    scale?: number;
+    /** Opacity override */
+    opacity?: number;
+  };
   /** ISO timestamp of creation */
   createdAt: string;
   /** ISO timestamp of last update */

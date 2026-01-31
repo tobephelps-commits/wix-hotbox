@@ -17,7 +17,7 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-import type { CuratedProduct } from './types.js';
+import type { CuratedProduct, ProductTemplate, LogoOverlayConfig } from './types.js';
 import type { ProductData } from './fetch-product.js';
 import { fetchProductData } from './fetch-product.js';
 import {
@@ -35,7 +35,14 @@ import {
 } from './wix-api.js';
 import { calculateRetailPrice, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
 import { getTemplate, saveTemplate, listTemplates } from './templates.js';
-import type { ProductTemplate } from './types.js';
+import {
+  loadLogoRegistry,
+  getLogoEntry,
+  getPositionPreset,
+  listLogos,
+  listPositionPresets,
+  overlayProductImages,
+} from './overlay.js';
 
 // =============================================================================
 // Types
@@ -217,6 +224,34 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     process.exit(0);
   }
 
+  // --list-logos: print all logos from registry and exit (no style needed)
+  if (process.argv.includes('--list-logos')) {
+    const registry = loadLogoRegistry();
+    const logos = Object.entries(registry.logos);
+    console.log('Available logos:');
+    if (logos.length === 0) {
+      console.log('  (none registered)');
+      console.log('  Add logo PNG files to media/logos/ and register them in data/logos.json');
+    } else {
+      for (const [key, entry] of logos) {
+        console.log(`  ${key.padEnd(18)} ${entry.displayName} (scale: ${entry.defaultScale}, blend: ${entry.defaultBlendMode})`);
+      }
+    }
+    process.exit(0);
+  }
+
+  // --list-positions: print all position presets and exit (no style needed)
+  if (process.argv.includes('--list-positions')) {
+    const presets = listPositionPresets();
+    console.log('Available position presets:');
+    for (const [name, pos] of Object.entries(presets)) {
+      console.log(`  ${name.padEnd(18)} x: ${pos.x}, y: ${pos.y}`);
+    }
+    console.log('');
+    console.log('Custom coordinates: Use "x,y" format (e.g., "0.5,0.3")');
+    process.exit(0);
+  }
+
   // --list-templates: print all saved product templates and exit (no style needed)
   if (process.argv.includes('--list-templates')) {
     const templates = await listTemplates();
@@ -246,20 +281,26 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const style = process.argv[2];
   if (!style || style === '--help') {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N]',
     );
     console.error('');
     console.error('Options:');
-    console.error('  --template "name"      Apply saved template (pricing, sizes, colors, collections)');
+    console.error('  --template "name"      Apply saved template (pricing, sizes, colors, collections, logo)');
     console.error('  --save-template "name" Save current settings as reusable template after creation');
     console.error('  --preset KEY           Select pricing preset (default: standard-tee)');
     console.error('  --price N              Set retail price (overrides preset pricing)');
     console.error('  --collection "Name"    Assign to WIX collection (repeatable)');
+    console.error('  --logo NAME            Apply logo overlay from registry (e.g., "bigbarn")');
+    console.error('  --logo-position PRESET Position preset or "x,y" coordinates (default: center-chest)');
+    console.error('  --logo-scale N         Logo scale as proportion of image width (0.1-0.8)');
     console.error('  --list-presets         Show available pricing presets');
     console.error('  --list-templates       Show saved product templates');
+    console.error('  --list-logos           Show available logos from registry');
+    console.error('  --list-positions       Show available position presets');
     console.error('');
     console.error('Precedence (highest to lowest):');
-    console.error('  --price > --preset > --template pricing > default (standard-tee)');
+    console.error('  Pricing: --price > --preset > --template pricing > default (standard-tee)');
+    console.error('  Logo:    --logo > --template logoOverlay > none');
     console.error('');
     console.error('Examples:');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61');
@@ -268,6 +309,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --preset hoodie-fleece');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --price 24.99');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --collection "Big Barn Crossfit" --collection "Clothing"');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --logo bigbarn --logo-position center-chest');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --logo bigbarn --logo-position "0.5,0.3" --logo-scale 0.3');
     if (!style) process.exit(1);
     process.exit(0);
   }
@@ -298,6 +341,33 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     if (process.argv[i] === '--collection' && i + 1 < process.argv.length) {
       collections.push(process.argv[i + 1]);
       i++; // skip the value
+    }
+  }
+
+  // Parse optional --logo argument
+  const logoArgIdx = process.argv.indexOf('--logo');
+  const logoName = logoArgIdx !== -1 ? process.argv[logoArgIdx + 1] : null;
+
+  // Parse optional --logo-position argument
+  const logoPosArgIdx = process.argv.indexOf('--logo-position');
+  const logoPositionArg = logoPosArgIdx !== -1 ? process.argv[logoPosArgIdx + 1] : null;
+
+  // Parse optional --logo-scale argument
+  const logoScaleArgIdx = process.argv.indexOf('--logo-scale');
+  const logoScaleArg = logoScaleArgIdx !== -1 ? parseFloat(process.argv[logoScaleArgIdx + 1]) : null;
+
+  // Validate --logo name against registry if provided
+  if (logoName) {
+    const registry = loadLogoRegistry();
+    if (!registry.logos[logoName]) {
+      const available = Object.keys(registry.logos);
+      console.error(`Error: Logo "${logoName}" not found in registry.`);
+      if (available.length > 0) {
+        console.error(`Available logos: ${available.join(', ')}`);
+      } else {
+        console.error('No logos registered. Add logo PNG files to media/logos/ and register them in data/logos.json');
+      }
+      process.exit(1);
     }
   }
 
@@ -365,6 +435,39 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     const templateCollections = template?.collections ?? [];
     const allCollections = [...new Set([...templateCollections, ...collections])];
 
+    // --- Determine logo overlay config ---
+    // Precedence: --logo > template logoOverlay > none
+    let logoOverlayConfig: LogoOverlayConfig | null = null;
+    let logoSource: string = 'none';
+
+    if (logoName) {
+      // CLI --logo flag takes precedence
+      const logoEntry = getLogoEntry(logoName);
+      const positionName = logoPositionArg ?? 'center-chest';
+      const position = getPositionPreset(positionName);
+      logoOverlayConfig = {
+        logoName,
+        position,
+        scale: logoScaleArg ?? logoEntry.defaultScale,
+        opacity: logoEntry.defaultOpacity,
+        blendMode: logoEntry.defaultBlendMode,
+      };
+      logoSource = `--logo ${logoName} at ${positionName}`;
+    } else if (template?.logoOverlay) {
+      // Template provides logo overlay defaults
+      const tLogo = template.logoOverlay;
+      const position = getPositionPreset(tLogo.position);
+      const logoEntry = getLogoEntry(tLogo.logoName);
+      logoOverlayConfig = {
+        logoName: tLogo.logoName,
+        position,
+        scale: tLogo.scale ?? logoEntry.defaultScale,
+        opacity: tLogo.opacity ?? logoEntry.defaultOpacity,
+        blendMode: logoEntry.defaultBlendMode,
+      };
+      logoSource = `template: ${tLogo.logoName} at ${tLogo.position}`;
+    }
+
     // Print template application summary
     if (template) {
       console.log(`\nApplied template "${template.name}":`);
@@ -374,6 +477,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       if (allCollections.length > 0) {
         console.log(`  Collections: ${allCollections.join(', ')}`);
       }
+      console.log(`  Logo overlay: ${logoOverlayConfig ? `${logoOverlayConfig.logoName} at ${logoSource.split(' at ')[1] || 'center-chest'}` : 'none'}`);
     }
 
     // Auto-curate: select colors and sizes (filtered by template if applicable)
@@ -389,6 +493,21 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       ...(allCollections.length > 0 ? { collections: allCollections } : {}),
     };
 
+    // --- Apply logo overlay to product images (before WIX creation) ---
+    let overlayPaths: string[] = [];
+    if (logoOverlayConfig) {
+      const mediaPayload = buildMediaPayload(curated, data.imagesByColor);
+      const imageUrls = mediaPayload.map((m) => m.url).filter(Boolean);
+
+      if (imageUrls.length > 0) {
+        console.log(`\nApplying logo overlay: ${logoOverlayConfig.logoName} at ${logoSource.split(' at ')[1] || 'center-chest'}...`);
+        overlayPaths = await overlayProductImages(imageUrls, logoOverlayConfig, 'media/overlays/');
+        console.log(`  Logo overlay: Applied ${logoOverlayConfig.logoName} to ${overlayPaths.length} images`);
+        console.log(`  Overlaid images saved to media/overlays/`);
+        console.log(`  Note: Upload overlaid images to WIX Media Manager to replace SanMar photos`);
+      }
+    }
+
     const result = await createWixProduct(curated, data);
     console.log(`\nResult:`);
     console.log(`  Product ID: ${result.productId}`);
@@ -396,6 +515,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.log(`  Variants: ${result.variantsCreated}`);
     console.log(`  Media: ${result.mediaAdded}`);
     console.log(`  Collections: ${result.collectionsAssigned.length > 0 ? result.collectionsAssigned.join(', ') : '(none)'}`);
+    console.log(`  Logo overlay: ${logoOverlayConfig ? `${logoOverlayConfig.logoName} (saved to media/overlays/)` : 'none'}`);
     console.log(`  Status: ${result.status}`);
 
     if (result.warnings.length > 0) {
@@ -416,6 +536,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         ...(curated.collections && curated.collections.length > 0
           ? { collections: curated.collections }
           : {}),
+        ...(logoOverlayConfig ? {
+          logoOverlay: {
+            logoName: logoOverlayConfig.logoName,
+            position: logoPositionArg ?? 'center-chest',
+            scale: logoOverlayConfig.scale,
+            opacity: logoOverlayConfig.opacity,
+          },
+        } : {}),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
