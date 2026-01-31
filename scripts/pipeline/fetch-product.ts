@@ -34,6 +34,7 @@ import {
   groupImagesByColor,
   SanMarError,
   SanMarErrorType,
+  isRetryable,
 } from '../sanmar/index.js';
 
 import type {
@@ -62,8 +63,8 @@ export interface ProductData {
   style: string;
   /** All active products for this style (one per color+size combo) */
   products: ProductInfo[];
-  /** Style-level pricing info */
-  pricing: PricingInfo;
+  /** Style-level pricing info (null if pricing API failed) */
+  pricing: PricingInfo | null;
   /** Per-SKU inventory (color+size with warehouse breakdown) */
   inventory: SkuInventory[];
   /** All images for this style */
@@ -91,35 +92,86 @@ export interface ProductData {
 export async function fetchProductData(style: string): Promise<ProductData> {
   console.log(`Fetching ${style}...`);
 
-  // Run all 4 queries in parallel -- they are independent
-  const [products, pricing, inventory, images] = await Promise.all([
-    getProductByStyle(style).then((result) => {
-      console.log(`  product info \u2713`);
-      return result;
-    }),
-    getStylePricing(style).then((result) => {
-      console.log(`  pricing \u2713`);
-      return result;
-    }),
-    getStyleInventory(style).then((result) => {
-      console.log(`  inventory \u2713`);
-      return result;
-    }),
-    getProductImages(style).then((result) => {
-      console.log(`  images \u2713`);
-      return result;
-    }),
-  ]).catch((error: unknown) => {
-    // Provide clear message for style-not-found errors
+  // Run all 4 queries in parallel using allSettled for graceful degradation.
+  // Product info is REQUIRED; pricing, inventory, and media are OPTIONAL.
+  const [productResult, pricingResult, inventoryResult, imageResult] =
+    await Promise.allSettled([
+      getProductByStyle(style),
+      getStylePricing(style),
+      getStyleInventory(style),
+      getProductImages(style),
+    ]);
+
+  // Product info is REQUIRED -- if this fails, we cannot continue
+  if (productResult.status === 'rejected') {
+    const error = productResult.reason;
     if (
       error instanceof SanMarError &&
       error.type === SanMarErrorType.INVALID_STYLE
     ) {
       throw new Error(`Style '${style}' not found in SanMar catalog`);
     }
-    // Let other SanMar errors propagate with their original classification
-    throw error;
-  });
+    // Non-retryable user errors should throw immediately
+    if (error instanceof SanMarError && !isRetryable(error)) {
+      throw error;
+    }
+    throw new Error(
+      `Failed to fetch product info for '${style}': ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  const products = productResult.value;
+  console.log(`  product info \u2713`);
+
+  // Pricing is OPTIONAL -- use null if failed
+  let pricing: PricingInfo | null = null;
+  if (pricingResult.status === 'fulfilled') {
+    pricing = pricingResult.value;
+    console.log(`  pricing \u2713`);
+  } else {
+    const err = pricingResult.reason;
+    const msg = err instanceof Error ? err.message : String(err);
+    const retryHint =
+      err instanceof SanMarError && isRetryable(err)
+        ? ' (retryable -- try again later)'
+        : '';
+    console.warn(
+      `  pricing \u2717 WARNING: Pricing data unavailable for ${style}: ${msg}${retryHint}`,
+    );
+  }
+
+  // Inventory is OPTIONAL -- use empty array if failed
+  let inventory: SkuInventory[] = [];
+  if (inventoryResult.status === 'fulfilled') {
+    inventory = inventoryResult.value;
+    console.log(`  inventory \u2713`);
+  } else {
+    const err = inventoryResult.reason;
+    const msg = err instanceof Error ? err.message : String(err);
+    const retryHint =
+      err instanceof SanMarError && isRetryable(err)
+        ? ' (retryable -- try again later)'
+        : '';
+    console.warn(
+      `  inventory \u2717 WARNING: Inventory data unavailable for ${style}: ${msg}${retryHint}`,
+    );
+  }
+
+  // Media is OPTIONAL -- use empty array if failed
+  let images: MediaContent[] = [];
+  if (imageResult.status === 'fulfilled') {
+    images = imageResult.value;
+    console.log(`  images \u2713`);
+  } else {
+    const err = imageResult.reason;
+    const msg = err instanceof Error ? err.message : String(err);
+    const retryHint =
+      err instanceof SanMarError && isRetryable(err)
+        ? ' (retryable -- try again later)'
+        : '';
+    console.warn(
+      `  images \u2717 WARNING: Image data unavailable for ${style}: ${msg}${retryHint}`,
+    );
+  }
 
   // Group images by color for the media payload builder
   const imagesByColor = groupImagesByColor(images);
@@ -163,8 +215,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __fetch_filename) {
     console.log(`Style:       ${p.style}`);
     console.log(`Colors:      ${p.availableColors.length} available`);
     console.log(`Sizes:       ${p.availableSizes.join(', ')}`);
-    console.log(`Wholesale:   $${p.pricing.wholesalePrice.toFixed(2)}`);
-    console.log(`Retail:      $${p.pricing.suggestedRetail.toFixed(2)}`);
+    console.log(`Wholesale:   ${p.pricing.wholesalePrice > 0 ? `$${p.pricing.wholesalePrice.toFixed(2)}` : 'unavailable'}`);
+    console.log(`Retail:      ${p.pricing.suggestedRetail > 0 ? `$${p.pricing.suggestedRetail.toFixed(2)}` : 'unavailable'}`);
     console.log(`Sale Active: ${p.pricing.saleActive ? 'Yes' : 'No'}`);
     console.log(`Images:      ${data.images.length} total`);
     console.log('========================================');
@@ -172,7 +224,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __fetch_filename) {
     // Show per-color summary
     console.log('\nColor Summary:');
     for (const color of p.availableColors) {
-      const stockLabel = color.inStock ? 'In Stock' : 'Out of Stock';
+      const stockLabel = color.stockUnknown ? 'Stock Unknown' : (color.inStock ? 'In Stock' : 'Out of Stock');
       const swatchLabel = color.swatchUrl ? 'swatch' : 'no swatch';
       const imageLabel = color.frontImageUrl ? 'front img' : 'no front img';
       console.log(

@@ -79,15 +79,20 @@ const WIX_NAME_MAX_LENGTH = 80;
  * available sizes in SanMar sort order, per-color stock status,
  * and pricing information.
  *
+ * Handles graceful degradation:
+ * - null pricing: wholesale/retail set to 0, saleActive false (with warning)
+ * - empty inventory: colors show stockUnknown instead of out-of-stock
+ * - empty images: colors have null swatch/front URLs (already handled)
+ *
  * @param products - Product info array from getProductByStyle
- * @param pricing - Pricing info from getStylePricing
+ * @param pricing - Pricing info from getStylePricing (null if API failed)
  * @param images - All media content from getProductImages
  * @param inventory - All SKU inventory from getStyleInventory
  * @returns ProductPreview for the curation UI
  */
 export function buildProductPreview(
   products: ProductInfo[],
-  pricing: PricingInfo,
+  pricing: PricingInfo | null,
   images: MediaContent[],
   inventory: SkuInventory[],
 ): ProductPreview {
@@ -105,6 +110,9 @@ export function buildProductPreview(
   // Extract available sizes in SanMar sort order
   const availableSizes = extractAvailableSizes(products);
 
+  // Determine if inventory data is available
+  const inventoryAvailable = inventory.length > 0;
+
   // Build color previews with images and stock status
   const availableColors: ColorPreview[] = uniqueColors.map((colorPair) => {
     // Find swatch image for this color
@@ -121,6 +129,19 @@ export function buildProductPreview(
         img.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
     );
 
+    // Stock status depends on whether inventory data is available
+    if (!inventoryAvailable) {
+      // No inventory data -- mark as stock unknown (visible by default)
+      return {
+        catalogColor: colorPair.catalogColor,
+        displayColor: colorPair.displayColor,
+        swatchUrl: swatchImage?.url ?? null,
+        frontImageUrl: frontImage?.url ?? null,
+        inStock: false,
+        stockUnknown: true,
+      };
+    }
+
     // Check if any size for this color is in stock
     const colorInventory = inventory.filter(
       (sku) => sku.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
@@ -136,12 +157,24 @@ export function buildProductPreview(
     };
   });
 
-  // Build pricing preview
-  const pricingPreview: PricingPreview = {
-    wholesalePrice: getEffectivePrice(pricing),
-    suggestedRetail: getSuggestedRetail(pricing),
-    saleActive: isSaleActive(pricing),
-  };
+  // Build pricing preview -- handle null pricing gracefully
+  let pricingPreview: PricingPreview;
+  if (pricing) {
+    pricingPreview = {
+      wholesalePrice: getEffectivePrice(pricing),
+      suggestedRetail: getSuggestedRetail(pricing),
+      saleActive: isSaleActive(pricing),
+    };
+  } else {
+    console.warn(
+      `Pricing data unavailable for ${basic.style} -- wholesale cost will need manual entry`,
+    );
+    pricingPreview = {
+      wholesalePrice: 0,
+      suggestedRetail: 0,
+      saleActive: false,
+    };
+  }
 
   return {
     style: basic.style,
@@ -321,11 +354,11 @@ export function buildMediaPayload(
 export function buildVariantUpdates(
   curated: CuratedProduct,
   products: ProductInfo[],
-  pricing: PricingInfo,
+  pricing: PricingInfo | null,
   inventory: SkuInventory[],
 ): WixVariantUpdate[] {
   const variants: WixVariantUpdate[] = [];
-  const wholesaleCost = getEffectivePrice(pricing);
+  const wholesaleCost = pricing ? getEffectivePrice(pricing) : curated.wholesaleCost;
 
   for (const color of curated.selectedColors) {
     for (const size of curated.selectedSizes) {

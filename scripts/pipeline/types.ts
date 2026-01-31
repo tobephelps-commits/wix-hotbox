@@ -234,6 +234,8 @@ export interface ColorPreview {
   frontImageUrl: string | null;
   /** true if any size for this color is in stock */
   inStock: boolean;
+  /** true if inventory data was unavailable (distinct from out-of-stock) */
+  stockUnknown?: boolean;
 }
 
 /**

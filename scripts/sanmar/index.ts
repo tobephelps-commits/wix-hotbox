@@ -127,4 +127,4 @@ export {
 // Error Handling — For Consumer Error Handling
 // =============================================================================
 
-export { SanMarError, SanMarErrorType } from './utils/error-handler.js';
+export { SanMarError, SanMarErrorType, isRetryable } from './utils/error-handler.js';
