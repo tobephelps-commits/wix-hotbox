@@ -2,11 +2,8 @@
  * Inventory Monitor Polling Engine
  *
  * Core polling logic that periodically fetches SanMar inventory
- * for all tracked products and saves snapshots to JSON files.
- *
- * The poller does NOT evaluate alerts -- that's Plan 02's job.
- * It only fetches and stores snapshots. Plan 02 will hook into
- * pollOnce results to compare against previous snapshots.
+ * for all tracked products, saves snapshots, detects stock level
+ * transitions, and generates alerts.
  *
  * Usage:
  *   import { pollOnce, startPolling } from './poller.js';
@@ -20,8 +17,10 @@
 import 'dotenv/config';
 
 import { getStyleInventory, getTotalQuantity, isWellStocked } from '../sanmar/index.js';
-import type { MonitorConfig, InventorySnapshot, SkuSnapshot } from './types.js';
-import { loadConfig, loadTrackedProducts, saveSnapshot } from './store.js';
+import type { MonitorConfig, InventorySnapshot, SkuSnapshot, StockAlert } from './types.js';
+import { loadConfig, loadTrackedProducts, loadLatestSnapshot, saveSnapshot } from './store.js';
+import { detectAlerts, formatAlertSummary } from './alerts.js';
+import { appendAlerts, ensureAlertLog } from './alert-log.js';
 
 // =============================================================================
 // Single Poll Cycle
@@ -34,12 +33,19 @@ import { loadConfig, loadTrackedProducts, saveSnapshot } from './store.js';
  * 1. Call getStyleInventory(style) from SanMar API
  * 2. Convert SkuInventory[] to InventorySnapshot (sum warehouse qtys)
  * 3. Filter to tracked colors/sizes if specified
- * 4. Save snapshot via store.saveSnapshot
+ * 4. Load previous snapshot for change detection
+ * 5. Detect stock level transitions and generate alerts
+ * 6. Save new snapshot (overwriting previous)
+ * 7. Append alerts to persistent log
  *
  * @param config - Monitor configuration
+ * @param onAlerts - Optional callback invoked when alerts are generated
  * @returns Array of new inventory snapshots (one per tracked product)
  */
-export async function pollOnce(config: MonitorConfig): Promise<InventorySnapshot[]> {
+export async function pollOnce(
+  config: MonitorConfig,
+  onAlerts?: (alerts: StockAlert[]) => void,
+): Promise<InventorySnapshot[]> {
   const products = await loadTrackedProducts(config);
 
   if (products.length === 0) {
@@ -49,6 +55,7 @@ export async function pollOnce(config: MonitorConfig): Promise<InventorySnapshot
 
   console.log(`[Monitor] Polling ${products.length} tracked product(s)...`);
   const snapshots: InventorySnapshot[] = [];
+  let totalAlerts = 0;
 
   for (const product of products) {
     try {
@@ -81,9 +88,27 @@ export async function pollOnce(config: MonitorConfig): Promise<InventorySnapshot
         skus: skuSnapshots,
       };
 
-      // Persist snapshot
+      // Load previous snapshot BEFORE saving new one (for change detection)
+      const previousSnapshot = await loadLatestSnapshot(product.style, config);
+
+      // Persist new snapshot (overwrites previous)
       await saveSnapshot(snapshot, config);
       snapshots.push(snapshot);
+
+      // Detect stock level transitions
+      const alerts = detectAlerts(snapshot, previousSnapshot, config, product.name);
+
+      if (alerts.length > 0) {
+        // Log alerts to console
+        console.log(formatAlertSummary(alerts));
+        // Persist alerts to log file
+        await appendAlerts(alerts, config);
+        // Invoke callback if provided
+        if (onAlerts) {
+          onAlerts(alerts);
+        }
+        totalAlerts += alerts.length;
+      }
 
       console.log(`[Monitor] ${product.style}: ${skuSnapshots.length} SKUs fetched`);
     } catch (err) {
@@ -92,7 +117,10 @@ export async function pollOnce(config: MonitorConfig): Promise<InventorySnapshot
     }
   }
 
-  console.log(`[Monitor] Poll complete. ${snapshots.length}/${products.length} products updated.`);
+  // Ensure alerts.json exists (even if empty) after every poll cycle
+  await ensureAlertLog(config);
+
+  console.log(`[Monitor] Poll complete. ${products.length} products checked, ${totalAlerts} alerts generated.`);
   return snapshots;
 }
 

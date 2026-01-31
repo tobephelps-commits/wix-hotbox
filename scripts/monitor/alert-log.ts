@@ -99,6 +99,25 @@ export async function getRecentAlerts(
 }
 
 /**
+ * Ensure the alert log file exists (creates empty array if missing).
+ *
+ * Called after each poll cycle to satisfy the invariant that
+ * alerts.json always exists after polling completes.
+ *
+ * @param config - Monitor configuration (provides dataDir)
+ */
+export async function ensureAlertLog(config: MonitorConfig): Promise<void> {
+  const filePath = getAlertLogPath(config);
+  try {
+    await readFile(filePath, 'utf-8');
+  } catch {
+    // File doesn't exist -- create empty log
+    await mkdir(config.dataDir, { recursive: true });
+    await writeFile(filePath, JSON.stringify([], null, 2), 'utf-8');
+  }
+}
+
+/**
  * Clear the entire alert log by deleting alerts.json.
  *
  * @param config - Monitor configuration (provides dataDir)
