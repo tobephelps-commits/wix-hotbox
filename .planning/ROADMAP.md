@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Checkout & Conversion Optimization** - Reduce cart abandonment and streamline checkout flow
 - [x] **Phase 5: SanMar API Foundation** - Build SanMar API client for product data, pricing, and inventory queries
 - [x] **Phase 6: Product Creation Pipeline** - SanMar style number → configured WIX product draft with variants and images
-- [ ] **Phase 7: Pricing & Variant Logic** - Variable pricing rules by product type + per-product variant curation
+- [x] **Phase 7: Pricing & Variant Logic** - Variable pricing rules by product type + per-product variant curation
 - [ ] **Phase 8: Inventory Monitoring** - SanMar blank stock monitoring with low-stock and out-of-stock alerts
 - [ ] **Phase 9: Automated Stock Sync** - WIX product status updates based on SanMar stock levels + notifications
 - [ ] **Phase 10: Integration Polish** - End-to-end pipeline testing, edge cases, error handling, and documentation
@@ -113,7 +113,7 @@ Plans:
 Plans:
 - [x] 07-01: Pricing rules engine with markup presets and size upcharges
 - [x] 07-02: Pipeline integration — wire pricing config into mapper, types, and create flow
-- [ ] 07-03: Preview UI pricing controls and curation UX improvements
+- [x] 07-03: Preview UI pricing controls and curation UX improvements
 
 ### Phase 8: Inventory Monitoring
 **Goal**: Automated monitoring of SanMar blank inventory with configurable alert thresholds
@@ -161,7 +161,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 4. Checkout & Conversion Optimization | 3/3 | Complete | 2026-01-30 |
 | 5. SanMar API Foundation | 5/5 | Complete | 2026-01-30 |
 | 6. Product Creation Pipeline | 5/5 | Complete | 2026-01-30 |
-| 7. Pricing & Variant Logic | 2/3 | In progress | - |
+| 7. Pricing & Variant Logic | 3/3 | Complete | 2026-01-30 |
 | 8. Inventory Monitoring | 0/2 | Not started | - |
 | 9. Automated Stock Sync | 0/2 | Not started | - |
 | 10. Integration Polish | 0/2 | Not started | - |
