@@ -3,10 +3,10 @@
  *
  * Fetches ALL SanMar data needed for a given style number in a single
  * coordinated call. Queries 4 SanMar API endpoints in parallel:
- *   1. getProductByStyle  → product info (all colors/sizes)
- *   2. getStylePricing    → pricing info
- *   3. getStyleInventory  → inventory per SKU
- *   4. getProductImages   → all media content
+ *   1. getProductByStyle  -> product info (all colors/sizes)
+ *   2. getStylePricing    -> pricing info
+ *   3. getStyleInventory  -> inventory per SKU
+ *   4. getProductImages   -> all media content
  *
  * After all queries return, builds a ProductPreview for the curation UI
  * and groups images by color for the media payload builder.
@@ -23,6 +23,8 @@
  */
 
 import 'dotenv/config';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 import {
   getProductByStyle,
@@ -142,7 +144,8 @@ export async function fetchProductData(style: string): Promise<ProductData> {
 // CLI Runner
 // =============================================================================
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
+const __fetch_filename = fileURLToPath(import.meta.url);
+if (process.argv[1] && path.resolve(process.argv[1]) === __fetch_filename) {
   const style = process.argv[2];
   if (!style) {
     console.error('Usage: npx tsx scripts/pipeline/fetch-product.ts <STYLE>');
