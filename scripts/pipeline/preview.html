@@ -491,12 +491,132 @@
     font-size: 16px;
   }
 
+  /* Logo overlay section */
+  .logo-overlay-section {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    display: none;
+  }
+  .logo-overlay-section.visible { display: block; }
+  .logo-overlay-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+  }
+  .logo-overlay-title .optional-badge {
+    font-weight: 400;
+    font-size: 12px;
+    color: #999;
+    margin-left: 8px;
+  }
+  .logo-controls {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .logo-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .logo-control label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+  .logo-control select,
+  .logo-control input[type="number"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  .logo-control select:focus,
+  .logo-control input[type="number"]:focus {
+    border-color: #6c63ff;
+  }
+  .logo-control select { min-width: 180px; }
+  .logo-control input[type="number"] { width: 80px; }
+  .logo-scale-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-scale-row input[type="range"] {
+    width: 160px;
+    cursor: pointer;
+  }
+  .logo-scale-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    min-width: 36px;
+  }
+  .custom-coords {
+    display: none;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .custom-coords.visible { display: flex; }
+  .custom-coords input[type="number"] {
+    width: 70px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+  }
+  .custom-coords input[type="number"]:focus { border-color: #6c63ff; }
+  .custom-coords label {
+    font-size: 12px;
+    color: #666;
+  }
+  .overlay-preview-area {
+    display: none;
+    margin-top: 16px;
+    text-align: center;
+  }
+  .overlay-preview-area.visible { display: block; }
+  .overlay-preview-img {
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .overlay-details {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+  }
+  .overlay-note {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #eef4ff;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #555;
+    display: none;
+  }
+  .overlay-note.visible { display: block; }
+
   /* Responsive stacking for pricing controls */
   @media (max-width: 640px) {
     .pricing-controls { flex-direction: column; }
     .pricing-control select { min-width: 100%; }
     .price-display { flex-direction: column; gap: 8px; }
     .upcharge-table { grid-template-columns: 1fr; }
+    .logo-controls { flex-direction: column; }
+    .logo-control select { min-width: 100%; }
   }
 </style>
 </head>
@@ -618,6 +738,48 @@
     <div class="size-grid" id="sizeGrid"></div>
   </div>
 
+  <!-- Logo Overlay section -->
+  <div class="logo-overlay-section" id="logoOverlaySection">
+    <div class="logo-overlay-title">
+      LOGO OVERLAY <span class="optional-badge">(Optional)</span>
+    </div>
+    <div class="logo-controls">
+      <div class="logo-control">
+        <label for="logoSelect">Logo</label>
+        <select id="logoSelect">
+          <option value="">None (no overlay)</option>
+        </select>
+      </div>
+      <div class="logo-control">
+        <label for="positionSelect">Position</label>
+        <select id="positionSelect">
+          <option value="center-chest">Center Chest</option>
+        </select>
+      </div>
+      <div class="logo-control">
+        <label>Scale</label>
+        <div class="logo-scale-row">
+          <input type="range" id="scaleSlider" min="0.10" max="0.60" step="0.05" value="0.25">
+          <span class="logo-scale-label" id="scaleLabel">25%</span>
+        </div>
+      </div>
+    </div>
+    <div class="custom-coords" id="customCoords">
+      <label>X:</label>
+      <input type="number" id="customX" min="0" max="1" step="0.05" value="0.50">
+      <label>Y:</label>
+      <input type="number" id="customY" min="0" max="1" step="0.05" value="0.33">
+    </div>
+    <button type="button" class="btn btn-primary" id="previewOverlayBtn" disabled>Preview Overlay</button>
+    <div class="overlay-preview-area" id="overlayPreviewArea">
+      <img class="overlay-preview-img" id="overlayPreviewImg" alt="Logo overlay preview">
+      <div class="overlay-details" id="overlayDetails"></div>
+    </div>
+    <div class="overlay-note" id="overlayNote">
+      Logo will be applied to all product images during creation. Overlaid images saved to media/overlays/
+    </div>
+  </div>
+
   <!-- Summary bar -->
   <div class="summary-bar" id="summaryBar">
     <div class="summary-text" id="summaryText"></div>
@@ -679,6 +841,8 @@
   // =========================================================================
 
   var productData = null;   // ProductPreview from server
+  var logoData = null;      // { logos: Record, positionPresets: Record } from /api/logos
+  var overlayBlobUrl = null; // Current blob URL for overlay preview (to revoke)
   var selectedColors = {};  // { catalogColor: true/false }
   var selectedSizes = {};   // { size: true/false }
   var pricingConfig = {
@@ -725,6 +889,21 @@
   var upchargeSection = document.getElementById('upchargeSection');
   var upchargeTable = document.getElementById('upchargeTable');
   var priceSummary = document.getElementById('priceSummary');
+
+  // Logo overlay DOM refs
+  var logoOverlaySection = document.getElementById('logoOverlaySection');
+  var logoSelect = document.getElementById('logoSelect');
+  var positionSelect = document.getElementById('positionSelect');
+  var scaleSlider = document.getElementById('scaleSlider');
+  var scaleLabel = document.getElementById('scaleLabel');
+  var customCoords = document.getElementById('customCoords');
+  var customX = document.getElementById('customX');
+  var customY = document.getElementById('customY');
+  var previewOverlayBtn = document.getElementById('previewOverlayBtn');
+  var overlayPreviewArea = document.getElementById('overlayPreviewArea');
+  var overlayPreviewImg = document.getElementById('overlayPreviewImg');
+  var overlayDetails = document.getElementById('overlayDetails');
+  var overlayNote = document.getElementById('overlayNote');
 
   // =========================================================================
   // Status helpers
@@ -818,6 +997,7 @@
     renderSizes();
     updatePricingDisplay();
     updateSummary();
+    showLogoSection();
 
     // Show color filter if many colors
     if (p.availableColors.length > 10) {
@@ -1421,6 +1601,197 @@
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
   }
+
+  // =========================================================================
+  // Logo Overlay
+  // =========================================================================
+
+  // Fetch logo registry on page load
+  async function fetchLogos() {
+    try {
+      var res = await fetch('/api/logos');
+      var json = await res.json();
+      logoData = json;
+
+      var logoNames = Object.keys(logoData.logos || {});
+      if (logoNames.length === 0) {
+        // No logos registered -- hide section entirely
+        logoOverlaySection.classList.remove('visible');
+        return;
+      }
+
+      // Populate logo dropdown
+      logoSelect.innerHTML = '<option value="">None (no overlay)</option>';
+      logoNames.forEach(function(name) {
+        var entry = logoData.logos[name];
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = entry.displayName || name;
+        logoSelect.appendChild(opt);
+      });
+
+      // Populate position presets dropdown
+      var presets = logoData.positionPresets || {};
+      var presetNames = Object.keys(presets);
+      positionSelect.innerHTML = '';
+      presetNames.forEach(function(name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        // Format name: "center-chest" -> "Center Chest"
+        opt.textContent = name.split('-').map(function(w) {
+          return w.charAt(0).toUpperCase() + w.slice(1);
+        }).join(' ');
+        positionSelect.appendChild(opt);
+      });
+      // Add Custom option
+      var customOpt = document.createElement('option');
+      customOpt.value = 'custom';
+      customOpt.textContent = 'Custom...';
+      positionSelect.appendChild(customOpt);
+
+    } catch (err) {
+      console.warn('Failed to fetch logos:', err);
+      logoData = null;
+    }
+  }
+
+  // Show logo overlay section when product is loaded
+  function showLogoSection() {
+    if (!logoData) return;
+    var logoNames = Object.keys(logoData.logos || {});
+    if (logoNames.length > 0) {
+      logoOverlaySection.classList.add('visible');
+    }
+  }
+
+  // Logo select change handler
+  logoSelect.addEventListener('change', function() {
+    var logoName = logoSelect.value;
+    if (logoName && logoData && logoData.logos[logoName]) {
+      previewOverlayBtn.disabled = false;
+      overlayNote.classList.add('visible');
+      // Update scale slider default from logo entry
+      var entry = logoData.logos[logoName];
+      if (entry.defaultScale) {
+        scaleSlider.value = entry.defaultScale;
+        scaleLabel.textContent = Math.round(entry.defaultScale * 100) + '%';
+      }
+    } else {
+      previewOverlayBtn.disabled = true;
+      overlayPreviewArea.classList.remove('visible');
+      overlayNote.classList.remove('visible');
+    }
+  });
+
+  // Position select change handler
+  positionSelect.addEventListener('change', function() {
+    if (positionSelect.value === 'custom') {
+      customCoords.classList.add('visible');
+    } else {
+      customCoords.classList.remove('visible');
+    }
+  });
+
+  // Scale slider handler
+  scaleSlider.addEventListener('input', function() {
+    scaleLabel.textContent = Math.round(parseFloat(scaleSlider.value) * 100) + '%';
+  });
+
+  // Preview overlay button handler
+  previewOverlayBtn.addEventListener('click', function() {
+    generateOverlayPreview();
+  });
+
+  async function generateOverlayPreview() {
+    if (!productData || !logoSelect.value) return;
+
+    // Find first front image URL from selected colors (or any available color)
+    var imageUrl = null;
+    var colors = productData.availableColors;
+    // Prefer selected colors
+    for (var i = 0; i < colors.length; i++) {
+      if (selectedColors[colors[i].catalogColor] && colors[i].frontImageUrl) {
+        imageUrl = colors[i].frontImageUrl;
+        break;
+      }
+    }
+    // Fallback: any color with front image
+    if (!imageUrl) {
+      for (var j = 0; j < colors.length; j++) {
+        if (colors[j].frontImageUrl) {
+          imageUrl = colors[j].frontImageUrl;
+          break;
+        }
+      }
+    }
+    if (!imageUrl) {
+      setStatus('No product image available for overlay preview.', 'error');
+      return;
+    }
+
+    // Determine position
+    var position;
+    if (positionSelect.value === 'custom') {
+      position = parseFloat(customX.value) + ',' + parseFloat(customY.value);
+    } else {
+      position = positionSelect.value;
+    }
+
+    var scale = parseFloat(scaleSlider.value);
+
+    previewOverlayBtn.disabled = true;
+    previewOverlayBtn.textContent = 'Generating...';
+
+    try {
+      var res = await fetch('/api/overlay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl: imageUrl,
+          logoName: logoSelect.value,
+          position: position,
+          scale: scale
+        })
+      });
+
+      if (!res.ok) {
+        var errJson = await res.json();
+        setStatus('Overlay error: ' + (errJson.error || 'Unknown error'), 'error');
+        previewOverlayBtn.disabled = false;
+        previewOverlayBtn.textContent = 'Preview Overlay';
+        return;
+      }
+
+      var blob = await res.blob();
+
+      // Revoke previous blob URL to prevent memory leaks
+      if (overlayBlobUrl) {
+        URL.revokeObjectURL(overlayBlobUrl);
+      }
+      overlayBlobUrl = URL.createObjectURL(blob);
+
+      overlayPreviewImg.src = overlayBlobUrl;
+      overlayPreviewArea.classList.add('visible');
+
+      // Show details
+      var logoEntry = logoData.logos[logoSelect.value];
+      var posLabel = positionSelect.value === 'custom'
+        ? 'Custom (' + customX.value + ', ' + customY.value + ')'
+        : positionSelect.options[positionSelect.selectedIndex].textContent;
+      overlayDetails.textContent = 'Logo: ' + (logoEntry.displayName || logoSelect.value) +
+        ' | Position: ' + posLabel +
+        ' | Scale: ' + Math.round(scale * 100) + '%';
+
+    } catch (err) {
+      setStatus('Overlay error: ' + (err.message || err), 'error');
+    }
+
+    previewOverlayBtn.disabled = false;
+    previewOverlayBtn.textContent = 'Preview Overlay';
+  }
+
+  // Fetch logos on page load
+  fetchLogos();
 
   // =========================================================================
   // Auto-load style from URL query param
