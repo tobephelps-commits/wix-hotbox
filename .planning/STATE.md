@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 5 COMPLETE -- SanMar API Foundation. Ready for Phase 6.
+**Current focus:** Phase 6 IN PROGRESS -- Product Creation Pipeline.
 
 ## Current Position
 
-Phase: 5 of 10 (SanMar API Foundation) -- COMPLETE
-Plan: 5 of 5 in current phase -- COMPLETE
-Status: Phase complete
-Last activity: 2026-01-30 -- Completed 05-05-PLAN.md (public API export, demo, bug fixes)
+Phase: 6 of 10 (Product Creation Pipeline)
+Plan: 1 of 5 in current phase (06-02 complete; 06-01, 06-03, 06-04, 06-05 pending)
+Status: In progress
+Last activity: 2026-01-30 -- Completed 06-02-PLAN.md (WIX V1 API service module)
 
-Progress: ██████░░░░ 60%
+Progress: ██████░░░░ 66%
 
 ## Performance Metrics
 
@@ -34,7 +34,7 @@ Progress: ██████░░░░ 60%
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 05-01, 05-02, 05-03, 05-04, 05-05
+- Last 5 plans: 05-03, 05-04, 05-05, 06-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -94,6 +94,10 @@ Recent decisions affecting current work:
 - errorOccurred (double-r) in pricing/inventory WSDLs vs errorOccured (single-r) in product info WSDL
 - PromoStandards inventory returns actual counts (not capped at 1500) unlike Standard endpoint
 - describeClient() + raw response inspection are essential for discovering actual WSDL method signatures
+- Native fetch over axios for WIX API calls -- Node.js 18+ built-in, no extra dependency
+- WIX site ID hardcoded as constant (single-site deployment), not env var
+- wix-site-id header included in all WIX API requests for V1 compatibility
+- Function-export module pattern for WIX API service (not class-based), matching SanMar service pattern
 
 ### Key Findings (Phase 1)
 
@@ -199,6 +203,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 05-05-PLAN.md (public API export, demo, bug fixes). Phase 5 COMPLETE.
-Resume file: .planning/phases/05-sanmar-api-foundation/05-05-SUMMARY.md
-Next: Phase 6 -- Product Creation Pipeline (SanMar style number -> WIX product draft)
+Stopped at: Completed 06-02-PLAN.md (WIX V1 API service module). Phase 6 in progress.
+Resume file: .planning/phases/06-product-creation-pipeline/06-02-SUMMARY.md
+Next: Execute remaining Phase 6 plans (06-01, 06-03, 06-04, 06-05)
