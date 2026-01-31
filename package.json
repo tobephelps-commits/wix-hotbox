@@ -21,7 +21,8 @@
     "sync:list": "npx tsx scripts/sync/manage.ts list",
     "sync:scan": "npx tsx scripts/sync/manage.ts scan",
     "sync:run": "npx tsx scripts/sync/manage.ts sync",
-    "sync:start": "npx tsx scripts/sync/manage.ts start"
+    "sync:start": "npx tsx scripts/sync/manage.ts start",
+    "validate": "npx tsx scripts/pipeline/validate-pipeline.ts"
   },
   "keywords": [],
   "author": "",
