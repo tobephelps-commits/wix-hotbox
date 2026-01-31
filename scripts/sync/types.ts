@@ -63,9 +63,34 @@ export interface SyncResult {
 // =============================================================================
 
 /**
+ * Email notification configuration.
+ *
+ * Uses nodemailer to send SMTP-based email digests of stock changes.
+ * Works with any SMTP provider (Gmail, Outlook, SendGrid, custom).
+ */
+export interface NotificationConfig {
+  /** Whether email notifications are enabled */
+  enabled: boolean;
+  /** SMTP connection settings */
+  smtp: {
+    host: string;       // e.g., "smtp.gmail.com"
+    port: number;       // e.g., 587
+    secure: boolean;    // true for 465, false for 587/25
+    user: string;       // SMTP username (email address)
+    pass: string;       // SMTP password or app password
+  };
+  /** Recipient email address (store owner) */
+  to: string;
+  /** Sender email address (can be same as smtp.user) */
+  from: string;
+}
+
+/**
  * Configuration for the stock sync service.
  */
 export interface SyncConfig {
   /** Directory for sync state files (default: "./data/sync") */
   dataDir: string;
+  /** Email notification settings */
+  notification: NotificationConfig;
 }

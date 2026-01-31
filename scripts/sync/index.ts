@@ -16,6 +16,7 @@ export type {
   ProductMapping,
   SyncResult,
   SyncConfig,
+  NotificationConfig,
 } from './types.js';
 
 // Product mapping store (CRUD + config)
@@ -35,3 +36,10 @@ export {
   syncAllProducts,
   buildSyncSummary,
 } from './stock-sync.js';
+
+// Notifications
+export {
+  buildSyncEmailBody,
+  sendSyncNotification,
+  notifySyncResults,
+} from './notifications.js';

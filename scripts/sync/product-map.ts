@@ -20,10 +20,25 @@ import type { ProductMapping, SyncConfig } from './types.js';
 
 /**
  * Returns the default sync configuration.
+ *
+ * Notifications are disabled by default -- the user must set SMTP
+ * credentials via environment variables to enable email digests.
  */
 export function getDefaultSyncConfig(): SyncConfig {
   return {
     dataDir: './data/sync',
+    notification: {
+      enabled: false,
+      smtp: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        user: '',
+        pass: '',
+      },
+      to: '',
+      from: '',
+    },
   };
 }
 

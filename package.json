@@ -22,10 +22,12 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
+    "nodemailer": "^7.0.13",
     "soap": "^1.6.4"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
+    "@types/nodemailer": "^7.0.9",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
