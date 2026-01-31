@@ -45,6 +45,18 @@ export async function syncOnce(
   monitorConfig: MonitorConfig,
   syncConfig: SyncConfig,
 ): Promise<void> {
+  // Pre-flight environment checks -- prevent cryptic errors deep in call chains
+  if (!process.env.WIX_API_KEY) {
+    throw new Error(
+      'WIX_API_KEY not set. Add it to .env file. Get your API key from WIX Dashboard > Developer Tools > API Keys.',
+    );
+  }
+  if (!process.env.SANMAR_CUSTOMER_NUMBER) {
+    throw new Error(
+      'SanMar credentials not configured. Set SANMAR_CUSTOMER_NUMBER, SANMAR_USERNAME, SANMAR_PASSWORD in .env file.',
+    );
+  }
+
   console.log('[Sync] Starting sync cycle...');
 
   // Capture alerts from poll cycle via callback

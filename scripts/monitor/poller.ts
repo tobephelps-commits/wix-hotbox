@@ -23,6 +23,13 @@ import { detectAlerts, formatAlertSummary } from './alerts.js';
 import { appendAlerts, ensureAlertLog } from './alert-log.js';
 
 // =============================================================================
+// Pre-flight Check
+// =============================================================================
+
+/** Module-level flag to run SanMar credential check only once */
+let _sanmarCredsChecked = false;
+
+// =============================================================================
 // Single Poll Cycle
 // =============================================================================
 
@@ -46,6 +53,16 @@ export async function pollOnce(
   config: MonitorConfig,
   onAlerts?: (alerts: StockAlert[]) => void,
 ): Promise<InventorySnapshot[]> {
+  // Pre-flight SanMar credential check (runs once per process)
+  if (!_sanmarCredsChecked) {
+    if (!process.env.SANMAR_CUSTOMER_NUMBER) {
+      throw new Error(
+        'SanMar credentials not configured. Set SANMAR_CUSTOMER_NUMBER, SANMAR_USERNAME, SANMAR_PASSWORD in .env file.',
+      );
+    }
+    _sanmarCredsChecked = true;
+  }
+
   const products = await loadTrackedProducts(config);
 
   if (products.length === 0) {

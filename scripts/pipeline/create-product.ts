@@ -38,7 +38,10 @@ import { calculateRetailPrice, getPresetConfig } from './pricing-rules.js';
 // =============================================================================
 
 /**
- * Result of a successful WIX product creation.
+ * Result of a WIX product creation.
+ *
+ * On full success, warnings is empty. On partial failure (media or variant
+ * steps failed but product was created), warnings contains actionable messages.
  */
 export interface CreationResult {
   /** WIX product ID */
@@ -51,6 +54,8 @@ export interface CreationResult {
   mediaAdded: number;
   /** Always "draft" (visible: false) */
   status: 'draft';
+  /** Warnings from partial failures (empty on full success) */
+  warnings: string[];
 }
 
 // =============================================================================
@@ -72,8 +77,9 @@ export async function createWixProduct(
   productData: ProductData,
 ): Promise<CreationResult> {
   console.log(`\nCreating WIX product for ${curated.style}...`);
+  const warnings: string[] = [];
 
-  // Step 1: Create base product
+  // Step 1: Create base product (REQUIRED -- failure here is fatal)
   const payload = buildCreateProductPayload(curated);
   const product = await createProduct(payload);
   const productId = product.id;
@@ -81,41 +87,65 @@ export async function createWixProduct(
     `  \u2713 Product created: ${curated.brandName} ${curated.productTitle} (ID: ${productId})`,
   );
 
-  // Step 2: Add media images
-  const mediaPayload = buildMediaPayload(curated, productData.imagesByColor);
-  if (mediaPayload.length > 0) {
-    await addProductMedia(productId, mediaPayload);
+  // Step 2: Add media images (OPTIONAL -- continue on failure)
+  let mediaCount = 0;
+  try {
+    const mediaPayload = buildMediaPayload(curated, productData.imagesByColor);
+    if (mediaPayload.length > 0) {
+      await addProductMedia(productId, mediaPayload);
+    }
+    mediaCount = mediaPayload.length;
+    const colorSpecific = mediaPayload.filter((m) => m.choice).length;
+    const general = mediaPayload.length - colorSpecific;
+    console.log(
+      `  \u2713 Media added: ${mediaPayload.length} images (${colorSpecific} color-specific, ${general} general)`,
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const warning = `Media upload failed for ${productId}: ${msg}. Product created but images need manual upload.`;
+    warnings.push(warning);
+    console.warn(`  \u2717 ${warning}`);
   }
-  const colorSpecific = mediaPayload.filter((m) => m.choice).length;
-  const general = mediaPayload.length - colorSpecific;
-  console.log(
-    `  \u2713 Media added: ${mediaPayload.length} images (${colorSpecific} color-specific, ${general} general)`,
-  );
 
-  // Step 3: Update variant pricing, SKU, weight, visibility
-  const variantUpdates = buildVariantUpdates(
-    curated,
-    productData.products,
-    productData.pricing,
-    productData.inventory,
-  );
-  await updateProductVariants(productId, variantUpdates);
-  console.log(
-    `  \u2713 Variants updated: ${variantUpdates.length} variants (${curated.selectedColors.length} colors \u00d7 ${curated.selectedSizes.length} sizes)`,
-  );
+  // Step 3: Update variant pricing, SKU, weight, visibility (OPTIONAL -- continue on failure)
+  let variantCount = curated.selectedColors.length * curated.selectedSizes.length;
+  try {
+    const variantUpdates = buildVariantUpdates(
+      curated,
+      productData.products,
+      productData.pricing,
+      productData.inventory,
+    );
+    await updateProductVariants(productId, variantUpdates);
+    variantCount = variantUpdates.length;
+    console.log(
+      `  \u2713 Variants updated: ${variantUpdates.length} variants (${curated.selectedColors.length} colors \u00d7 ${curated.selectedSizes.length} sizes)`,
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const warning = `Variant update failed for ${productId}: ${msg}. Product exists as draft but variants need manual configuration.`;
+    warnings.push(warning);
+    console.error(`  \u2717 ${warning}`);
+  }
 
-  // Step 4: Verify creation
-  const verified = await getProduct(productId);
-  const variantCount = verified.variants?.length ?? variantUpdates.length;
-  const basePrice = calculateRetailPrice(curated.wholesaleCost, curated.pricingConfig.markupPercent, curated.pricingConfig.rounding);
-  console.log(
-    `  \u2713 Verified: ${variantCount} variants, base price $${basePrice.toFixed(2)} (${curated.pricingConfig.markupPercent}% markup)`,
-  );
-
-  // Build product URL
-  const productUrl = verified.productPageUrl
-    ? `${verified.productPageUrl.base}${verified.productPageUrl.path}`
-    : `https://hotboxclothing.shop/product-page/${productId}`;
+  // Step 4: Verify creation (OPTIONAL -- product was already created)
+  let productUrl = `https://hotboxclothing.shop/product-page/${productId}`;
+  try {
+    const verified = await getProduct(productId);
+    variantCount = verified.variants?.length ?? variantCount;
+    const basePrice = calculateRetailPrice(curated.wholesaleCost, curated.pricingConfig.markupPercent, curated.pricingConfig.rounding);
+    console.log(
+      `  \u2713 Verified: ${variantCount} variants, base price $${basePrice.toFixed(2)} (${curated.pricingConfig.markupPercent}% markup)`,
+    );
+    productUrl = verified.productPageUrl
+      ? `${verified.productPageUrl.base}${verified.productPageUrl.path}`
+      : productUrl;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const warning = `Verification failed for ${productId}: ${msg}. Product was created but could not confirm final state.`;
+    warnings.push(warning);
+    console.warn(`  \u2717 ${warning}`);
+  }
 
   console.log(`\nDraft product ready for review:`);
   console.log(`  ${productUrl}`);
@@ -124,8 +154,9 @@ export async function createWixProduct(
     productId,
     productUrl,
     variantsCreated: variantCount,
-    mediaAdded: mediaPayload.length,
+    mediaAdded: mediaCount,
     status: 'draft',
+    warnings,
   };
 }
 
@@ -175,6 +206,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.log(`  Variants: ${result.variantsCreated}`);
     console.log(`  Media: ${result.mediaAdded}`);
     console.log(`  Status: ${result.status}`);
+
+    if (result.warnings.length > 0) {
+      console.log(`\nWarnings (${result.warnings.length}):`);
+      for (const warning of result.warnings) {
+        console.warn(`  ! ${warning}`);
+      }
+    }
   } catch (err) {
     console.error(
       'Error:',

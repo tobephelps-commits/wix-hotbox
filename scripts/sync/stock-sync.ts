@@ -192,8 +192,18 @@ export async function syncProductStock(
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    result.errors.push(message);
-    console.error(`[Sync] ${style}: Error - ${message}`);
+    // Detect 404 for deleted WIX products
+    if (message.includes('not found') || message.includes('404') || message.includes('Not Found')) {
+      result.errors.push(
+        `WIX product ${mapping.wixProductId} not found -- it may have been deleted. Run \`npm run sync:scan\` to refresh mappings.`,
+      );
+      console.error(
+        `[Sync] ${style}: WIX product ${mapping.wixProductId} not found -- it may have been deleted. Run \`npm run sync:scan\` to refresh mappings.`,
+      );
+    } else {
+      result.errors.push(message);
+      console.error(`[Sync] ${style}: Error - ${message}`);
+    }
   }
 
   return result;
