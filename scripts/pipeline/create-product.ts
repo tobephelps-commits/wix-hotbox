@@ -34,7 +34,8 @@ import {
   getCollectionByName,
 } from './wix-api.js';
 import { calculateRetailPrice, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
-import { listTemplates } from './templates.js';
+import { getTemplate, saveTemplate, listTemplates } from './templates.js';
+import type { ProductTemplate } from './types.js';
 
 // =============================================================================
 // Types
@@ -245,18 +246,25 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const style = process.argv[2];
   if (!style || style === '--help') {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--preset KEY] [--price N] [--collection "Name" ...]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...]',
     );
     console.error('');
     console.error('Options:');
+    console.error('  --template "name"      Apply saved template (pricing, sizes, colors, collections)');
+    console.error('  --save-template "name" Save current settings as reusable template after creation');
     console.error('  --preset KEY           Select pricing preset (default: standard-tee)');
     console.error('  --price N              Set retail price (overrides preset pricing)');
     console.error('  --collection "Name"    Assign to WIX collection (repeatable)');
     console.error('  --list-presets         Show available pricing presets');
     console.error('  --list-templates       Show saved product templates');
     console.error('');
+    console.error('Precedence (highest to lowest):');
+    console.error('  --price > --preset > --template pricing > default (standard-tee)');
+    console.error('');
     console.error('Examples:');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --template "bigbarn-tee"');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --save-template "bigbarn-tee"');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --preset hoodie-fleece');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --price 24.99');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --collection "Big Barn Crossfit" --collection "Clothing"');
@@ -264,10 +272,20 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     process.exit(0);
   }
 
+  // Parse optional --template argument
+  const templateArgIdx = process.argv.indexOf('--template');
+  const templateName =
+    templateArgIdx !== -1 ? process.argv[templateArgIdx + 1] : null;
+
+  // Parse optional --save-template argument
+  const saveTemplateArgIdx = process.argv.indexOf('--save-template');
+  const saveTemplateName =
+    saveTemplateArgIdx !== -1 ? process.argv[saveTemplateArgIdx + 1] : null;
+
   // Parse optional --preset argument
   const presetArgIdx = process.argv.indexOf('--preset');
   const presetKey =
-    presetArgIdx !== -1 ? process.argv[presetArgIdx + 1] : 'standard-tee';
+    presetArgIdx !== -1 ? process.argv[presetArgIdx + 1] : null;
 
   // Parse optional --price argument
   const priceArgIdx = process.argv.indexOf('--price');
@@ -283,26 +301,92 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     }
   }
 
+  // Load template if specified
+  let template: ProductTemplate | null = null;
+  if (templateName) {
+    template = await getTemplate(templateName);
+    if (!template) {
+      const available = await listTemplates();
+      console.error(`Error: Template "${templateName}" not found.`);
+      if (available.length > 0) {
+        console.error(`Available templates: ${available.map((t) => t.name).join(', ')}`);
+      } else {
+        console.error('No templates saved yet. Use --save-template to create one.');
+      }
+      process.exit(1);
+    }
+  }
+
   try {
     const data = await fetchProductData(style);
 
-    // Auto-curate: select ALL available colors and sizes
-    // --price overrides preset; --preset selects preset (default: standard-tee)
+    // --- Determine pricing config ---
+    // Precedence: --price > --preset > --template > default (standard-tee)
+    let pricingConfig;
+    let pricingSource: string;
+    if (price != null) {
+      pricingConfig = { markupPercent: ((price / data.preview.pricing.wholesalePrice) - 1) * 100, rounding: 'none' as const, sizeUpcharges: {} };
+      pricingSource = `--price $${price}`;
+    } else if (presetKey) {
+      pricingConfig = getPresetConfig(presetKey);
+      pricingSource = `--preset ${presetKey}`;
+    } else if (template?.pricingConfig) {
+      pricingConfig = template.pricingConfig;
+      pricingSource = `template custom (${template.pricingConfig.markupPercent}% markup)`;
+    } else if (template?.pricingPreset) {
+      pricingConfig = getPresetConfig(template.pricingPreset);
+      pricingSource = `template preset: ${template.pricingPreset}`;
+    } else {
+      pricingConfig = getPresetConfig('standard-tee');
+      pricingSource = 'default (standard-tee)';
+    }
+
+    // --- Determine sizes ---
+    let selectedSizes = data.preview.availableSizes;
+    if (template?.selectedSizes && template.selectedSizes.length > 0) {
+      selectedSizes = data.preview.availableSizes.filter((s) =>
+        template!.selectedSizes!.includes(s),
+      );
+    }
+
+    // --- Determine colors ---
+    let selectedColors = data.preview.availableColors.map((c) => ({
+      catalogColor: c.catalogColor,
+      displayColor: c.displayColor,
+    }));
+    if (template?.colorFilter && template.colorFilter !== 'all' && Array.isArray(template.colorFilter)) {
+      selectedColors = selectedColors.filter((c) =>
+        (template!.colorFilter as string[]).includes(c.catalogColor),
+      );
+    }
+
+    // --- Determine collections ---
+    // Template collections serve as defaults; CLI --collection flags ADD to them
+    const templateCollections = template?.collections ?? [];
+    const allCollections = [...new Set([...templateCollections, ...collections])];
+
+    // Print template application summary
+    if (template) {
+      console.log(`\nApplied template "${template.name}":`);
+      console.log(`  Pricing: ${pricingSource}`);
+      console.log(`  Sizes: ${selectedSizes.join(', ')} (filtered from ${data.preview.availableSizes.length} available)`);
+      console.log(`  Colors: ${selectedColors.length} of ${data.preview.availableColors.length} available`);
+      if (allCollections.length > 0) {
+        console.log(`  Collections: ${allCollections.join(', ')}`);
+      }
+    }
+
+    // Auto-curate: select colors and sizes (filtered by template if applicable)
     const curated: CuratedProduct = {
       style: data.style,
       brandName: data.preview.brandName,
       productTitle: data.preview.productTitle,
       description: data.preview.description,
-      selectedColors: data.preview.availableColors.map((c) => ({
-        catalogColor: c.catalogColor,
-        displayColor: c.displayColor,
-      })),
-      selectedSizes: data.preview.availableSizes,
-      pricingConfig: price != null
-        ? { markupPercent: ((price / data.preview.pricing.wholesalePrice) - 1) * 100, rounding: 'none' as const, sizeUpcharges: {} }
-        : getPresetConfig(presetKey),
+      selectedColors,
+      selectedSizes,
+      pricingConfig,
       wholesaleCost: data.preview.pricing.wholesalePrice,
-      ...(collections.length > 0 ? { collections } : {}),
+      ...(allCollections.length > 0 ? { collections: allCollections } : {}),
     };
 
     const result = await createWixProduct(curated, data);
@@ -319,6 +403,24 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       for (const warning of result.warnings) {
         console.warn(`  ! ${warning}`);
       }
+    }
+
+    // Save template if --save-template was specified
+    if (saveTemplateName) {
+      const newTemplate: ProductTemplate = {
+        name: saveTemplateName,
+        description: `Auto-saved from ${curated.style} product creation`,
+        pricingConfig: curated.pricingConfig,
+        selectedSizes: curated.selectedSizes,
+        colorFilter: 'all', // Save as "all" since we used all available (or template-filtered) colors
+        ...(curated.collections && curated.collections.length > 0
+          ? { collections: curated.collections }
+          : {}),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await saveTemplate(newTemplate);
+      console.log(`\nTemplate "${saveTemplateName}" saved. Use --template "${saveTemplateName}" for future products.`);
     }
   } catch (err) {
     console.error(
