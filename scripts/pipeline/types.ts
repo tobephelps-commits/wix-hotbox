@@ -12,9 +12,46 @@
  * Phase 7: Pricing & Variant Logic updates (per-variant pricing via PricingConfig)
  */
 
-// Import PricingConfig for use in CuratedProduct, and re-export for other pipeline modules
+// Import PricingConfig for use in CuratedProduct and ProductTemplate, and re-export for other pipeline modules
 import type { PricingConfig } from './pricing-rules.js';
 export type { PricingConfig } from './pricing-rules.js';
+
+// =============================================================================
+// Template Types
+// =============================================================================
+
+/**
+ * A saved product template for reusable configurations.
+ *
+ * Templates store pricing presets, color/size selections, and collection
+ * assignments so the owner doesn't re-enter the same settings for every
+ * product in the same category. All fields except name and timestamps
+ * are optional -- a template can specify just pricing, just collections,
+ * or any combination. When applied, template values serve as defaults
+ * that CLI flags can still override.
+ *
+ * Phase 13: Template Presets & Pipeline Speed
+ */
+export interface ProductTemplate {
+  /** Template display name (e.g., "BigBarn Tee") */
+  name: string;
+  /** Optional description */
+  description?: string;
+  /** Key into PRICING_PRESETS (e.g., "standard-tee") */
+  pricingPreset?: string;
+  /** Custom pricing override (takes precedence over pricingPreset) */
+  pricingConfig?: PricingConfig;
+  /** Default sizes to select (e.g., ["S", "M", "L", "XL", "2XL"]) */
+  selectedSizes?: string[];
+  /** "all" = all available, or specific catalog colors */
+  colorFilter?: 'all' | string[];
+  /** Default collection names */
+  collections?: string[];
+  /** ISO timestamp of creation */
+  createdAt: string;
+  /** ISO timestamp of last update */
+  updatedAt: string;
+}
 
 // =============================================================================
 // WIX V1 Product Creation Types
