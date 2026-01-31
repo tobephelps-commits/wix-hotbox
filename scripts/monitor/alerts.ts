@@ -1,0 +1,235 @@
+/**
+ * Stock Alert Detection and Change Comparison
+ *
+ * Compares current inventory snapshots against previous snapshots to
+ * detect stock level transitions and generate alerts. Only alerts on
+ * actual level CHANGES -- not every poll cycle where stock is low.
+ *
+ * Transition types:
+ *   normal/low/critical -> out-of-stock  : "out-of-stock"
+ *   normal/low -> critical               : "critical"
+ *   normal -> low-stock                  : "low-stock"
+ *   out-of-stock -> anything above       : "back-in-stock"
+ *
+ * Phase 8: Inventory Monitoring
+ */
+
+import type {
+  MonitorConfig,
+  InventorySnapshot,
+  SkuSnapshot,
+  StockAlert,
+} from './types.js';
+
+// =============================================================================
+// Stock Level Classification
+// =============================================================================
+
+/** Ordered stock levels from worst to best */
+export type StockLevel = 'out-of-stock' | 'critical' | 'low-stock' | 'normal';
+
+/**
+ * Classify a SKU's stock level based on config thresholds.
+ *
+ * Checks in order:
+ *   <= outOfStockThreshold -> out-of-stock
+ *   <= criticalStockThreshold -> critical
+ *   <= lowStockThreshold -> low-stock
+ *   else -> normal
+ *
+ * @param totalQty - Total quantity across all warehouses
+ * @param config - Monitor configuration with threshold values
+ * @returns Stock level classification
+ */
+export function classifyStockLevel(totalQty: number, config: MonitorConfig): StockLevel {
+  if (totalQty <= config.outOfStockThreshold) return 'out-of-stock';
+  if (totalQty <= config.criticalStockThreshold) return 'critical';
+  if (totalQty <= config.lowStockThreshold) return 'low-stock';
+  return 'normal';
+}
+
+// =============================================================================
+// Alert Detection
+// =============================================================================
+
+/**
+ * Compare current snapshot against previous to detect stock level transitions.
+ *
+ * For each SKU in the current snapshot:
+ * 1. Find matching SKU in previous (by color + size)
+ * 2. Classify both current and previous stock levels
+ * 3. Generate alert only if level CHANGED (transitions)
+ *
+ * If no previous snapshot (first poll):
+ *   - Only generate alerts for SKUs already at critical or out-of-stock
+ *   - Skip low-stock on first run to avoid alert flood
+ *
+ * @param current - Current inventory snapshot
+ * @param previous - Previous inventory snapshot (null for first poll)
+ * @param config - Monitor configuration with thresholds
+ * @param productName - Human-friendly product name for alert messages
+ * @returns Array of StockAlert objects for any detected transitions
+ */
+export function detectAlerts(
+  current: InventorySnapshot,
+  previous: InventorySnapshot | null,
+  config: MonitorConfig,
+  productName: string,
+): StockAlert[] {
+  const alerts: StockAlert[] = [];
+  const now = new Date().toISOString();
+
+  for (const sku of current.skus) {
+    const currentLevel = classifyStockLevel(sku.totalQty, config);
+
+    // Find matching SKU in previous snapshot
+    const prevSku = previous
+      ? previous.skus.find((s) => s.color === sku.color && s.size === sku.size)
+      : null;
+
+    if (previous && prevSku) {
+      // We have a previous reading -- detect transitions
+      const prevLevel = classifyStockLevel(prevSku.totalQty, config);
+
+      if (currentLevel === prevLevel) {
+        // No level change -- skip
+        continue;
+      }
+
+      const alertType = getTransitionAlertType(prevLevel, currentLevel);
+      if (alertType) {
+        alerts.push({
+          type: alertType,
+          style: current.style,
+          productName,
+          color: sku.color,
+          size: sku.size,
+          previousQty: prevSku.totalQty,
+          currentQty: sku.totalQty,
+          timestamp: now,
+        });
+      }
+    } else {
+      // No previous snapshot or SKU is new -- first poll behavior
+      // Only alert for critical or out-of-stock (skip low-stock to avoid flood)
+      if (currentLevel === 'out-of-stock' || currentLevel === 'critical') {
+        alerts.push({
+          type: currentLevel,
+          style: current.style,
+          productName,
+          color: sku.color,
+          size: sku.size,
+          previousQty: 0,
+          currentQty: sku.totalQty,
+          timestamp: now,
+        });
+      }
+    }
+  }
+
+  return alerts;
+}
+
+/**
+ * Determine the alert type for a stock level transition.
+ *
+ * Returns null if the transition does not warrant an alert.
+ */
+function getTransitionAlertType(
+  prevLevel: StockLevel,
+  currentLevel: StockLevel,
+): StockAlert['type'] | null {
+  // Out-of-stock -> anything above = back in stock
+  if (prevLevel === 'out-of-stock' && currentLevel !== 'out-of-stock') {
+    return 'back-in-stock';
+  }
+
+  // Anything -> out-of-stock = out of stock alert
+  if (currentLevel === 'out-of-stock' && prevLevel !== 'out-of-stock') {
+    return 'out-of-stock';
+  }
+
+  // normal/low -> critical
+  if (currentLevel === 'critical' && (prevLevel === 'normal' || prevLevel === 'low-stock')) {
+    return 'critical';
+  }
+
+  // normal -> low-stock
+  if (currentLevel === 'low-stock' && prevLevel === 'normal') {
+    return 'low-stock';
+  }
+
+  // All other transitions (e.g., critical -> low-stock, low-stock -> normal)
+  // are improvements -- no alert needed (except out-of-stock recovery above)
+  return null;
+}
+
+// =============================================================================
+// Alert Formatting
+// =============================================================================
+
+/**
+ * Format a single alert for console output.
+ *
+ * @param alert - Stock alert to format
+ * @returns Formatted alert string with emoji prefix
+ */
+export function formatAlert(alert: StockAlert): string {
+  const sku = `${alert.productName} - ${alert.color} ${alert.size}`;
+
+  switch (alert.type) {
+    case 'out-of-stock':
+      return `\u26A0 OUT OF STOCK: ${sku} (was ${alert.previousQty}, now ${alert.currentQty})`;
+    case 'critical':
+      return `\uD83D\uDD34 CRITICAL: ${sku} (${alert.currentQty} remaining)`;
+    case 'low-stock':
+      return `\uD83D\uDFE1 LOW STOCK: ${sku} (${alert.currentQty} remaining)`;
+    case 'back-in-stock':
+      return `\uD83D\uDFE2 BACK IN STOCK: ${sku} (${alert.currentQty} available)`;
+  }
+}
+
+/**
+ * Format a summary of multiple alerts for console output.
+ *
+ * Groups alerts by type and lists each one. If no alerts,
+ * returns a "no changes" message.
+ *
+ * @param alerts - Array of stock alerts to summarize
+ * @returns Formatted multi-line summary string
+ */
+export function formatAlertSummary(alerts: StockAlert[]): string {
+  if (alerts.length === 0) {
+    return 'No stock level changes detected.';
+  }
+
+  const lines: string[] = [];
+
+  // Count by type
+  const counts = {
+    'out-of-stock': 0,
+    critical: 0,
+    'low-stock': 0,
+    'back-in-stock': 0,
+  };
+  for (const alert of alerts) {
+    counts[alert.type]++;
+  }
+
+  // Summary header
+  const parts: string[] = [];
+  if (counts['out-of-stock'] > 0) parts.push(`${counts['out-of-stock']} out-of-stock`);
+  if (counts.critical > 0) parts.push(`${counts.critical} critical`);
+  if (counts['low-stock'] > 0) parts.push(`${counts['low-stock']} low-stock`);
+  if (counts['back-in-stock'] > 0) parts.push(`${counts['back-in-stock']} back-in-stock`);
+
+  lines.push(`[Alerts] ${alerts.length} stock level change(s): ${parts.join(', ')}`);
+  lines.push('');
+
+  // List each alert
+  for (const alert of alerts) {
+    lines.push(`  ${formatAlert(alert)}`);
+  }
+
+  return lines.join('\n');
+}
