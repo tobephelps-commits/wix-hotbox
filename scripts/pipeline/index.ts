@@ -21,6 +21,10 @@ export type {
   ColorPreview,
   PricingPreview,
   ProductTemplate,
+  LogoPosition,
+  LogoOverlayConfig,
+  LogoRegistryEntry,
+  LogoRegistry,
 } from './types.js';
 
 // Mapper functions
@@ -70,3 +74,14 @@ export {
   deleteTemplate,
   listTemplates,
 } from './templates.js';
+
+// Logo overlay engine
+export {
+  compositeLogoOnImage,
+  overlayProductImages,
+  loadLogoRegistry,
+  getLogoEntry,
+  getPositionPreset,
+  listLogos,
+  listPositionPresets,
+} from './overlay.js';

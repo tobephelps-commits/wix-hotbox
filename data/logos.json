@@ -1,0 +1,25 @@
+{
+  "logos": {},
+  "positionPresets": {
+    "center-chest": {
+      "x": 0.5,
+      "y": 0.33
+    },
+    "left-chest": {
+      "x": 0.35,
+      "y": 0.28
+    },
+    "full-front": {
+      "x": 0.5,
+      "y": 0.4
+    },
+    "center-back": {
+      "x": 0.5,
+      "y": 0.3
+    },
+    "left-sleeve": {
+      "x": 0.25,
+      "y": 0.25
+    }
+  }
+}

@@ -23,7 +23,8 @@
     "sync:run": "npx tsx scripts/sync/manage.ts sync",
     "sync:start": "npx tsx scripts/sync/manage.ts start",
     "validate": "npx tsx scripts/pipeline/validate-pipeline.ts",
-    "verify:site-fixes": "npx tsx scripts/verify-site-fixes.ts"
+    "verify:site-fixes": "npx tsx scripts/verify-site-fixes.ts",
+    "overlay-test": "npx tsx scripts/pipeline/overlay.ts"
   },
   "keywords": [],
   "author": "",
