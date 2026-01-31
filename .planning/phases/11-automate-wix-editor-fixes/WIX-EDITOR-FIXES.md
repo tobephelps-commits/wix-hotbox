@@ -8,6 +8,23 @@
 
 ---
 
+## Phase 11 Automation Results (Plan 11-03)
+
+**Date:** 2026-01-31
+**Script:** `scripts/apply-api-fixes.ts`
+
+Plan 11-03 investigated the 3 fixes flagged as potentially API-automatable during Plan 11-01 triage. **Result: 0 of 3 candidates are automatable via the WIX REST API.**
+
+| Fix ID | Title | Investigation Result | Reason |
+|--------|-------|---------------------|--------|
+| CL-2 | Fix "20256" typo on Fall PreOrder | NOT AUTOMATABLE | Typo is in page content on /shop-2, not in a product description field. WIX REST API cannot edit page text. |
+| CL-5 | Remove CompanyCasuals external link | NOT AUTOMATABLE | Link is in page subheading on /shop (Big Barn), not in product data. WIX REST API cannot edit page content. |
+| QW-6 | Breadcrumb collection assignment | ALREADY VERIFIED | Verified correct at API level during Phase 2. No fix needed -- WIX platform behavior. |
+
+**Automation boundary confirmed:** The WIX REST API can modify product data, collections, app installations, site properties, and checkout settings. It CANNOT modify page content, navigation menus, footer content, page layout, widget configuration, URL slugs, mobile layout, or email templates. All 30 remaining pending fixes require the WIX Editor or WIX Dashboard.
+
+---
+
 ## Executive Summary
 
 | Metric | Count |
@@ -15,21 +32,23 @@
 | **Total fixes identified** | 38 |
 | **Already completed (v0.1 API)** | 8 |
 | **Pending manual fixes** | 30 |
-| **Automatable via API (Plan 11-03)** | 3 |
-| **WIX Editor only** | 20 |
-| **WIX Dashboard only** | 5 |
-| **Verification only** | 2 |
+| ~~Automatable via API (Plan 11-03)~~ | ~~3~~ **0** (investigated, none automatable -- see results above) |
+| **WIX Editor only** | 24 (was 22; CL-2 and CL-5 confirmed as Editor-only) |
+| **WIX Dashboard only** | 4 |
+| **Verification only** | 2 (CK-5 + QW-6; AC-4 is a known limitation) |
 
 ### Breakdown by Category
 
 | Category | Pending | Editor | Dashboard | API | Verify |
 |----------|---------|--------|-----------|-----|--------|
-| Navigation | 5 | 4 | 0 | 1 | 0 |
+| Navigation | 5 | 4 | 0 | 0 | 1 |
 | Mobile | 10 | 9 | 0 | 0 | 1 |
 | Checkout & Conversion | 7 | 3 | 4 | 0 | 0 |
-| Accessibility & Content | 6 | 5 | 0 | 1 | 0 |
-| Client Experience | 2 | 1 | 0 | 1 | 0 |
-| **Total** | **30** | **22** | **4** | **3** | **1** |
+| Accessibility & Content | 6 | 6 | 0 | 0 | 0 |
+| Client Experience | 2 | 2 | 0 | 0 | 0 |
+| **Total** | **30** | **24** | **4** | **0** | **2** |
+
+*Updated 2026-01-31 by Plan 11-03: CL-2 confirmed as Editor (was API candidate), CL-5 confirmed as Editor (was API candidate), QW-6 confirmed as Verify-only (was API candidate). All 3 API candidates resolved -- 0 fixes automatable via REST API.*
 
 ### Breakdown by Priority
 
@@ -276,17 +295,21 @@ WAVE 7: Verification Only
 
 ---
 
-## Automatable Fixes (Plan 11-03 Candidates)
+## Automatable Fixes (Plan 11-03 Investigation -- COMPLETE)
 
-These fixes MAY be addressable via WIX REST API or WIX Velo scripting. Plan 11-03 will investigate and automate what is possible.
+**Status: INVESTIGATED -- 0 of 3 candidates automatable via API.**
 
-| # | Fix ID | Title | API Approach | Notes |
-|---|--------|-------|-------------|-------|
-| 1 | CL-2 | Fix "20256" typo on Fall PreOrder | WIX Stores Product API -- update product description | If typo is in product description field, API can fix. If in page content, requires Editor. |
-| 2 | CL-5 | Remove CompanyCasuals external link | Possibly page content API or Velo | Depends on where the link is stored. |
-| 3 | QW-6 | Breadcrumb collection assignment | Already verified correct at API level | No fix needed -- WIX platform behavior. |
+Plan 11-03 investigated all candidates. None can be automated via the WIX REST API.
 
-**Note:** The vast majority of fixes (27/30) require WIX Editor or WIX Dashboard access. The WIX REST API does not support: page content editing, navigation menu management, product gallery widget settings, page URL slug changes, mobile layout configuration, email template customization, or app installation.
+| # | Fix ID | Title | API Approach Attempted | Result |
+|---|--------|-------|----------------------|--------|
+| 1 | CL-2 | Fix "20256" typo on Fall PreOrder | Checked if typo was in product description field | **NOT AUTOMATABLE** -- typo is in page content on /shop-2, not product data |
+| 2 | CL-5 | Remove CompanyCasuals external link | Checked if link was in product data | **NOT AUTOMATABLE** -- link is in page subheading, not product data |
+| 3 | QW-6 | Breadcrumb collection assignment | Verified via API query in Phase 2 | **ALREADY VERIFIED** -- no fix needed, WIX platform behavior |
+
+**Conclusion:** All 30 remaining pending fixes require the WIX Editor or WIX Dashboard. The WIX REST API does not support: page content editing, navigation menu management, product gallery widget settings, page URL slug changes, mobile layout configuration, email template customization, or app installation.
+
+**Script:** `scripts/apply-api-fixes.ts` -- documents findings and serves as template for future API automation.
 
 ---
 
