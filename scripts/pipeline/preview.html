@@ -555,6 +555,12 @@
     renderColors();
     renderSizes();
     updateSummary();
+
+    // Warn if no colors are in stock
+    var inStockCount = p.availableColors.filter(function(c) { return c.inStock; }).length;
+    if (inStockCount === 0 && p.availableColors.length > 0) {
+      setStatus('Warning: No colors are currently in stock for this style. You can still create a draft with out-of-stock colors.', 'error');
+    }
   }
 
   // =========================================================================
@@ -684,7 +690,15 @@
     var sizeCount = Object.values(selectedSizes).filter(Boolean).length;
     var variantCount = colorCount * sizeCount;
 
-    summaryText.innerHTML = '<strong>' + colorCount + '</strong> colors &times; <strong>' + sizeCount + '</strong> sizes = <strong>' + variantCount + '</strong> variants';
+    if (colorCount === 0 && sizeCount === 0) {
+      summaryText.innerHTML = 'Select at least <strong>1 color</strong> and <strong>1 size</strong> to create a draft';
+    } else if (colorCount === 0) {
+      summaryText.innerHTML = 'Select at least <strong>1 color</strong> to create a draft';
+    } else if (sizeCount === 0) {
+      summaryText.innerHTML = 'Select at least <strong>1 size</strong> to create a draft';
+    } else {
+      summaryText.innerHTML = '<strong>' + colorCount + '</strong> colors &times; <strong>' + sizeCount + '</strong> sizes = <strong>' + variantCount + '</strong> variants';
+    }
 
     createBtn.disabled = variantCount === 0;
   }
@@ -755,9 +769,19 @@
       }
     });
 
+    // Validate selections
+    if (curatedColors.length === 0) {
+      setStatus('Please select at least 1 color before creating.', 'error');
+      return;
+    }
+    if (curatedSizes.length === 0) {
+      setStatus('Please select at least 1 size before creating.', 'error');
+      return;
+    }
+
     var price = parseFloat(retailPrice.value);
     if (isNaN(price) || price <= 0) {
-      setStatus('Please enter a valid retail price.', 'error');
+      setStatus('Please enter a valid retail price greater than $0.', 'error');
       return;
     }
 
@@ -773,7 +797,7 @@
     };
 
     createBtn.disabled = true;
-    showSpinner('Creating WIX draft...');
+    showSpinner('Creating WIX draft... This may take 10-20 seconds.');
 
     try {
       var res = await fetch('/api/create', {
@@ -784,19 +808,30 @@
       var json = await res.json();
 
       if (!json.ok) {
-        setStatus('Error: ' + json.error, 'error');
+        var errorMsg = json.error || 'Unknown error';
+        // Add context for common WIX API errors
+        if (errorMsg.indexOf('WIX_API_KEY') !== -1 || errorMsg.indexOf('not set') !== -1) {
+          errorMsg += ' -- Add your WIX API key to the .env file and restart the server.';
+        } else if (errorMsg.indexOf('401') !== -1 || errorMsg.indexOf('Unauthorized') !== -1) {
+          errorMsg += ' -- Check that your WIX_API_KEY is valid and has product management permissions.';
+        }
+        setStatus('Error: ' + errorMsg, 'error');
         createBtn.disabled = false;
         return;
       }
 
       var r = json.result;
       setStatus(
-        'Created! ' + r.variantsCreated + ' variants, ' + r.mediaAdded + ' images. ' +
-        '<a href="' + escHtml(r.productUrl) + '" target="_blank">Review your draft in WIX &rarr;</a>',
+        'Draft created! ' + r.variantsCreated + ' variants, ' + r.mediaAdded + ' images. ' +
+        '<a href="' + escHtml(r.productUrl) + '" target="_blank">Review your draft in WIX &rarr;</a>' +
+        ' &mdash; Fetch a new style to create another product.',
         'success'
       );
+      // Re-enable button so user can modify selection and create again or fetch a new style
+      createBtn.disabled = false;
     } catch (err) {
-      setStatus('Error: ' + (err.message || err), 'error');
+      var networkMsg = err.message || String(err);
+      setStatus('Network error: ' + networkMsg + '. Check that the server is still running and try again.', 'error');
       createBtn.disabled = false;
     }
   }

@@ -180,7 +180,7 @@ async function handleCreateProduct(
  */
 function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/product/:style
-  const productMatch = urlPath.match(/^\/api\/product\/([A-Za-z0-9-]+)\/?$/);
+  const productMatch = urlPath.match(/^\/api\/product\/([A-Za-z0-9._-]+)\/?$/);
   if (productMatch) {
     return { route: 'get-product', param: productMatch[1] };
   }
