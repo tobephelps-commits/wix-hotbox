@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 9 COMPLETE -- Automated Stock Sync. Phase 10 next.
+**Current focus:** Phase 10 IN PROGRESS -- Integration Polish. Plan 01 complete, Plan 02 next.
 
 ## Current Position
 
-Phase: 9 of 10 (Automated Stock Sync)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-01-31 -- Completed 09-02-PLAN.md
+Phase: 10 of 10 (Integration Polish)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-31 -- Completed 10-01-PLAN.md
 
-Progress: █████████░ 94%
+Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 31
+- Total plans completed: 32
 - Average duration: ~1 session
-- Total execution time: 31 sessions
+- Total execution time: 32 sessions
 
 **By Phase:**
 
@@ -37,9 +37,10 @@ Progress: █████████░ 94%
 | 8. Inventory Monitor | 2/2 | 2 sessions | 1 session |
 
 | 9. Stock Sync | 2/2 | 2 sessions | 1 session |
+| 10. Integration Polish | 1/2 | 1 session | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 08-01, 08-02, 09-01, 09-02
+- Last 5 plans: 08-02, 09-01, 09-02, 10-01
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -108,7 +109,8 @@ Recent decisions affecting current work:
 - WIX site ID hardcoded as constant (single-site deployment), not env var
 - wix-site-id header included in all WIX API requests for V1 compatibility
 - Function-export module pattern for WIX API service (not class-based), matching SanMar service pattern
-- 4 SanMar queries in parallel (Promise.all) for fetchProductData -- independent endpoints
+- Promise.allSettled for fetchProductData -- product info required, pricing/inventory/media optional with safe defaults
+- 4 SanMar queries in parallel (Promise.allSettled) for fetchProductData -- independent endpoints
 - fileURLToPath + path.resolve for CLI guard (import.meta.url encodes spaces as %20 on Windows)
 - ProductData includes pre-computed imagesByColor and ProductPreview to avoid recomputation
 - create-product CLI auto-selects ALL colors/sizes for quick-create testing mode
@@ -144,6 +146,10 @@ Recent decisions affecting current work:
 - Email skipped when no changes detected (no alerts AND no variant visibility changes)
 - Auto-scan matches WIX variant SKU prefixes against tracked SanMar styles for product mapping discovery
 - Best-effort email delivery: catch and log failures, never crash the sync loop
+- stockUnknown distinct from out-of-stock when inventory API fails (curation UI clarity)
+- Pre-flight env var checks at CLI entry points only, not library functions
+- createWixProduct returns warnings[] array for partial failure transparency
+- syncProductStock detects 404 for deleted WIX products with actionable "refresh mappings" message
 
 ### Key Findings (Phase 1)
 
@@ -249,6 +255,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 09-02-PLAN.md (notification system and sync CLI)
+Stopped at: Completed 10-01-PLAN.md (pipeline edge case handling and error resilience)
 Resume file: None
-Next: Phase 10 -- Integration Polish (plan-phase needed)
+Next: 10-02-PLAN.md -- Error recovery, logging, and operational documentation
