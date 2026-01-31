@@ -7,7 +7,10 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "demo": "npx tsx scripts/sanmar/demo.ts",
-    "demo:style": "npx tsx scripts/sanmar/demo.ts"
+    "demo:style": "npx tsx scripts/sanmar/demo.ts",
+    "fetch-product": "npx tsx scripts/pipeline/fetch-product.ts",
+    "create-product": "npx tsx scripts/pipeline/create-product.ts",
+    "preview": "npx tsx scripts/pipeline/preview-server.ts"
   },
   "keywords": [],
   "author": "",
