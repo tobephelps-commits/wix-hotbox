@@ -33,7 +33,7 @@ import {
   addProductToCollection,
   getCollectionByName,
 } from './wix-api.js';
-import { calculateRetailPrice, getPresetConfig } from './pricing-rules.js';
+import { calculateRetailPrice, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
 
 // =============================================================================
 // Types
@@ -206,23 +206,41 @@ export async function createWixProduct(
 
 const __filename = fileURLToPath(import.meta.url);
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  // --list-presets: print all pricing presets and exit (no style needed)
+  if (process.argv.includes('--list-presets')) {
+    console.log('Available pricing presets:');
+    for (const [key, preset] of Object.entries(PRICING_PRESETS)) {
+      console.log(`  ${key.padEnd(18)} ${preset.name} (${preset.config.markupPercent}% markup) - ${preset.description}`);
+    }
+    process.exit(0);
+  }
+
   const style = process.argv[2];
   if (!style || style === '--help') {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--price N] [--collection "Name" ...]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--preset KEY] [--price N] [--collection "Name" ...]',
     );
     console.error('');
     console.error('Options:');
+    console.error('  --preset KEY           Select pricing preset (default: standard-tee)');
     console.error('  --price N              Set retail price (overrides preset pricing)');
     console.error('  --collection "Name"    Assign to WIX collection (repeatable)');
+    console.error('  --list-presets         Show available pricing presets');
+    console.error('  --list-templates       Show saved product templates');
     console.error('');
     console.error('Examples:');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --preset hoodie-fleece');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --price 24.99');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --collection "Big Barn Crossfit" --collection "Clothing"');
     if (!style) process.exit(1);
     process.exit(0);
   }
+
+  // Parse optional --preset argument
+  const presetArgIdx = process.argv.indexOf('--preset');
+  const presetKey =
+    presetArgIdx !== -1 ? process.argv[presetArgIdx + 1] : 'standard-tee';
 
   // Parse optional --price argument
   const priceArgIdx = process.argv.indexOf('--price');
@@ -242,6 +260,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     const data = await fetchProductData(style);
 
     // Auto-curate: select ALL available colors and sizes
+    // --price overrides preset; --preset selects preset (default: standard-tee)
     const curated: CuratedProduct = {
       style: data.style,
       brandName: data.preview.brandName,
@@ -254,7 +273,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       selectedSizes: data.preview.availableSizes,
       pricingConfig: price != null
         ? { markupPercent: ((price / data.preview.pricing.wholesalePrice) - 1) * 100, rounding: 'none' as const, sizeUpcharges: {} }
-        : getPresetConfig('standard-tee'),
+        : getPresetConfig(presetKey),
       wholesaleCost: data.preview.pricing.wholesalePrice,
       ...(collections.length > 0 ? { collections } : {}),
     };
