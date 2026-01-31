@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 12 of 20 (Multi-Collection Product Routing)
-Plan: 0 of ? in current phase
-Status: Phase 11 complete, Phase 12 not started
-Last activity: 2026-01-31 — Completed 11-04-PLAN.md (Phase 11 finalized)
+Plan: 1 of 1 in current phase
+Status: Phase 12 complete
+Last activity: 2026-01-31 — Completed 12-01-PLAN.md
 
-Progress: ███░░░░░░░ 10%
+Progress: ████░░░░░░ 12%
 
 ## Performance Metrics
 
@@ -54,6 +54,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 11-02 | 16 checks marked SKIP for manual verification | Avoids false positives on visual/subjective checks |
 | 11-03 | 0 of 3 API candidates automatable | CL-2 and CL-5 are page content (not product data); QW-6 already verified. All 30 pending fixes require WIX Editor/Dashboard |
 | 11-04 | Phase 11 complete — 30 manual WIX fixes triaged, verification scripts built, API automation boundary documented | Manual fixes tracked in WIX-EDITOR-FIXES.md; store owner runs `npm run verify:site-fixes` to check progress |
+| 12-01 | Collection names preferred over UUIDs in CLI; UUID fallback supported | Ergonomic CLI usage: `--collection "Big Barn Crossfit"` instead of requiring UUIDs |
+| 12-01 | data/collections.json gitignored as local cache | Regenerated via `--list-collections`; avoids committing live API data |
+| 12-01 | Phase 12 complete — collection routing integrated as pipeline Step 5 | Products assigned to collections during creation; backward compatible |
 
 ### Blockers/Concerns
 
@@ -68,5 +71,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 11-04-PLAN.md (Phase 11 finalized)
+Stopped at: Completed 12-01-PLAN.md (Phase 12 complete)
 Resume file: None

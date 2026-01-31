@@ -61,7 +61,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 12-01: TBD
+- [x] 12-01: Add multi-collection product routing to creation pipeline
 
 #### Phase 13: Template Presets & Pipeline Speed
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 9. Automated Stock Sync | v0.1 | 2/2 | Complete | 2026-01-31 |
 | 10. Integration Polish | v0.1 | 3/3 | Complete | 2026-01-31 |
 | 11. Automate WIX Editor Fixes | v0.2 | 4/4 | Complete | 2026-01-31 |
-| 12. Multi-Collection Product Routing | v0.2 | 0/? | Not started | - |
+| 12. Multi-Collection Product Routing | v0.2 | 1/1 | Complete | 2026-01-31 |
 | 13. Template Presets & Pipeline Speed | v0.2 | 0/? | Not started | - |
 | 14. Logo Overlay Engine | v0.2 | 0/? | Not started | - |
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 0/? | Not started | - |
