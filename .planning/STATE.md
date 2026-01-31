@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 7 IN PROGRESS -- Pricing & Variant Logic. Plan 07-01 complete (pricing rules engine).
+**Current focus:** Phase 7 IN PROGRESS -- Pricing & Variant Logic. Plan 07-02 complete (pipeline integration).
 
 ## Current Position
 
 Phase: 7 of 10 (Pricing & Variant Logic)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-30 -- Completed 07-01-PLAN.md (pricing rules engine)
+Last activity: 2026-01-30 -- Completed 07-02-PLAN.md (pipeline integration)
 
-Progress: ████████░░ 78%
+Progress: █████████░ 81%
 
 ## Performance Metrics
 
@@ -33,10 +33,10 @@ Progress: ████████░░ 78%
 | 4. Checkout | 3/3 | 3 sessions | 1 session |
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 | 6. Product Pipeline | 5/5 | 5 sessions | 1 session |
-| 7. Pricing & Variant | 1/3 | 1 session | 1 session |
+| 7. Pricing & Variant | 2/3 | 2 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 06-02, 06-03, 06-04, 06-05, 07-01
+- Last 5 plans: 06-03, 06-04, 06-05, 07-01, 07-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -118,6 +118,9 @@ Recent decisions affecting current work:
 - 7 category pricing presets: standard-tee (100%), premium-tee (120%), hoodie-fleece (80%), polo-woven (90%), outerwear (70%), headwear (100%), custom (100%)
 - nearest-99 rounding as default across all presets
 - Outerwear has higher extended-size upcharges ($4-$10) vs standard tees ($2-$6)
+- CuratedProduct.pricingConfig replaces basePrice -- all pipeline modules use PricingConfig for pricing
+- Base product listing price = calculateRetailPrice (standard size, no upcharges) for WIX product-level display
+- CLI --price flag derives markup from wholesale with no rounding; default is standard-tee preset
 
 ### Key Findings (Phase 1)
 
@@ -223,6 +226,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 07-01-PLAN.md (pricing rules engine). Phase 7 in progress.
-Resume file: .planning/phases/07-pricing-variant-logic/07-01-SUMMARY.md
-Next: Execute 07-02-PLAN.md (pipeline integration)
+Stopped at: Completed 07-02-PLAN.md (pipeline integration). Phase 7 in progress.
+Resume file: .planning/phases/07-pricing-variant-logic/07-02-SUMMARY.md
+Next: Execute 07-03-PLAN.md (preview UI pricing controls)
