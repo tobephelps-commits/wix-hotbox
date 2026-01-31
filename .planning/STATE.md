@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 9 PLANNED -- Automated Stock Sync. Ready for execution.
+**Current focus:** Phase 9 IN PROGRESS -- Automated Stock Sync. Plan 01 complete, Plan 02 next.
 
 ## Current Position
 
 Phase: 9 of 10 (Automated Stock Sync)
-Plan: 0 of 2 in current phase
-Status: Planned, ready to execute
-Last activity: 2026-01-31 -- Created 09-01-PLAN.md and 09-02-PLAN.md
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-31 -- Completed 09-01-PLAN.md
 
-Progress: █████████░ 88%
+Progress: █████████░ 91%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
+- Total plans completed: 30
 - Average duration: ~1 session
-- Total execution time: 29 sessions
+- Total execution time: 30 sessions
 
 **By Phase:**
 
@@ -37,7 +37,7 @@ Progress: █████████░ 88%
 | 8. Inventory Monitor | 2/2 | 2 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 07-02, 07-03, 08-01, 08-02
+- Last 5 plans: 07-03, 08-01, 08-02, 09-01
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -133,6 +133,10 @@ Recent decisions affecting current work:
 - First-poll flood prevention: skip low-stock alerts on initial poll (only critical/out-of-stock)
 - 1000-entry alert log cap with FIFO trimming to prevent unbounded growth
 - Barrel export (index.ts) provides clean import surface for Phase 9 consumption
+- SKU parsing for sync: strip style prefix, last dash-segment is size, middle is catalogColor
+- Visibility-only variant updates: carry over existing price/weight/SKU, change only visible field
+- Product mapping store (data/sync/product-map.json) links SanMar styles to WIX product IDs
+- WIX V1 product query endpoint uses stringified filter object (V1 API quirk)
 
 ### Key Findings (Phase 1)
 
@@ -238,6 +242,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Planned Phase 9 (Automated Stock Sync). 2 plans created in 2 waves.
-Resume file: .planning/phases/09-automated-stock-sync/09-01-PLAN.md
-Next: Execute Phase 9 (`/gsd:execute-phase 9`)
+Stopped at: Completed 09-01-PLAN.md (WIX stock sync service)
+Resume file: .planning/phases/09-automated-stock-sync/09-02-PLAN.md
+Next: Execute 09-02 (notification system for stock alerts)
