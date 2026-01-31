@@ -126,6 +126,52 @@ export function calculateMargin(
 }
 
 // =============================================================================
+// Cost Tracking Functions (Phase 15)
+// =============================================================================
+
+/**
+ * Calculate total cost from wholesale and decoration costs.
+ *
+ * Trivial sum but centralizes the concept so all code paths use the
+ * same definition of "total cost".
+ *
+ * @param wholesaleCost - The wholesale cost per unit
+ * @param decorationCost - The per-unit decoration cost (screen printing, embroidery, etc.)
+ * @returns The total cost (wholesale + decoration)
+ */
+export function calculateTotalCost(
+  wholesaleCost: number,
+  decorationCost: number,
+): number {
+  return Math.round((wholesaleCost + decorationCost) * 100) / 100;
+}
+
+/**
+ * Calculate profit margin INCLUDING decoration cost.
+ *
+ * Unlike calculateMargin() which only considers wholesale cost, this
+ * function subtracts both wholesale AND decoration costs from the
+ * retail price to give a true profitability picture.
+ *
+ * @param retailPrice - The retail selling price
+ * @param wholesaleCost - The wholesale cost
+ * @param decorationCost - The per-unit decoration cost
+ * @returns Object with profit in dollars and as a percentage of retail
+ */
+export function calculateFullMargin(
+  retailPrice: number,
+  wholesaleCost: number,
+  decorationCost: number,
+): { dollars: number; percent: number } {
+  const totalCost = calculateTotalCost(wholesaleCost, decorationCost);
+  const dollars = Math.round((retailPrice - totalCost) * 100) / 100;
+  const percent = retailPrice > 0
+    ? Math.round(((retailPrice - totalCost) / retailPrice) * 10000) / 100
+    : 0;
+  return { dollars, percent };
+}
+
+// =============================================================================
 // Pricing Presets
 // =============================================================================
 

@@ -222,6 +222,10 @@ export interface CuratedProduct {
   wholesaleCost: number;
   /** Target WIX collection names or IDs for this product (optional) */
   collections?: string[];
+  /** Per-unit decoration cost (optional, default 0) — Phase 15 */
+  decorationCost?: number;
+  /** Decoration method (optional, default "none") — Phase 15 */
+  decorationType?: string;
 }
 
 /**
@@ -364,4 +368,77 @@ export interface LogoRegistry {
   logos: Record<string, LogoRegistryEntry>;
   /** Named position presets for quick placement */
   positionPresets: Record<string, LogoPosition>;
+}
+
+// =============================================================================
+// Cost Tracking Types
+// =============================================================================
+
+/**
+ * Tracks all costs for a single product.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ */
+export interface ProductCostRecord {
+  /** SanMar style number (e.g., "PC61") */
+  style: string;
+  /** Product display name */
+  productName: string;
+  /** WIX product ID */
+  wixProductId: string;
+  /** SanMar piece price (wholesale cost per unit) */
+  wholesaleCost: number;
+  /** Per-unit decoration cost (screen printing, embroidery, etc.) — default 0 */
+  decorationCost: number;
+  /** Decoration method applied */
+  decorationType: 'screen-print' | 'embroidery' | 'heat-transfer' | 'dtg' | 'none';
+  /** Total cost: wholesale + decoration */
+  totalCost: number;
+  /** Base retail price (no size upcharge) */
+  retailPrice: number;
+  /** Margin calculated from retail vs total cost */
+  margin: { dollars: number; percent: number };
+  /** Pricing preset key used (e.g., "standard-tee") */
+  pricingPreset: string;
+  /** ISO timestamp of initial creation */
+  createdAt: string;
+  /** ISO timestamp of last update */
+  updatedAt: string;
+}
+
+/**
+ * A point-in-time cost snapshot for history tracking.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ */
+export interface CostHistoryEntry {
+  /** ISO timestamp of this snapshot */
+  timestamp: string;
+  /** SanMar wholesale cost at this point in time */
+  wholesaleCost: number;
+  /** Decoration cost at this point in time */
+  decorationCost: number;
+  /** Total cost (wholesale + decoration) at this point in time */
+  totalCost: number;
+  /** Retail price at this point in time */
+  retailPrice: number;
+  /** Margin at this point in time */
+  margin: { dollars: number; percent: number };
+  /** Reason for this history entry */
+  reason: 'initial' | 'cost-change' | 'price-change' | 'sale-start' | 'sale-end';
+}
+
+/**
+ * The data/cost-history.json schema.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ */
+export interface CostHistoryFile {
+  /** Map of style number to product cost data and history */
+  products: Record<string, {
+    current: ProductCostRecord;
+    history: CostHistoryEntry[];
+  }>;
+  /** ISO timestamp of last file update */
+  lastUpdated: string;
 }
