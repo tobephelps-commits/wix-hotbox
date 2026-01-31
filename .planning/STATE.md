@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 6 of 10 (Product Creation Pipeline)
-Plan: 1 of 5 in current phase (06-02 complete; 06-01, 06-03, 06-04, 06-05 pending)
+Plan: 2 of 5 in current phase (06-01, 06-02 complete; 06-03, 06-04, 06-05 pending)
 Status: In progress
-Last activity: 2026-01-30 -- Completed 06-02-PLAN.md (WIX V1 API service module)
+Last activity: 2026-01-30 -- Completed 06-01-PLAN.md (SanMar-to-WIX data mapping)
 
 Progress: ██████░░░░ 66%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 21
 - Average duration: ~1 session
-- Total execution time: 19 sessions
+- Total execution time: 21 sessions
 
 **By Phase:**
 
@@ -34,7 +34,7 @@ Progress: ██████░░░░ 66%
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 05-03, 05-04, 05-05, 06-02
+- Last 5 plans: 05-04, 05-05, 06-01, 06-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -94,6 +94,11 @@ Recent decisions affecting current work:
 - errorOccurred (double-r) in pricing/inventory WSDLs vs errorOccured (single-r) in product info WSDL
 - PromoStandards inventory returns actual counts (not capped at 1500) unlike Standard endpoint
 - describeClient() + raw response inspection are essential for discovering actual WSDL method signatures
+- WIX V1 types enforce draft-first at type level: visible: false, manageVariants: true as literal types
+- displayColor ALWAYS in WIX-facing data; catalogColor ONLY for SanMar API queries
+- Media payload: 1 front image per color + primary/high-res, capped at 15 (WIX limit)
+- Variant SKU format: {style}-{catalogColor}-{size} for SanMar traceability
+- Uniform pricing across variants in Phase 6; variable pricing deferred to Phase 7
 - Native fetch over axios for WIX API calls -- Node.js 18+ built-in, no extra dependency
 - WIX site ID hardcoded as constant (single-site deployment), not env var
 - wix-site-id header included in all WIX API requests for V1 compatibility
@@ -203,6 +208,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 06-02-PLAN.md (WIX V1 API service module). Phase 6 in progress.
-Resume file: .planning/phases/06-product-creation-pipeline/06-02-SUMMARY.md
-Next: Execute remaining Phase 6 plans (06-01, 06-03, 06-04, 06-05)
+Stopped at: Completed 06-01-PLAN.md (SanMar-to-WIX data mapping). Phase 6 in progress.
+Resume file: .planning/phases/06-product-creation-pipeline/06-01-SUMMARY.md
+Next: Execute remaining Phase 6 plans (06-03, 06-04, 06-05)
