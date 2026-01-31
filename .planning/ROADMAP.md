@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: SanMar API Foundation** - Build SanMar API client for product data, pricing, and inventory queries
 - [x] **Phase 6: Product Creation Pipeline** - SanMar style number → configured WIX product draft with variants and images
 - [x] **Phase 7: Pricing & Variant Logic** - Variable pricing rules by product type + per-product variant curation
-- [ ] **Phase 8: Inventory Monitoring** - SanMar blank stock monitoring with low-stock and out-of-stock alerts
+- [x] **Phase 8: Inventory Monitoring** - SanMar blank stock monitoring with low-stock and out-of-stock alerts
 - [ ] **Phase 9: Automated Stock Sync** - WIX product status updates based on SanMar stock levels + notifications
 - [ ] **Phase 10: Integration Polish** - End-to-end pipeline testing, edge cases, error handling, and documentation
 
@@ -124,7 +124,7 @@ Plans:
 
 Plans:
 - [x] 08-01: Build inventory polling system with configurable check intervals
-- [ ] 08-02: Implement alert thresholds and low-stock/out-of-stock detection
+- [x] 08-02: Implement alert thresholds and low-stock/out-of-stock detection
 
 ### Phase 9: Automated Stock Sync
 **Goal**: WIX product listings automatically reflect SanMar stock status + owner gets notified of stock changes
@@ -162,6 +162,6 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 5. SanMar API Foundation | 5/5 | Complete | 2026-01-30 |
 | 6. Product Creation Pipeline | 5/5 | Complete | 2026-01-30 |
 | 7. Pricing & Variant Logic | 3/3 | Complete | 2026-01-30 |
-| 8. Inventory Monitoring | 1/2 | In progress | - |
+| 8. Inventory Monitoring | 2/2 | Complete | 2026-01-30 |
 | 9. Automated Stock Sync | 0/2 | Not started | - |
 | 10. Integration Polish | 0/2 | Not started | - |

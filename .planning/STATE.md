@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 8 IN PROGRESS -- Inventory Monitoring. Plan 01 done, Plan 02 next.
+**Current focus:** Phase 8 COMPLETE -- Inventory Monitoring. Ready for Phase 9 (Automated Stock Sync).
 
 ## Current Position
 
 Phase: 8 of 10 (Inventory Monitoring)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-31 -- Completed 08-01-PLAN.md (monitoring foundation)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-01-30 -- Completed 08-02-PLAN.md (alert thresholds and stock detection)
 
-Progress: █████████░ 87%
+Progress: █████████░ 88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 29
 - Average duration: ~1 session
-- Total execution time: 27 sessions
+- Total execution time: 29 sessions
 
 **By Phase:**
 
@@ -34,10 +34,10 @@ Progress: █████████░ 87%
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 | 6. Product Pipeline | 5/5 | 5 sessions | 1 session |
 | 7. Pricing & Variant | 3/3 | 3 sessions | 1 session |
-| 8. Inventory Monitor | 1/2 | 1 session | 1 session |
+| 8. Inventory Monitor | 2/2 | 2 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 07-01, 07-02, 07-03, 08-01
+- Last 5 plans: 07-02, 07-03, 08-01, 08-02
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -129,6 +129,10 @@ Recent decisions affecting current work:
 - Only latest inventory snapshot persisted per style (overwrite, not append) for simple change detection
 - data/ directory gitignored -- monitor state is runtime data, not source control
 - Style numbers normalized to uppercase on CLI add/remove for SanMar API consistency
+- Transition-only alerting: only alert on stock level CHANGES, not every poll where stock is low
+- First-poll flood prevention: skip low-stock alerts on initial poll (only critical/out-of-stock)
+- 1000-entry alert log cap with FIFO trimming to prevent unbounded growth
+- Barrel export (index.ts) provides clean import surface for Phase 9 consumption
 
 ### Key Findings (Phase 1)
 
@@ -233,7 +237,7 @@ From Plan 04-03:
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Stopped at: Completed 08-01-PLAN.md (monitoring foundation). Phase 8 plan 1 of 2 done.
-Resume file: .planning/phases/08-inventory-monitoring/08-01-SUMMARY.md
-Next: Execute 08-02-PLAN.md (alert thresholds and low-stock detection)
+Last session: 2026-01-30
+Stopped at: Completed 08-02-PLAN.md (alert thresholds and stock detection). Phase 8 complete.
+Resume file: .planning/phases/08-inventory-monitoring/08-02-SUMMARY.md
+Next: Plan Phase 9 (Automated Stock Sync)
