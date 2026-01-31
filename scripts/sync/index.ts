@@ -43,3 +43,9 @@ export {
   sendSyncNotification,
   notifySyncResults,
 } from './notifications.js';
+
+// Sync poller
+export {
+  syncOnce,
+  startSyncLoop,
+} from './sync-poller.js';

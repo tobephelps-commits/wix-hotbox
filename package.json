@@ -15,7 +15,13 @@
     "monitor:add": "npx tsx scripts/monitor/manage.ts add",
     "monitor:list": "npx tsx scripts/monitor/manage.ts list",
     "monitor:poll": "npx tsx scripts/monitor/manage.ts poll",
-    "monitor:start": "npx tsx scripts/monitor/manage.ts start"
+    "monitor:start": "npx tsx scripts/monitor/manage.ts start",
+    "sync": "npx tsx scripts/sync/manage.ts",
+    "sync:link": "npx tsx scripts/sync/manage.ts link",
+    "sync:list": "npx tsx scripts/sync/manage.ts list",
+    "sync:scan": "npx tsx scripts/sync/manage.ts scan",
+    "sync:run": "npx tsx scripts/sync/manage.ts sync",
+    "sync:start": "npx tsx scripts/sync/manage.ts start"
   },
   "keywords": [],
   "author": "",
