@@ -45,6 +45,8 @@ export {
   updateProductVariants,
   getProduct,
   addProductToCollection,
+  queryProducts,
+  listAllProducts,
 } from './wix-api.js';
 
 export type {

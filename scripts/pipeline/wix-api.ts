@@ -326,3 +326,77 @@ export async function addProductToCollection(
 
   console.log(`[WIX API] Product ${productId} added to collection ${collectionId}`);
 }
+
+/**
+ * Query products using the WIX V1 product query endpoint.
+ *
+ * POST /stores/v1/products/query
+ *
+ * WIX V1 quirk: the filter field is a JSON **string**, not a nested object.
+ * If no filter is provided, all products are returned (subject to pagination).
+ *
+ * @param filter - Optional filter object (will be stringified for the V1 API)
+ * @param limit - Max products per page (default: 100, WIX max)
+ * @returns Array of products matching the query
+ */
+export async function queryProducts(
+  filter?: Record<string, unknown>,
+  limit?: number,
+): Promise<WixProduct[]> {
+  const endpoint = `${WIX_API_BASE}/products/query`;
+  const pageSize = limit ?? 100;
+  const allProducts: WixProduct[] = [];
+  let offset = 0;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const body: Record<string, unknown> = {
+      query: {
+        ...(filter ? { filter: JSON.stringify(filter) } : {}),
+        paging: { limit: pageSize, offset },
+      },
+      includeVariants: true,
+    };
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      await handleErrorResponse(response, endpoint, 'queryProducts');
+    }
+
+    const data = await response.json() as {
+      products: WixProduct[];
+      totalResults: number;
+    };
+
+    allProducts.push(...data.products);
+
+    // Check if there are more pages
+    if (allProducts.length >= data.totalResults || data.products.length < pageSize) {
+      break;
+    }
+
+    offset += pageSize;
+  }
+
+  return allProducts;
+}
+
+/**
+ * List all products in the WIX store.
+ *
+ * Convenience function that paginates through all products
+ * using queryProducts with no filter.
+ *
+ * @returns Array of all products in the store
+ */
+export async function listAllProducts(): Promise<WixProduct[]> {
+  console.log('[WIX API] Listing all products...');
+  const products = await queryProducts();
+  console.log(`[WIX API] Found ${products.length} total products.`);
+  return products;
+}
