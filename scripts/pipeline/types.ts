@@ -9,7 +9,12 @@
  * Products are ALWAYS created as invisible drafts (draft-first workflow per PROJECT.md).
  *
  * Phase 6: Product Creation Pipeline
+ * Phase 7: Pricing & Variant Logic updates (per-variant pricing via PricingConfig)
  */
+
+// Import PricingConfig for use in CuratedProduct, and re-export for other pipeline modules
+import type { PricingConfig } from './pricing-rules.js';
+export type { PricingConfig } from './pricing-rules.js';
 
 // =============================================================================
 // WIX V1 Product Creation Types
@@ -39,7 +44,7 @@ export interface WixCreateProductRequest {
     weight: number;
     /** Always true -- we need per-variant pricing */
     manageVariants: true;
-    /** Base price (overridden per variant in Phase 7, uniform in Phase 6) */
+    /** Base price (minimum variant price, used as product listing price) */
     priceData: {
       price: number;
     };
@@ -163,8 +168,8 @@ export interface CuratedProduct {
   selectedColors: CuratedColor[];
   /** Owner-selected sizes to offer */
   selectedSizes: string[];
-  /** Retail price to charge (uniform across variants in Phase 6) */
-  basePrice: number;
+  /** Pricing configuration for calculating per-variant retail prices */
+  pricingConfig: PricingConfig;
   /** SanMar effective wholesale cost */
   wholesaleCost: number;
 }
