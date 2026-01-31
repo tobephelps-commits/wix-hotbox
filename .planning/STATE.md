@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-29)
 
 **Core value:** Effortless product creation -- enter a SanMar style number and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 6 COMPLETE -- Product Creation Pipeline. Ready for Phase 7.
+**Current focus:** Phase 7 IN PROGRESS -- Pricing & Variant Logic. Plan 07-01 complete (pricing rules engine).
 
 ## Current Position
 
-Phase: 6 of 10 (Product Creation Pipeline)
-Plan: 5 of 5 in current phase (06-01 through 06-05 complete)
-Status: Phase complete
-Last activity: 2026-01-30 -- Completed 06-05-PLAN.md (end-to-end integration and verification)
+Phase: 7 of 10 (Pricing & Variant Logic)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-01-30 -- Completed 07-01-PLAN.md (pricing rules engine)
 
-Progress: ████████░░ 75%
+Progress: ████████░░ 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
+- Total plans completed: 25
 - Average duration: ~1 session
-- Total execution time: 24 sessions
+- Total execution time: 25 sessions
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: ████████░░ 75%
 | 4. Checkout | 3/3 | 3 sessions | 1 session |
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 | 6. Product Pipeline | 5/5 | 5 sessions | 1 session |
+| 7. Pricing & Variant | 1/3 | 1 session | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 06-01, 06-02, 06-03, 06-04, 06-05
+- Last 5 plans: 06-02, 06-03, 06-04, 06-05, 07-01
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -112,6 +113,11 @@ Recent decisions affecting current work:
 - Self-contained preview HTML -- no CDN, no build tools, no React, pure vanilla JS
 - In-memory style cache reuses ProductData between GET /api/product and POST /api/create
 - Port fallback (try next port if default 3456 in use) for developer convenience
+- Pure-function pricing engine with no SanMar API dependencies (scripts/pipeline/pricing-rules.ts)
+- Size upcharges applied AFTER rounding as flat dollar add-ons (not percentages)
+- 7 category pricing presets: standard-tee (100%), premium-tee (120%), hoodie-fleece (80%), polo-woven (90%), outerwear (70%), headwear (100%), custom (100%)
+- nearest-99 rounding as default across all presets
+- Outerwear has higher extended-size upcharges ($4-$10) vs standard tees ($2-$6)
 
 ### Key Findings (Phase 1)
 
@@ -217,6 +223,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 06-05-PLAN.md (end-to-end integration and verification). Phase 6 complete.
-Resume file: .planning/phases/06-product-creation-pipeline/06-05-SUMMARY.md
-Next: Plan Phase 7 (Pricing & Variant Logic)
+Stopped at: Completed 07-01-PLAN.md (pricing rules engine). Phase 7 in progress.
+Resume file: .planning/phases/07-pricing-variant-logic/07-01-SUMMARY.md
+Next: Execute 07-02-PLAN.md (pipeline integration)

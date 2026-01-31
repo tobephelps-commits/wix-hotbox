@@ -111,7 +111,7 @@ Plans:
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 07-01: Pricing rules engine with markup presets and size upcharges
+- [x] 07-01: Pricing rules engine with markup presets and size upcharges
 - [ ] 07-02: Pipeline integration — wire pricing config into mapper, types, and create flow
 - [ ] 07-03: Preview UI pricing controls and curation UX improvements
 
@@ -161,7 +161,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 4. Checkout & Conversion Optimization | 3/3 | Complete | 2026-01-30 |
 | 5. SanMar API Foundation | 5/5 | Complete | 2026-01-30 |
 | 6. Product Creation Pipeline | 5/5 | Complete | 2026-01-30 |
-| 7. Pricing & Variant Logic | 0/2 | Not started | - |
+| 7. Pricing & Variant Logic | 1/3 | In progress | - |
 | 8. Inventory Monitoring | 0/2 | Not started | - |
 | 9. Automated Stock Sync | 0/2 | Not started | - |
 | 10. Integration Polish | 0/2 | Not started | - |
