@@ -30,6 +30,8 @@ import { fetchProductData } from './fetch-product.js';
 import type { ProductData } from './fetch-product.js';
 import { createWixProduct } from './create-product.js';
 import type { CuratedProduct } from './types.js';
+import { listTemplates, getTemplate, saveTemplate, deleteTemplate } from './templates.js';
+import { PRICING_PRESETS } from './pricing-rules.js';
 
 // =============================================================================
 // Configuration
@@ -78,7 +80,7 @@ function sendJson(
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   });
   res.end(body);
@@ -211,6 +213,22 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
     return { route: 'create-product' };
   }
 
+  // Match /api/templates/:name (must come before /api/templates)
+  const templateNameMatch = urlPath.match(/^\/api\/templates\/(.+)\/?$/);
+  if (templateNameMatch) {
+    return { route: 'template-by-name', param: decodeURIComponent(templateNameMatch[1]) };
+  }
+
+  // Match /api/templates
+  if (urlPath === '/api/templates') {
+    return { route: 'templates' };
+  }
+
+  // Match /api/presets
+  if (urlPath === '/api/presets') {
+    return { route: 'presets' };
+  }
+
   // Match / (root)
   if (urlPath === '/' || urlPath === '/index.html') {
     return { route: 'serve-html' };
@@ -232,7 +250,7 @@ function startServer(port: number, initialStyle?: string): void {
       if (method === 'OPTIONS') {
         res.writeHead(204, {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         });
         res.end();
@@ -264,6 +282,85 @@ function startServer(port: number, initialStyle?: string): void {
               break;
             }
             await handleCreateProduct(req, res);
+            break;
+          }
+
+          case 'templates': {
+            if (method === 'GET') {
+              // GET /api/templates - List all templates
+              try {
+                const templates = await listTemplates();
+                sendJson(res, 200, { templates });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error listing templates: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            } else if (method === 'POST') {
+              // POST /api/templates - Save a new template
+              try {
+                const body = await readBody(req);
+                const template = JSON.parse(body);
+                if (!template.name || typeof template.name !== 'string' || template.name.trim() === '') {
+                  sendJson(res, 400, { error: 'Template name is required and must be non-empty' });
+                  break;
+                }
+                await saveTemplate(template);
+                const saved = await getTemplate(template.name);
+                sendJson(res, 201, saved);
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error saving template: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            } else {
+              sendJson(res, 405, { error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          case 'template-by-name': {
+            if (method === 'GET') {
+              // GET /api/templates/:name - Get a single template
+              try {
+                const template = await getTemplate(param!);
+                if (template) {
+                  sendJson(res, 200, template);
+                } else {
+                  sendJson(res, 404, { error: 'Template not found' });
+                }
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error getting template: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            } else if (method === 'DELETE') {
+              // DELETE /api/templates/:name - Delete a template
+              try {
+                const deleted = await deleteTemplate(param!);
+                if (deleted) {
+                  sendJson(res, 200, { deleted: true });
+                } else {
+                  sendJson(res, 404, { error: 'Template not found' });
+                }
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error deleting template: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            } else {
+              sendJson(res, 405, { error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          case 'presets': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/presets - List available pricing presets
+            sendJson(res, 200, { presets: PRICING_PRESETS });
             break;
           }
 
