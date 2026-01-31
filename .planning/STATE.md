@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 11 of 20 (Automate WIX Editor Fixes)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-31 — Milestone v0.2 created
+Plan: 2 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-31 — Completed 11-02-PLAN.md
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ██░░░░░░░░ 5%
 
 ## Performance Metrics
 
@@ -45,6 +45,14 @@ Progress: ░░░░░░░░░░ 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 11-01 | 30 pending fixes (not 32) after recount | Thorough parsing found 38 total (8 completed + 30 pending); original estimate was approximate |
+| 11-01 | 7-wave execution order | Dependencies require Phase 2 prerequisites before Phase 3 mobile work |
+| 11-01 | 3 fixes flagged for API automation | CL-2, CL-5, QW-6 may be addressable via WIX REST API in Plan 11-03 |
+| 11-02 | Standalone script not test framework | Store owner needs plain readable output, not Jest/Vitest artifacts |
+| 11-02 | 16 checks marked SKIP for manual verification | Avoids false positives on visual/subjective checks |
+
 ### Blockers/Concerns
 
 None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
@@ -58,5 +66,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Milestone v0.2 initialization
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
