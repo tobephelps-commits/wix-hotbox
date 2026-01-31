@@ -10,7 +10,12 @@
     "demo:style": "npx tsx scripts/sanmar/demo.ts",
     "fetch-product": "npx tsx scripts/pipeline/fetch-product.ts",
     "create-product": "npx tsx scripts/pipeline/create-product.ts",
-    "preview": "npx tsx scripts/pipeline/preview-server.ts"
+    "preview": "npx tsx scripts/pipeline/preview-server.ts",
+    "monitor": "npx tsx scripts/monitor/manage.ts",
+    "monitor:add": "npx tsx scripts/monitor/manage.ts add",
+    "monitor:list": "npx tsx scripts/monitor/manage.ts list",
+    "monitor:poll": "npx tsx scripts/monitor/manage.ts poll",
+    "monitor:start": "npx tsx scripts/monitor/manage.ts start"
   },
   "keywords": [],
   "author": "",
