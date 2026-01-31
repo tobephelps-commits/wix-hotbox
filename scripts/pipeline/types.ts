@@ -58,6 +58,10 @@ export interface ProductTemplate {
     /** Opacity override */
     opacity?: number;
   };
+  /** Per-unit decoration cost in dollars (optional, Phase 15) */
+  decorationCost?: number;
+  /** Decoration method (optional, Phase 15) */
+  decorationType?: string;
   /** ISO timestamp of creation */
   createdAt: string;
   /** ISO timestamp of last update */

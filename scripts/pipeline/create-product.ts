@@ -33,8 +33,10 @@ import {
   addProductToCollection,
   getCollectionByName,
 } from './wix-api.js';
-import { calculateRetailPrice, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
+import { calculateRetailPrice, calculateFullMargin, calculateTotalCost, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
 import { getTemplate, saveTemplate, listTemplates } from './templates.js';
+import { recordProductCost } from './cost-tracker.js';
+import type { ProductCostRecord } from './types.js';
 import {
   loadLogoRegistry,
   getLogoEntry,
@@ -284,7 +286,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const style = process.argv[2];
   if (!style || style === '--help') {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N] [--decoration-cost N] [--decoration-type TYPE]',
     );
     console.error('');
     console.error('Options:');
@@ -296,14 +298,17 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.error('  --logo NAME            Apply logo overlay from registry (e.g., "bigbarn")');
     console.error('  --logo-position PRESET Position preset or "x,y" coordinates (default: center-chest)');
     console.error('  --logo-scale N         Logo scale as proportion of image width (0.1-0.8)');
+    console.error('  --decoration-cost N    Per-unit decoration cost in dollars (default: 0)');
+    console.error('  --decoration-type TYPE Decoration method: screen-print, embroidery, heat-transfer, dtg, none (default: none)');
     console.error('  --list-presets         Show available pricing presets');
     console.error('  --list-templates       Show saved product templates');
     console.error('  --list-logos           Show available logos from registry');
     console.error('  --list-positions       Show available position presets');
     console.error('');
     console.error('Precedence (highest to lowest):');
-    console.error('  Pricing: --price > --preset > --template pricing > default (standard-tee)');
-    console.error('  Logo:    --logo > --template logoOverlay > none');
+    console.error('  Pricing:    --price > --preset > --template pricing > default (standard-tee)');
+    console.error('  Logo:       --logo > --template logoOverlay > none');
+    console.error('  Decoration: --decoration-cost > template decorationCost > 0');
     console.error('');
     console.error('Examples:');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61');
@@ -358,6 +363,19 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   // Parse optional --logo-scale argument
   const logoScaleArgIdx = process.argv.indexOf('--logo-scale');
   const logoScaleArg = logoScaleArgIdx !== -1 ? parseFloat(process.argv[logoScaleArgIdx + 1]) : null;
+
+  // Parse optional --decoration-cost argument
+  const decorCostArgIdx = process.argv.indexOf('--decoration-cost');
+  const decorCostArg = decorCostArgIdx !== -1 ? parseFloat(process.argv[decorCostArgIdx + 1]) : null;
+
+  // Parse optional --decoration-type argument
+  const decorTypeArgIdx = process.argv.indexOf('--decoration-type');
+  const decorTypeArg = decorTypeArgIdx !== -1 ? process.argv[decorTypeArgIdx + 1] : null;
+  const validDecorTypes = ['screen-print', 'embroidery', 'heat-transfer', 'dtg', 'none'] as const;
+  if (decorTypeArg && !validDecorTypes.includes(decorTypeArg as typeof validDecorTypes[number])) {
+    console.error(`Error: Invalid decoration type "${decorTypeArg}". Valid types: ${validDecorTypes.join(', ')}`);
+    process.exit(1);
+  }
 
   // Validate --logo name against registry if provided
   if (logoName) {
@@ -471,6 +489,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       logoSource = `template: ${tLogo.logoName} at ${tLogo.position}`;
     }
 
+    // --- Determine decoration cost and type ---
+    // Precedence: --decoration-cost > template.decorationCost > 0
+    const decorationCost = decorCostArg ?? template?.decorationCost ?? 0;
+    const decorationType = (decorTypeArg ?? template?.decorationType ?? 'none') as ProductCostRecord['decorationType'];
+
     // Print template application summary
     if (template) {
       console.log(`\nApplied template "${template.name}":`);
@@ -494,6 +517,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       pricingConfig,
       wholesaleCost: data.preview.pricing.wholesalePrice,
       ...(allCollections.length > 0 ? { collections: allCollections } : {}),
+      ...(decorationCost > 0 ? { decorationCost, decorationType } : {}),
     };
 
     // --- Apply logo overlay to product images (before WIX creation) ---
@@ -512,6 +536,30 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     }
 
     const result = await createWixProduct(curated, data);
+
+    // --- Record cost data after successful creation ---
+    const baseRetailPrice = calculateRetailPrice(curated.wholesaleCost, curated.pricingConfig.markupPercent, curated.pricingConfig.rounding);
+    const presetName = presetKey ?? template?.pricingPreset ?? 'standard-tee';
+    try {
+      await recordProductCost({
+        style: curated.style,
+        productName: `${curated.brandName} ${curated.productTitle}`,
+        wixProductId: result.productId,
+        wholesaleCost: curated.wholesaleCost,
+        decorationCost,
+        decorationType,
+        retailPrice: baseRetailPrice,
+        pricingPreset: presetName,
+      });
+    } catch (costErr) {
+      // Non-fatal: product was created, cost tracking is supplementary
+      console.warn(`  Warning: Failed to record cost data: ${costErr instanceof Error ? costErr.message : String(costErr)}`);
+    }
+
+    // Calculate margin info for display
+    const totalCost = calculateTotalCost(curated.wholesaleCost, decorationCost);
+    const fullMargin = calculateFullMargin(baseRetailPrice, curated.wholesaleCost, decorationCost);
+
     console.log(`\nResult:`);
     console.log(`  Product ID: ${result.productId}`);
     console.log(`  URL: ${result.productUrl}`);
@@ -519,6 +567,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.log(`  Media: ${result.mediaAdded}`);
     console.log(`  Collections: ${result.collectionsAssigned.length > 0 ? result.collectionsAssigned.join(', ') : '(none)'}`);
     console.log(`  Logo overlay: ${logoOverlayConfig ? `${logoOverlayConfig.logoName} (saved to media/overlays/)` : 'none'}`);
+    console.log(`  Margin: $${fullMargin.dollars.toFixed(2)} (${fullMargin.percent.toFixed(1)}%) [wholesale: $${curated.wholesaleCost.toFixed(2)} + decoration: $${decorationCost.toFixed(2)} = total cost: $${totalCost.toFixed(2)}]`);
     console.log(`  Status: ${result.status}`);
 
     if (result.warnings.length > 0) {
@@ -547,6 +596,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
             opacity: logoOverlayConfig.opacity,
           },
         } : {}),
+        ...(decorationCost > 0 ? { decorationCost, decorationType } : {}),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
