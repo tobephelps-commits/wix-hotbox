@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 6 of 10 (Product Creation Pipeline)
-Plan: 2 of 5 in current phase (06-01, 06-02 complete; 06-03, 06-04, 06-05 pending)
+Plan: 3 of 5 in current phase (06-01, 06-02, 06-03 complete; 06-04, 06-05 pending)
 Status: In progress
-Last activity: 2026-01-30 -- Completed 06-01-PLAN.md (SanMar-to-WIX data mapping)
+Last activity: 2026-01-30 -- Completed 06-03-PLAN.md (pipeline orchestrator)
 
-Progress: ██████░░░░ 66%
+Progress: ███████░░░ 69%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: ~1 session
-- Total execution time: 21 sessions
+- Total execution time: 22 sessions
 
 **By Phase:**
 
@@ -34,7 +34,7 @@ Progress: ██████░░░░ 66%
 | 5. SanMar API | 5/5 | 5 sessions | 1 session |
 
 **Recent Trend:**
-- Last 5 plans: 05-04, 05-05, 06-01, 06-02
+- Last 5 plans: 05-05, 06-01, 06-02, 06-03
 - Trend: Consistent 1-session execution
 
 ## Accumulated Context
@@ -103,6 +103,10 @@ Recent decisions affecting current work:
 - WIX site ID hardcoded as constant (single-site deployment), not env var
 - wix-site-id header included in all WIX API requests for V1 compatibility
 - Function-export module pattern for WIX API service (not class-based), matching SanMar service pattern
+- 4 SanMar queries in parallel (Promise.all) for fetchProductData -- independent endpoints
+- fileURLToPath + path.resolve for CLI guard (import.meta.url encodes spaces as %20 on Windows)
+- ProductData includes pre-computed imagesByColor and ProductPreview to avoid recomputation
+- create-product CLI auto-selects ALL colors/sizes for quick-create testing mode
 
 ### Key Findings (Phase 1)
 
@@ -208,6 +212,6 @@ From Plan 04-03:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 06-01-PLAN.md (SanMar-to-WIX data mapping). Phase 6 in progress.
-Resume file: .planning/phases/06-product-creation-pipeline/06-01-SUMMARY.md
-Next: Execute remaining Phase 6 plans (06-03, 06-04, 06-05)
+Stopped at: Completed 06-03-PLAN.md (pipeline orchestrator). Phase 6 in progress.
+Resume file: .planning/phases/06-product-creation-pipeline/06-03-SUMMARY.md
+Next: Execute remaining Phase 6 plans (06-04, 06-05)
