@@ -101,7 +101,7 @@ Plans:
 - [x] 06-01: Map SanMar product data to WIX product schema
 - [x] 06-02: Build WIX V1 product creation service module
 - [x] 06-03: Build pipeline orchestrator (fetch + create product scripts)
-- [ ] 06-04: TBD
+- [x] 06-04: Build local web preview server for visual curation
 - [ ] 06-05: TBD
 
 ### Phase 7: Pricing & Variant Logic
@@ -159,7 +159,7 @@ Note: Phase 5 (SanMar API) can start in parallel with Phases 1-4 once API creden
 | 3. Mobile Experience Optimization | 3/3 | Complete | 2026-01-30 |
 | 4. Checkout & Conversion Optimization | 3/3 | Complete | 2026-01-30 |
 | 5. SanMar API Foundation | 5/5 | Complete | 2026-01-30 |
-| 6. Product Creation Pipeline | 3/5 | In progress | - |
+| 6. Product Creation Pipeline | 4/5 | In progress | - |
 | 7. Pricing & Variant Logic | 0/2 | Not started | - |
 | 8. Inventory Monitoring | 0/2 | Not started | - |
 | 9. Automated Stock Sync | 0/2 | Not started | - |
