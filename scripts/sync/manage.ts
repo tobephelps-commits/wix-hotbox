@@ -5,17 +5,17 @@
  * cycles, and configuring email notifications.
  *
  * Subcommands:
- *   link <style> <wixProductId> [name]  - Map a SanMar style to a WIX product
- *   unlink <style>                      - Remove a product mapping
- *   list                                - Show all product mappings
- *   scan                                - Auto-discover WIX products matching tracked styles
- *   sync                                - Run one sync cycle (poll + WIX update + notify)
- *   start                               - Start continuous sync loop
- *   smart-start                         - Start priority-based sync loop
- *   health                              - Show sync daemon health status
- *   notify-test                         - Send a test email to verify SMTP config
- *   config                              - Show current sync configuration
- *   help                                - Show usage
+ *   link [--vendor ss] <style> <wixProductId> [name]  - Map a vendor style to a WIX product
+ *   unlink <style>                                    - Remove a product mapping
+ *   list                                              - Show all product mappings
+ *   scan                                              - Auto-discover WIX products matching tracked styles
+ *   sync                                              - Run one sync cycle (poll + WIX update + notify)
+ *   start                                             - Start continuous sync loop
+ *   smart-start                                       - Start priority-based sync loop
+ *   health                                            - Show sync daemon health status
+ *   notify-test                                       - Send a test email to verify SMTP config
+ *   config                                            - Show current sync configuration
+ *   help                                              - Show usage
  *
  * SMTP credentials are loaded from environment variables:
  *   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
@@ -23,17 +23,21 @@
  *
  * Usage:
  *   npx tsx scripts/sync/manage.ts link PC61 abc123 "Port & Company Essential Tee"
+ *   npx tsx scripts/sync/manage.ts link --vendor ss 2000 def456 "Gildan Ultra Cotton"
  *   npx tsx scripts/sync/manage.ts scan
  *   npx tsx scripts/sync/manage.ts sync
  *   npx tsx scripts/sync/manage.ts start
  *
  * Phase 9: Automated Stock Sync
+ * Phase 17: --vendor flag for multi-vendor support
  */
 
 import 'dotenv/config';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+import type { VendorId } from '../vendor/types.js';
+import { parseVendorFlag } from '../vendor/registry.js';
 import type { ProductMapping } from './types.js';
 import type { SyncConfig, NotificationConfig } from './types.js';
 import {
@@ -47,6 +51,41 @@ import { sendSyncNotification } from './notifications.js';
 import { loadConfig as loadMonitorConfig, loadTrackedProducts } from '../monitor/store.js';
 import { listAllProducts } from '../pipeline/wix-api.js';
 import type { WixProduct } from '../pipeline/wix-api.js';
+
+// =============================================================================
+// CLI Flag Parsing Helpers
+// =============================================================================
+
+/**
+ * Extract --vendor flag from args array.
+ *
+ * Removes --vendor and its value from the args array (mutates in place)
+ * and returns the parsed VendorId. If --vendor is absent, returns 'sanmar'.
+ *
+ * Supports: --vendor ss, --vendor sanmar, --vendor ss-activewear, --vendor s&s
+ *
+ * @param args - Mutable args array (--vendor and value will be removed)
+ * @returns Parsed VendorId
+ */
+function extractVendorFlag(args: string[]): VendorId {
+  const vendorIdx = args.indexOf('--vendor');
+  if (vendorIdx === -1) {
+    return 'sanmar';
+  }
+
+  const vendorValue = args[vendorIdx + 1];
+  // Remove --vendor and its value from args
+  args.splice(vendorIdx, 2);
+
+  return parseVendorFlag(vendorValue);
+}
+
+/**
+ * Get a human-readable vendor label for display.
+ */
+function vendorLabel(vendor: VendorId | undefined): string {
+  return (vendor ?? 'sanmar') === 'sanmar' ? 'SanMar' : 'S&S';
+}
 
 // =============================================================================
 // Configuration from Environment
@@ -106,10 +145,12 @@ Stock Sync CLI
 Usage: npx tsx scripts/sync/manage.ts <command> [args]
 
 Commands:
-  link <style> <wixProductId> [name]  Map a SanMar style to a WIX product ID
+  link [--vendor ss] <style> <wixProductId> [name]
+                                      Map a vendor style to a WIX product ID
+                                      --vendor: sanmar (default), ss, ss-activewear, s&s
                                       If name is omitted, style number is used
   unlink <style>                      Remove a product mapping
-  list                                Show all product mappings
+  list                                Show all product mappings (shows vendor column)
   scan                                Auto-discover WIX products matching tracked styles
   sync                                Run one sync cycle (poll + WIX update + notify)
   start                               Start continuous sync loop (Ctrl+C to stop)
@@ -131,6 +172,7 @@ Environment Variables (for notifications):
 
 Examples:
   npx tsx scripts/sync/manage.ts link PC61 abc123 "Port & Company Essential Tee"
+  npx tsx scripts/sync/manage.ts link --vendor ss 2000 def456 "Gildan Ultra Cotton"
   npx tsx scripts/sync/manage.ts unlink PC61
   npx tsx scripts/sync/manage.ts list
   npx tsx scripts/sync/manage.ts scan
@@ -157,12 +199,15 @@ npm scripts:
 // =============================================================================
 
 async function handleLink(args: string[]): Promise<void> {
+  // Extract --vendor before parsing positional args
+  const vendor = extractVendorFlag(args);
+
   const style = args[0];
   const wixProductId = args[1];
 
   if (!style || !wixProductId) {
     console.error('Error: Style and WIX product ID are required.');
-    console.error('Usage: npx tsx scripts/sync/manage.ts link <style> <wixProductId> [name]');
+    console.error('Usage: npx tsx scripts/sync/manage.ts link [--vendor ss] <style> <wixProductId> [name]');
     process.exit(1);
   }
 
@@ -174,6 +219,7 @@ async function handleLink(args: string[]): Promise<void> {
     wixProductId,
     productName: name,
     linkedAt: new Date().toISOString(),
+    vendor,
   };
 
   await addProductMapping(mapping, syncConfig);
@@ -205,15 +251,16 @@ async function handleList(): Promise<void> {
   }
 
   console.log(`\nProduct Mappings (${mappings.length}):`);
-  console.log('\u2500'.repeat(80));
-  console.log('Style     | WIX Product ID                       | Name');
-  console.log('\u2500'.repeat(80));
+  console.log('\u2500'.repeat(90));
+  console.log('Style     | Vendor  | WIX Product ID                       | Name');
+  console.log('\u2500'.repeat(90));
 
   for (const m of mappings) {
     const style = m.style.padEnd(9);
+    const vendor = vendorLabel(m.vendor).padEnd(7);
     const id = m.wixProductId.padEnd(36);
-    const name = m.productName.length > 30 ? m.productName.slice(0, 27) + '...' : m.productName;
-    console.log(`${style} | ${id} | ${name}`);
+    const name = m.productName.length > 25 ? m.productName.slice(0, 22) + '...' : m.productName;
+    console.log(`${style} | ${vendor} | ${id} | ${name}`);
   }
 
   console.log('');
@@ -240,24 +287,27 @@ async function handleScan(): Promise<void> {
     process.exit(1);
   }
 
-  // Build a set of tracked styles for quick lookup
-  const trackedStyles = new Map<string, string>();
+  // Build a lookup of tracked styles: key = style, value = { name, vendor }
+  const trackedStyles = new Map<string, { name: string; vendor: VendorId }>();
   for (const tp of trackedProducts) {
-    trackedStyles.set(tp.style.toUpperCase(), tp.name);
+    trackedStyles.set(tp.style.toUpperCase(), { name: tp.name, vendor: tp.vendor ?? 'sanmar' });
   }
 
   // Check each WIX product's variant SKUs for matching styles
   let matchCount = 0;
   const existingMappings = await loadProductMap(syncConfig);
-  const existingStyles = new Set(existingMappings.map((m) => m.style));
+  // Use style+vendor as key for dedup (same style may exist on different vendors)
+  const existingKeys = new Set(existingMappings.map((m) => `${m.style}:${m.vendor ?? 'sanmar'}`));
 
   for (const wixProduct of wixProducts) {
     if (!wixProduct.variants || wixProduct.variants.length === 0) continue;
 
     // Check first variant's SKU for a style match
-    for (const [style, productName] of trackedStyles) {
+    for (const [style, info] of trackedStyles) {
+      const mapKey = `${style}:${info.vendor}`;
+
       // Already mapped?
-      if (existingStyles.has(style)) continue;
+      if (existingKeys.has(mapKey)) continue;
 
       // Check if any variant SKU starts with this style
       const hasMatch = wixProduct.variants.some(
@@ -268,14 +318,16 @@ async function handleScan(): Promise<void> {
         const mapping: ProductMapping = {
           style,
           wixProductId: wixProduct.id,
-          productName: wixProduct.name || productName,
+          productName: wixProduct.name || info.name,
           linkedAt: new Date().toISOString(),
+          vendor: info.vendor,
         };
 
         await addProductMapping(mapping, syncConfig);
-        existingStyles.add(style); // Prevent duplicate adds in this run
+        existingKeys.add(mapKey); // Prevent duplicate adds in this run
         matchCount++;
-        console.log(`[Sync] Found: ${style} -> ${wixProduct.id} (${wixProduct.name})`);
+        const vLabel = vendorLabel(info.vendor);
+        console.log(`[Sync] Found: ${style} (${vLabel}) -> ${wixProduct.id} (${wixProduct.name})`);
       }
     }
   }

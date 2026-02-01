@@ -5,33 +5,37 @@
  * inventory poll cycles, viewing alerts, and configuring thresholds.
  *
  * Subcommands:
- *   add <style> [name]          - Add a style to tracking
- *   remove <style>              - Remove a style from tracking
- *   list                        - List all tracked products
- *   poll                        - Run a single poll cycle
- *   start                       - Start continuous polling
- *   alerts                      - Show recent alerts (last 50)
- *   alerts clear                - Clear the alert log
- *   warehouse <style>           - Show per-warehouse inventory for a style
- *   priority <style>            - Show current poll priority
- *   priority <style> <tier>     - Set poll priority (hot|normal|slow)
- *   config                      - Print current monitor config
- *   config set <key> <value>    - Update a config value
- *   help                        - Print usage information
+ *   add [--vendor ss] <style> [name] - Add a style to tracking
+ *   remove <style>                   - Remove a style from tracking
+ *   list                             - List all tracked products
+ *   poll                             - Run a single poll cycle
+ *   start                            - Start continuous polling
+ *   alerts                           - Show recent alerts (last 50)
+ *   alerts clear                     - Clear the alert log
+ *   warehouse <style>                - Show per-warehouse inventory for a style
+ *   priority <style>                 - Show current poll priority
+ *   priority <style> <tier>          - Set poll priority (hot|normal|slow)
+ *   config                           - Print current monitor config
+ *   config set <key> <value>         - Update a config value
+ *   help                             - Print usage information
  *
  * Usage:
  *   npx tsx scripts/monitor/manage.ts add PC61 "Port & Company Essential Tee"
+ *   npx tsx scripts/monitor/manage.ts add --vendor ss 2000 "Gildan Ultra Cotton"
  *   npx tsx scripts/monitor/manage.ts list
  *   npx tsx scripts/monitor/manage.ts poll
  *   npx tsx scripts/monitor/manage.ts alerts
  *   npx tsx scripts/monitor/manage.ts config set lowStockThreshold 20
  *
  * Phase 8: Inventory Monitoring
+ * Phase 17: --vendor flag for multi-vendor support
  */
 
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+import type { VendorId } from '../vendor/types.js';
+import { parseVendorFlag } from '../vendor/registry.js';
 import type { MonitorConfig, TrackedProduct, PollPriority } from './types.js';
 import {
   loadConfig,
@@ -48,6 +52,41 @@ import { getRecentAlerts, clearAlertLog } from './alert-log.js';
 import { WAREHOUSES } from '../sanmar/index.js';
 
 // =============================================================================
+// CLI Flag Parsing Helpers
+// =============================================================================
+
+/**
+ * Extract --vendor flag from args array.
+ *
+ * Removes --vendor and its value from the args array (mutates in place)
+ * and returns the parsed VendorId. If --vendor is absent, returns 'sanmar'.
+ *
+ * Supports: --vendor ss, --vendor sanmar, --vendor ss-activewear, --vendor s&s
+ *
+ * @param args - Mutable args array (--vendor and value will be removed)
+ * @returns Parsed VendorId
+ */
+function extractVendorFlag(args: string[]): VendorId {
+  const vendorIdx = args.indexOf('--vendor');
+  if (vendorIdx === -1) {
+    return 'sanmar';
+  }
+
+  const vendorValue = args[vendorIdx + 1];
+  // Remove --vendor and its value from args
+  args.splice(vendorIdx, 2);
+
+  return parseVendorFlag(vendorValue);
+}
+
+/**
+ * Get a human-readable vendor label for display.
+ */
+function vendorLabel(vendor: VendorId | undefined): string {
+  return (vendor ?? 'sanmar') === 'sanmar' ? 'SanMar' : 'S&S';
+}
+
+// =============================================================================
 // Usage
 // =============================================================================
 
@@ -59,28 +98,31 @@ Inventory Monitor CLI
 Usage: npx tsx scripts/monitor/manage.ts <command> [args]
 
 Commands:
-  add <style> [name]              Add a SanMar style to inventory tracking
-                                  If name is omitted, style number is used as name
-  remove <style>                  Remove a style from inventory tracking
-  list                            List all tracked products
-  poll                            Run a single inventory poll cycle (with alert detection)
-  start                           Start continuous polling (Ctrl+C to stop)
-  alerts                          Show recent alerts (last 50)
-  alerts clear                    Clear the alert log
-  warehouse <style>               Show per-warehouse inventory for a tracked style
-  priority <style>                Show current poll priority for a product
+  add [--vendor ss] <style> [name]  Add a style to inventory tracking
+                                    --vendor: sanmar (default), ss, ss-activewear, s&s
+                                    If name is omitted, style number is used as name
+  remove <style>                    Remove a style from inventory tracking
+  list                              List all tracked products (shows vendor column)
+  poll                              Run a single inventory poll cycle (with alert detection)
+  start                             Start continuous polling (Ctrl+C to stop)
+  alerts                            Show recent alerts (last 50)
+  alerts clear                      Clear the alert log
+  warehouse [--vendor ss] <style>   Show per-warehouse inventory for a tracked style
+  priority <style>                  Show current poll priority for a product
   priority <style> <hot|normal|slow>  Set poll priority for a product
-  config                          Print current monitor configuration
-  config set <key> <value>        Update a config value (numeric fields only)
-  help                            Show this help message
+  config                            Print current monitor configuration
+  config set <key> <value>          Update a config value (numeric fields only)
+  help                              Show this help message
 
 Examples:
   npx tsx scripts/monitor/manage.ts add PC61 "Port & Company Essential Tee"
+  npx tsx scripts/monitor/manage.ts add --vendor ss 2000 "Gildan Ultra Cotton"
   npx tsx scripts/monitor/manage.ts add K420
   npx tsx scripts/monitor/manage.ts remove PC61
   npx tsx scripts/monitor/manage.ts list
   npx tsx scripts/monitor/manage.ts poll
   npx tsx scripts/monitor/manage.ts warehouse PC61
+  npx tsx scripts/monitor/manage.ts warehouse --vendor ss 2000
   npx tsx scripts/monitor/manage.ts priority PC61
   npx tsx scripts/monitor/manage.ts priority PC61 hot
   npx tsx scripts/monitor/manage.ts alerts
@@ -103,10 +145,13 @@ npm scripts:
 // =============================================================================
 
 async function handleAdd(args: string[]): Promise<void> {
+  // Extract --vendor before parsing positional args
+  const vendor = extractVendorFlag(args);
+
   const style = args[0];
   if (!style) {
     console.error('Error: Style number is required.');
-    console.error('Usage: npx tsx scripts/monitor/manage.ts add <style> [name]');
+    console.error('Usage: npx tsx scripts/monitor/manage.ts add [--vendor ss] <style> [name]');
     process.exit(1);
   }
 
@@ -118,6 +163,7 @@ async function handleAdd(args: string[]): Promise<void> {
     style: style.toUpperCase(),
     name,
     addedAt: new Date().toISOString(),
+    vendor,
   };
 
   await addTrackedProduct(product, config);
@@ -149,15 +195,16 @@ async function handleList(): Promise<void> {
   }
 
   console.log(`\nTracked Products (${products.length}):`);
-  console.log('\u2500'.repeat(60));
-  console.log('Style     | Name                              | Added');
-  console.log('\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500|\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500|\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+  console.log('\u2500'.repeat(72));
+  console.log('Style     | Vendor  | Name                              | Added');
+  console.log('\u2500'.repeat(10) + '|' + '\u2500'.repeat(9) + '|' + '\u2500'.repeat(35) + '|' + '\u2500'.repeat(10));
 
   for (const p of products) {
     const style = p.style.padEnd(9);
+    const vendor = vendorLabel(p.vendor).padEnd(7);
     const name = p.name.length > 33 ? p.name.slice(0, 30) + '...' : p.name.padEnd(33);
     const added = p.addedAt.slice(0, 10);
-    console.log(`${style} | ${name} | ${added}`);
+    console.log(`${style} | ${vendor} | ${name} | ${added}`);
   }
 
   console.log('');
@@ -173,7 +220,8 @@ async function handlePoll(): Promise<void> {
     for (const snap of snapshots) {
       const inStock = snap.skus.filter((s) => s.totalQty > 0).length;
       const outOfStock = snap.skus.length - inStock;
-      console.log(`  ${snap.style}: ${snap.skus.length} SKUs (${inStock} in stock, ${outOfStock} out of stock)`);
+      const vendor = snap.vendor ? vendorLabel(snap.vendor) : 'SanMar';
+      console.log(`  ${snap.style} (${vendor}): ${snap.skus.length} SKUs (${inStock} in stock, ${outOfStock} out of stock)`);
     }
   }
 }
@@ -272,20 +320,27 @@ function formatNumber(n: number): string {
 }
 
 async function handleWarehouse(args: string[]): Promise<void> {
+  // Extract --vendor before parsing positional args
+  const vendor = extractVendorFlag(args);
+
   const style = args[0];
   if (!style) {
     console.error('Error: Style number is required.');
-    console.error('Usage: npx tsx scripts/monitor/manage.ts warehouse <style>');
+    console.error('Usage: npx tsx scripts/monitor/manage.ts warehouse [--vendor ss] <style>');
     process.exit(1);
   }
 
   const styleUpper = style.toUpperCase();
   const config = await loadConfig();
   const products = await loadTrackedProducts(config);
-  const product = products.find((p) => p.style === styleUpper);
+
+  // Find product matching style and vendor (if specified)
+  const product = products.find(
+    (p) => p.style === styleUpper && (p.vendor ?? 'sanmar') === vendor,
+  );
 
   if (!product) {
-    console.error(`Error: Style ${styleUpper} is not tracked. Add it with: npx tsx scripts/monitor/manage.ts add ${styleUpper}`);
+    console.error(`Error: Style ${styleUpper} (${vendorLabel(vendor)}) is not tracked. Add it first.`);
     process.exit(1);
   }
 
@@ -336,7 +391,8 @@ async function handleWarehouse(args: string[]): Promise<void> {
 
   // Print table
   const lastPolled = snapshot.timestamp.slice(0, 19).replace('T', ' ');
-  console.log(`\nWarehouse Inventory: ${styleUpper} (${product.name})`);
+  const vLabel = vendorLabel(product.vendor);
+  console.log(`\nWarehouse Inventory: ${styleUpper} (${product.name}) [${vLabel}]`);
   console.log(`Last polled: ${lastPolled}`);
   console.log('');
 

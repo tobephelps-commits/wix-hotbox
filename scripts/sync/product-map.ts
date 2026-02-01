@@ -84,8 +84,9 @@ export async function saveProductMap(
 /**
  * Add a product mapping.
  *
- * Prevents duplicate styles -- if a mapping for the same style
- * already exists, it is NOT added again.
+ * Prevents duplicate style+vendor pairs -- if a mapping for the same style
+ * and vendor already exists, it is NOT added again. The same style from
+ * different vendors is allowed (e.g., PC61 from SanMar and PC61 from S&S).
  *
  * @param mapping - Product mapping to add
  * @param config - Sync configuration (provides dataDir)
@@ -96,10 +97,13 @@ export async function addProductMapping(
 ): Promise<void> {
   const mappings = await loadProductMap(config);
 
-  // Prevent duplicates by style
-  const exists = mappings.some((m) => m.style === mapping.style);
+  // Prevent duplicates by style+vendor
+  const vendor = mapping.vendor ?? 'sanmar';
+  const exists = mappings.some(
+    (m) => m.style === mapping.style && (m.vendor ?? 'sanmar') === vendor,
+  );
   if (exists) {
-    console.log(`[Sync] Style ${mapping.style} is already mapped.`);
+    console.log(`[Sync] Style ${mapping.style} (${vendor}) is already mapped.`);
     return;
   }
 
