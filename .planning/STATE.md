@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17 of 20 (S&S Activewear API Integration)
-Plan: 0 of 7 in current phase (planning complete, execution pending)
-Status: Phase planned — 7 plans in 4 waves
-Last activity: 2026-02-01 — Completed Phase 17 planning (17-01 through 17-07)
+Plan: 1 of 7 in current phase
+Status: In progress
+Last activity: 2026-02-01 — Completed 17-01-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -97,6 +97,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 16-05 | Inventory section always visible (not tab-gated) | Follows existing Margin/Sales stacked layout pattern |
 | 16-05 | Auto-refresh: products 60s, alerts 30s | Balances data freshness with API load |
 | 16-05 | Phase 16 complete -- real-time stock sync with multi-warehouse fully operational | Preview server is single interface for inventory monitoring, alerts, and daemon health |
+| 17-01 | String warehouse IDs in UnifiedWarehouse for both numeric (SanMar) and abbreviation (S&S) formats | Avoids type conversion; string accommodates both vendors naturally |
+| 17-01 | Optional vendor-specific pricing fields (priceCode, customerPrice, mapPrice) | Each vendor has unique pricing concepts; optional fields avoid forcing irrelevant data |
+| 17-01 | parseVendorFlag defaults to 'sanmar' when undefined | Backward compatibility with existing CLI that doesn't specify --vendor |
 
 ### Blockers/Concerns
 
@@ -111,5 +114,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed Phase 17 planning (7 plans, 4 waves)
+Stopped at: Completed 17-01-PLAN.md
 Resume file: None
