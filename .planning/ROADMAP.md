@@ -126,7 +126,7 @@ Plans:
 Plans:
 - [x] 17-01: Vendor abstraction types and VendorAdapter interface (Wave 1)
 - [x] 17-02: S&S Activewear API client core (Wave 1)
-- [ ] 17-03: SanMar vendor adapter (Wave 2)
+- [x] 17-03: SanMar vendor adapter (Wave 2)
 - [x] 17-04: S&S Activewear vendor adapter (Wave 2)
 - [ ] 17-05: Pipeline vendor-agnostic refactor (Wave 3)
 - [ ] 17-06: Monitor and sync vendor-agnostic refactor (Wave 3)
