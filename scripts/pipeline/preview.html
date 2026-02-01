@@ -3913,6 +3913,8 @@
       btn.addEventListener('click', async function() {
         var oid = btn.dataset.orderId;
         var nextStatus = btn.dataset.nextStatus;
+        // Confirm cancellation
+        if (nextStatus === 'cancelled' && !confirm('Are you sure you want to cancel this order? This cannot be undone.')) return;
         var note = document.getElementById('statusNote') ? document.getElementById('statusNote').value.trim() : '';
         btn.disabled = true;
         btn.textContent = 'Updating...';
@@ -4023,6 +4025,13 @@
 
   orderModalOverlay.addEventListener('click', function(e) {
     if (e.target === orderModalOverlay) orderModalOverlay.classList.remove('visible');
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && orderModalOverlay.classList.contains('visible')) {
+      orderModalOverlay.classList.remove('visible');
+    }
   });
 
   // Toggle shipping fields
