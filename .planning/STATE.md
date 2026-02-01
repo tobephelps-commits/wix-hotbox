@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 18 of 20 (Order Management — Invoice & Label Printing)
-Plan: 3 of 6 in current phase
+Plan: 4 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 18-03-PLAN.md
+Last activity: 2026-02-01 — Completed 18-04-PLAN.md
 
 Progress: █████████░ 95%
 
@@ -130,6 +130,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 18-03 | WIX upsert preserves local status if advanced beyond WIX mapping | Prevents sync from regressing manually-progressed order statuses |
 | 18-03 | Starting order number at 1001 for new installations | Professional-looking order numbers from the start |
 | 18-03 | Sync errors captured in SyncResult array rather than thrown | Dashboard works with manual orders even if WIX API is down |
+| 18-04 | Platform-detected print via child_process (no npm deps) | PowerShell on Windows, lp on macOS/Linux; zero new dependencies |
+| 18-04 | Separate INVOICE_PRINTER and LABEL_PRINTER env vars | Different physical printers for regular paper vs thermal labels |
+| 18-04 | Non-throwing printPdf returns PrintResult with success boolean | Print failures are informational, not exceptional; UI can display gracefully |
 
 ### Blockers/Concerns
 
@@ -144,5 +147,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 18-03-PLAN.md — Order store, WIX sync, and management CLI
+Stopped at: Completed 18-04-PLAN.md — Shipping label PDF and print service
 Resume file: None
