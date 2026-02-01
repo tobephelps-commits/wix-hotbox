@@ -11,11 +11,12 @@ None
 ## Milestones
 
 - ✅ **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
-- 🚧 **v0.2 Multi-Brand Operations** -- Phases 11-20 (in progress)
+- ✅ **v0.2 Multi-Brand Operations** -- Phases 11-20 (shipped 2026-02-01)
 
 ## Completed Milestones
 
 - [v0.1 MVP](milestones/v0.1-ROADMAP.md) (Phases 1-10) -- SHIPPED 2026-01-31
+- v0.2 Multi-Brand Operations (Phases 11-20) -- SHIPPED 2026-02-01
 
 ## Phases
 
@@ -35,7 +36,7 @@ None
 
 </details>
 
-### 🚧 v0.2 Multi-Brand Operations (In Progress)
+### ✅ v0.2 Multi-Brand Operations (SHIPPED 2026-02-01)
 
 **Milestone Goal:** Transform from single-pipeline MVP into a multi-brand, multi-vendor operation with order fulfillment automation and advanced pricing/inventory capabilities.
 
@@ -172,7 +173,7 @@ Plans:
 Plans:
 - [x] 20-01: Build smoke test script for full system health check
 - [x] 20-02: Update OPERATIONS.md runbook for v0.2
-- [ ] 20-03: TBD
+- [x] 20-03: Final smoke test verification and v0.2 milestone closure
 
 ## Progress
 
@@ -200,4 +201,4 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 17. S&S Activewear API Integration | v0.2 | 7/7 | Complete | 2026-02-01 |
 | 18. Order Management — Invoice & Label Printing | v0.2 | 6/6 | Complete | 2026-02-01 |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 3/3 | Complete | 2026-02-01 |
-| 20. Integration Testing & Polish | v0.2 | 2/3 | In progress | - |
+| 20. Integration Testing & Polish | v0.2 | 3/3 | Complete | 2026-02-01 |
