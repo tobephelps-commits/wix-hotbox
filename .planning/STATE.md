@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 16 of 20 (Real-time Stock Sync & Multi-warehouse)
-Plan: 2 of 5 in current phase (16-01, 16-03 complete)
+Plan: 4 of 5 in current phase (16-01, 16-02, 16-03, 16-04 complete)
 Status: In progress
-Last activity: 2026-01-31 — Completed 16-03-PLAN.md
+Last activity: 2026-01-31 — Completed 16-04-PLAN.md
 
-Progress: █████████░ 88%
+Progress: █████████░ 90%
 
 ## Performance Metrics
 
@@ -88,6 +88,12 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 16-03 | pollDue delegates to pollOnce with productsOverride | Code reuse -- no duplication of snapshot/alert/warehouse logic |
 | 16-03 | Health state is module-level, not persisted | Daemon state resets on restart which is appropriate; no stale health files |
 | 16-03 | Error escalation threshold at 5 consecutive failures | Avoids log spam for transient errors while surfacing persistent issues |
+| 16-02 | AlertWarehouseDetail as separate type for alert-specific shape | Cleaner interface than reusing WarehouseQuantity arrays directly |
+| 16-02 | buildSyncEmailBody made async for snapshot loading | Enables WAREHOUSE INVENTORY section with per-product aggregated totals |
+| 16-02 | Warehouse sections are additive to existing email format | Full backward compatibility with alerts lacking warehouseDetail |
+| 16-04 | Warehouse inventory aggregated across all SKUs per warehouse | Overview display sums per-SKU warehouse data into per-warehouse totals |
+| 16-04 | WAREHOUSES constant used for location display names | Consistent location names (e.g., "Seattle, WA") from sanmar/constants.ts |
+| 16-04 | Health command reports 'not running' when daemon not active | Module-level state check; null means no loop running |
 
 ### Blockers/Concerns
 
@@ -102,5 +108,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 16-03-PLAN.md
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None
