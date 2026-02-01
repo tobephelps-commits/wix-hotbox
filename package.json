@@ -34,7 +34,8 @@
     "orders:add": "npx tsx scripts/orders/manage.ts add",
     "orders:sync": "npx tsx scripts/orders/manage.ts sync",
     "invoice:demo": "npx tsx scripts/orders/invoice-generator.ts --demo",
-    "label:demo": "npx tsx scripts/orders/label-generator.ts --demo"
+    "label:demo": "npx tsx scripts/orders/label-generator.ts --demo",
+    "print:list": "npx tsx scripts/orders/print-service.ts --list-printers"
   },
   "keywords": [],
   "author": "",
