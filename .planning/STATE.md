@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 18 of 20 (Order Management — Invoice & Label Printing)
-Plan: 4 of 6 in current phase
+Plan: 5 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 18-04-PLAN.md
+Last activity: 2026-02-01 — Completed 18-05-PLAN.md
 
 Progress: █████████░ 95%
 
@@ -133,6 +133,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 18-04 | Platform-detected print via child_process (no npm deps) | PowerShell on Windows, lp on macOS/Linux; zero new dependencies |
 | 18-04 | Separate INVOICE_PRINTER and LABEL_PRINTER env vars | Different physical printers for regular paper vs thermal labels |
 | 18-04 | Non-throwing printPdf returns PrintResult with success boolean | Print failures are informational, not exceptional; UI can display gracefully |
+| 18-05 | Barrel export in orders/index.ts as single import surface | Clean API boundary; preview-server uses one import line instead of six |
+| 18-05 | Dual lookup: /api/orders/:id resolves by orderNumber if all digits, UUID otherwise | Ergonomic URL access for both human-readable numbers and programmatic IDs |
+| 18-05 | CORS expanded to include PATCH method | Required for status update endpoint; consistent across all CORS headers |
 
 ### Blockers/Concerns
 
@@ -147,5 +150,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 18-04-PLAN.md — Shipping label PDF and print service
+Stopped at: Completed 18-05-PLAN.md — Order module API and preview server endpoints
 Resume file: None
