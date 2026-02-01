@@ -1019,6 +1019,40 @@
     font-size: 13px;
   }
 
+  /* Vendor badge (Phase 17) */
+  .vendor-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .vendor-badge.vendor-sanmar { background: #e8f0fe; color: #1a56db; }
+  .vendor-badge.vendor-ss { background: #fef3c7; color: #92400e; }
+
+  /* Vendor pricing detail (Phase 17) */
+  .vendor-pricing-detail {
+    display: none;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f8f8ff;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #555;
+  }
+  .vendor-pricing-detail.visible { display: block; }
+  .vendor-pricing-detail .vpd-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .vendor-pricing-detail .vpd-label { color: #999; font-size: 12px; }
+  .vendor-pricing-detail .vpd-value { font-weight: 600; color: #333; }
+
   /* Responsive stacking for pricing controls */
   @media (max-width: 640px) {
     .pricing-controls { flex-direction: column; }
@@ -1037,7 +1071,12 @@
 <div class="header">
   <h1>HotBox Product Pipeline</h1>
   <form class="search-form" id="searchForm">
-    <label for="styleInput">Style Number:</label>
+    <label for="vendorSelect">Vendor:</label>
+    <select id="vendorSelect" style="padding:8px 10px;border:1px solid #444;border-radius:4px;background:#2a2a3e;color:#fff;font-size:14px;outline:none;">
+      <option value="sanmar">SanMar</option>
+      <option value="ss">S&amp;S Activewear</option>
+    </select>
+    <label for="styleInput">Style:</label>
     <input type="text" id="styleInput" placeholder="e.g. PC61" autocomplete="off">
     <button type="submit" class="btn btn-primary" id="fetchBtn">Fetch</button>
   </form>
@@ -1048,12 +1087,15 @@
 
   <!-- Initial prompt (shown before first fetch) -->
   <div class="initial-prompt" id="initialPrompt">
-    Enter a SanMar style number above to preview product data.
+    Select a vendor and enter a style number above to preview product data.
   </div>
 
   <!-- Product info section -->
   <div class="product-info" id="productInfo">
-    <div class="product-name" id="productName"></div>
+    <div class="product-name" id="productName">
+      <span id="productNameText"></span>
+      <span class="vendor-badge" id="vendorBadge" style="display:none;"></span>
+    </div>
     <div class="pricing-row">
       <div>
         <span class="price-label">Wholesale:</span>
@@ -1065,6 +1107,8 @@
       </div>
       <span class="sale-badge" id="saleBadge" style="display:none;">SALE ACTIVE</span>
     </div>
+    <!-- Vendor-specific pricing details (Phase 17) -->
+    <div class="vendor-pricing-detail" id="vendorPricingDetail"></div>
 
     <!-- Pricing Configuration -->
     <div class="pricing-config">
@@ -1343,6 +1387,7 @@
   // =========================================================================
 
   var productData = null;   // ProductPreview from server
+  var currentVendor = 'sanmar'; // Current vendor selection ('sanmar' or 'ss')
   var logoData = null;      // { logos: Record, positionPresets: Record } from /api/logos
   var overlayBlobUrl = null; // Current blob URL for overlay preview (to revoke)
   var selectedColors = {};  // { catalogColor: true/false }
@@ -1360,11 +1405,14 @@
   // =========================================================================
 
   var styleInput = document.getElementById('styleInput');
+  var vendorSelect = document.getElementById('vendorSelect');
   var fetchBtn = document.getElementById('fetchBtn');
   var searchForm = document.getElementById('searchForm');
   var initialPrompt = document.getElementById('initialPrompt');
   var productInfo = document.getElementById('productInfo');
-  var productName = document.getElementById('productName');
+  var productNameText = document.getElementById('productNameText');
+  var vendorBadge = document.getElementById('vendorBadge');
+  var vendorPricingDetail = document.getElementById('vendorPricingDetail');
   var wholesalePrice = document.getElementById('wholesalePrice');
   var suggestedRetail = document.getElementById('suggestedRetail');
   var saleBadge = document.getElementById('saleBadge');
@@ -1428,16 +1476,31 @@
     e.preventDefault();
     var style = styleInput.value.trim().toUpperCase();
     if (!style) return;
+    currentVendor = vendorSelect.value;
     fetchProduct(style);
+  });
+
+  // Update placeholder based on vendor selection
+  vendorSelect.addEventListener('change', function() {
+    if (vendorSelect.value === 'ss') {
+      styleInput.placeholder = 'e.g. 2000';
+    } else {
+      styleInput.placeholder = 'e.g. PC61';
+    }
   });
 
   async function fetchProduct(style) {
     fetchBtn.disabled = true;
-    showSpinner('Fetching ' + style + '...');
+    var vendorLabel = currentVendor === 'ss' ? 'S&S' : 'SanMar';
+    showSpinner('Fetching ' + style + ' from ' + vendorLabel + '...');
     initialPrompt.style.display = 'none';
 
     try {
-      var res = await fetch('/api/product/' + encodeURIComponent(style));
+      var url = '/api/product/' + encodeURIComponent(style);
+      if (currentVendor !== 'sanmar') {
+        url += '?vendor=' + encodeURIComponent(currentVendor);
+      }
+      var res = await fetch(url);
       var json = await res.json();
 
       if (!json.ok) {
@@ -1471,10 +1534,20 @@
     summaryBar.classList.add('visible');
 
     // Product info
-    productName.textContent = p.brandName + ' ' + p.productTitle + ' (' + p.style + ')';
+    productNameText.textContent = p.brandName + ' ' + p.productTitle + ' (' + p.style + ')';
     wholesalePrice.textContent = '$' + p.pricing.wholesalePrice.toFixed(2);
     suggestedRetail.textContent = '$' + p.pricing.suggestedRetail.toFixed(2);
     saleBadge.style.display = p.pricing.saleActive ? 'inline' : 'none';
+
+    // Vendor badge
+    var vendor = p.vendor || currentVendor || 'sanmar';
+    var vendorName = vendor === 'ss' ? 'S&S Activewear' : 'SanMar';
+    vendorBadge.textContent = vendorName;
+    vendorBadge.className = 'vendor-badge vendor-' + vendor;
+    vendorBadge.style.display = 'inline-block';
+
+    // Vendor-specific pricing detail
+    renderVendorPricing(p);
 
     // Init color selections (in-stock checked by default)
     selectedColors = {};
@@ -1724,6 +1797,44 @@
 
     priceSummary.innerHTML = html;
     priceSummary.classList.add('visible');
+  }
+
+  // =========================================================================
+  // Vendor-Specific Pricing Detail (Phase 17)
+  // =========================================================================
+
+  function renderVendorPricing(p) {
+    if (!p || !p.pricing) {
+      vendorPricingDetail.classList.remove('visible');
+      return;
+    }
+    var vendor = p.vendor || currentVendor || 'sanmar';
+    var html = '<div class="vpd-row">';
+
+    if (vendor === 'ss') {
+      // S&S Activewear: show MAP price and customer price if available
+      if (p.pricing.mapPrice != null) {
+        html += '<div><span class="vpd-label">MAP Price:</span> <span class="vpd-value">$' + p.pricing.mapPrice.toFixed(2) + '</span></div>';
+      }
+      if (p.pricing.customerPrice != null && p.pricing.customerPrice !== p.pricing.wholesalePrice) {
+        html += '<div><span class="vpd-label">Customer Price:</span> <span class="vpd-value">$' + p.pricing.customerPrice.toFixed(2) + '</span></div>';
+      }
+    } else {
+      // SanMar: show price code if available
+      if (p.pricing.priceCode) {
+        html += '<div><span class="vpd-label">Price Code:</span> <span class="vpd-value">' + escHtml(p.pricing.priceCode) + '</span></div>';
+      }
+    }
+
+    html += '</div>';
+
+    // Only show if there's vendor-specific info to display
+    if (html.indexOf('vpd-value') >= 0) {
+      vendorPricingDetail.innerHTML = html;
+      vendorPricingDetail.classList.add('visible');
+    } else {
+      vendorPricingDetail.classList.remove('visible');
+    }
   }
 
   // =========================================================================
@@ -2035,6 +2146,7 @@
     var curated = {
       style: p.style,
       brandName: p.brandName,
+      vendor: p.vendor || currentVendor || 'sanmar',
       productTitle: p.productTitle,
       description: p.description,
       selectedColors: curatedColors,
@@ -2688,7 +2800,7 @@
       return;
     }
     var html = '<table class="inventory-table"><thead><tr>' +
-      '<th>Style</th><th>Name</th><th>Priority</th><th>Last Polled</th>' +
+      '<th>Style</th><th>Vendor</th><th>Name</th><th>Priority</th><th>Last Polled</th>' +
       '<th>Total SKUs</th><th>OOS SKUs</th><th>Status</th>' +
       '</tr></thead><tbody>';
     for (var i = 0; i < products.length; i++) {
@@ -2703,8 +2815,12 @@
         statusDotClass = 'some-low';
         statusLabel = p.lowStockSkus + ' Low';
       }
+      var pVendor = p.vendor || 'sanmar';
+      var pVendorLabel = p.vendorName || (pVendor === 'ss' ? 'S&S' : 'SanMar');
+      var vendorBadgeCls = 'vendor-badge vendor-' + pVendor;
       html += '<tr class="inv-row" data-style="' + escHtml(p.style) + '">' +
         '<td><strong>' + escHtml(p.style) + '</strong></td>' +
+        '<td><span class="' + vendorBadgeCls + '" style="font-size:10px;padding:2px 6px;">' + escHtml(pVendorLabel) + '</span></td>' +
         '<td>' + escHtml(p.name) + '</td>' +
         '<td><span class="priority-badge ' + priorityClass + '">' + escHtml(p.priority) + '</span></td>' +
         '<td>' + relativeTime(p.lastPolledAt) + '</td>' +
@@ -2712,7 +2828,7 @@
         '<td>' + p.outOfStockSkus + '</td>' +
         '<td><span class="stock-status-dot ' + statusDotClass + '"></span>' + statusLabel + '</td>' +
         '</tr>';
-      html += '<tr class="warehouse-detail-row" id="whDetail_' + escHtml(p.style) + '"><td colspan="7"><div class="inventory-empty">Loading warehouse data...</div></td></tr>';
+      html += '<tr class="warehouse-detail-row" id="whDetail_' + escHtml(p.style) + '"><td colspan="8"><div class="inventory-empty">Loading warehouse data...</div></td></tr>';
     }
     html += '</tbody></table>';
     inventoryContent.innerHTML = html;
@@ -2772,8 +2888,15 @@
           qtyClass = 'wh-zero';
           statusText = 'Out of Stock';
         }
+        // Adaptive label: SanMar uses numeric IDs (show as #N), S&S uses abbreviations (show as code)
+        var whLabel = escHtml(wh.name);
+        if (wh.id && /^\d+$/.test(wh.id)) {
+          whLabel += ' <span style="color:#999;">(#' + wh.id + ')</span>';
+        } else if (wh.id) {
+          whLabel += ' <span style="color:#999;">(' + escHtml(wh.id) + ')</span>';
+        }
         html += '<tr>' +
-          '<td>' + escHtml(wh.name) + ' (#' + wh.id + ')</td>' +
+          '<td>' + whLabel + '</td>' +
           '<td class="' + qtyClass + '">' + wh.totalQty.toLocaleString() + '</td>' +
           '<td>' + wh.skuCount + '</td>' +
           '<td class="' + qtyClass + '">' + statusText + '</td>' +
@@ -2905,6 +3028,12 @@
   (function autoLoad() {
     var params = new URLSearchParams(window.location.search);
     var style = params.get('style');
+    var vendor = params.get('vendor');
+    if (vendor === 'ss') {
+      vendorSelect.value = 'ss';
+      currentVendor = 'ss';
+      styleInput.placeholder = 'e.g. 2000';
+    }
     if (style) {
       styleInput.value = style.toUpperCase();
       fetchProduct(style.toUpperCase());
