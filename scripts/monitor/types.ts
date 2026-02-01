@@ -11,6 +11,19 @@
  */
 
 // =============================================================================
+// Poll Priority
+// =============================================================================
+
+/**
+ * Priority tier for polling frequency.
+ *
+ * - 'hot': High-demand products polled frequently (default: every 15 min)
+ * - 'normal': Standard products polled at default interval (default: every 60 min)
+ * - 'slow': Stable products polled less often (default: every 120 min)
+ */
+export type PollPriority = 'hot' | 'normal' | 'slow';
+
+// =============================================================================
 // Configuration
 // =============================================================================
 
@@ -21,7 +34,7 @@
  * alert thresholds for stock level changes.
  */
 export interface MonitorConfig {
-  /** How often to check inventory, in minutes (default: 60) */
+  /** How often to check inventory, in minutes (default: 60) — serves as 'normal' interval */
   pollIntervalMinutes: number;
   /** Directory for JSON state files (default: "./data/monitor") */
   dataDir: string;
@@ -31,6 +44,10 @@ export interface MonitorConfig {
   criticalStockThreshold: number;
   /** Total qty at or below this = out of stock alert (default: 0) */
   outOfStockThreshold: number;
+  /** Poll interval for 'hot' priority products, in minutes (default: 15) */
+  hotIntervalMinutes?: number;
+  /** Poll interval for 'slow' priority products, in minutes (default: 120) */
+  slowIntervalMinutes?: number;
 }
 
 // =============================================================================
@@ -54,11 +71,31 @@ export interface TrackedProduct {
   colors?: string[];
   /** Optional: only monitor specific sizes (monitor all if omitted) */
   sizes?: string[];
+  /** Polling priority tier (default: 'normal') */
+  priority?: PollPriority;
+  /** ISO timestamp of last successful poll for this product */
+  lastPolledAt?: string;
 }
 
 // =============================================================================
 // Inventory Snapshots
 // =============================================================================
+
+/**
+ * Per-warehouse quantity for a single SKU at snapshot time.
+ *
+ * Preserves individual warehouse stock levels so downstream consumers
+ * can implement closest-warehouse logic, warehouse-aware alerts, and
+ * warehouse inventory dashboards.
+ */
+export interface WarehouseQuantity {
+  /** SanMar warehouse ID (e.g., 1 = Seattle, 2 = Cincinnati) */
+  warehouseId: number;
+  /** Human-readable warehouse name (e.g., "Seattle", "Dallas") */
+  warehouseName: string;
+  /** Quantity available at this warehouse */
+  qty: number;
+}
 
 /**
  * A point-in-time inventory reading for a single style.
@@ -79,7 +116,8 @@ export interface InventorySnapshot {
  * Per-SKU inventory at snapshot time.
  *
  * Summarizes warehouse-level data into a single total quantity
- * and a well-stocked boolean flag.
+ * and a well-stocked boolean flag. Optionally includes per-warehouse
+ * breakdown for warehouse-aware consumers.
  */
 export interface SkuSnapshot {
   /** Catalog color name */
@@ -90,6 +128,8 @@ export interface SkuSnapshot {
   totalQty: number;
   /** true if any warehouse is at the 1500 inventory cap */
   wellStocked: boolean;
+  /** Per-warehouse quantity breakdown (optional for backward compatibility) */
+  warehouses?: WarehouseQuantity[];
 }
 
 // =============================================================================

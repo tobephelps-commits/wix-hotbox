@@ -25,6 +25,7 @@ import type {
   PSPartInventory,
   PSInventoryLocation,
 } from '../types/index.js';
+import type { WarehouseQuantity } from '../../monitor/types.js';
 import { INVENTORY_CAP } from '../constants.js';
 import { withRetry } from '../utils/retry.js';
 import { classifyError } from '../utils/error-handler.js';
@@ -198,6 +199,26 @@ export function isInStock(skuInventory: SkuInventory, minQty: number = 1): boole
  */
 export function isWellStocked(skuInventory: SkuInventory): boolean {
   return skuInventory.whse.some((w) => w.qty >= INVENTORY_CAP);
+}
+
+/**
+ * Extract per-warehouse quantity breakdown from a single SKU's inventory.
+ *
+ * Maps the raw WarehouseInventory[] (whse array) to the WarehouseQuantity[]
+ * format used by SkuSnapshot. Filters out warehouses with zero quantity
+ * to keep snapshot data concise.
+ *
+ * @param skuInventory - Single SKU inventory with warehouse breakdown
+ * @returns Array of WarehouseQuantity for non-zero warehouses
+ */
+export function getWarehouseBreakdown(skuInventory: SkuInventory): WarehouseQuantity[] {
+  return skuInventory.whse
+    .filter((w) => w.qty > 0)
+    .map((w) => ({
+      warehouseId: w.whseID,
+      warehouseName: w.whseName,
+      qty: w.qty,
+    }));
 }
 
 // =============================================================================
