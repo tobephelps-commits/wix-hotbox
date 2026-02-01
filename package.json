@@ -29,6 +29,10 @@
     "margin-report": "npx tsx scripts/pipeline/margin-report.ts",
     "sale": "npx tsx scripts/pipeline/sale-pricing.ts",
     "coupons": "npx tsx scripts/pipeline/wix-coupons.ts",
+    "orders": "npx tsx scripts/orders/manage.ts",
+    "orders:list": "npx tsx scripts/orders/manage.ts list",
+    "orders:add": "npx tsx scripts/orders/manage.ts add",
+    "orders:sync": "npx tsx scripts/orders/manage.ts sync",
     "invoice:demo": "npx tsx scripts/orders/invoice-generator.ts --demo",
     "label:demo": "npx tsx scripts/orders/label-generator.ts --demo"
   },
