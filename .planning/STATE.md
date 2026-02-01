@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17 of 20 (S&S Activewear API Integration)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17-05-PLAN.md
+Last activity: 2026-02-01 — Completed 17-06-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -112,6 +112,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 17-05 | SanMar direct path preserved; only non-SanMar vendors use VendorAdapter | Zero regression risk for existing SanMar workflow |
 | 17-05 | Bridge mapping (unifiedToProductData) constructs SanMar-shaped objects from unified types | Avoids rewriting mapper.ts and create-product.ts consumers; transitional design |
 | 17-05 | vendor field optional on CuratedProduct and ProductPreview | Backward compatibility with existing callers that don't specify vendor |
+| 17-06 | WarehouseQuantity.warehouseId changed from number to string | Accommodates both SanMar numeric IDs and S&S abbreviation codes |
+| 17-06 | Per-vendor credential caching via module-level Set | Avoids redundant adapter.validateCredentials() calls within same process |
+| 17-06 | Style+vendor composite key for duplicate detection | Same style from different vendors = different products in tracking and sync |
+| 17-06 | Alert warehouse detail: SanMar uses WAREHOUSES constant, others use snapshot data | Vendor-specific display without breaking generic interface |
 
 ### Blockers/Concerns
 
@@ -126,5 +130,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-05-PLAN.md
+Stopped at: Completed 17-06-PLAN.md
 Resume file: None
