@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 18 of 20 (Order Management — Invoice & Label Printing)
-Plan: 6 of 6 in current phase
-Status: Phase complete
-Last activity: 2026-02-01 — Completed 18-06-PLAN.md
+Phase: 19 of 20 (Order Management — SanMar Cart Automation)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-01 — Completed 19-01-PLAN.md
 
-Progress: █████████░ 95%
+Progress: █████████░ 94%
 
 ## Performance Metrics
 
@@ -140,6 +140,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 18-06 | Toast notification system for async actions | Global toast element for sync/print/status feedback; cleaner than status bar |
 | 18-06 | Cancel order confirmation via browser confirm() | Prevents accidental irreversible status transitions |
 | 18-06 | Phase 18 complete -- full order management dashboard operational | Preview server is single interface for products, orders, invoices, labels, and inventory |
+| 19-01 | SanMar-only filtering: vendor==='ss' excluded, undefined defaults to SanMar | Backward compatible with existing orders that lack vendor field |
+| 19-01 | Items without vendorStyle/color/size skipped with console warnings | Operator visibility without throwing; prevents broken cart items |
+| 19-01 | Case-insensitive composite key with preserved original casing | Handles inconsistent casing in source data while producing clean output |
 
 ### Blockers/Concerns
 
@@ -154,5 +157,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 18-06-PLAN.md — Phase 18 complete, order dashboard UI
+Stopped at: Completed 19-01-PLAN.md — cart types and order consolidation engine
 Resume file: None
