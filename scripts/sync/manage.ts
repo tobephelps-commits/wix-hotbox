@@ -11,6 +11,8 @@
  *   scan                                - Auto-discover WIX products matching tracked styles
  *   sync                                - Run one sync cycle (poll + WIX update + notify)
  *   start                               - Start continuous sync loop
+ *   smart-start                         - Start priority-based sync loop
+ *   health                              - Show sync daemon health status
  *   notify-test                         - Send a test email to verify SMTP config
  *   config                              - Show current sync configuration
  *   help                                - Show usage
@@ -40,7 +42,7 @@ import {
   removeProductMapping,
   getDefaultSyncConfig,
 } from './product-map.js';
-import { syncOnce, startSyncLoop } from './sync-poller.js';
+import { syncOnce, startSyncLoop, startSmartSyncLoop, getSyncHealth } from './sync-poller.js';
 import { sendSyncNotification } from './notifications.js';
 import { loadConfig as loadMonitorConfig, loadTrackedProducts } from '../monitor/store.js';
 import { listAllProducts } from '../pipeline/wix-api.js';
@@ -111,6 +113,8 @@ Commands:
   scan                                Auto-discover WIX products matching tracked styles
   sync                                Run one sync cycle (poll + WIX update + notify)
   start                               Start continuous sync loop (Ctrl+C to stop)
+  smart-start                         Start priority-based sync loop (Ctrl+C to stop)
+  health                              Show sync daemon health status
   notify-test                         Send a test email to verify SMTP config
   config                              Show current sync and notification config
   help                                Show this help message
@@ -132,6 +136,8 @@ Examples:
   npx tsx scripts/sync/manage.ts scan
   npx tsx scripts/sync/manage.ts sync
   npx tsx scripts/sync/manage.ts start
+  npx tsx scripts/sync/manage.ts smart-start
+  npx tsx scripts/sync/manage.ts health
   npx tsx scripts/sync/manage.ts notify-test
   npx tsx scripts/sync/manage.ts config
 
@@ -142,6 +148,7 @@ npm scripts:
   npm run sync:scan           Auto-discover WIX product mappings
   npm run sync:run            Run single sync cycle
   npm run sync:start          Start continuous sync loop
+  npm run sync:smart-start    Start priority-based sync loop
 `.trim());
 }
 
@@ -322,6 +329,69 @@ async function handleNotifyTest(): Promise<void> {
   await sendSyncNotification(subject, body, syncConfig.notification);
 }
 
+async function handleHealth(): Promise<void> {
+  const health = getSyncHealth();
+
+  if (!health) {
+    console.log('Sync daemon not running. Start with: npm run sync:start');
+    console.log('Or use the priority-based loop: npm run sync:smart-start');
+    return;
+  }
+
+  // Calculate uptime
+  const startedMs = new Date(health.startedAt).getTime();
+  const uptimeMs = Date.now() - startedMs;
+  const uptimeMin = Math.floor(uptimeMs / 60000);
+  const uptimeHrs = Math.floor(uptimeMin / 60);
+  const uptimeRemMin = uptimeMin % 60;
+  const uptimeStr = uptimeHrs > 0 ? `${uptimeHrs}h ${uptimeRemMin}m ago` : `${uptimeMin}m ago`;
+
+  // Calculate last tick age
+  const lastTickMs = new Date(health.lastTickAt).getTime();
+  const tickAgeMs = Date.now() - lastTickMs;
+  const tickAgeMin = Math.floor(tickAgeMs / 60000);
+  const tickAgeStr = tickAgeMin > 0 ? `${tickAgeMin}m ago` : 'just now';
+
+  const startedDisplay = health.startedAt.slice(0, 19).replace('T', ' ');
+  const lastTickDisplay = health.lastTickAt.slice(0, 19).replace('T', ' ');
+  const lastSuccessDisplay = health.lastSuccessAt
+    ? health.lastSuccessAt.slice(0, 19).replace('T', ' ')
+    : 'never';
+
+  console.log('');
+  console.log('Sync Daemon Health');
+  console.log('\u2500'.repeat(50));
+  console.log(`  Status:           Running`);
+  console.log(`  Started:          ${startedDisplay} (${uptimeStr})`);
+  console.log(`  Last tick:        ${lastTickDisplay} (${tickAgeStr})`);
+  console.log(`  Last success:     ${lastSuccessDisplay}`);
+  console.log(`  Consecutive errs: ${health.consecutiveErrors}`);
+  console.log(`  Total cycles:     ${health.totalCycles.toLocaleString('en-US')}`);
+  console.log(`  Total errors:     ${health.totalErrors}`);
+  console.log(`  Products polled:  ${health.productsPolled.toLocaleString('en-US')}`);
+  console.log('');
+}
+
+async function handleSmartStart(): Promise<void> {
+  const monitorConfig = await loadMonitorConfig();
+  const syncConfig = buildSyncConfig();
+
+  const hotInterval = monitorConfig.hotIntervalMinutes ?? 15;
+  const normalInterval = monitorConfig.pollIntervalMinutes;
+  const slowInterval = monitorConfig.slowIntervalMinutes ?? 120;
+
+  console.log('Starting smart sync daemon...');
+  console.log(`  Hot products:    every ${hotInterval} minutes`);
+  console.log(`  Normal products: every ${normalInterval} minutes`);
+  console.log(`  Slow products:   every ${slowInterval} minutes`);
+  console.log('');
+  console.log('  Tick interval: 1 minute (checks what\'s due)');
+  console.log('  Press Ctrl+C to stop.');
+  console.log('');
+
+  await startSmartSyncLoop(monitorConfig, syncConfig);
+}
+
 async function handleConfig(): Promise<void> {
   const syncConfig = buildSyncConfig();
 
@@ -368,6 +438,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         break;
       case 'start':
         await handleStart();
+        break;
+      case 'smart-start':
+        await handleSmartStart();
+        break;
+      case 'health':
+        await handleHealth();
         break;
       case 'notify-test':
         await handleNotifyTest();

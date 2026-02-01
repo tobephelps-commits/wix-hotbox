@@ -22,6 +22,7 @@
     "sync:scan": "npx tsx scripts/sync/manage.ts scan",
     "sync:run": "npx tsx scripts/sync/manage.ts sync",
     "sync:start": "npx tsx scripts/sync/manage.ts start",
+    "sync:smart-start": "tsx scripts/sync/manage.ts smart-start",
     "validate": "npx tsx scripts/pipeline/validate-pipeline.ts",
     "verify:site-fixes": "npx tsx scripts/verify-site-fixes.ts",
     "overlay-test": "npx tsx scripts/pipeline/overlay.ts",
