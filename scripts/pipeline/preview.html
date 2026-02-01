@@ -814,6 +814,211 @@
     font-size: 14px;
   }
 
+  /* Inventory Dashboard section (Phase 16) */
+  .inventory-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .inventory-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .inventory-section .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .daemon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+  }
+  .daemon-badge.running { background: #d4edda; color: #155724; }
+  .daemon-badge.stopped { background: #f8d7da; color: #721c24; }
+  .daemon-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .daemon-badge.running .daemon-dot { background: #27ae60; }
+  .daemon-badge.stopped .daemon-dot { background: #e74c3c; }
+  .daemon-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 6px;
+    background: #1a1a2e;
+    color: #eee;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .daemon-badge:hover .daemon-tooltip { display: block; }
+  .daemon-tooltip div { padding: 2px 0; }
+  .inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .inventory-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .inventory-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
+  .inventory-table tr.inv-row:hover {
+    background: #f8f8ff;
+    cursor: pointer;
+  }
+  .priority-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .priority-badge.priority-hot { background: #f8d7da; color: #721c24; }
+  .priority-badge.priority-normal { background: #cce5ff; color: #004085; }
+  .priority-badge.priority-slow { background: #e2e3e5; color: #383d41; }
+  .stock-status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .stock-status-dot.all-stocked { background: #27ae60; }
+  .stock-status-dot.some-low { background: #f39c12; }
+  .stock-status-dot.any-oos { background: #e74c3c; }
+  .warehouse-detail-row {
+    display: none;
+  }
+  .warehouse-detail-row.visible {
+    display: table-row;
+  }
+  .warehouse-detail-row td {
+    padding: 12px 10px;
+    background: #f9f9fb;
+  }
+  .warehouse-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .warehouse-detail-table th {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    color: #777;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .warehouse-detail-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .wh-well { color: #27ae60; font-weight: 600; }
+  .wh-normal { color: #333; }
+  .wh-zero { color: #e74c3c; font-weight: 600; }
+  .inventory-empty {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+  }
+  .alert-feed {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+  }
+  .alert-feed-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .alert-list {
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 13px;
+  }
+  .alert-item {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-main {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .alert-time {
+    color: #999;
+    font-size: 12px;
+    min-width: 120px;
+  }
+  .alert-type-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .alert-type-badge.alert-oos { background: #f8d7da; color: #721c24; }
+  .alert-type-badge.alert-critical { background: #fff3cd; color: #856404; }
+  .alert-type-badge.alert-low { background: #cce5ff; color: #004085; }
+  .alert-type-badge.alert-back { background: #d4edda; color: #155724; }
+  .alert-detail {
+    font-size: 12px;
+    color: #555;
+  }
+  .alert-warehouse-line {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .alerts-empty {
+    padding: 16px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+  }
+
   /* Responsive stacking for pricing controls */
   @media (max-width: 640px) {
     .pricing-controls { flex-direction: column; }
@@ -1048,6 +1253,32 @@
     </div>
     <div id="salesContent">
       <div class="sales-empty">Loading sales...</div>
+    </div>
+  </div>
+
+  <!-- Inventory Dashboard (Phase 16) -->
+  <div class="inventory-section" id="inventorySection">
+    <div class="section-header">
+      <div class="section-title">
+        INVENTORY
+        <span class="daemon-badge stopped" id="daemonBadge">
+          <span class="daemon-dot"></span>
+          <span id="daemonLabel">Stopped</span>
+          <div class="daemon-tooltip" id="daemonTooltip">Daemon not running</div>
+        </span>
+      </div>
+      <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-outline" id="refreshInventoryBtn">Refresh</button>
+      </div>
+    </div>
+    <div id="inventoryContent">
+      <div class="inventory-empty">Loading inventory...</div>
+    </div>
+    <div class="alert-feed" id="alertFeed">
+      <div class="alert-feed-title">Recent Alerts</div>
+      <div class="alert-list" id="alertList">
+        <div class="alerts-empty">Loading alerts...</div>
+      </div>
     </div>
   </div>
 
@@ -2407,6 +2638,265 @@
 
   // Load sales on page load
   loadSales();
+
+  // =========================================================================
+  // Inventory Dashboard (Phase 16)
+  // =========================================================================
+
+  var inventoryContent = document.getElementById('inventoryContent');
+  var alertList = document.getElementById('alertList');
+  var daemonBadge = document.getElementById('daemonBadge');
+  var daemonLabel = document.getElementById('daemonLabel');
+  var daemonTooltip = document.getElementById('daemonTooltip');
+  var refreshInventoryBtn = document.getElementById('refreshInventoryBtn');
+  var _invExpandedStyle = null;
+  var _invRefreshTimer = null;
+  var _alertRefreshTimer = null;
+
+  refreshInventoryBtn.addEventListener('click', function() {
+    loadInventoryProducts();
+    loadInventoryAlerts();
+    loadDaemonHealth();
+  });
+
+  function relativeTime(isoStr) {
+    if (!isoStr) return 'Never';
+    var diff = Date.now() - new Date(isoStr).getTime();
+    var sec = Math.floor(diff / 1000);
+    if (sec < 60) return sec + 's ago';
+    var min = Math.floor(sec / 60);
+    if (min < 60) return min + ' min ago';
+    var hr = Math.floor(min / 60);
+    if (hr < 24) return hr + 'h ago';
+    var d = Math.floor(hr / 24);
+    return d + 'd ago';
+  }
+
+  async function loadInventoryProducts() {
+    try {
+      var res = await fetch('/api/inventory/products');
+      var json = await res.json();
+      renderInventoryTable(json.products || []);
+    } catch (err) {
+      inventoryContent.innerHTML = '<div class="inventory-empty">Error loading inventory: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function renderInventoryTable(products) {
+    if (!products || products.length === 0) {
+      inventoryContent.innerHTML = '<div class="inventory-empty">No tracked products. Use <code>npm run monitor -- add &lt;STYLE&gt;</code> to start tracking.</div>';
+      return;
+    }
+    var html = '<table class="inventory-table"><thead><tr>' +
+      '<th>Style</th><th>Name</th><th>Priority</th><th>Last Polled</th>' +
+      '<th>Total SKUs</th><th>OOS SKUs</th><th>Status</th>' +
+      '</tr></thead><tbody>';
+    for (var i = 0; i < products.length; i++) {
+      var p = products[i];
+      var priorityClass = 'priority-' + p.priority;
+      var statusDotClass = 'all-stocked';
+      var statusLabel = 'OK';
+      if (p.outOfStockSkus > 0) {
+        statusDotClass = 'any-oos';
+        statusLabel = p.outOfStockSkus + ' OOS';
+      } else if (p.lowStockSkus > 0) {
+        statusDotClass = 'some-low';
+        statusLabel = p.lowStockSkus + ' Low';
+      }
+      html += '<tr class="inv-row" data-style="' + escHtml(p.style) + '">' +
+        '<td><strong>' + escHtml(p.style) + '</strong></td>' +
+        '<td>' + escHtml(p.name) + '</td>' +
+        '<td><span class="priority-badge ' + priorityClass + '">' + escHtml(p.priority) + '</span></td>' +
+        '<td>' + relativeTime(p.lastPolledAt) + '</td>' +
+        '<td>' + p.totalSkus + '</td>' +
+        '<td>' + p.outOfStockSkus + '</td>' +
+        '<td><span class="stock-status-dot ' + statusDotClass + '"></span>' + statusLabel + '</td>' +
+        '</tr>';
+      html += '<tr class="warehouse-detail-row" id="whDetail_' + escHtml(p.style) + '"><td colspan="7"><div class="inventory-empty">Loading warehouse data...</div></td></tr>';
+    }
+    html += '</tbody></table>';
+    inventoryContent.innerHTML = html;
+
+    // Attach click handlers for expandable rows
+    var rows = inventoryContent.querySelectorAll('.inv-row');
+    for (var j = 0; j < rows.length; j++) {
+      rows[j].addEventListener('click', (function(row) {
+        return function() {
+          var style = row.getAttribute('data-style');
+          toggleWarehouseDetail(style);
+        };
+      })(rows[j]));
+    }
+  }
+
+  async function toggleWarehouseDetail(style) {
+    var detailRow = document.getElementById('whDetail_' + style);
+    if (!detailRow) return;
+    if (_invExpandedStyle === style) {
+      detailRow.classList.remove('visible');
+      _invExpandedStyle = null;
+      return;
+    }
+    // Collapse any currently expanded
+    if (_invExpandedStyle) {
+      var prev = document.getElementById('whDetail_' + _invExpandedStyle);
+      if (prev) prev.classList.remove('visible');
+    }
+    _invExpandedStyle = style;
+    detailRow.classList.add('visible');
+    detailRow.querySelector('td').innerHTML = '<div class="inventory-empty">Loading warehouse data...</div>';
+
+    try {
+      var res = await fetch('/api/inventory/product/' + encodeURIComponent(style));
+      var json = await res.json();
+      if (json.error) {
+        detailRow.querySelector('td').innerHTML = '<div class="inventory-empty">' + escHtml(json.error) + '</div>';
+        return;
+      }
+      var whs = json.warehouseSummary || [];
+      if (whs.length === 0) {
+        detailRow.querySelector('td').innerHTML = '<div class="inventory-empty">No warehouse data available for this style.</div>';
+        return;
+      }
+      var html = '<table class="warehouse-detail-table"><thead><tr>' +
+        '<th>Warehouse</th><th>Total Qty</th><th>SKU Count</th><th>Status</th>' +
+        '</tr></thead><tbody>';
+      for (var k = 0; k < whs.length; k++) {
+        var wh = whs[k];
+        var qtyClass = 'wh-normal';
+        var statusText = 'Normal';
+        if (wh.totalQty >= 1500) {
+          qtyClass = 'wh-well';
+          statusText = 'Well Stocked';
+        } else if (wh.totalQty === 0) {
+          qtyClass = 'wh-zero';
+          statusText = 'Out of Stock';
+        }
+        html += '<tr>' +
+          '<td>' + escHtml(wh.name) + ' (#' + wh.id + ')</td>' +
+          '<td class="' + qtyClass + '">' + wh.totalQty.toLocaleString() + '</td>' +
+          '<td>' + wh.skuCount + '</td>' +
+          '<td class="' + qtyClass + '">' + statusText + '</td>' +
+          '</tr>';
+      }
+      html += '</tbody></table>';
+      html += '<div style="font-size:11px;color:#999;margin-top:6px;">Snapshot: ' + relativeTime(json.timestamp) + ' | ' + json.skus.length + ' SKUs</div>';
+      detailRow.querySelector('td').innerHTML = html;
+    } catch (err) {
+      detailRow.querySelector('td').innerHTML = '<div class="inventory-empty">Error: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function alertTypeEmoji(type) {
+    if (type === 'out-of-stock') return '\u274C';
+    if (type === 'critical') return '\u26A0\uFE0F';
+    if (type === 'low-stock') return '\u2139\uFE0F';
+    if (type === 'back-in-stock') return '\u2705';
+    return '';
+  }
+
+  function alertTypeBadgeClass(type) {
+    if (type === 'out-of-stock') return 'alert-oos';
+    if (type === 'critical') return 'alert-critical';
+    if (type === 'low-stock') return 'alert-low';
+    if (type === 'back-in-stock') return 'alert-back';
+    return '';
+  }
+
+  async function loadInventoryAlerts() {
+    try {
+      var res = await fetch('/api/inventory/alerts?count=20');
+      var json = await res.json();
+      renderAlertFeed(json.alerts || []);
+    } catch (err) {
+      alertList.innerHTML = '<div class="alerts-empty">Error loading alerts: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function renderAlertFeed(alerts) {
+    if (!alerts || alerts.length === 0) {
+      alertList.innerHTML = '<div class="alerts-empty">No recent alerts.</div>';
+      return;
+    }
+    // Show newest first
+    var sorted = alerts.slice().reverse();
+    var html = '';
+    for (var i = 0; i < sorted.length; i++) {
+      var a = sorted[i];
+      var badgeClass = alertTypeBadgeClass(a.type);
+      var label = a.type.replace(/-/g, ' ');
+      html += '<div class="alert-item">';
+      html += '<div class="alert-main">';
+      html += '<span class="alert-time">' + relativeTime(a.timestamp) + '</span>';
+      html += '<span class="alert-type-badge ' + badgeClass + '">' + alertTypeEmoji(a.type) + ' ' + escHtml(label) + '</span>';
+      html += '<span class="alert-detail"><strong>' + escHtml(a.style) + '</strong> ' + escHtml(a.color) + '/' + escHtml(a.size) + ' ';
+      html += a.previousQty + ' &rarr; ' + a.currentQty + '</span>';
+      html += '</div>';
+      if (a.warehouseDetail) {
+        var wd = a.warehouseDetail;
+        var whParts = [];
+        for (var w = 0; w < wd.warehousesWithStock.length && w < 3; w++) {
+          whParts.push(wd.warehousesWithStock[w].name + '(' + wd.warehousesWithStock[w].qty + ')');
+        }
+        if (wd.warehousesWithStock.length > 3) {
+          whParts.push('+' + (wd.warehousesWithStock.length - 3) + ' more');
+        }
+        var oosCount = wd.warehousesOutOfStock.length;
+        var whLine = 'Stock: ' + (whParts.length > 0 ? whParts.join(', ') : 'none');
+        if (oosCount > 0) whLine += ' | ' + oosCount + ' OOS';
+        html += '<div class="alert-warehouse-line">' + escHtml(whLine) + '</div>';
+      }
+      html += '</div>';
+    }
+    alertList.innerHTML = html;
+  }
+
+  async function loadDaemonHealth() {
+    try {
+      var res = await fetch('/api/inventory/health');
+      var json = await res.json();
+      if (json.running) {
+        daemonBadge.className = 'daemon-badge running';
+        daemonLabel.textContent = 'Running';
+        var tooltipHtml = '<div>Started: ' + relativeTime(json.startedAt) + '</div>';
+        tooltipHtml += '<div>Last tick: ' + relativeTime(json.lastTickAt) + '</div>';
+        tooltipHtml += '<div>Cycles: ' + json.totalCycles + '</div>';
+        tooltipHtml += '<div>Products polled: ' + json.productsPolled + '</div>';
+        tooltipHtml += '<div>Errors: ' + json.totalErrors + '</div>';
+        if (json.lastSuccessAt) {
+          tooltipHtml += '<div>Last success: ' + relativeTime(json.lastSuccessAt) + '</div>';
+        }
+        daemonTooltip.innerHTML = tooltipHtml;
+      } else {
+        daemonBadge.className = 'daemon-badge stopped';
+        daemonLabel.textContent = 'Stopped';
+        daemonTooltip.innerHTML = 'Daemon not running';
+      }
+    } catch (err) {
+      daemonBadge.className = 'daemon-badge stopped';
+      daemonLabel.textContent = 'Unknown';
+      daemonTooltip.innerHTML = 'Error checking health';
+    }
+  }
+
+  // Auto-refresh for inventory when section is visible
+  function startInventoryRefresh() {
+    if (_invRefreshTimer) clearInterval(_invRefreshTimer);
+    if (_alertRefreshTimer) clearInterval(_alertRefreshTimer);
+    _invRefreshTimer = setInterval(function() {
+      loadInventoryProducts();
+      loadDaemonHealth();
+    }, 60000);
+    _alertRefreshTimer = setInterval(function() {
+      loadInventoryAlerts();
+    }, 30000);
+  }
+
+  // Initial load
+  loadInventoryProducts();
+  loadInventoryAlerts();
+  loadDaemonHealth();
+  startInventoryRefresh();
 
   // =========================================================================
   // Auto-load style from URL query param
