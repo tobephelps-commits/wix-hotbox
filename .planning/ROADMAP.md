@@ -16,7 +16,7 @@ None
 ## Completed Milestones
 
 - [v0.1 MVP](milestones/v0.1-ROADMAP.md) (Phases 1-10) -- SHIPPED 2026-01-31
-- v0.2 Multi-Brand Operations (Phases 11-20) -- SHIPPED 2026-02-01
+- [v0.2 Multi-Brand Operations](milestones/v0.2-ROADMAP.md) (Phases 11-20) -- SHIPPED 2026-02-01
 
 ## Phases
 
@@ -36,144 +36,21 @@ None
 
 </details>
 
-### ✅ v0.2 Multi-Brand Operations (SHIPPED 2026-02-01)
+<details>
+<summary>✅ v0.2 Multi-Brand Operations (Phases 11-20) -- SHIPPED 2026-02-01</summary>
 
-**Milestone Goal:** Transform from single-pipeline MVP into a multi-brand, multi-vendor operation with order fulfillment automation and advanced pricing/inventory capabilities.
+- [x] Phase 11: Automate WIX Editor Fixes (4/4 plans) -- completed 2026-01-31
+- [x] Phase 12: Multi-Collection Product Routing (1/1 plans) -- completed 2026-01-31
+- [x] Phase 13: Template Presets & Pipeline Speed (2/2 plans) -- completed 2026-01-31
+- [x] Phase 14: Logo Overlay Engine (3/3 plans) -- completed 2026-01-31
+- [x] Phase 15: Cost Tracking & Sale/Promo Pricing (4/4 plans) -- completed 2026-01-31
+- [x] Phase 16: Real-time Stock Sync & Multi-warehouse (5/5 plans) -- completed 2026-01-31
+- [x] Phase 17: S&S Activewear API Integration (7/7 plans) -- completed 2026-02-01
+- [x] Phase 18: Order Management — Invoice & Label Printing (6/6 plans) -- completed 2026-02-01
+- [x] Phase 19: Order Management — SanMar Cart Automation (3/3 plans) -- completed 2026-02-01
+- [x] Phase 20: Integration Testing & Polish (3/3 plans) -- completed 2026-02-01
 
-#### Phase 11: Automate WIX Editor Fixes
-
-**Goal**: Use WIX APIs/Velo to automate the 32 pending manual fixes from v0.1 (chat widget removal, mobile responsive issues, abandoned cart setup, etc.)
-**Depends on**: v0.1 complete
-**Research**: Likely (WIX Velo/API capabilities for editor automation)
-**Research topics**: WIX Velo scripting capabilities, which of the 32 fixes are automatable via API vs require manual Editor work
-**Plans**: TBD
-
-Plans:
-- [x] 11-01: Consolidate WIX Editor/Dashboard fixes into master checklist
-- [x] 11-02: Build Playwright site verification script
-- [x] 11-03: Execute API-automatable fixes (0/3 candidates automatable)
-- [x] 11-04: Run verification, generate status report, finalize Phase 11
-
-#### Phase 12: Multi-Collection Product Routing
-
-**Goal**: Route products to existing BigBarn, Board30, or other collections during the product creation pipeline
-**Depends on**: Phase 11
-**Research**: Unlikely (internal patterns, WIX API already integrated)
-**Plans**: TBD
-
-Plans:
-- [x] 12-01: Add multi-collection product routing to creation pipeline
-
-#### Phase 13: Template Presets & Pipeline Speed
-
-**Goal**: Save and load pricing/variant configurations to reuse across products, speeding up the pipeline
-**Depends on**: Phase 12
-**Research**: Unlikely (internal patterns, local storage)
-**Plans**: TBD
-
-Plans:
-- [x] 13-01: Build template system foundation with CRUD and --preset CLI flag
-- [x] 13-02: Integrate templates into CLI and preview server API
-
-#### Phase 14: Logo Overlay Engine
-
-**Goal**: Place brand logos on SanMar product images with configurable placement rules (logo files ready, placement rules need definition per product/collection)
-**Depends on**: Phase 13
-**Research**: Likely (image compositing library selection — Sharp/Canvas, placement algorithms)
-**Research topics**: Sharp vs node-canvas for image compositing, alpha blending, configurable placement coordinates
-**Plans**: TBD
-
-Plans:
-- [x] 14-01: Build overlay engine core with Sharp compositing and logo registry
-- [x] 14-02: Add --logo CLI flags and template integration to create-product
-- [x] 14-03: Add overlay preview API and UI to preview server
-
-#### Phase 15: Cost Tracking & Sale/Promo Pricing
-
-**Goal**: Track per-product profitability, cost changes, margins, and support time-limited discounts, coupon codes, and flash sales
-**Depends on**: Phase 14
-**Research**: Unlikely (internal patterns, WIX pricing API known)
-**Plans**: TBD
-
-Plans:
-- [x] 15-01: Build cost tracking data model with decoration cost and margin report CLI
-- [x] 15-02: Build sale/promo pricing engine with CLI and WIX price update
-- [x] 15-03: Integrate WIX Coupon API with CLI for coupon management
-- [x] 15-04: Add margin dashboard and sale controls to preview server UI
-
-#### Phase 16: Real-time Stock Sync & Multi-warehouse
-
-**Goal**: Continuous inventory monitoring instead of manual/scheduled checks, with tracking across SanMar warehouse locations
-**Depends on**: Phase 15
-**Research**: Likely (continuous polling/webhook architecture, multi-warehouse SanMar API endpoints)
-**Research topics**: SanMar inventory API warehouse location fields, polling interval optimization, event-driven vs scheduled sync
-**Plans**: 5 plans in 3 waves
-
-Plans:
-- [x] 16-01: Extend snapshot data model with per-warehouse breakdown (Wave 1)
-- [x] 16-02: Warehouse-aware alerts and email notification enrichment (Wave 2)
-- [x] 16-03: Priority-based polling tiers, batch queries, and daemon resilience (Wave 1)
-- [x] 16-04: Warehouse inventory CLI commands and priority management (Wave 2)
-- [x] 16-05: Preview server inventory dashboard with warehouse breakdown UI (Wave 3)
-
-#### Phase 17: S&S Activewear API Integration
-
-**Goal**: Secondary vendor fallback when SanMar doesn't have a product — query S&S Activewear catalog and inventory
-**Depends on**: Phase 16
-**Research**: Likely (new external API integration, need current S&S Activewear API docs)
-**Research topics**: S&S Activewear API authentication, product search, inventory endpoints, response format mapping to existing pipeline
-**Plans**: 7 plans in 4 waves
-
-Plans:
-- [x] 17-01: Vendor abstraction types and VendorAdapter interface (Wave 1)
-- [x] 17-02: S&S Activewear API client core (Wave 1)
-- [x] 17-03: SanMar vendor adapter (Wave 2)
-- [x] 17-04: S&S Activewear vendor adapter (Wave 2)
-- [x] 17-05: Pipeline vendor-agnostic refactor (Wave 3)
-- [x] 17-06: Monitor and sync vendor-agnostic refactor (Wave 3)
-- [x] 17-07: Preview server vendor support (Wave 4)
-
-#### Phase 18: Order Management — Invoice & Label Printing
-
-**Goal**: Full order dashboard as command center — WIX orders auto-sync, manual order entry, lifecycle tracking (New → Delivered), branded invoice PDFs, shipping label PDFs, and printing integration
-**Depends on**: Phase 17
-**Research**: Complete (PDFKit for PDF generation, pdf-to-printer for Windows, WIX eCommerce Orders V1 API)
-**Plans**: 6 plans in 3 waves
-
-Plans:
-- [x] 18-01: Order types and WIX eCommerce Orders API client (Wave 1)
-- [x] 18-02: Invoice PDF generation with PDFKit (Wave 2)
-- [x] 18-03: Order store, WIX sync, and management CLI (Wave 2)
-- [x] 18-04: Shipping label PDF and print service (Wave 2)
-- [x] 18-05: Order module API and preview server endpoints (Wave 3)
-- [x] 18-06: Order dashboard UI in preview server (Wave 3)
-
-#### Phase 19: Order Management — SanMar Cart Automation
-
-**Goal**: Auto-add order items to SanMar web shopping cart for fulfillment
-**Depends on**: Phase 18
-**Research**: Likely (browser automation for SanMar.com web cart)
-**Research topics**: Puppeteer/Playwright for SanMar.com cart automation, session management, cart item mapping
-**Plans**: TBD
-
-Plans: 3 plans in 3 waves
-
-Plans:
-- [x] 19-01: Cart types and order consolidation engine (Wave 1)
-- [x] 19-02: SanMar.com Playwright browser automation engine (Wave 2)
-- [x] 19-03: CLI command, preview server API, and dashboard UI integration (Wave 3)
-
-#### Phase 20: Integration Testing & Polish
-
-**Goal**: End-to-end validation of all v0.2 features, documentation, and operational readiness
-**Depends on**: Phase 19
-**Research**: Unlikely (internal patterns)
-**Plans**: TBD
-
-Plans:
-- [x] 20-01: Build smoke test script for full system health check
-- [x] 20-02: Update OPERATIONS.md runbook for v0.2
-- [x] 20-03: Final smoke test verification and v0.2 milestone closure
+</details>
 
 ## Progress
 

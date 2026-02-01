@@ -1,5 +1,33 @@
 # Project Milestones: HotBox Clothing Store Enhancement
 
+## v0.2 Multi-Brand Operations (Shipped: 2026-02-01)
+
+**Delivered:** Multi-vendor product pipeline (SanMar + S&S Activewear), full order management with invoice/label PDFs, SanMar cart automation, profitability tooling with cost tracking and sale/promo pricing, and real-time multi-warehouse inventory monitoring.
+
+**Phases completed:** 11-20 (38 plans total)
+
+**Key accomplishments:**
+
+- Triaged 30 WIX Editor manual fixes and built Playwright site verification script for ongoing progress tracking
+- Built vendor adapter abstraction supporting S&S Activewear as secondary supplier alongside SanMar with unified product/inventory types
+- Created full order management system: WIX order sync, lifecycle tracking, branded invoice and shipping label PDF generation, and cross-platform printing
+- Automated SanMar.com cart filling with Playwright browser automation, preview-before-execute pattern, accessible from CLI, API, and dashboard
+- Built profitability tools: cost tracking with margin dashboard, sale/promo engine with WIX price sync, coupon integration, and template preset system
+- Upgraded inventory monitoring to real-time with priority-based polling daemon, per-warehouse stock breakdown, and enriched email alerts
+
+**Stats:**
+
+- 157 files created/modified (65 code files)
+- ~18,969 net new lines of TypeScript/HTML
+- 10 phases, 38 plans
+- 4 days (2026-01-29 to 2026-02-01)
+
+**Git range:** `docs(11)` to `docs(20-03)` (128 commits)
+
+**What's next:** Store owner executes 30 pending WIX Editor manual fixes, configures abandoned cart recovery, and begins operational use of the full system.
+
+---
+
 ## v0.1 MVP (Shipped: 2026-01-31)
 
 **Delivered:** Complete storefront UX overhaul and automated SanMar-to-WIX product creation pipeline with inventory monitoring, stock sync, and email notifications.
