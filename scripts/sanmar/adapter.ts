@@ -339,3 +339,97 @@ class SanMarAdapter implements VendorAdapter {
 
 /** Singleton SanMar adapter instance */
 export const sanmarAdapter = new SanMarAdapter();
+
+// Auto-register when this module is imported
+import { registerVendor, getVendor } from '../vendor/registry.js';
+registerVendor(sanmarAdapter);
+
+// =============================================================================
+// CLI Runner (verification)
+// =============================================================================
+
+import 'dotenv/config';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __adapter_filename = fileURLToPath(import.meta.url);
+if (process.argv[1] && path.resolve(process.argv[1]) === __adapter_filename) {
+  // Verify registration
+  try {
+    const registered = getVendor('sanmar');
+    console.log(`SanMar adapter registered: ${registered.vendorName} (${registered.vendorId})`);
+  } catch (err) {
+    console.error('Registration failed:', err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
+
+  // If a style is passed, fetch all product data through the adapter
+  const style = process.argv[2];
+  if (style) {
+    console.log(`\nFetching unified data for style: ${style}`);
+    try {
+      const data = await sanmarAdapter.fetchAllProductData(style);
+      console.log('\n========================================');
+      console.log(`Vendor:     ${data.vendor}`);
+      console.log(`Style:      ${data.style}`);
+      console.log(`Products:   ${data.products.length} SKUs`);
+      console.log(`Pricing:    ${data.pricing.length > 0 ? `${data.pricing.length} entries` : 'unavailable'}`);
+      console.log(`Inventory:  ${data.inventory.length} SKUs`);
+      console.log(`Media:      ${data.media.length} colors with images`);
+      console.log('========================================');
+
+      // Show sample product
+      if (data.products.length > 0) {
+        const p = data.products[0];
+        console.log(`\nSample product (UnifiedProduct):`);
+        console.log(`  Brand:      ${p.brandName}`);
+        console.log(`  Title:      ${p.productTitle}`);
+        console.log(`  Color:      ${p.color} (${p.colorCode})`);
+        console.log(`  Size:       ${p.size}`);
+        console.log(`  Status:     ${p.status}`);
+        console.log(`  Category:   ${p.category}`);
+      }
+
+      // Show pricing if available
+      if (data.pricing.length > 0) {
+        const pr = data.pricing[0];
+        console.log(`\nPricing (UnifiedPricing):`);
+        console.log(`  Piece:      $${pr.piecePrice.toFixed(2)}`);
+        console.log(`  Case:       $${pr.casePrice.toFixed(2)}`);
+        console.log(`  Sale:       ${pr.salePrice !== null ? `$${pr.salePrice.toFixed(2)}` : 'none'}`);
+        if (pr.priceCode) console.log(`  Price Code: ${pr.priceCode}`);
+      }
+
+      // Show inventory sample
+      if (data.inventory.length > 0) {
+        const inv = data.inventory[0];
+        console.log(`\nSample inventory (UnifiedInventory):`);
+        console.log(`  Color:      ${inv.color}`);
+        console.log(`  Size:       ${inv.size}`);
+        console.log(`  Total Qty:  ${inv.totalQty}`);
+        console.log(`  Warehouses: ${inv.warehouses.length}`);
+        for (const w of inv.warehouses) {
+          console.log(`    ${w.id} (${w.name}): ${w.qty}`);
+        }
+      }
+
+      // Show media sample
+      if (data.media.length > 0) {
+        const m = data.media[0];
+        console.log(`\nSample media (UnifiedMedia):`);
+        console.log(`  Color:       ${m.color}`);
+        console.log(`  Front:       ${m.frontImage ? 'yes' : 'no'}`);
+        console.log(`  Back:        ${m.backImage ? 'yes' : 'no'}`);
+        console.log(`  Side:        ${m.sideImage ? 'yes' : 'no'}`);
+        console.log(`  Swatch:      ${m.swatchImage ? 'yes' : 'no'}`);
+        console.log(`  On-model:    ${m.onModelFront ? 'yes' : 'no'}`);
+      }
+    } catch (err) {
+      console.error(`\nError: ${err instanceof Error ? err.message : String(err)}`);
+      process.exit(1);
+    }
+  } else {
+    console.log('\nUsage: npx tsx scripts/sanmar/adapter.ts [STYLE]');
+    console.log('Example: npx tsx scripts/sanmar/adapter.ts PC61');
+  }
+}
