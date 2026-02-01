@@ -378,6 +378,57 @@ export interface LogoRegistry {
 // Cost Tracking Types
 // =============================================================================
 
+// =============================================================================
+// Sale Pricing Types
+// =============================================================================
+
+/**
+ * Defines a sale/promotion with discount rules and product targeting.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ */
+export interface SaleConfig {
+  /** Generated sale ID (e.g., "sale-1706745600") */
+  id: string;
+  /** Display name (e.g., "Flash Sale 20% Off") */
+  name: string;
+  /** Type of discount to apply */
+  discountType: 'percent' | 'fixed' | 'override';
+  /** Discount value: percent off, dollar amount off, or exact price */
+  discountValue: number;
+  /** Styles to apply to (empty array = all tracked products) */
+  productStyles: string[];
+  /** ISO timestamp — sale start */
+  startDate: string;
+  /** ISO timestamp — sale end */
+  endDate: string;
+  /** Current sale status */
+  status: 'scheduled' | 'active' | 'ended' | 'cancelled';
+  /** Snapshot of original prices before sale (for reliable revert) */
+  originalPrices: Record<string, {
+    retailPrice: number;
+    variantPrices: Record<string, number>;
+  }>;
+  /** ISO timestamp of creation */
+  createdAt: string;
+}
+
+/**
+ * The data/active-sales.json schema.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ */
+export interface ActiveSalesFile {
+  /** Map of sale ID to sale configuration */
+  sales: Record<string, SaleConfig>;
+  /** ISO timestamp of last file update */
+  lastUpdated: string;
+}
+
+// =============================================================================
+// Cost Tracking Types
+// =============================================================================
+
 /**
  * Tracks all costs for a single product.
  *
@@ -445,4 +496,98 @@ export interface CostHistoryFile {
   }>;
   /** ISO timestamp of last file update */
   lastUpdated: string;
+}
+
+// =============================================================================
+// WIX Coupon Types (V2 API)
+// =============================================================================
+
+/**
+ * Coupon scope — what the coupon applies to.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ *
+ * - Store-wide: namespace "stores" with no group
+ * - Collection-specific: namespace "stores", group { name: "collection", entityId: collectionId }
+ * - Product-specific: namespace "stores", group { name: "product", entityId: productId }
+ */
+export interface WixCouponScope {
+  /** Always "stores" for e-commerce coupons */
+  namespace: 'stores';
+  /** Optional group for scoping to a specific product or collection */
+  group?: {
+    /** Scope type: "product" for a single product, "collection" for a collection */
+    name: 'product' | 'collection';
+    /** The WIX entity ID (product ID or collection ID) */
+    entityId: string;
+  };
+}
+
+/**
+ * Request body for creating a WIX coupon via POST /stores/v2/coupons.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ *
+ * The specification object defines the coupon details. The `type` field
+ * determines the discount kind:
+ * - "moneyOff": requires `moneyOffAmount` (dollar amount off)
+ * - "percentOff": requires `percentOff` (1-100)
+ * - "freeShipping": no additional amount fields
+ */
+export interface WixCouponCreate {
+  specification: {
+    /** Coupon display name (e.g., "Summer Sale 20% Off") */
+    name: string;
+    /** Promo code customers enter at checkout (4+ chars, alphanumeric + dash) */
+    code: string;
+    /** Discount type */
+    type: 'moneyOff' | 'percentOff' | 'freeShipping';
+    /** Dollar amount off (required when type is "moneyOff") */
+    moneyOffAmount?: number;
+    /** Percent off, 1-100 (required when type is "percentOff") */
+    percentOff?: number;
+    /** ISO timestamp — when coupon becomes active (optional, defaults to immediately) */
+    startTime?: string;
+    /** ISO timestamp — when coupon expires (optional, no expiration if omitted) */
+    expirationTime?: string;
+    /** Maximum total uses across all customers (optional, unlimited if omitted) */
+    usageLimit?: number;
+    /** Apply discount to only one item per order (optional) */
+    limitedToOneItem?: boolean;
+    /** Maximum uses per individual customer (optional, unlimited if omitted) */
+    limitPerCustomer?: number;
+    /** Whether the coupon is active (default true) */
+    active?: boolean;
+    /** What the coupon applies to */
+    scope: WixCouponScope;
+  };
+}
+
+/**
+ * WIX coupon response shape from the Coupons V2 API.
+ *
+ * Phase 15: Cost Tracking & Sale/Promo Pricing
+ */
+export interface WixCoupon {
+  /** Coupon ID */
+  id: string;
+  /** Coupon specification (same as create, with additional server fields) */
+  specification: {
+    name: string;
+    code: string;
+    type: 'moneyOff' | 'percentOff' | 'freeShipping';
+    moneyOffAmount?: number;
+    percentOff?: number;
+    startTime?: string;
+    expirationTime?: string;
+    usageLimit?: number;
+    limitedToOneItem?: boolean;
+    limitPerCustomer?: number;
+    active?: boolean;
+    scope: WixCouponScope;
+    /** ISO timestamp of coupon creation (server-generated) */
+    dateCreated?: string;
+  };
+  /** Number of times this coupon has been used */
+  numberOfUsages: number;
 }

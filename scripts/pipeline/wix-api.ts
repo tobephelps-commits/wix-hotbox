@@ -278,6 +278,65 @@ export async function updateProductVariants(
 }
 
 /**
+ * Update any product fields via generic PATCH.
+ *
+ * PATCH /stores/v1/products/{productId}
+ *
+ * Used by sale pricing to update base price, and by future features
+ * for arbitrary product field updates.
+ *
+ * @param productId - The product ID
+ * @param updates - Object with product fields to update
+ * @returns The updated product object
+ */
+export async function updateProduct(
+  productId: string,
+  updates: Record<string, unknown>,
+): Promise<WixProduct> {
+  const endpoint = `${WIX_API_BASE}/products/${productId}`;
+
+  console.log(`[WIX API] Updating product ${productId}...`);
+
+  const response = await fetch(endpoint, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify({ product: updates }),
+  });
+
+  if (!response.ok) {
+    await handleErrorResponse(response, endpoint, `productId=${productId}`);
+  }
+
+  const data = await response.json() as { product: WixProduct };
+  console.log(`[WIX API] Product ${productId} updated`);
+  return data.product;
+}
+
+/**
+ * Update the base price (and optionally cost) of a product.
+ *
+ * Convenience wrapper around updateProduct for price changes.
+ *
+ * @param productId - The product ID
+ * @param priceData - Object with price field (retail price)
+ * @param costAndProfitData - Optional object with itemCost field
+ */
+export async function updateProductPrice(
+  productId: string,
+  priceData: { price: number },
+  costAndProfitData?: { itemCost: number },
+): Promise<void> {
+  const updates: Record<string, unknown> = { priceData };
+  if (costAndProfitData) {
+    updates.costAndProfitData = costAndProfitData;
+  }
+
+  console.log(`[WIX API] Updating price for product ${productId} to $${priceData.price}...`);
+  await updateProduct(productId, updates);
+  console.log(`[WIX API] Price updated for product ${productId}`);
+}
+
+/**
  * Get a product by ID with full variant data.
  *
  * GET /stores/v1/products/{productId}?includeVariants=true
