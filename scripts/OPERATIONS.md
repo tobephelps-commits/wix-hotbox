@@ -1,20 +1,42 @@
 # HotBox Pipeline Operations Guide
 
-Complete operational runbook for the SanMar-to-WIX product pipeline. Covers every command, common workflows, troubleshooting, and configuration.
+Complete operational runbook for the HotBox Clothing product pipeline. Covers every command, common workflows, troubleshooting, and configuration. Supports SanMar and S&S Activewear vendors, multi-collection routing, template presets, logo overlays, order management with invoicing/labels, and SanMar cart automation.
 
 ---
 
 ## Quick Reference
+
+### Product Pipeline
 
 | Command | What it does |
 |---------|-------------|
 | `npm run validate` | Health check all systems (read-only, never modifies WIX data) |
 | `npm run validate -- PC61` | Health check + test SanMar data fetch for style PC61 |
 | `npm run fetch-product -- PC61` | Fetch and display SanMar data for a style |
+| `npm run fetch-product -- PC61 --vendor ss` | Fetch product data from S&S Activewear |
 | `npm run preview` | Start visual preview/curation server (localhost:3456) |
 | `npm run preview -- PC61` | Start preview server and auto-load style PC61 |
 | `npm run create-product -- PC61` | Quick-create WIX draft (all colors/sizes, standard-tee pricing) |
 | `npm run create-product -- PC61 --price 24.99` | Quick-create WIX draft at a specific retail price |
+| `npm run create-product -- PC61 --vendor ss` | Create WIX draft from S&S Activewear product |
+| `npm run create-product -- PC61 --template "BigBarn Tee"` | Create using a saved template |
+| `npm run create-product -- PC61 --collection "Big Barn Crossfit"` | Route product to a specific collection |
+| `npm run create-product -- PC61 --logo bb --logo-position left-chest` | Apply logo overlay to product images |
+| `npm run overlay-test` | Run logo overlay compositing test |
+
+### Pricing & Promotions
+
+| Command | What it does |
+|---------|-------------|
+| `npm run margin-report` | Show profit margins for all products |
+| `npm run sale` | Show sale pricing help |
+| `npm run sale -- create PC61 --discount 20% --name "Spring Sale"` | Create a sale on a product |
+| `npm run coupons` | Show coupon management help |
+
+### Inventory Monitoring
+
+| Command | What it does |
+|---------|-------------|
 | `npm run monitor` | Show monitor help |
 | `npm run monitor:add -- PC61 "Essential Tee"` | Track a style for inventory monitoring |
 | `npm run monitor:list` | Show all tracked styles |
@@ -25,15 +47,49 @@ Complete operational runbook for the SanMar-to-WIX product pipeline. Covers ever
 | `npm run monitor -- config` | Show current monitor configuration |
 | `npm run monitor -- config set lowStockThreshold 20` | Update a config value |
 | `npm run monitor -- remove PC61` | Stop tracking a style |
+
+### Stock Sync to WIX
+
+| Command | What it does |
+|---------|-------------|
 | `npm run sync` | Show sync help |
 | `npm run sync:scan` | Auto-discover WIX products matching tracked styles |
 | `npm run sync:list` | Show product mappings (SanMar style -> WIX product) |
 | `npm run sync:run` | Run one sync cycle (poll + WIX update + notify) |
 | `npm run sync:start` | Start continuous sync loop (monitor + sync + notify, Ctrl+C to stop) |
+| `npm run sync:smart-start` | Start smart sync loop with priority-based polling |
 | `npm run sync:link -- PC61 abc123 "Essential Tee"` | Manually link a SanMar style to a WIX product ID |
 | `npm run sync -- unlink PC61` | Remove a product mapping |
 | `npm run sync -- notify-test` | Send a test email to verify SMTP config |
 | `npm run sync -- config` | Show current sync and notification config |
+
+### Order Management
+
+| Command | What it does |
+|---------|-------------|
+| `npm run orders` | Show order management help |
+| `npm run orders:list` | List all orders |
+| `npm run orders:add` | Create a manual order |
+| `npm run orders:sync` | Sync orders from WIX |
+| `npm run invoice:demo` | Generate demo invoice PDF |
+| `npm run label:demo` | Generate demo shipping label PDF |
+| `npm run print:list` | List system printers |
+
+### SanMar Cart Automation
+
+| Command | What it does |
+|---------|-------------|
+| `npm run cart` | Preview SanMar cart items (no action taken) |
+| `npm run cart:preview` | Preview SanMar cart items (alias) |
+| `npm run cart:fill` | Execute SanMar cart fill automation |
+
+### Utilities
+
+| Command | What it does |
+|---------|-------------|
+| `npm run build` | Compile TypeScript |
+| `npm run typecheck` | Type-check without emitting |
+| `npm run verify:site-fixes` | Run WIX site fix verification script |
 
 ---
 
@@ -60,6 +116,8 @@ Create a `.env` file in the project root. Never commit this file (it's gitignore
 | `SANMAR_USERNAME` | Yes | SanMar API provisioning (sanmarintegrations@sanmar.com) | API username provided by SanMar integration team |
 | `SANMAR_PASSWORD` | Yes | SanMar API provisioning (sanmarintegrations@sanmar.com) | API password provided by SanMar integration team |
 | `WIX_API_KEY` | Yes | WIX Dashboard > Developer Tools > API Keys | WIX REST API key with product read/write permissions |
+| `SS_API_KEY` | For S&S vendor | S&S Activewear account | S&S Activewear API key |
+| `SS_ACCOUNT_NUMBER` | For S&S vendor | S&S Activewear account | S&S Activewear account number |
 | `SMTP_HOST` | No | Your email provider | SMTP server hostname (default: smtp.gmail.com) |
 | `SMTP_PORT` | No | Your email provider | SMTP server port (default: 587) |
 | `SMTP_SECURE` | No | Your email provider | Use TLS for SMTP (default: false, set "true" for port 465) |
@@ -68,6 +126,8 @@ Create a `.env` file in the project root. Never commit this file (it's gitignore
 | `NOTIFY_TO` | No | Recipient email address | Where stock alerts are sent (defaults to SMTP_USER) |
 | `NOTIFY_FROM` | No | Sender email address | Who alerts appear from (defaults to SMTP_USER) |
 | `NOTIFY_ENABLED` | No | Set to "true" to enable | Master switch for email notifications (default: false) |
+| `INVOICE_PRINTER` | No | `npm run print:list` | Printer name for invoices (default: system default) |
+| `LABEL_PRINTER` | No | `npm run print:list` | Printer name for thermal labels (default: system default) |
 
 **Example `.env` file:**
 
@@ -80,6 +140,10 @@ SANMAR_PASSWORD=your-api-password
 # WIX API (required)
 WIX_API_KEY=IST.your-wix-api-key-here
 
+# S&S Activewear API (optional — needed for --vendor ss)
+SS_API_KEY=your-ss-api-key
+SS_ACCOUNT_NUMBER=your-ss-account-number
+
 # Email notifications (optional)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -88,6 +152,10 @@ SMTP_PASS=your-app-password
 NOTIFY_TO=owner@hotboxclothing.shop
 NOTIFY_FROM=alerts@hotboxclothing.shop
 NOTIFY_ENABLED=true
+
+# Printer configuration (optional)
+INVOICE_PRINTER=HP LaserJet Pro
+LABEL_PRINTER=DYMO LabelWriter 450
 ```
 
 ### Verify Setup
@@ -421,5 +489,5 @@ These behaviors are worth knowing for day-to-day operation:
 
 ---
 
-*Last updated: 2026-01-31*
-*Pipeline version: 1.0.0*
+*Last updated: 2026-02-01*
+*Pipeline version: 2.0.0*
