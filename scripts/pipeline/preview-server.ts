@@ -79,6 +79,15 @@ import {
 } from '../orders/index.js';
 import type { OrderStatus, OrderSource, OrderCustomer, OrderLineItem, OrderAddress } from '../orders/index.js';
 
+// SanMar Cart Automation (Phase 19)
+import {
+  getOrdersForCartFill,
+  consolidateOrders,
+  fillCartForPendingOrders,
+  saveCartFillResult,
+} from '../orders/index.js';
+import type { CartFillResult } from '../orders/index.js';
+
 // Register both vendor adapters to ensure they're available at runtime
 import '../sanmar/adapter.js';
 import '../ss-activewear/adapter.js';
@@ -414,6 +423,23 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/inventory/config
   if (urlPath === '/api/inventory/config') {
     return { route: 'inventory-config' };
+  }
+
+  // SanMar Cart Automation API (Phase 19)
+
+  // Match /api/cart/preview
+  if (urlPath === '/api/cart/preview') {
+    return { route: 'cart-preview' };
+  }
+
+  // Match /api/cart/fill
+  if (urlPath === '/api/cart/fill') {
+    return { route: 'cart-fill' };
+  }
+
+  // Match /api/cart/history
+  if (urlPath === '/api/cart/history') {
+    return { route: 'cart-history' };
   }
 
   // Order Management API (Phase 18)
@@ -1046,6 +1072,124 @@ function startServer(port: number, initialStyle?: string): void {
             break;
           }
 
+          // ── SanMar Cart Automation API (Phase 19) ──────────────────────
+
+          case 'cart-preview': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/cart/preview — Preview consolidated cart without executing
+            try {
+              const urlObj = new URL(req.url ?? '/', 'http://localhost');
+              const statusParam = urlObj.searchParams.get('status');
+              const statuses = statusParam
+                ? (statusParam.split(',').map((s) => s.trim()) as OrderStatus[])
+                : (['new'] as OrderStatus[]);
+
+              const orders = await getOrdersForCartFill({ statuses });
+              const request = consolidateOrders(orders);
+
+              // Count skipped items
+              const totalLineItems = orders.reduce((sum, o) => sum + o.lineItems.length, 0);
+              const includedCount = request.items.reduce((sum, item) => sum + 1, 0);
+              const skippedCount = totalLineItems - orders.reduce((sum, o) => {
+                return sum + o.lineItems.filter((li) => {
+                  return li.vendor !== 'ss' && !!li.vendorStyle && !!li.color && !!li.size;
+                }).length;
+              }, 0);
+
+              sendJson(res, 200, {
+                items: request.items,
+                orderNumbers: request.orderNumbers,
+                orderCount: orders.length,
+                itemCount: request.items.length,
+                skippedCount,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error previewing cart: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'cart-fill': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // POST /api/cart/fill — Execute cart fill automation
+            try {
+              let statuses: OrderStatus[] = ['new'];
+              let headless = true;
+
+              const body = await readBody(req);
+              if (body) {
+                try {
+                  const payload = JSON.parse(body);
+                  if (payload.statuses && Array.isArray(payload.statuses)) {
+                    statuses = payload.statuses as OrderStatus[];
+                  }
+                  if (typeof payload.headless === 'boolean') {
+                    headless = payload.headless;
+                  }
+                } catch {
+                  // Empty or invalid body — use defaults
+                }
+              }
+
+              console.log(`[Preview] Starting cart fill (statuses: ${statuses.join(',')}, headless: ${headless})...`);
+              const result = await fillCartForPendingOrders({ statuses, headless });
+
+              if (!result) {
+                sendJson(res, 200, { result: null, message: 'No orders to process' });
+              } else {
+                sendJson(res, result.status === 'failed' ? 500 : 200, { result });
+              }
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error filling cart: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'cart-history': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/cart/history — List past cart fill results
+            try {
+              const cartFillsDir = path.join(process.cwd(), 'data', 'cart-fills');
+              let fills: CartFillResult[] = [];
+
+              if (fs.existsSync(cartFillsDir)) {
+                const files = fs.readdirSync(cartFillsDir)
+                  .filter((f) => f.endsWith('.json'))
+                  .sort()
+                  .reverse(); // Most recent first
+
+                for (const file of files) {
+                  try {
+                    const content = fs.readFileSync(path.join(cartFillsDir, file), 'utf-8');
+                    fills.push(JSON.parse(content) as CartFillResult);
+                  } catch {
+                    // Skip malformed files
+                  }
+                }
+              }
+
+              sendJson(res, 200, { fills });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error reading cart history: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
           // ── Order Management API (Phase 18) ────────────────────────────
 
           case 'orders': {
@@ -1094,6 +1238,7 @@ function startServer(port: number, initialStyle?: string): void {
                   lineItems,
                   billingAddress: payload.billingAddress as OrderAddress | undefined,
                   shippingAddress: payload.shippingAddress as OrderAddress | undefined,
+                  collection: payload.collection || undefined,
                   subtotal,
                   shippingCost,
                   tax,
@@ -1241,7 +1386,7 @@ function startServer(port: number, initialStyle?: string): void {
               sendJson(res, 405, { error: 'Method not allowed' });
               break;
             }
-            // GET /api/orders/:id/label — Generate and return shipping label PDF
+            // GET /api/orders/:id/label — Generate and return pickup label PDF
             try {
               const idParam = param!;
               const isNumeric = /^\d+$/.test(idParam);
@@ -1251,11 +1396,6 @@ function startServer(port: number, initialStyle?: string): void {
 
               if (!order) {
                 sendJson(res, 404, { error: `Order not found: ${idParam}` });
-                break;
-              }
-
-              if (!order.shippingAddress) {
-                sendJson(res, 400, { error: `Order #${order.orderNumber} has no shipping address` });
                 break;
               }
 
@@ -1304,7 +1444,7 @@ function startServer(port: number, initialStyle?: string): void {
               sendJson(res, 405, { error: 'Method not allowed' });
               break;
             }
-            // POST /api/orders/:id/print-label — Print shipping label
+            // POST /api/orders/:id/print-label — Print pickup label
             try {
               const idParam = param!;
               const isNumeric = /^\d+$/.test(idParam);
@@ -1314,11 +1454,6 @@ function startServer(port: number, initialStyle?: string): void {
 
               if (!order) {
                 sendJson(res, 404, { error: `Order not found: ${idParam}` });
-                break;
-              }
-
-              if (!order.shippingAddress) {
-                sendJson(res, 400, { error: `Order #${order.orderNumber} has no shipping address` });
                 break;
               }
 
