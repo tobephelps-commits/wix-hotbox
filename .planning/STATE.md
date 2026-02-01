@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 15 of 20 (Cost Tracking & Sale/Promo Pricing)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-31 — Completed 15-04-PLAN.md
+Phase: 16 of 20 (Real-time Stock Sync & Multi-warehouse)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-01-31 — Completed 16-01-PLAN.md
 
-Progress: █████░░░░░ 50%
+Progress: █████████░ 76%
 
 ## Performance Metrics
 
@@ -81,6 +81,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 15-03 | Local auth helpers duplicated from wix-api.ts for coupon module | Avoids modifying wix-api.ts private function exports; same pattern, isolated module |
 | 15-03 | PascalCase normalization for WIX Coupons V2 API type field | WIX API returns "PercentOff" not "percentOff"; case-insensitive comparison for display |
 | 15-04 | Phase 15 complete -- cost tracking, sale pricing, coupons, and preview UI all integrated | Preview server is single interface for product curation, profitability, and promotion management |
+| 16-01 | WarehouseQuantity uses warehouseId/warehouseName (not whseID/whseName) | Cleaner consumer-facing API; SanMar naming is an implementation detail |
+| 16-01 | Zero-qty warehouses filtered from breakdown | Keeps snapshot JSON concise; consumers only see warehouses with stock |
+| 16-01 | warehouses field optional on SkuSnapshot | Backward compatibility with existing snapshot files and consumers |
 
 ### Blockers/Concerns
 
@@ -95,5 +98,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 15-04-PLAN.md (Phase 15 complete)
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None

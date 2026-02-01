@@ -106,10 +106,14 @@ Plans:
 **Depends on**: Phase 15
 **Research**: Likely (continuous polling/webhook architecture, multi-warehouse SanMar API endpoints)
 **Research topics**: SanMar inventory API warehouse location fields, polling interval optimization, event-driven vs scheduled sync
-**Plans**: TBD
+**Plans**: 5 plans in 3 waves
 
 Plans:
-- [ ] 16-01: TBD
+- [x] 16-01: Extend snapshot data model with per-warehouse breakdown (Wave 1)
+- [ ] 16-02: Warehouse-aware alerts and email notification enrichment (Wave 2)
+- [ ] 16-03: Priority-based polling tiers, batch queries, and daemon resilience (Wave 1)
+- [ ] 16-04: Warehouse inventory CLI commands and priority management (Wave 2)
+- [ ] 16-05: Preview server inventory dashboard with warehouse breakdown UI (Wave 3)
 
 #### Phase 17: S&S Activewear API Integration
 
@@ -176,7 +180,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 13. Template Presets & Pipeline Speed | v0.2 | 2/2 | Complete | 2026-01-31 |
 | 14. Logo Overlay Engine | v0.2 | 3/3 | Complete | 2026-01-31 |
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 4/4 | Complete | 2026-01-31 |
-| 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 0/? | Not started | - |
+| 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 1/5 | In progress | - |
 | 17. S&S Activewear API Integration | v0.2 | 0/? | Not started | - |
 | 18. Order Management — Invoice & Label Printing | v0.2 | 0/? | Not started | - |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 0/? | Not started | - |
