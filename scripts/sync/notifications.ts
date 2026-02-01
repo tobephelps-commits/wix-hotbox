@@ -13,8 +13,115 @@
  */
 
 import nodemailer from 'nodemailer';
-import type { StockAlert } from '../monitor/types.js';
+import type { StockAlert, InventorySnapshot } from '../monitor/types.js';
+import { loadLatestSnapshot, loadConfig as loadMonitorConfig } from '../monitor/store.js';
 import type { SyncResult, SyncConfig, NotificationConfig } from './types.js';
+
+// =============================================================================
+// Warehouse Email Helpers
+// =============================================================================
+
+/**
+ * Format per-alert warehouse detail lines for email body.
+ *
+ * Adds indented lines showing which warehouses have stock and which don't.
+ * Returns empty array if the alert has no warehouseDetail.
+ *
+ * @param alert - Stock alert with optional warehouseDetail
+ * @returns Array of indented warehouse detail lines
+ */
+function formatAlertWarehouseLines(alert: StockAlert): string[] {
+  if (!alert.warehouseDetail) return [];
+
+  const lines: string[] = [];
+  const detail = alert.warehouseDetail;
+
+  if (detail.warehousesWithStock.length > 0) {
+    const shown = detail.warehousesWithStock.slice(0, 3);
+    const formatted = shown.map((w) => `${w.name} (${w.qty.toLocaleString()})`).join(', ');
+    const remaining = detail.warehousesWithStock.length - shown.length;
+    const suffix = remaining > 0 ? `, +${remaining} more` : '';
+    lines.push(`       Warehouses with stock: ${formatted}${suffix}`);
+  }
+
+  if (detail.warehousesOutOfStock.length > 0) {
+    const shown = detail.warehousesOutOfStock.slice(0, 3);
+    const formatted = shown.map((w) => w.name).join(', ');
+    const remaining = detail.warehousesOutOfStock.length - shown.length;
+    const suffix = remaining > 0 ? `, +${remaining} more` : '';
+    lines.push(`       Warehouses out: ${formatted}${suffix}`);
+  }
+
+  return lines;
+}
+
+/**
+ * Build the WAREHOUSE INVENTORY section from latest snapshots.
+ *
+ * Groups warehouse quantities by product and shows top 3 warehouses
+ * by quantity for each product.
+ *
+ * @param snapshots - Map of style -> latest snapshot
+ * @param results - Sync results for product names
+ * @returns Array of formatted lines, or empty if no warehouse data
+ */
+function buildWarehouseInventorySection(
+  snapshots: Map<string, InventorySnapshot>,
+  results: SyncResult[],
+): string[] {
+  if (snapshots.size === 0) return [];
+
+  // Aggregate per-product warehouse totals from snapshots
+  const productTotals: {
+    style: string;
+    name: string;
+    warehouses: Map<string, number>;
+  }[] = [];
+
+  for (const result of results) {
+    const snapshot = snapshots.get(result.style);
+    if (!snapshot) continue;
+
+    // Sum quantities per warehouse across all SKUs
+    const warehouseTotals = new Map<string, number>();
+    for (const sku of snapshot.skus) {
+      if (!sku.warehouses) continue;
+      for (const wh of sku.warehouses) {
+        const current = warehouseTotals.get(wh.warehouseName) ?? 0;
+        warehouseTotals.set(wh.warehouseName, current + wh.qty);
+      }
+    }
+
+    if (warehouseTotals.size > 0) {
+      productTotals.push({
+        style: result.style,
+        name: result.productName,
+        warehouses: warehouseTotals,
+      });
+    }
+  }
+
+  if (productTotals.length === 0) return [];
+
+  const lines: string[] = [];
+  lines.push('WAREHOUSE INVENTORY');
+  lines.push('\u2500'.repeat(21));
+
+  for (const product of productTotals) {
+    // Sort warehouses by total qty descending
+    const sorted = [...product.warehouses.entries()].sort((a, b) => b[1] - a[1]);
+    const top3 = sorted.slice(0, 3);
+    const formatted = top3.map(([name, qty]) => `${name}: ${qty.toLocaleString()}`).join('  |  ');
+    const remaining = sorted.length - top3.length;
+    const suffix = remaining > 0 ? `  |  +${remaining} warehouses` : '';
+
+    lines.push(`  ${product.style} ${product.name}:`);
+    lines.push(`    ${formatted}${suffix}`);
+  }
+
+  lines.push('');
+  return lines;
+}
 
 // =============================================================================
 // Email Body Builder
@@ -25,8 +132,9 @@ import type { SyncResult, SyncConfig, NotificationConfig } from './types.js';
  *
  * Structure:
  *   - Header with timestamp
- *   - Stock change alerts grouped by product
+ *   - Stock change alerts grouped by product (with warehouse detail)
  *   - WIX store visibility updates per product
+ *   - Warehouse inventory summary per product
  *   - Summary totals
  *
  * Returns null if there are no changes to report (no alerts AND no sync updates),
@@ -36,10 +144,10 @@ import type { SyncResult, SyncConfig, NotificationConfig } from './types.js';
  * @param alerts - Stock alerts from the poll cycle
  * @returns Formatted email body, or null if nothing to report
  */
-export function buildSyncEmailBody(
+export async function buildSyncEmailBody(
   results: SyncResult[],
   alerts: StockAlert[],
-): string | null {
+): Promise<string | null> {
   // Check if there's anything to report
   const hasAlerts = alerts.length > 0;
   const hasChanges = results.some(
@@ -97,6 +205,9 @@ export function buildSyncEmailBody(
             );
             break;
         }
+        // Add per-alert warehouse detail lines
+        const warehouseLines = formatAlertWarehouseLines(alert);
+        lines.push(...warehouseLines);
       }
     }
 
@@ -131,6 +242,24 @@ export function buildSyncEmailBody(
     }
 
     lines.push('');
+  }
+
+  // Warehouse inventory section (from latest snapshots)
+  if (results.length > 0) {
+    try {
+      const monitorConfig = await loadMonitorConfig();
+      const snapshots = new Map<string, InventorySnapshot>();
+      for (const result of results) {
+        const snapshot = await loadLatestSnapshot(result.style, monitorConfig);
+        if (snapshot) {
+          snapshots.set(result.style, snapshot);
+        }
+      }
+      const warehouseLines = buildWarehouseInventorySection(snapshots, results);
+      lines.push(...warehouseLines);
+    } catch {
+      // Snapshot loading failed -- skip warehouse inventory section gracefully
+    }
   }
 
   // Summary totals
@@ -232,7 +361,7 @@ export async function notifySyncResults(
     return; // Notifications disabled
   }
 
-  const body = buildSyncEmailBody(results, alerts);
+  const body = await buildSyncEmailBody(results, alerts);
   if (!body) {
     console.log('[Sync] No changes to report -- skipping notification email.');
     return;
