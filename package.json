@@ -35,7 +35,10 @@
     "orders:sync": "npx tsx scripts/orders/manage.ts sync",
     "invoice:demo": "npx tsx scripts/orders/invoice-generator.ts --demo",
     "label:demo": "npx tsx scripts/orders/label-generator.ts --demo",
-    "print:list": "npx tsx scripts/orders/print-service.ts --list-printers"
+    "print:list": "npx tsx scripts/orders/print-service.ts --list-printers",
+    "cart": "npx tsx scripts/orders/cart-cli.ts",
+    "cart:preview": "npx tsx scripts/orders/cart-cli.ts preview",
+    "cart:fill": "npx tsx scripts/orders/cart-cli.ts --fill"
   },
   "keywords": [],
   "author": "",
