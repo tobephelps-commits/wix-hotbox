@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 18 of 20 (Order Management — Invoice & Label Printing)
-Plan: 1 of 6 in current phase
+Plan: 2 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 18-01-PLAN.md
+Last activity: 2026-02-01 — Completed 18-02-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -124,6 +124,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 18-01 | Auth helpers duplicated locally for orders module | Same pattern as Phase 15-03 coupon module; avoids modifying wix-api.ts internals |
 | 18-01 | Customer name from billingInfo.contactDetails (not buyerInfo) | WIX eCommerce V1 puts name/phone in contactDetails; buyerInfo only has contactId/email |
 | 18-01 | WIX addressLine mapped to addressLine1 | WIX V1 ecom uses single addressLine field, not addressLine1/addressLine2 |
+| 18-02 | Template module separated from generator for reusability | Layout helpers are reusable and independently testable; generator composes them |
+| 18-02 | Brand accent color used sparingly (title, totals, footer) | Professional look — not dominant red, but accented |
+| 18-02 | Proportional column widths in line items table | 50/12/18/20 split works across varying content lengths |
 
 ### Blockers/Concerns
 
@@ -138,5 +141,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 18-01-PLAN.md — Order types and WIX Orders API client
+Stopped at: Completed 18-02-PLAN.md — Invoice PDF generation with PDFKit
 Resume file: None
