@@ -1,9 +1,13 @@
 /**
  * Inventory Monitor Polling Engine
  *
- * Core polling logic that periodically fetches SanMar inventory
- * for all tracked products, saves snapshots, detects stock level
- * transitions, and generates alerts.
+ * Core polling logic that periodically fetches inventory from any
+ * registered vendor adapter for all tracked products, saves snapshots,
+ * detects stock level transitions, and generates alerts.
+ *
+ * Vendor routing: Each TrackedProduct has an optional `vendor` field
+ * (defaults to 'sanmar'). The poller uses the VendorAdapter registry
+ * to route inventory queries to the correct vendor API.
  *
  * Usage:
  *   import { pollOnce, startPolling } from './poller.js';
@@ -12,22 +16,87 @@
  *   await startPolling(config); // runs continuously
  *
  * Phase 8: Inventory Monitoring
+ * Phase 17: Vendor-agnostic polling via VendorAdapter
  */
 
 import 'dotenv/config';
 
-import { getStyleInventory, getInventoryBatch, getTotalQuantity, isWellStocked, getWarehouseBreakdown } from '../sanmar/index.js';
-import type { MonitorConfig, InventorySnapshot, SkuSnapshot, StockAlert, TrackedProduct } from './types.js';
+import type { VendorId, UnifiedInventory } from '../vendor/types.js';
+import { getVendor } from '../vendor/registry.js';
+// Register both adapters so getVendor() can find them
+import '../sanmar/adapter.js';
+import '../ss-activewear/adapter.js';
+
+import type { MonitorConfig, InventorySnapshot, SkuSnapshot, StockAlert, TrackedProduct, WarehouseQuantity } from './types.js';
 import { loadConfig, loadTrackedProducts, loadLatestSnapshot, saveSnapshot, updateProductLastPolled } from './store.js';
 import { detectAlerts, formatAlertSummary } from './alerts.js';
 import { appendAlerts, ensureAlertLog } from './alert-log.js';
 
 // =============================================================================
+// Unified Inventory -> SkuSnapshot Mapping
+// =============================================================================
+
+/**
+ * Convert UnifiedInventory[] from a VendorAdapter to SkuSnapshot[] format.
+ *
+ * Maps UnifiedWarehouse[] to WarehouseQuantity[] (both use string IDs).
+ * Determines wellStocked based on a high-quantity threshold (1500 for SanMar,
+ * generous threshold for other vendors).
+ *
+ * @param inventory - Unified inventory from a VendorAdapter
+ * @returns SkuSnapshot array for use in InventorySnapshot
+ */
+export function unifiedInventoryToSnapshots(inventory: UnifiedInventory[]): SkuSnapshot[] {
+  return inventory.map((item) => {
+    // Map UnifiedWarehouse[] to WarehouseQuantity[]
+    const warehouses: WarehouseQuantity[] = item.warehouses
+      .filter((w) => w.qty > 0)
+      .map((w) => ({
+        warehouseId: w.id,
+        warehouseName: w.name,
+        qty: w.qty,
+      }));
+
+    // wellStocked: true if any warehouse has >= 1500 (SanMar cap) or total >= 1500
+    const wellStocked = item.warehouses.some((w) => w.qty >= 1500) || item.totalQty >= 1500;
+
+    return {
+      color: item.color,
+      size: item.size,
+      totalQty: item.totalQty,
+      wellStocked,
+      warehouses,
+    };
+  });
+}
+
+// =============================================================================
 // Pre-flight Check
 // =============================================================================
 
-/** Module-level flag to run SanMar credential check only once */
-let _sanmarCredsChecked = false;
+/** Set of vendors whose credentials have been checked this process */
+const _credsChecked = new Set<VendorId>();
+
+/**
+ * Run a pre-flight credential check for a vendor (once per process).
+ * Validates credentials via the adapter's validateCredentials() method.
+ *
+ * @param vendorId - Vendor to check
+ * @throws Error if credentials are not configured
+ */
+async function ensureCredentials(vendorId: VendorId): Promise<void> {
+  if (_credsChecked.has(vendorId)) return;
+
+  const adapter = getVendor(vendorId);
+  const valid = await adapter.validateCredentials();
+  if (!valid) {
+    throw new Error(
+      `${adapter.vendorName} credentials not configured or invalid. ` +
+      `Check your .env file for the required ${adapter.vendorName} environment variables.`,
+    );
+  }
+  _credsChecked.add(vendorId);
+}
 
 // =============================================================================
 // Single Poll Cycle
@@ -37,13 +106,14 @@ let _sanmarCredsChecked = false;
  * Execute a single poll cycle for all tracked products.
  *
  * For each tracked product:
- * 1. Call getStyleInventory(style) from SanMar API
- * 2. Convert SkuInventory[] to InventorySnapshot (sum warehouse qtys)
- * 3. Filter to tracked colors/sizes if specified
- * 4. Load previous snapshot for change detection
- * 5. Detect stock level transitions and generate alerts
- * 6. Save new snapshot (overwriting previous)
- * 7. Append alerts to persistent log
+ * 1. Determine vendor from product.vendor (defaults to 'sanmar')
+ * 2. Get the VendorAdapter and call getStyleInventory(style)
+ * 3. Convert UnifiedInventory[] to SkuSnapshot[]
+ * 4. Filter to tracked colors/sizes if specified
+ * 5. Load previous snapshot for change detection
+ * 6. Detect stock level transitions and generate alerts
+ * 7. Save new snapshot (overwriting previous)
+ * 8. Append alerts to persistent log
  *
  * @param config - Monitor configuration
  * @param onAlerts - Optional callback invoked when alerts are generated
@@ -55,21 +125,17 @@ export async function pollOnce(
   onAlerts?: (alerts: StockAlert[]) => void,
   productsOverride?: TrackedProduct[],
 ): Promise<InventorySnapshot[]> {
-  // Pre-flight SanMar credential check (runs once per process)
-  if (!_sanmarCredsChecked) {
-    if (!process.env.SANMAR_CUSTOMER_NUMBER) {
-      throw new Error(
-        'SanMar credentials not configured. Set SANMAR_CUSTOMER_NUMBER, SANMAR_USERNAME, SANMAR_PASSWORD in .env file.',
-      );
-    }
-    _sanmarCredsChecked = true;
-  }
-
   const products = productsOverride ?? await loadTrackedProducts(config);
 
   if (products.length === 0) {
     console.log('[Monitor] No tracked products. Add products with: monitor add <style> <name>');
     return [];
+  }
+
+  // Pre-flight credential checks for all vendors in the product list
+  const vendorsNeeded = new Set<VendorId>(products.map((p) => p.vendor ?? 'sanmar'));
+  for (const v of vendorsNeeded) {
+    await ensureCredentials(v);
   }
 
   console.log(`[Monitor] Polling ${products.length} tracked product(s)...`);
@@ -78,17 +144,14 @@ export async function pollOnce(
 
   for (const product of products) {
     try {
-      // Fetch all SKU inventory from SanMar
-      const skuInventories = await getStyleInventory(product.style);
+      const vendorId = product.vendor ?? 'sanmar';
+      const adapter = getVendor(vendorId);
 
-      // Convert to SkuSnapshot format (summarize warehouse data + per-warehouse breakdown)
-      let skuSnapshots: SkuSnapshot[] = skuInventories.map((sku) => ({
-        color: sku.color,
-        size: sku.size,
-        totalQty: getTotalQuantity(sku),
-        wellStocked: isWellStocked(sku),
-        warehouses: getWarehouseBreakdown(sku),
-      }));
+      // Fetch all SKU inventory via vendor adapter
+      const unifiedInventory = await adapter.getStyleInventory(product.style);
+
+      // Convert UnifiedInventory[] to SkuSnapshot[]
+      let skuSnapshots = unifiedInventoryToSnapshots(unifiedInventory);
 
       // Filter to tracked colors if specified
       if (product.colors && product.colors.length > 0) {
@@ -105,6 +168,7 @@ export async function pollOnce(
       const snapshot: InventorySnapshot = {
         style: product.style,
         timestamp: new Date().toISOString(),
+        vendor: vendorId,
         skus: skuSnapshots,
       };
 
@@ -130,7 +194,8 @@ export async function pollOnce(
         totalAlerts += alerts.length;
       }
 
-      console.log(`[Monitor] ${product.style}: ${skuSnapshots.length} SKUs fetched`);
+      const vendorLabel = vendorId === 'sanmar' ? 'SanMar' : 'S&S';
+      console.log(`[Monitor] ${product.style} (${vendorLabel}): ${skuSnapshots.length} SKUs fetched`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Monitor] ${product.style}: Error - ${message}`);
@@ -202,12 +267,8 @@ export function getProductsDueToPoll(
  * Poll only products that are due based on their priority tier.
  *
  * Uses getProductsDueToPoll() to determine which products need checking,
- * then polls them using batch API calls where possible. After each product
+ * then polls them via pollOnce with vendor-aware routing. After each product
  * is polled, updates its lastPolledAt timestamp.
- *
- * For batch efficiency, groups product styles and uses getInventoryBatch()
- * to fetch inventory for multiple styles in fewer API calls. Falls back to
- * individual getStyleInventory() calls if batch returns errors.
  *
  * @param config - Monitor configuration
  * @param onAlerts - Optional callback invoked when alerts are generated
@@ -217,16 +278,6 @@ export async function pollDue(
   config: MonitorConfig,
   onAlerts?: (alerts: StockAlert[]) => void,
 ): Promise<InventorySnapshot[]> {
-  // Pre-flight SanMar credential check (runs once per process)
-  if (!_sanmarCredsChecked) {
-    if (!process.env.SANMAR_CUSTOMER_NUMBER) {
-      throw new Error(
-        'SanMar credentials not configured. Set SANMAR_CUSTOMER_NUMBER, SANMAR_USERNAME, SANMAR_PASSWORD in .env file.',
-      );
-    }
-    _sanmarCredsChecked = true;
-  }
-
   const allProducts = await loadTrackedProducts(config);
   const dueProducts = getProductsDueToPoll(allProducts, config);
 
@@ -238,10 +289,7 @@ export async function pollDue(
   console.log(`[Monitor] ${dueProducts.length} of ${allProducts.length} product(s) due for polling...`);
 
   // Poll due products via pollOnce with productsOverride.
-  // This reuses the existing per-style getStyleInventory approach, which already
-  // handles snapshot saving, alert detection, and per-warehouse breakdown.
-  // getInventoryBatch is available for future optimization when partId-based
-  // batch queries are beneficial (e.g., specific color/size combos across styles).
+  // pollOnce routes each product through the correct VendorAdapter.
   const pollSnapshots = await pollOnce(config, onAlerts, dueProducts);
 
   // Update lastPolledAt for each successfully polled product

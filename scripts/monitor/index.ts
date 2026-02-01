@@ -32,7 +32,7 @@ export {
 } from './store.js';
 
 // Poller (inventory fetching)
-export { pollOnce, startPolling } from './poller.js';
+export { pollOnce, startPolling, unifiedInventoryToSnapshots } from './poller.js';
 
 // Alerts (stock level detection and formatting)
 export {

@@ -8,7 +8,10 @@
  * - Stock alerts for threshold crossings
  *
  * Phase 8: Inventory Monitoring
+ * Phase 17: Vendor-agnostic support (vendor field on TrackedProduct, InventorySnapshot, StockAlert)
  */
+
+import type { VendorId } from '../vendor/types.js';
 
 // =============================================================================
 // Poll Priority
@@ -57,16 +60,20 @@ export interface MonitorConfig {
 /**
  * A product being monitored for inventory changes.
  *
- * Each tracked product maps to a SanMar style number. Optional
+ * Each tracked product maps to a vendor style number. Optional
  * color and size filters allow monitoring a subset of variants.
+ * The vendor field identifies which vendor to query (defaults to 'sanmar'
+ * for backward compatibility with existing tracked-products.json files).
  */
 export interface TrackedProduct {
-  /** SanMar style number (e.g., "PC61") */
+  /** Vendor style number (e.g., "PC61" for SanMar, "2000" for S&S) */
   style: string;
   /** Human-friendly name for alerts (e.g., "Port & Company Essential Tee") */
   name: string;
   /** ISO timestamp when product was added to monitoring */
   addedAt: string;
+  /** Which vendor to query for this product (defaults to 'sanmar' when absent) */
+  vendor?: VendorId;
   /** Optional: only monitor specific catalog colors (monitor all if omitted) */
   colors?: string[];
   /** Optional: only monitor specific sizes (monitor all if omitted) */
@@ -87,10 +94,14 @@ export interface TrackedProduct {
  * Preserves individual warehouse stock levels so downstream consumers
  * can implement closest-warehouse logic, warehouse-aware alerts, and
  * warehouse inventory dashboards.
+ *
+ * warehouseId is string to accommodate both vendors:
+ * - SanMar: numeric IDs as strings (e.g., "1", "2", "31")
+ * - S&S: state abbreviation codes (e.g., "IL", "TX", "NV")
  */
 export interface WarehouseQuantity {
-  /** SanMar warehouse ID (e.g., 1 = Seattle, 2 = Cincinnati) */
-  warehouseId: number;
+  /** Warehouse identifier (string for cross-vendor compatibility) */
+  warehouseId: string;
   /** Human-readable warehouse name (e.g., "Seattle", "Dallas") */
   warehouseName: string;
   /** Quantity available at this warehouse */
@@ -102,12 +113,16 @@ export interface WarehouseQuantity {
  *
  * Contains per-SKU inventory data captured during a poll cycle.
  * Only the latest snapshot is persisted per style (for change detection).
+ * The vendor field tracks which vendor the snapshot came from (defaults
+ * to 'sanmar' when absent for backward compatibility).
  */
 export interface InventorySnapshot {
-  /** SanMar style number */
+  /** Vendor style number */
   style: string;
   /** ISO timestamp of this snapshot */
   timestamp: string;
+  /** Which vendor this snapshot came from (defaults to 'sanmar' when absent) */
+  vendor?: VendorId;
   /** Per-SKU inventory readings */
   skus: SkuSnapshot[];
 }
@@ -149,17 +164,17 @@ export interface SkuSnapshot {
  */
 export interface AlertWarehouseDetail {
   /** Warehouses with qty > 0, sorted by qty descending */
-  warehousesWithStock: { id: number; name: string; qty: number }[];
+  warehousesWithStock: { id: string; name: string; qty: number }[];
   /** Warehouses with qty === 0 or not present in snapshot */
-  warehousesOutOfStock: { id: number; name: string }[];
-  /** Total SanMar warehouses (always 9) */
+  warehousesOutOfStock: { id: string; name: string }[];
+  /** Total warehouses for this vendor */
   totalWarehouses: number;
 }
 
 export interface StockAlert {
   /** Alert type based on threshold crossed */
   type: 'out-of-stock' | 'critical' | 'low-stock' | 'back-in-stock';
-  /** SanMar style number */
+  /** Vendor style number */
   style: string;
   /** Human-friendly product name */
   productName: string;
@@ -173,6 +188,8 @@ export interface StockAlert {
   currentQty: number;
   /** ISO timestamp when alert was generated */
   timestamp: string;
+  /** Which vendor this alert is for (defaults to 'sanmar' when absent) */
+  vendor?: VendorId;
   /** Per-warehouse stock detail (present when snapshot has warehouse data) */
   warehouseDetail?: AlertWarehouseDetail;
 }

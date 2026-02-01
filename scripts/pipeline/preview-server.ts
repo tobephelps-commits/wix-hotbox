@@ -823,7 +823,7 @@ function startServer(port: number, initialStyle?: string): void {
                 break;
               }
               // Aggregate per-warehouse totals across all SKUs
-              const warehouseMap = new Map<number, { id: number; name: string; totalQty: number; skuCount: number }>();
+              const warehouseMap = new Map<string, { id: string; name: string; totalQty: number; skuCount: number }>();
               for (const sku of snapshot.skus) {
                 if (sku.warehouses) {
                   for (const wh of sku.warehouses) {

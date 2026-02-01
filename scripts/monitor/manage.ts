@@ -305,7 +305,7 @@ async function handleWarehouse(args: string[]): Promise<void> {
   }
 
   // Aggregate per-warehouse totals across all SKUs
-  const warehouseTotals = new Map<number, { name: string; qty: number }>();
+  const warehouseTotals = new Map<string, { name: string; qty: number }>();
 
   for (const sku of snapshot.skus) {
     if (!sku.warehouses) continue;
@@ -314,8 +314,8 @@ async function handleWarehouse(args: string[]): Promise<void> {
       if (existing) {
         existing.qty += wh.qty;
       } else {
-        // Use WAREHOUSES constant for location name if available
-        const warehouseInfo = WAREHOUSES.find((w) => w.id === wh.warehouseId);
+        // Use WAREHOUSES constant for location name if available (SanMar)
+        const warehouseInfo = WAREHOUSES.find((w) => String(w.id) === wh.warehouseId);
         const displayName = warehouseInfo ? warehouseInfo.location : wh.warehouseName;
         warehouseTotals.set(wh.warehouseId, { name: displayName, qty: wh.qty });
       }

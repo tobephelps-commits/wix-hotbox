@@ -215,7 +215,7 @@ export function getWarehouseBreakdown(skuInventory: SkuInventory): WarehouseQuan
   return skuInventory.whse
     .filter((w) => w.qty > 0)
     .map((w) => ({
-      warehouseId: w.whseID,
+      warehouseId: String(w.whseID),
       warehouseName: w.whseName,
       qty: w.qty,
     }));

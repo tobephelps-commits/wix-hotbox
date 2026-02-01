@@ -5,7 +5,7 @@
  * Provides one-shot, continuous, and priority-aware smart sync modes.
  *
  * Flow per cycle:
- *   1. pollOnce() or pollDue() -- fetch SanMar inventory, detect alerts
+ *   1. pollOnce() or pollDue() -- fetch vendor inventory, detect alerts
  *   2. syncAllProducts() -- update WIX variant visibility
  *   3. notifySyncResults() -- email the store owner (if enabled)
  *   4. Log summary to console
@@ -19,6 +19,7 @@
  *   await startSyncLoop(monitorConfig, syncConfig);
  *
  * Phase 9 + Phase 16: Automated Stock Sync with Priority Tiers
+ * Phase 17: Vendor-agnostic polling (credential checks moved to poller.ts)
  */
 
 import type { MonitorConfig, StockAlert } from '../monitor/types.js';
@@ -89,15 +90,10 @@ export async function syncOnce(
   monitorConfig: MonitorConfig,
   syncConfig: SyncConfig,
 ): Promise<void> {
-  // Pre-flight environment checks -- prevent cryptic errors deep in call chains
+  // Pre-flight WIX check -- vendor credential checks are done by poller.ts per product
   if (!process.env.WIX_API_KEY) {
     throw new Error(
       'WIX_API_KEY not set. Add it to .env file. Get your API key from WIX Dashboard > Developer Tools > API Keys.',
-    );
-  }
-  if (!process.env.SANMAR_CUSTOMER_NUMBER) {
-    throw new Error(
-      'SanMar credentials not configured. Set SANMAR_CUSTOMER_NUMBER, SANMAR_USERNAME, SANMAR_PASSWORD in .env file.',
     );
   }
 
@@ -215,15 +211,10 @@ export async function startSmartSyncLoop(
   monitorConfig: MonitorConfig,
   syncConfig: SyncConfig,
 ): Promise<void> {
-  // Pre-flight environment checks
+  // Pre-flight WIX check -- vendor credential checks are done by poller.ts per product
   if (!process.env.WIX_API_KEY) {
     throw new Error(
       'WIX_API_KEY not set. Add it to .env file. Get your API key from WIX Dashboard > Developer Tools > API Keys.',
-    );
-  }
-  if (!process.env.SANMAR_CUSTOMER_NUMBER) {
-    throw new Error(
-      'SanMar credentials not configured. Set SANMAR_CUSTOMER_NUMBER, SANMAR_USERNAME, SANMAR_PASSWORD in .env file.',
     );
   }
 

@@ -2,26 +2,32 @@
  * Stock Sync Types
  *
  * TypeScript interfaces for the WIX stock sync system:
- * - Product mappings linking SanMar styles to WIX product IDs
+ * - Product mappings linking vendor styles to WIX product IDs
  * - Sync result tracking per-product visibility changes
  * - Sync configuration
  *
  * Phase 9: Automated Stock Sync
+ * Phase 17: Vendor-agnostic product mappings
  */
+
+import type { VendorId } from '../vendor/types.js';
 
 // =============================================================================
 // Product Mapping
 // =============================================================================
 
 /**
- * Maps a SanMar style number to a WIX product ID for stock sync.
+ * Maps a vendor style number to a WIX product ID for stock sync.
  *
  * Created when a product is published via the pipeline. The sync
  * service uses this mapping to find the WIX product to update
- * when SanMar inventory changes.
+ * when vendor inventory changes.
+ *
+ * The vendor field identifies which vendor to query (defaults to 'sanmar'
+ * for backward compatibility with existing product-map.json files).
  */
 export interface ProductMapping {
-  /** SanMar style number (e.g., "PC61") */
+  /** Vendor style number (e.g., "PC61" for SanMar, "2000" for S&S) */
   style: string;
   /** WIX product ID returned from product creation or query */
   wixProductId: string;
@@ -29,6 +35,8 @@ export interface ProductMapping {
   productName: string;
   /** ISO timestamp when mapping was created */
   linkedAt: string;
+  /** Which vendor this product comes from (defaults to 'sanmar' when absent) */
+  vendor?: VendorId;
 }
 
 // =============================================================================

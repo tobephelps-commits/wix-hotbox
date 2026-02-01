@@ -57,9 +57,9 @@ export function classifyStockLevel(totalQty: number, config: MonitorConfig): Sto
 /**
  * Build warehouse detail from a SkuSnapshot's warehouse data.
  *
- * Splits all 9 SanMar warehouses into "with stock" and "out of stock" groups.
- * Warehouses present in the snapshot with qty > 0 go to withStock (sorted by
- * qty descending). All others (qty === 0 or not in snapshot) go to outOfStock.
+ * For SanMar products, splits warehouses into "with stock" and "out of stock" groups
+ * using the WAREHOUSES constant. For other vendors (or when warehouse IDs don't match
+ * the SanMar set), builds groups directly from the snapshot's warehouse data.
  *
  * @param sku - Current SKU snapshot (must have warehouses array)
  * @returns AlertWarehouseDetail or undefined if no warehouse data
@@ -69,18 +69,35 @@ function buildWarehouseDetail(sku: SkuSnapshot): AlertWarehouseDetail | undefine
     return undefined;
   }
 
-  // Build a set of warehouse IDs present in snapshot
+  // Build a map of warehouse IDs present in snapshot
   const snapshotMap = new Map(sku.warehouses.map((w) => [w.warehouseId, w]));
 
   const withStock: AlertWarehouseDetail['warehousesWithStock'] = [];
   const outOfStock: AlertWarehouseDetail['warehousesOutOfStock'] = [];
 
-  for (const wh of WAREHOUSES) {
-    const entry = snapshotMap.get(wh.id);
-    if (entry && entry.qty > 0) {
-      withStock.push({ id: wh.id, name: wh.name, qty: entry.qty });
-    } else {
-      outOfStock.push({ id: wh.id, name: wh.name });
+  // Check if this looks like SanMar data (numeric string IDs matching WAREHOUSES)
+  const sanmarIds = new Set(WAREHOUSES.map((w) => String(w.id)));
+  const isSanMar = sku.warehouses.some((w) => sanmarIds.has(w.warehouseId));
+
+  if (isSanMar) {
+    // SanMar path: iterate through known warehouses to show out-of-stock ones too
+    for (const wh of WAREHOUSES) {
+      const whId = String(wh.id);
+      const entry = snapshotMap.get(whId);
+      if (entry && entry.qty > 0) {
+        withStock.push({ id: whId, name: wh.name, qty: entry.qty });
+      } else {
+        outOfStock.push({ id: whId, name: wh.name });
+      }
+    }
+  } else {
+    // Non-SanMar path: build from snapshot data only (we don't have a full warehouse list)
+    for (const wh of sku.warehouses) {
+      if (wh.qty > 0) {
+        withStock.push({ id: wh.warehouseId, name: wh.warehouseName, qty: wh.qty });
+      } else {
+        outOfStock.push({ id: wh.warehouseId, name: wh.warehouseName });
+      }
     }
   }
 
@@ -90,7 +107,7 @@ function buildWarehouseDetail(sku: SkuSnapshot): AlertWarehouseDetail | undefine
   return {
     warehousesWithStock: withStock,
     warehousesOutOfStock: outOfStock,
-    totalWarehouses: WAREHOUSES.length,
+    totalWarehouses: isSanMar ? WAREHOUSES.length : sku.warehouses.length,
   };
 }
 

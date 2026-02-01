@@ -112,8 +112,9 @@ export async function saveTrackedProducts(
 /**
  * Add a product to the tracked products list.
  *
- * Prevents duplicates by checking style number. If a product with the
- * same style already exists, it is NOT added again.
+ * Prevents duplicates by checking style number AND vendor. The same
+ * style number can exist on different vendors (e.g., "2000" on both
+ * SanMar and S&S are different products).
  *
  * @param product - Product to add
  * @param config - Monitor configuration (provides dataDir)
@@ -124,31 +125,44 @@ export async function addTrackedProduct(
 ): Promise<void> {
   const products = await loadTrackedProducts(config);
 
-  // Prevent duplicates by style
-  const exists = products.some((p) => p.style === product.style);
+  // Prevent duplicates by style + vendor
+  const productVendor = product.vendor ?? 'sanmar';
+  const exists = products.some(
+    (p) => p.style === product.style && (p.vendor ?? 'sanmar') === productVendor,
+  );
   if (exists) {
-    console.log(`[Monitor] Style ${product.style} is already tracked.`);
+    const vendorLabel = productVendor === 'sanmar' ? 'SanMar' : 'S&S';
+    console.log(`[Monitor] Style ${product.style} (${vendorLabel}) is already tracked.`);
     return;
   }
 
   products.push(product);
   await saveTrackedProducts(products, config);
-  console.log(`[Monitor] Added ${product.style} (${product.name}) to tracking.`);
+  const vendorLabel = productVendor === 'sanmar' ? 'SanMar' : 'S&S';
+  console.log(`[Monitor] Added ${product.style} (${product.name}) [${vendorLabel}] to tracking.`);
 }
 
 /**
  * Remove a product from the tracked products list.
  *
- * @param style - SanMar style number to remove
+ * When vendor is specified, only removes the matching vendor's product.
+ * When vendor is omitted, removes any product with the given style
+ * (backward compatible behavior).
+ *
+ * @param style - Vendor style number to remove
  * @param config - Monitor configuration (provides dataDir)
+ * @param vendor - Optional vendor to match (removes any vendor match if omitted)
  * @returns true if the product was found and removed, false if not found
  */
 export async function removeTrackedProduct(
   style: string,
   config: MonitorConfig,
+  vendor?: string,
 ): Promise<boolean> {
   const products = await loadTrackedProducts(config);
-  const filtered = products.filter((p) => p.style !== style);
+  const filtered = vendor
+    ? products.filter((p) => !(p.style === style && (p.vendor ?? 'sanmar') === vendor))
+    : products.filter((p) => p.style !== style);
 
   if (filtered.length === products.length) {
     console.log(`[Monitor] Style ${style} is not tracked.`);
