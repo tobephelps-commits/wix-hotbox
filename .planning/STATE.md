@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17 of 20 (S&S Activewear API Integration)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17-04-PLAN.md
+Last activity: 2026-02-01 — Completed 17-05-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -109,6 +109,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 17-04 | Use products endpoint for inventory (not /v2/inventory/) | Inventory items lack color/size names; products endpoint provides full context in one call |
 | 17-04 | Style enrichment optional with try/catch fallback | Failure to fetch title/description doesn't block core product data |
 | 17-04 | Swatch images use _fm (medium); all others use _fl (full/large) | Appropriate resolution for each image use case |
+| 17-05 | SanMar direct path preserved; only non-SanMar vendors use VendorAdapter | Zero regression risk for existing SanMar workflow |
+| 17-05 | Bridge mapping (unifiedToProductData) constructs SanMar-shaped objects from unified types | Avoids rewriting mapper.ts and create-product.ts consumers; transitional design |
+| 17-05 | vendor field optional on CuratedProduct and ProductPreview | Backward compatibility with existing callers that don't specify vendor |
 
 ### Blockers/Concerns
 
@@ -123,5 +126,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-03-PLAN.md and 17-04-PLAN.md
+Stopped at: Completed 17-05-PLAN.md
 Resume file: None
