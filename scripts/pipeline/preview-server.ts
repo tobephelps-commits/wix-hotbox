@@ -53,6 +53,13 @@ import {
   checkAndProcessSales,
 } from './sale-pricing.js';
 import type { SaleConfig } from './types.js';
+import {
+  loadConfig,
+  loadTrackedProducts,
+  getRecentAlerts,
+} from '../monitor/index.js';
+import { loadLatestSnapshot } from '../monitor/store.js';
+import { getSyncHealth } from '../sync/sync-poller.js';
 
 // =============================================================================
 // Configuration
@@ -322,6 +329,32 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/sales
   if (urlPath === '/api/sales') {
     return { route: 'sales' };
+  }
+
+  // Match /api/inventory/product/:style (must come before /api/inventory/products)
+  const inventoryProductMatch = urlPath.match(/^\/api\/inventory\/product\/([A-Za-z0-9._-]+)\/?$/);
+  if (inventoryProductMatch) {
+    return { route: 'inventory-product', param: inventoryProductMatch[1] };
+  }
+
+  // Match /api/inventory/products
+  if (urlPath === '/api/inventory/products') {
+    return { route: 'inventory-products' };
+  }
+
+  // Match /api/inventory/alerts
+  if (urlPath === '/api/inventory/alerts') {
+    return { route: 'inventory-alerts' };
+  }
+
+  // Match /api/inventory/health
+  if (urlPath === '/api/inventory/health') {
+    return { route: 'inventory-health' };
+  }
+
+  // Match /api/inventory/config
+  if (urlPath === '/api/inventory/config') {
+    return { route: 'inventory-config' };
   }
 
   // Match / (root)
@@ -727,6 +760,166 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error checking sales: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // Inventory Dashboard API (Phase 16)
+
+          case 'inventory-products': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const config = await loadConfig();
+              const products = await loadTrackedProducts(config);
+              const result = [];
+              for (const p of products) {
+                const snapshot = await loadLatestSnapshot(p.style, config);
+                let totalSkus = 0;
+                let outOfStockSkus = 0;
+                let lowStockSkus = 0;
+                let hasWarehouseData = false;
+                if (snapshot) {
+                  totalSkus = snapshot.skus.length;
+                  for (const sku of snapshot.skus) {
+                    if (sku.totalQty === 0) outOfStockSkus++;
+                    else if (sku.totalQty <= config.lowStockThreshold) lowStockSkus++;
+                    if (sku.warehouses && sku.warehouses.length > 0) hasWarehouseData = true;
+                  }
+                }
+                result.push({
+                  style: p.style,
+                  name: p.name,
+                  priority: p.priority ?? 'normal',
+                  lastPolledAt: p.lastPolledAt ?? null,
+                  totalSkus,
+                  outOfStockSkus,
+                  lowStockSkus,
+                  hasWarehouseData,
+                });
+              }
+              sendJson(res, 200, { products: result });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading inventory products: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'inventory-product': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const config = await loadConfig();
+              const snapshot = await loadLatestSnapshot(param!, config);
+              if (!snapshot) {
+                sendJson(res, 404, { error: `No snapshot found for style "${param}"` });
+                break;
+              }
+              // Aggregate per-warehouse totals across all SKUs
+              const warehouseMap = new Map<number, { id: number; name: string; totalQty: number; skuCount: number }>();
+              for (const sku of snapshot.skus) {
+                if (sku.warehouses) {
+                  for (const wh of sku.warehouses) {
+                    const existing = warehouseMap.get(wh.warehouseId);
+                    if (existing) {
+                      existing.totalQty += wh.qty;
+                      existing.skuCount++;
+                    } else {
+                      warehouseMap.set(wh.warehouseId, {
+                        id: wh.warehouseId,
+                        name: wh.warehouseName,
+                        totalQty: wh.qty,
+                        skuCount: 1,
+                      });
+                    }
+                  }
+                }
+              }
+              const warehouseSummary = Array.from(warehouseMap.values())
+                .sort((a, b) => b.totalQty - a.totalQty);
+              sendJson(res, 200, {
+                style: snapshot.style,
+                timestamp: snapshot.timestamp,
+                warehouseSummary,
+                skus: snapshot.skus,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading inventory for ${param}: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'inventory-alerts': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const config = await loadConfig();
+              const urlObj = new URL(req.url ?? '/', `http://localhost`);
+              const countParam = urlObj.searchParams.get('count');
+              const count = countParam ? parseInt(countParam, 10) : 50;
+              const alerts = await getRecentAlerts(config, count);
+              sendJson(res, 200, { alerts });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading inventory alerts: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'inventory-health': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const health = getSyncHealth();
+              if (health) {
+                sendJson(res, 200, { running: true, ...health });
+              } else {
+                sendJson(res, 200, { running: false });
+              }
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading sync health: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'inventory-config': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const config = await loadConfig();
+              sendJson(res, 200, {
+                pollIntervals: {
+                  hot: config.hotIntervalMinutes ?? 15,
+                  normal: config.pollIntervalMinutes,
+                  slow: config.slowIntervalMinutes ?? 120,
+                },
+                stockThresholds: {
+                  outOfStock: config.outOfStockThreshold,
+                  critical: config.criticalStockThreshold,
+                  lowStock: config.lowStockThreshold,
+                },
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading inventory config: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
             }
             break;
