@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 18 of 20 (Order Management — Invoice & Label Printing)
-Plan: 5 of 6 in current phase
-Status: In progress
-Last activity: 2026-02-01 — Completed 18-05-PLAN.md
+Plan: 6 of 6 in current phase
+Status: Phase complete
+Last activity: 2026-02-01 — Completed 18-06-PLAN.md
 
 Progress: █████████░ 95%
 
@@ -136,6 +136,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 18-05 | Barrel export in orders/index.ts as single import surface | Clean API boundary; preview-server uses one import line instead of six |
 | 18-05 | Dual lookup: /api/orders/:id resolves by orderNumber if all digits, UUID otherwise | Ergonomic URL access for both human-readable numbers and programmatic IDs |
 | 18-05 | CORS expanded to include PATCH method | Required for status update endpoint; consistent across all CORS headers |
+| 18-06 | Filter pills group statuses (New, In Progress, Shipped, Delivered) | Reduces UI noise; individual statuses visible via badges in table rows |
+| 18-06 | Toast notification system for async actions | Global toast element for sync/print/status feedback; cleaner than status bar |
+| 18-06 | Cancel order confirmation via browser confirm() | Prevents accidental irreversible status transitions |
+| 18-06 | Phase 18 complete -- full order management dashboard operational | Preview server is single interface for products, orders, invoices, labels, and inventory |
 
 ### Blockers/Concerns
 
@@ -150,5 +154,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 18-05-PLAN.md — Order module API and preview server endpoints
+Stopped at: Completed 18-06-PLAN.md — Phase 18 complete, order dashboard UI
 Resume file: None

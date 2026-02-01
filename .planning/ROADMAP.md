@@ -145,7 +145,7 @@ Plans:
 - [x] 18-03: Order store, WIX sync, and management CLI (Wave 2)
 - [x] 18-04: Shipping label PDF and print service (Wave 2)
 - [x] 18-05: Order module API and preview server endpoints (Wave 3)
-- [ ] 18-06: Order dashboard UI in preview server (Wave 3)
+- [x] 18-06: Order dashboard UI in preview server (Wave 3)
 
 #### Phase 19: Order Management — SanMar Cart Automation
 
@@ -192,6 +192,6 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 4/4 | Complete | 2026-01-31 |
 | 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 5/5 | Complete | 2026-01-31 |
 | 17. S&S Activewear API Integration | v0.2 | 7/7 | Complete | 2026-02-01 |
-| 18. Order Management — Invoice & Label Printing | v0.2 | 5/6 | In progress | - |
+| 18. Order Management — Invoice & Label Printing | v0.2 | 6/6 | Complete | 2026-02-01 |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 0/? | Not started | - |
 | 20. Integration Testing & Polish | v0.2 | 0/? | Not started | - |
