@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 19 of 20 (Order Management — SanMar Cart Automation)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-01 — Completed 19-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-01 — Completed 19-03-PLAN.md
 
-Progress: █████████░ 95%
+Progress: █████████░ 97%
 
 ## Performance Metrics
 
@@ -147,6 +147,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 19-02 | Multi-strategy selectors: swatch -> dropdown -> button fallback | Robust against SanMar.com DOM variations; clear comments mark update points |
 | 19-02 | Per-item error isolation in batch cart filling | One item failing doesn't abort the rest; graceful degradation |
 | 19-02 | Status update guard: only 'new' orders transition to 'ordered' | Prevents regression of already-advanced orders in lifecycle |
+| 19-03 | CLI uses manual process.argv parsing following manage.ts pattern | No external arg parser dependency; consistent with existing CLI tools |
+| 19-03 | Preview is default command; --fill must be explicit | Prevents accidental browser automation execution |
+| 19-03 | Fill SanMar Cart button disabled when no 'new' orders | Prevents empty cart fills; button enables dynamically on loadOrders |
+| 19-03 | Phase 19 complete -- cart automation accessible from CLI, REST API, and dashboard UI | Three entry points with preview-before-execute pattern across all surfaces |
 
 ### Blockers/Concerns
 
@@ -161,5 +165,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 19-02-PLAN.md — Playwright browser automation engine for SanMar.com cart filling
+Stopped at: Completed 19-03-PLAN.md — CLI, API, and dashboard UI integration for SanMar cart automation
 Resume file: None
