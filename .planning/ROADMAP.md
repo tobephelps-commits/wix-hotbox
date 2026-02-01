@@ -113,7 +113,7 @@ Plans:
 - [x] 16-02: Warehouse-aware alerts and email notification enrichment (Wave 2)
 - [x] 16-03: Priority-based polling tiers, batch queries, and daemon resilience (Wave 1)
 - [x] 16-04: Warehouse inventory CLI commands and priority management (Wave 2)
-- [ ] 16-05: Preview server inventory dashboard with warehouse breakdown UI (Wave 3)
+- [x] 16-05: Preview server inventory dashboard with warehouse breakdown UI (Wave 3)
 
 #### Phase 17: S&S Activewear API Integration
 
@@ -180,7 +180,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 13. Template Presets & Pipeline Speed | v0.2 | 2/2 | Complete | 2026-01-31 |
 | 14. Logo Overlay Engine | v0.2 | 3/3 | Complete | 2026-01-31 |
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 4/4 | Complete | 2026-01-31 |
-| 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 4/5 | In progress | - |
+| 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 5/5 | Complete | 2026-01-31 |
 | 17. S&S Activewear API Integration | v0.2 | 0/? | Not started | - |
 | 18. Order Management — Invoice & Label Printing | v0.2 | 0/? | Not started | - |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 0/? | Not started | - |

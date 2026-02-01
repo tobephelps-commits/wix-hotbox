@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 16 of 20 (Real-time Stock Sync & Multi-warehouse)
-Plan: 4 of 5 in current phase (16-01, 16-02, 16-03, 16-04 complete)
-Status: In progress
-Last activity: 2026-01-31 — Completed 16-04-PLAN.md
+Plan: 5 of 5 in current phase (16-01 through 16-05 complete)
+Status: Phase complete
+Last activity: 2026-01-31 — Completed 16-05-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -94,6 +94,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 16-04 | Warehouse inventory aggregated across all SKUs per warehouse | Overview display sums per-SKU warehouse data into per-warehouse totals |
 | 16-04 | WAREHOUSES constant used for location display names | Consistent location names (e.g., "Seattle, WA") from sanmar/constants.ts |
 | 16-04 | Health command reports 'not running' when daemon not active | Module-level state check; null means no loop running |
+| 16-05 | Inventory section always visible (not tab-gated) | Follows existing Margin/Sales stacked layout pattern |
+| 16-05 | Auto-refresh: products 60s, alerts 30s | Balances data freshness with API load |
+| 16-05 | Phase 16 complete -- real-time stock sync with multi-warehouse fully operational | Preview server is single interface for inventory monitoring, alerts, and daemon health |
 
 ### Blockers/Concerns
 
@@ -108,5 +111,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 16-04-PLAN.md
+Stopped at: Completed 16-05-PLAN.md (Phase 16 complete)
 Resume file: None
