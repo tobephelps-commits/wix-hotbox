@@ -1053,6 +1053,429 @@
   .vendor-pricing-detail .vpd-label { color: #999; font-size: 12px; }
   .vendor-pricing-detail .vpd-value { font-weight: 600; color: #333; }
 
+  /* Order Dashboard section (Phase 18) */
+  .orders-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .orders-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .orders-section .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .orders-section .section-title .count {
+    font-weight: 400;
+    color: #999;
+    font-size: 14px;
+  }
+  .order-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .order-filter-pill {
+    padding: 4px 12px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: #fff;
+    color: #555;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .order-filter-pill:hover { background: #f0f0ff; border-color: #aaa; }
+  .order-filter-pill.active { background: #6c63ff; color: #fff; border-color: #6c63ff; }
+  .order-source-pills {
+    display: flex;
+    gap: 6px;
+    margin-left: 12px;
+  }
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .orders-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .orders-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
+  .orders-table tr.order-row:hover {
+    background: #f8f8ff;
+    cursor: pointer;
+  }
+  .order-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .order-status-badge.os-new { background: #cce5ff; color: #004085; }
+  .order-status-badge.os-ordered { background: #fff3cd; color: #856404; }
+  .order-status-badge.os-received { background: #e8daef; color: #6c3483; }
+  .order-status-badge.os-in-production { background: #fef9e7; color: #7d6608; }
+  .order-status-badge.os-packed { background: #d1f2eb; color: #0e6655; }
+  .order-status-badge.os-shipped { background: #d6eaf8; color: #2e4053; }
+  .order-status-badge.os-delivered { background: #d4edda; color: #155724; }
+  .order-status-badge.os-cancelled { background: #e2e3e5; color: #383d41; }
+  .order-source-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .order-source-badge.src-wix { background: #e8f0fe; color: #1a56db; }
+  .order-source-badge.src-manual { background: #fef3c7; color: #92400e; }
+  .orders-empty {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+  }
+
+  /* Order Detail View */
+  .order-detail {
+    display: none;
+  }
+  .order-detail.visible { display: block; }
+  .order-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #6c63ff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    text-decoration: none;
+  }
+  .order-detail-back:hover { text-decoration: underline; }
+  .order-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .order-detail-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+    margin: 0;
+  }
+  .order-detail-date {
+    font-size: 13px;
+    color: #999;
+  }
+  .order-detail-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .order-detail-card {
+    background: #f8f8ff;
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .order-detail-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .order-detail-card p {
+    font-size: 14px;
+    color: #333;
+    margin: 4px 0;
+  }
+  .order-detail-card p .label {
+    color: #888;
+    font-size: 12px;
+  }
+  .order-status-section {
+    margin-bottom: 16px;
+  }
+  .order-current-status {
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-bottom: 8px;
+  }
+  .order-status-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .order-status-actions .note-input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+  }
+  .order-status-actions .note-input:focus { border-color: #6c63ff; }
+  .order-status-timeline {
+    border-left: 2px solid #e0e0e0;
+    padding-left: 16px;
+    margin-top: 12px;
+  }
+  .timeline-entry {
+    position: relative;
+    padding-bottom: 12px;
+  }
+  .timeline-entry:last-child { padding-bottom: 0; }
+  .timeline-entry::before {
+    content: '';
+    position: absolute;
+    left: -21px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #6c63ff;
+    border: 2px solid #fff;
+  }
+  .timeline-entry .tl-status {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: capitalize;
+  }
+  .timeline-entry .tl-time {
+    font-size: 12px;
+    color: #999;
+  }
+  .timeline-entry .tl-note {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+  }
+  .order-print-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .order-line-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .order-line-items-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .order-line-items-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
+  .line-item-product {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .line-item-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: #f5f5f5;
+    flex-shrink: 0;
+  }
+  .line-item-name {
+    font-weight: 500;
+  }
+  .line-item-vendor {
+    font-size: 11px;
+    color: #999;
+  }
+  .order-totals {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+  }
+  .order-totals-table {
+    font-size: 14px;
+    min-width: 220px;
+  }
+  .order-totals-table .totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    color: #555;
+  }
+  .order-totals-table .totals-row.total-final {
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+    border-top: 2px solid #e0e0e0;
+    padding-top: 6px;
+    margin-top: 4px;
+  }
+
+  /* Manual Order Form Overlay */
+  .order-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .order-modal-overlay.visible { display: flex; }
+  .order-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
+  .order-modal h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #222;
+  }
+  .order-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .order-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .order-form-field.full-width {
+    grid-column: 1 / -1;
+  }
+  .order-form-field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+  .order-form-field input,
+  .order-form-field textarea {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+    font-family: inherit;
+  }
+  .order-form-field input:focus,
+  .order-form-field textarea:focus {
+    border-color: #6c63ff;
+  }
+  .order-form-field textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  .order-form-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin: 12px 0 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+  }
+  .order-line-item-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    align-items: end;
+    margin-bottom: 8px;
+  }
+  .order-line-item-row .btn-remove-line {
+    padding: 6px 10px;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
+    background: #fff;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .order-line-item-row .btn-remove-line:hover { background: #ffeaea; }
+  .order-form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1a1a2e;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+  }
+  .toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast.toast-success { background: #27ae60; }
+  .toast.toast-error { background: #e74c3c; }
+
   /* Responsive stacking for pricing controls */
   @media (max-width: 640px) {
     .pricing-controls { flex-direction: column; }
@@ -1062,6 +1485,9 @@
     .logo-controls { flex-direction: column; }
     .logo-control select { min-width: 100%; }
     .sale-form-grid { grid-template-columns: 1fr; }
+    .order-detail-columns { grid-template-columns: 1fr; }
+    .order-form-grid { grid-template-columns: 1fr; }
+    .order-line-item-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -1325,6 +1751,137 @@
       </div>
     </div>
   </div>
+
+  <!-- Order Dashboard (Phase 18) -->
+  <div class="orders-section" id="ordersSection">
+    <div class="section-header">
+      <div class="section-title">
+        ORDERS <span class="count" id="orderCount"></span>
+      </div>
+      <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-primary" id="syncOrdersBtn">Sync WIX Orders</button>
+        <button type="button" class="btn btn-sm btn-outline" id="newManualOrderBtn">New Manual Order</button>
+        <button type="button" class="btn btn-sm btn-outline" id="refreshOrdersBtn">Refresh</button>
+      </div>
+    </div>
+
+    <!-- Order List View -->
+    <div id="orderListView">
+      <div class="order-filters" id="orderFilters">
+        <span class="order-filter-pill active" data-filter="all">All</span>
+        <span class="order-filter-pill" data-filter="new">New</span>
+        <span class="order-filter-pill" data-filter="in-progress">In Progress</span>
+        <span class="order-filter-pill" data-filter="shipped">Shipped</span>
+        <span class="order-filter-pill" data-filter="delivered">Delivered</span>
+        <span class="order-source-pills">
+          <span class="order-filter-pill active" data-source="all">All Sources</span>
+          <span class="order-filter-pill" data-source="wix">WIX</span>
+          <span class="order-filter-pill" data-source="manual">Manual</span>
+        </span>
+      </div>
+      <div id="orderListContent">
+        <div class="orders-empty">Loading orders...</div>
+      </div>
+    </div>
+
+    <!-- Order Detail View -->
+    <div class="order-detail" id="orderDetailView">
+      <a class="order-detail-back" id="orderBackBtn">&larr; Back to Orders</a>
+      <div id="orderDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- Manual Order Form Modal -->
+  <div class="order-modal-overlay" id="orderModalOverlay">
+    <div class="order-modal">
+      <h2>New Manual Order</h2>
+      <div class="order-form-section-title">Customer Information</div>
+      <div class="order-form-grid">
+        <div class="order-form-field">
+          <label>First Name *</label>
+          <input type="text" id="moFirstName" required>
+        </div>
+        <div class="order-form-field">
+          <label>Last Name *</label>
+          <input type="text" id="moLastName" required>
+        </div>
+        <div class="order-form-field">
+          <label>Email</label>
+          <input type="email" id="moEmail">
+        </div>
+        <div class="order-form-field">
+          <label>Phone</label>
+          <input type="tel" id="moPhone">
+        </div>
+      </div>
+
+      <div class="order-form-section-title">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="moHasShipping"> Shipping Address
+        </label>
+      </div>
+      <div class="order-form-grid" id="moShippingFields" style="display:none;">
+        <div class="order-form-field">
+          <label>Address Line 1</label>
+          <input type="text" id="moAddr1">
+        </div>
+        <div class="order-form-field">
+          <label>Address Line 2</label>
+          <input type="text" id="moAddr2">
+        </div>
+        <div class="order-form-field">
+          <label>City</label>
+          <input type="text" id="moCity">
+        </div>
+        <div class="order-form-field">
+          <label>State</label>
+          <input type="text" id="moState" maxlength="2" placeholder="e.g. TX">
+        </div>
+        <div class="order-form-field">
+          <label>ZIP Code</label>
+          <input type="text" id="moZip">
+        </div>
+        <div class="order-form-field">
+          <label>Country</label>
+          <input type="text" id="moCountry" value="US">
+        </div>
+      </div>
+
+      <div class="order-form-section-title">Line Items</div>
+      <div id="moLineItems">
+        <div class="order-line-item-row">
+          <div class="order-form-field"><label>Product Name</label><input type="text" class="mo-li-name"></div>
+          <div class="order-form-field"><label>Qty</label><input type="number" class="mo-li-qty" value="1" min="1"></div>
+          <div class="order-form-field"><label>Unit Price</label><input type="number" class="mo-li-price" step="0.01" min="0"></div>
+          <button type="button" class="btn-remove-line" title="Remove">&times;</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline" id="moAddLineBtn" style="margin-bottom:12px;">+ Add Item</button>
+
+      <div class="order-form-grid">
+        <div class="order-form-field">
+          <label>Shipping Cost</label>
+          <input type="number" id="moShippingCost" step="0.01" min="0" value="0">
+        </div>
+        <div class="order-form-field">
+          <label>Tax</label>
+          <input type="number" id="moTax" step="0.01" min="0" value="0">
+        </div>
+        <div class="order-form-field full-width">
+          <label>Notes</label>
+          <textarea id="moNotes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="order-form-actions">
+        <button type="button" class="btn btn-outline" id="moCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-success" id="moCreateBtn">Create Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toastEl"></div>
 
   <!-- Summary bar -->
   <div class="summary-bar" id="summaryBar">
@@ -3020,6 +3577,578 @@
   loadInventoryAlerts();
   loadDaemonHealth();
   startInventoryRefresh();
+
+  // =========================================================================
+  // Order Dashboard (Phase 18)
+  // =========================================================================
+
+  var orderCount = document.getElementById('orderCount');
+  var orderListView = document.getElementById('orderListView');
+  var orderListContent = document.getElementById('orderListContent');
+  var orderDetailView = document.getElementById('orderDetailView');
+  var orderDetailContent = document.getElementById('orderDetailContent');
+  var orderBackBtn = document.getElementById('orderBackBtn');
+  var syncOrdersBtn = document.getElementById('syncOrdersBtn');
+  var newManualOrderBtn = document.getElementById('newManualOrderBtn');
+  var refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
+  var orderFilters = document.getElementById('orderFilters');
+  var orderModalOverlay = document.getElementById('orderModalOverlay');
+  var toastEl = document.getElementById('toastEl');
+
+  var _ordersCache = [];
+  var _orderStatusFilter = 'all';
+  var _orderSourceFilter = 'all';
+  var _orderRefreshTimer = null;
+
+  // Status filter groups
+  var ORDER_FILTER_GROUPS = {
+    'all': null,
+    'new': ['new'],
+    'in-progress': ['ordered', 'received', 'in-production', 'packed'],
+    'shipped': ['shipped'],
+    'delivered': ['delivered']
+  };
+
+  // Status transitions (mirrors types.ts)
+  var ORDER_STATUS_TRANSITIONS = {
+    'new': ['ordered', 'cancelled'],
+    'ordered': ['received', 'cancelled'],
+    'received': ['in-production', 'cancelled'],
+    'in-production': ['packed', 'cancelled'],
+    'packed': ['shipped', 'cancelled'],
+    'shipped': ['delivered', 'cancelled'],
+    'delivered': [],
+    'cancelled': []
+  };
+
+  var ORDER_STATUS_LABELS = {
+    'new': 'New',
+    'ordered': 'Ordered',
+    'received': 'Received',
+    'in-production': 'In Production',
+    'packed': 'Packed',
+    'shipped': 'Shipped',
+    'delivered': 'Delivered',
+    'cancelled': 'Cancelled'
+  };
+
+  function showToast(msg, type) {
+    toastEl.className = 'toast visible' + (type ? ' toast-' + type : '');
+    toastEl.textContent = msg;
+    clearTimeout(toastEl._timer);
+    toastEl._timer = setTimeout(function() {
+      toastEl.classList.remove('visible');
+    }, 3500);
+  }
+
+  function statusBadgeHtml(status) {
+    var cssClass = 'os-' + status;
+    var label = ORDER_STATUS_LABELS[status] || status;
+    return '<span class="order-status-badge ' + cssClass + '">' + escHtml(label) + '</span>';
+  }
+
+  function sourceBadgeHtml(source) {
+    var cssClass = source === 'wix' ? 'src-wix' : 'src-manual';
+    return '<span class="order-source-badge ' + cssClass + '">' + escHtml(source.toUpperCase()) + '</span>';
+  }
+
+  // Filter pill click handlers
+  orderFilters.addEventListener('click', function(e) {
+    var pill = e.target.closest('.order-filter-pill');
+    if (!pill) return;
+
+    if (pill.dataset.filter !== undefined) {
+      // Status filter
+      orderFilters.querySelectorAll('[data-filter]').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      _orderStatusFilter = pill.dataset.filter;
+    } else if (pill.dataset.source !== undefined) {
+      // Source filter
+      orderFilters.querySelectorAll('[data-source]').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      _orderSourceFilter = pill.dataset.source;
+    }
+    renderOrderList(_ordersCache);
+  });
+
+  async function loadOrders() {
+    try {
+      var res = await fetch('/api/orders');
+      var json = await res.json();
+      _ordersCache = json.orders || [];
+      orderCount.textContent = '(' + _ordersCache.length + ')';
+      renderOrderList(_ordersCache);
+    } catch (err) {
+      orderListContent.innerHTML = '<div class="orders-empty">Error loading orders: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function renderOrderList(orders) {
+    // Apply status filter
+    var filtered = orders;
+    var statusGroup = ORDER_FILTER_GROUPS[_orderStatusFilter];
+    if (statusGroup) {
+      filtered = filtered.filter(function(o) { return statusGroup.indexOf(o.status) !== -1; });
+    }
+    // Apply source filter
+    if (_orderSourceFilter !== 'all') {
+      filtered = filtered.filter(function(o) { return o.source === _orderSourceFilter; });
+    }
+    // Sort by updatedAt DESC
+    filtered.sort(function(a, b) { return new Date(b.updatedAt) - new Date(a.updatedAt); });
+
+    if (filtered.length === 0) {
+      var msg = orders.length === 0 ? 'No orders yet. Sync WIX orders or create a manual order to get started.' : 'No orders match the current filters.';
+      orderListContent.innerHTML = '<div class="orders-empty">' + msg + '</div>';
+      return;
+    }
+
+    var html = '<table class="orders-table"><thead><tr>' +
+      '<th>#</th><th>Status</th><th>Customer</th><th>Items</th><th>Total</th><th>Source</th><th>Updated</th><th>Actions</th>' +
+      '</tr></thead><tbody>';
+
+    filtered.forEach(function(o) {
+      var custName = escHtml((o.customer.firstName || '') + ' ' + (o.customer.lastName || '')).trim() || 'Unknown';
+      var custEmail = o.customer.email ? '<br><span style="font-size:11px;color:#999;">' + escHtml(o.customer.email) + '</span>' : '';
+      var itemCount = (o.lineItems || []).length;
+      var updated = new Date(o.updatedAt).toLocaleDateString();
+
+      html += '<tr class="order-row" data-order-id="' + escHtml(o.id) + '">';
+      html += '<td><strong>' + o.orderNumber + '</strong></td>';
+      html += '<td>' + statusBadgeHtml(o.status) + '</td>';
+      html += '<td>' + custName + custEmail + '</td>';
+      html += '<td>' + itemCount + ' item' + (itemCount !== 1 ? 's' : '') + '</td>';
+      html += '<td><strong>$' + (o.total || 0).toFixed(2) + '</strong></td>';
+      html += '<td>' + sourceBadgeHtml(o.source) + '</td>';
+      html += '<td>' + escHtml(updated) + '</td>';
+      html += '<td><button class="btn btn-sm btn-outline view-order-btn" data-order-id="' + escHtml(o.id) + '">View</button></td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    orderListContent.innerHTML = html;
+
+    // Attach click handlers to rows
+    orderListContent.querySelectorAll('.order-row').forEach(function(row) {
+      row.addEventListener('click', function(e) {
+        if (e.target.closest('.view-order-btn')) return;
+        openOrderDetail(row.dataset.orderId);
+      });
+    });
+    orderListContent.querySelectorAll('.view-order-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        openOrderDetail(btn.dataset.orderId);
+      });
+    });
+  }
+
+  // Open order detail
+  async function openOrderDetail(orderId) {
+    orderListView.style.display = 'none';
+    orderDetailView.classList.add('visible');
+    orderDetailContent.innerHTML = '<div class="orders-empty">Loading order...</div>';
+
+    try {
+      var res = await fetch('/api/orders/' + encodeURIComponent(orderId));
+      if (!res.ok) throw new Error('Order not found');
+      var order = await res.json();
+      renderOrderDetail(order);
+    } catch (err) {
+      orderDetailContent.innerHTML = '<div class="orders-empty">Error: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function renderOrderDetail(order) {
+    var html = '';
+
+    // Header
+    html += '<div class="order-detail-header">';
+    html += '<h2>Order #' + order.orderNumber + '</h2>';
+    html += statusBadgeHtml(order.status);
+    html += sourceBadgeHtml(order.source);
+    html += '<span class="order-detail-date">Created: ' + new Date(order.createdAt).toLocaleDateString() + '</span>';
+    html += '</div>';
+
+    // Two-column layout
+    html += '<div class="order-detail-columns">';
+
+    // Left column: Customer info
+    html += '<div>';
+    html += '<div class="order-detail-card">';
+    html += '<h3>Customer</h3>';
+    html += '<p><strong>' + escHtml((order.customer.firstName || '') + ' ' + (order.customer.lastName || '')) + '</strong></p>';
+    if (order.customer.email) html += '<p><span class="label">Email:</span> ' + escHtml(order.customer.email) + '</p>';
+    if (order.customer.phone) html += '<p><span class="label">Phone:</span> ' + escHtml(order.customer.phone) + '</p>';
+    html += '</div>';
+
+    if (order.shippingAddress) {
+      html += '<div class="order-detail-card" style="margin-top:12px;">';
+      html += '<h3>Shipping Address</h3>';
+      html += '<p>' + escHtml(order.shippingAddress.firstName + ' ' + order.shippingAddress.lastName) + '</p>';
+      if (order.shippingAddress.company) html += '<p>' + escHtml(order.shippingAddress.company) + '</p>';
+      html += '<p>' + escHtml(order.shippingAddress.addressLine1) + '</p>';
+      if (order.shippingAddress.addressLine2) html += '<p>' + escHtml(order.shippingAddress.addressLine2) + '</p>';
+      html += '<p>' + escHtml(order.shippingAddress.city + ', ' + order.shippingAddress.state + ' ' + order.shippingAddress.postalCode) + '</p>';
+      html += '</div>';
+    } else {
+      html += '<div class="order-detail-card" style="margin-top:12px;">';
+      html += '<h3>Fulfillment</h3>';
+      html += '<p>Local Pickup</p>';
+      html += '</div>';
+    }
+
+    if (order.billingAddress && (!order.shippingAddress || order.billingAddress.addressLine1 !== order.shippingAddress.addressLine1)) {
+      html += '<div class="order-detail-card" style="margin-top:12px;">';
+      html += '<h3>Billing Address</h3>';
+      html += '<p>' + escHtml(order.billingAddress.firstName + ' ' + order.billingAddress.lastName) + '</p>';
+      if (order.billingAddress.company) html += '<p>' + escHtml(order.billingAddress.company) + '</p>';
+      html += '<p>' + escHtml(order.billingAddress.addressLine1) + '</p>';
+      if (order.billingAddress.addressLine2) html += '<p>' + escHtml(order.billingAddress.addressLine2) + '</p>';
+      html += '<p>' + escHtml(order.billingAddress.city + ', ' + order.billingAddress.state + ' ' + order.billingAddress.postalCode) + '</p>';
+      html += '</div>';
+    }
+
+    if (order.notes) {
+      html += '<div class="order-detail-card" style="margin-top:12px;">';
+      html += '<h3>Notes</h3>';
+      html += '<p>' + escHtml(order.notes) + '</p>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+
+    // Right column: Status management + Print actions
+    html += '<div>';
+
+    // Status section
+    html += '<div class="order-detail-card">';
+    html += '<h3>Status</h3>';
+    html += '<div class="order-status-section">';
+    html += '<div class="order-current-status">' + statusBadgeHtml(order.status) + '</div>';
+
+    // Transition buttons
+    var transitions = ORDER_STATUS_TRANSITIONS[order.status] || [];
+    if (transitions.length > 0) {
+      html += '<div class="order-status-actions">';
+      html += '<input type="text" class="note-input" id="statusNote" placeholder="Optional note...">';
+      transitions.forEach(function(next) {
+        var btnClass = next === 'cancelled' ? 'btn-danger' : 'btn-primary';
+        var label = next === 'cancelled' ? 'Cancel Order' : 'Mark as ' + (ORDER_STATUS_LABELS[next] || next);
+        html += '<button class="btn btn-sm ' + btnClass + ' status-transition-btn" data-order-id="' + order.id + '" data-next-status="' + next + '">' + escHtml(label) + '</button>';
+      });
+      html += '</div>';
+    }
+
+    // Status timeline
+    if (order.statusHistory && order.statusHistory.length > 0) {
+      html += '<div class="order-status-timeline">';
+      order.statusHistory.slice().reverse().forEach(function(h) {
+        html += '<div class="timeline-entry">';
+        html += '<div class="tl-status">' + escHtml(ORDER_STATUS_LABELS[h.status] || h.status) + '</div>';
+        html += '<div class="tl-time">' + new Date(h.timestamp).toLocaleString() + '</div>';
+        if (h.note) html += '<div class="tl-note">' + escHtml(h.note) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    // Print actions
+    html += '<div class="order-detail-card" style="margin-top:12px;">';
+    html += '<h3>Print &amp; Download</h3>';
+    html += '<div class="order-print-actions">';
+    html += '<button class="btn btn-sm btn-primary print-action-btn" data-action="print-invoice" data-order-id="' + order.id + '">Print Invoice</button>';
+    html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-invoice" data-order-id="' + order.id + '">Download Invoice</button>';
+    if (order.shippingAddress) {
+      html += '<button class="btn btn-sm btn-info print-action-btn" data-action="print-label" data-order-id="' + order.id + '">Print Shipping Label</button>';
+      html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-label" data-order-id="' + order.id + '">Download Label</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+    html += '</div>'; // end columns
+
+    // Line items table
+    if (order.lineItems && order.lineItems.length > 0) {
+      html += '<table class="order-line-items-table"><thead><tr>';
+      html += '<th>Product</th><th>Color / Size</th><th>Qty</th><th>Unit Price</th><th>Total</th>';
+      html += '</tr></thead><tbody>';
+
+      order.lineItems.forEach(function(li) {
+        html += '<tr>';
+        html += '<td><div class="line-item-product">';
+        if (li.imageUrl) {
+          html += '<img src="' + escHtml(li.imageUrl) + '" class="line-item-thumb" alt="">';
+        }
+        html += '<div><div class="line-item-name">' + escHtml(li.productName) + '</div>';
+        if (li.vendorStyle) html += '<div class="line-item-vendor">' + escHtml(li.vendorStyle) + '</div>';
+        html += '</div></div></td>';
+        var colorSize = [li.color, li.size].filter(Boolean).join(' / ');
+        html += '<td>' + escHtml(colorSize || '-') + '</td>';
+        html += '<td>' + li.quantity + '</td>';
+        html += '<td>$' + (li.unitPrice || 0).toFixed(2) + '</td>';
+        html += '<td>$' + (li.totalPrice || 0).toFixed(2) + '</td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+    }
+
+    // Totals
+    html += '<div class="order-totals"><div class="order-totals-table">';
+    html += '<div class="totals-row"><span>Subtotal</span><span>$' + (order.subtotal || 0).toFixed(2) + '</span></div>';
+    if (order.shippingCost > 0) html += '<div class="totals-row"><span>Shipping</span><span>$' + order.shippingCost.toFixed(2) + '</span></div>';
+    if (order.tax > 0) html += '<div class="totals-row"><span>Tax</span><span>$' + order.tax.toFixed(2) + '</span></div>';
+    if (order.discount > 0) html += '<div class="totals-row"><span>Discount</span><span>-$' + order.discount.toFixed(2) + '</span></div>';
+    html += '<div class="totals-row total-final"><span>Total</span><span>$' + (order.total || 0).toFixed(2) + '</span></div>';
+    html += '</div></div>';
+
+    orderDetailContent.innerHTML = html;
+
+    // Attach status transition handlers
+    orderDetailContent.querySelectorAll('.status-transition-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        var oid = btn.dataset.orderId;
+        var nextStatus = btn.dataset.nextStatus;
+        var note = document.getElementById('statusNote') ? document.getElementById('statusNote').value.trim() : '';
+        btn.disabled = true;
+        btn.textContent = 'Updating...';
+        try {
+          var body = { status: nextStatus };
+          if (note) body.note = note;
+          var res = await fetch('/api/orders/' + encodeURIComponent(oid) + '/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          var json = await res.json();
+          if (res.ok) {
+            showToast('Status updated to ' + (ORDER_STATUS_LABELS[nextStatus] || nextStatus), 'success');
+            renderOrderDetail(json);
+            loadOrders(); // refresh list in background
+          } else {
+            showToast('Error: ' + (json.error || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          showToast('Error: ' + (err.message || String(err)), 'error');
+        }
+        btn.disabled = false;
+      });
+    });
+
+    // Attach print action handlers
+    orderDetailContent.querySelectorAll('.print-action-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        var action = btn.dataset.action;
+        var oid = btn.dataset.orderId;
+        var origText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> ' + origText;
+
+        try {
+          if (action === 'download-invoice') {
+            window.open('/api/orders/' + encodeURIComponent(oid) + '/invoice', '_blank');
+            showToast('Invoice PDF opened in new tab', 'success');
+          } else if (action === 'download-label') {
+            window.open('/api/orders/' + encodeURIComponent(oid) + '/label', '_blank');
+            showToast('Shipping label opened in new tab', 'success');
+          } else if (action === 'print-invoice') {
+            var res = await fetch('/api/orders/' + encodeURIComponent(oid) + '/print-invoice', { method: 'POST' });
+            var json = await res.json();
+            if (json.success) {
+              showToast('Invoice sent to printer', 'success');
+            } else {
+              showToast('Print error: ' + (json.error || 'Unknown'), 'error');
+            }
+          } else if (action === 'print-label') {
+            var res2 = await fetch('/api/orders/' + encodeURIComponent(oid) + '/print-label', { method: 'POST' });
+            var json2 = await res2.json();
+            if (json2.success) {
+              showToast('Shipping label sent to printer', 'success');
+            } else {
+              showToast('Print error: ' + (json2.error || 'Unknown'), 'error');
+            }
+          }
+        } catch (err) {
+          showToast('Error: ' + (err.message || String(err)), 'error');
+        }
+        btn.disabled = false;
+        btn.textContent = origText;
+      });
+    });
+  }
+
+  // Back button
+  orderBackBtn.addEventListener('click', function() {
+    orderDetailView.classList.remove('visible');
+    orderListView.style.display = '';
+  });
+
+  // Sync WIX orders
+  syncOrdersBtn.addEventListener('click', async function() {
+    syncOrdersBtn.disabled = true;
+    syncOrdersBtn.textContent = 'Syncing...';
+    try {
+      var res = await fetch('/api/orders/sync', { method: 'POST' });
+      var json = await res.json();
+      if (res.ok) {
+        var msg = 'Synced: ' + (json.created || 0) + ' new, ' + (json.updated || 0) + ' updated';
+        if (json.errors && json.errors.length > 0) msg += ', ' + json.errors.length + ' errors';
+        showToast(msg, 'success');
+        loadOrders();
+      } else {
+        showToast('Sync error: ' + (json.error || 'Unknown'), 'error');
+      }
+    } catch (err) {
+      showToast('Sync error: ' + (err.message || String(err)), 'error');
+    }
+    syncOrdersBtn.disabled = false;
+    syncOrdersBtn.textContent = 'Sync WIX Orders';
+  });
+
+  // Refresh orders
+  refreshOrdersBtn.addEventListener('click', function() { loadOrders(); });
+
+  // Manual order modal
+  newManualOrderBtn.addEventListener('click', function() {
+    orderModalOverlay.classList.add('visible');
+  });
+
+  document.getElementById('moCancelBtn').addEventListener('click', function() {
+    orderModalOverlay.classList.remove('visible');
+  });
+
+  orderModalOverlay.addEventListener('click', function(e) {
+    if (e.target === orderModalOverlay) orderModalOverlay.classList.remove('visible');
+  });
+
+  // Toggle shipping fields
+  document.getElementById('moHasShipping').addEventListener('change', function() {
+    document.getElementById('moShippingFields').style.display = this.checked ? '' : 'none';
+  });
+
+  // Add line item row
+  document.getElementById('moAddLineBtn').addEventListener('click', function() {
+    var container = document.getElementById('moLineItems');
+    var row = document.createElement('div');
+    row.className = 'order-line-item-row';
+    row.innerHTML =
+      '<div class="order-form-field"><label>Product Name</label><input type="text" class="mo-li-name"></div>' +
+      '<div class="order-form-field"><label>Qty</label><input type="number" class="mo-li-qty" value="1" min="1"></div>' +
+      '<div class="order-form-field"><label>Unit Price</label><input type="number" class="mo-li-price" step="0.01" min="0"></div>' +
+      '<button type="button" class="btn-remove-line" title="Remove">&times;</button>';
+    container.appendChild(row);
+  });
+
+  // Remove line item rows
+  document.getElementById('moLineItems').addEventListener('click', function(e) {
+    if (e.target.closest('.btn-remove-line')) {
+      var rows = document.getElementById('moLineItems').querySelectorAll('.order-line-item-row');
+      if (rows.length > 1) e.target.closest('.order-line-item-row').remove();
+    }
+  });
+
+  // Create manual order
+  document.getElementById('moCreateBtn').addEventListener('click', async function() {
+    var firstName = document.getElementById('moFirstName').value.trim();
+    var lastName = document.getElementById('moLastName').value.trim();
+    if (!firstName || !lastName) { showToast('First and last name are required.', 'error'); return; }
+
+    var lineItems = [];
+    document.getElementById('moLineItems').querySelectorAll('.order-line-item-row').forEach(function(row) {
+      var name = row.querySelector('.mo-li-name').value.trim();
+      var qty = parseInt(row.querySelector('.mo-li-qty').value) || 1;
+      var price = parseFloat(row.querySelector('.mo-li-price').value) || 0;
+      if (name) {
+        lineItems.push({ productName: name, quantity: qty, unitPrice: price, totalPrice: qty * price });
+      }
+    });
+    if (lineItems.length === 0) { showToast('Add at least one line item.', 'error'); return; }
+
+    var body = {
+      customer: {
+        firstName: firstName,
+        lastName: lastName,
+        email: document.getElementById('moEmail').value.trim() || undefined,
+        phone: document.getElementById('moPhone').value.trim() || undefined
+      },
+      lineItems: lineItems,
+      shippingCost: parseFloat(document.getElementById('moShippingCost').value) || 0,
+      tax: parseFloat(document.getElementById('moTax').value) || 0,
+      notes: document.getElementById('moNotes').value.trim() || undefined
+    };
+
+    if (document.getElementById('moHasShipping').checked) {
+      body.shippingAddress = {
+        firstName: firstName,
+        lastName: lastName,
+        addressLine1: document.getElementById('moAddr1').value.trim(),
+        city: document.getElementById('moCity').value.trim(),
+        state: document.getElementById('moState').value.trim(),
+        postalCode: document.getElementById('moZip').value.trim(),
+        country: document.getElementById('moCountry').value.trim() || 'US'
+      };
+      var addr2 = document.getElementById('moAddr2').value.trim();
+      if (addr2) body.shippingAddress.addressLine2 = addr2;
+    }
+
+    var createBtn2 = document.getElementById('moCreateBtn');
+    createBtn2.disabled = true;
+    createBtn2.textContent = 'Creating...';
+
+    try {
+      var res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      var json = await res.json();
+      if (res.ok) {
+        showToast('Order #' + (json.orderNumber || '') + ' created!', 'success');
+        orderModalOverlay.classList.remove('visible');
+        // Reset form
+        document.getElementById('moFirstName').value = '';
+        document.getElementById('moLastName').value = '';
+        document.getElementById('moEmail').value = '';
+        document.getElementById('moPhone').value = '';
+        document.getElementById('moHasShipping').checked = false;
+        document.getElementById('moShippingFields').style.display = 'none';
+        document.getElementById('moShippingCost').value = '0';
+        document.getElementById('moTax').value = '0';
+        document.getElementById('moNotes').value = '';
+        // Reset line items to single empty row
+        document.getElementById('moLineItems').innerHTML =
+          '<div class="order-line-item-row">' +
+          '<div class="order-form-field"><label>Product Name</label><input type="text" class="mo-li-name"></div>' +
+          '<div class="order-form-field"><label>Qty</label><input type="number" class="mo-li-qty" value="1" min="1"></div>' +
+          '<div class="order-form-field"><label>Unit Price</label><input type="number" class="mo-li-price" step="0.01" min="0"></div>' +
+          '<button type="button" class="btn-remove-line" title="Remove">&times;</button>' +
+          '</div>';
+        loadOrders();
+      } else {
+        showToast('Error: ' + (json.error || 'Unknown'), 'error');
+      }
+    } catch (err) {
+      showToast('Error: ' + (err.message || String(err)), 'error');
+    }
+    createBtn2.disabled = false;
+    createBtn2.textContent = 'Create Order';
+  });
+
+  // Auto-refresh orders every 60 seconds
+  function startOrderRefresh() {
+    if (_orderRefreshTimer) clearInterval(_orderRefreshTimer);
+    _orderRefreshTimer = setInterval(function() {
+      loadOrders();
+    }, 60000);
+  }
+
+  // Initial load
+  loadOrders();
+  startOrderRefresh();
 
   // =========================================================================
   // Auto-load style from URL query param
