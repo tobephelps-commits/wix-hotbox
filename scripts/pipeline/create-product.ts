@@ -3,15 +3,16 @@
  *
  * Takes a CuratedProduct and executes the full WIX V1 creation flow:
  *   1. Create base product (with options/variants structure)
- *   2. Add media images (external URLs from SanMar CDN)
+ *   2. Add media images (external URLs from vendor CDN)
  *   3. Update variant pricing/SKU/weight
  *   4. Verify creation (get product, confirm variants)
  *
  * This is the final step of the pipeline:
- *   fetchProductData(style) -> curate (UI) -> createWixProduct(curated, data)
+ *   fetchProductData(style, vendor) -> curate (UI) -> createWixProduct(curated, data)
  *
  * Phase 6: Product Creation Pipeline
  * Phase 7: Per-variant pricing via PricingConfig
+ * Phase 17: Vendor-agnostic support (--vendor flag)
  */
 
 import { fileURLToPath } from 'url';
@@ -20,6 +21,8 @@ import path from 'path';
 import type { CuratedProduct, ProductTemplate, LogoOverlayConfig } from './types.js';
 import type { ProductData } from './fetch-product.js';
 import { fetchProductData } from './fetch-product.js';
+import { parseVendorFlag } from '../vendor/index.js';
+import type { VendorId } from '../vendor/types.js';
 import {
   buildCreateProductPayload,
   buildMediaPayload,
@@ -283,13 +286,43 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     process.exit(0);
   }
 
-  const style = process.argv[2];
-  if (!style || style === '--help') {
+  // Parse optional --vendor argument (Phase 17)
+  const vendorArgIdx = process.argv.indexOf('--vendor');
+  const vendorFlagValue = vendorArgIdx !== -1 ? process.argv[vendorArgIdx + 1] : undefined;
+  let vendorId: VendorId | undefined;
+  try {
+    vendorId = parseVendorFlag(vendorFlagValue);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
+
+  // Find style: first positional arg that isn't a flag or flag value
+  // Flags that take a value (skip their next arg):
+  const flagsWithValues = new Set([
+    '--vendor', '--template', '--save-template', '--preset', '--price',
+    '--collection', '--logo', '--logo-position', '--logo-scale',
+    '--decoration-cost', '--decoration-type',
+  ]);
+  let style: string | undefined;
+  for (let i = 2; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    if (flagsWithValues.has(arg)) {
+      i++; // skip flag value
+      continue;
+    }
+    if (arg.startsWith('--')) continue; // standalone flags
+    style = arg;
+    break;
+  }
+
+  if (!style || style === '--help' || process.argv.includes('--help')) {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N] [--decoration-cost N] [--decoration-type TYPE]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts [--vendor sanmar|ss] <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N] [--decoration-cost N] [--decoration-type TYPE]',
     );
     console.error('');
     console.error('Options:');
+    console.error('  --vendor sanmar|ss     Select vendor (default: sanmar)');
     console.error('  --template "name"      Apply saved template (pricing, sizes, colors, collections, logo)');
     console.error('  --save-template "name" Save current settings as reusable template after creation');
     console.error('  --preset KEY           Select pricing preset (default: standard-tee)');
@@ -312,6 +345,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.error('');
     console.error('Examples:');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61');
+    console.error('  npx tsx scripts/pipeline/create-product.ts --vendor ss 2000');
+    console.error('  npx tsx scripts/pipeline/create-product.ts --vendor ss 2000 --template "bigbarn-tee"');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --template "bigbarn-tee"');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --save-template "bigbarn-tee"');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --preset hoodie-fleece');
@@ -409,7 +444,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   }
 
   try {
-    const data = await fetchProductData(style);
+    // Log vendor selection
+    const vendorName = vendorId === 'ss' ? 'S&S Activewear' : 'SanMar';
+    console.log(`\nVendor: ${vendorName}`);
+
+    const data = await fetchProductData(style, vendorId);
 
     // --- Determine pricing config ---
     // Precedence: --price > --preset > --template > default (standard-tee)
@@ -516,6 +555,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       selectedSizes,
       pricingConfig,
       wholesaleCost: data.preview.pricing.wholesalePrice,
+      vendor: vendorId,
       ...(allCollections.length > 0 ? { collections: allCollections } : {}),
       ...(decorationCost > 0 ? { decorationCost, decorationType } : {}),
     };
@@ -561,6 +601,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     const fullMargin = calculateFullMargin(baseRetailPrice, curated.wholesaleCost, decorationCost);
 
     console.log(`\nResult:`);
+    console.log(`  Vendor: ${vendorName}`);
     console.log(`  Product ID: ${result.productId}`);
     console.log(`  URL: ${result.productUrl}`);
     console.log(`  Variants: ${result.variantsCreated}`);
