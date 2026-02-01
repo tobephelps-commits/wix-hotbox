@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 17 of 20 (S&S Activewear API Integration)
-Plan: 6 of 7 in current phase
-Status: In progress
-Last activity: 2026-02-01 — Completed 17-06-PLAN.md
+Phase: 17 of 20 (S&S Activewear API Integration) -- COMPLETE
+Plan: 7 of 7 in current phase (all complete)
+Status: Phase 17 complete, ready for Phase 18
+Last activity: 2026-02-01 — Completed 17-07-PLAN.md (Phase 17 final plan)
 
 Progress: █████████░ 90%
 
@@ -116,6 +116,11 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 17-06 | Per-vendor credential caching via module-level Set | Avoids redundant adapter.validateCredentials() calls within same process |
 | 17-06 | Style+vendor composite key for duplicate detection | Same style from different vendors = different products in tracking and sync |
 | 17-06 | Alert warehouse detail: SanMar uses WAREHOUSES constant, others use snapshot data | Vendor-specific display without breaking generic interface |
+| 17-07 | Product cache keyed by style:vendor composite for multi-vendor support | Allows caching same style from different vendors simultaneously |
+| 17-07 | Vendor badge uses subtle color differentiation (blue for SanMar, amber for S&S) | Informative without being distracting |
+| 17-07 | Vendor-specific pricing detail section adapts: Price Code for SanMar, MAP/Customer Price for S&S | Each vendor has unique pricing concepts worth surfacing |
+| 17-07 | Warehouse labels adaptive: numeric IDs show as #N (SanMar), abbreviation codes show as-is (S&S) | Auto-detect format rather than requiring vendor context |
+| 17-07 | Phase 17 complete -- S&S Activewear fully integrated across vendor types, API client, adapters, pipeline, monitor/sync, and preview server | Preview server is single interface for product curation from either vendor |
 
 ### Blockers/Concerns
 
@@ -130,5 +135,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-06-PLAN.md
+Stopped at: Completed 17-07-PLAN.md — Phase 17 complete
 Resume file: None
