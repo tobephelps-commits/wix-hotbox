@@ -34,8 +34,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/pdfkit": "^0.17.4",
     "dotenv": "^17.2.3",
     "nodemailer": "^7.0.13",
+    "pdfkit": "^0.17.2",
     "sharp": "^0.34.5",
     "soap": "^1.6.4"
   },
