@@ -19,7 +19,9 @@ import type {
   InventorySnapshot,
   SkuSnapshot,
   StockAlert,
+  AlertWarehouseDetail,
 } from './types.js';
+import { WAREHOUSES } from '../sanmar/constants.js';
 
 // =============================================================================
 // Stock Level Classification
@@ -46,6 +48,50 @@ export function classifyStockLevel(totalQty: number, config: MonitorConfig): Sto
   if (totalQty <= config.criticalStockThreshold) return 'critical';
   if (totalQty <= config.lowStockThreshold) return 'low-stock';
   return 'normal';
+}
+
+// =============================================================================
+// Warehouse Detail Builder
+// =============================================================================
+
+/**
+ * Build warehouse detail from a SkuSnapshot's warehouse data.
+ *
+ * Splits all 9 SanMar warehouses into "with stock" and "out of stock" groups.
+ * Warehouses present in the snapshot with qty > 0 go to withStock (sorted by
+ * qty descending). All others (qty === 0 or not in snapshot) go to outOfStock.
+ *
+ * @param sku - Current SKU snapshot (must have warehouses array)
+ * @returns AlertWarehouseDetail or undefined if no warehouse data
+ */
+function buildWarehouseDetail(sku: SkuSnapshot): AlertWarehouseDetail | undefined {
+  if (!sku.warehouses || sku.warehouses.length === 0) {
+    return undefined;
+  }
+
+  // Build a set of warehouse IDs present in snapshot
+  const snapshotMap = new Map(sku.warehouses.map((w) => [w.warehouseId, w]));
+
+  const withStock: AlertWarehouseDetail['warehousesWithStock'] = [];
+  const outOfStock: AlertWarehouseDetail['warehousesOutOfStock'] = [];
+
+  for (const wh of WAREHOUSES) {
+    const entry = snapshotMap.get(wh.id);
+    if (entry && entry.qty > 0) {
+      withStock.push({ id: wh.id, name: wh.name, qty: entry.qty });
+    } else {
+      outOfStock.push({ id: wh.id, name: wh.name });
+    }
+  }
+
+  // Sort with-stock by qty descending
+  withStock.sort((a, b) => b.qty - a.qty);
+
+  return {
+    warehousesWithStock: withStock,
+    warehousesOutOfStock: outOfStock,
+    totalWarehouses: WAREHOUSES.length,
+  };
 }
 
 // =============================================================================
@@ -107,6 +153,7 @@ export function detectAlerts(
           previousQty: prevSku.totalQty,
           currentQty: sku.totalQty,
           timestamp: now,
+          warehouseDetail: buildWarehouseDetail(sku),
         });
       }
     } else {
@@ -122,6 +169,7 @@ export function detectAlerts(
           previousQty: 0,
           currentQty: sku.totalQty,
           timestamp: now,
+          warehouseDetail: buildWarehouseDetail(sku),
         });
       }
     }
@@ -169,7 +217,42 @@ function getTransitionAlertType(
 // =============================================================================
 
 /**
+ * Format a one-line warehouse summary for an alert.
+ *
+ * Shows up to 3 warehouses with stock (sorted by qty desc) and up to 2
+ * out-of-stock warehouses, with "+N more" for the rest.
+ *
+ * Example: "Stock in: Seattle(450), Dallas(200). Out: Cincinnati, Reno, +5 more"
+ *
+ * @param detail - Warehouse detail from alert
+ * @returns Formatted warehouse summary string
+ */
+function formatWarehouseSummary(detail: AlertWarehouseDetail): string {
+  const parts: string[] = [];
+
+  // Show up to 3 warehouses with stock
+  if (detail.warehousesWithStock.length > 0) {
+    const shown = detail.warehousesWithStock.slice(0, 3);
+    const formatted = shown.map((w) => `${w.name}(${w.qty.toLocaleString()})`).join(', ');
+    parts.push(`Stock in: ${formatted}`);
+  }
+
+  // Show up to 2 out-of-stock warehouses, then "+N more"
+  if (detail.warehousesOutOfStock.length > 0) {
+    const shown = detail.warehousesOutOfStock.slice(0, 2);
+    const formatted = shown.map((w) => w.name).join(', ');
+    const remaining = detail.warehousesOutOfStock.length - shown.length;
+    const suffix = remaining > 0 ? `, +${remaining} more` : '';
+    parts.push(`Out: ${formatted}${suffix}`);
+  }
+
+  return parts.join('. ');
+}
+
+/**
  * Format a single alert for console output.
+ *
+ * If warehouseDetail is present, appends a one-line warehouse summary.
  *
  * @param alert - Stock alert to format
  * @returns Formatted alert string with emoji prefix
@@ -177,16 +260,31 @@ function getTransitionAlertType(
 export function formatAlert(alert: StockAlert): string {
   const sku = `${alert.productName} - ${alert.color} ${alert.size}`;
 
+  let line: string;
   switch (alert.type) {
     case 'out-of-stock':
-      return `\u26A0 OUT OF STOCK: ${sku} (was ${alert.previousQty}, now ${alert.currentQty})`;
+      line = `\u26A0 OUT OF STOCK: ${sku} (was ${alert.previousQty}, now ${alert.currentQty})`;
+      break;
     case 'critical':
-      return `\uD83D\uDD34 CRITICAL: ${sku} (${alert.currentQty} remaining)`;
+      line = `\uD83D\uDD34 CRITICAL: ${sku} (${alert.currentQty} remaining)`;
+      break;
     case 'low-stock':
-      return `\uD83D\uDFE1 LOW STOCK: ${sku} (${alert.currentQty} remaining)`;
+      line = `\uD83D\uDFE1 LOW STOCK: ${sku} (${alert.currentQty} remaining)`;
+      break;
     case 'back-in-stock':
-      return `\uD83D\uDFE2 BACK IN STOCK: ${sku} (${alert.currentQty} available)`;
+      line = `\uD83D\uDFE2 BACK IN STOCK: ${sku} (${alert.currentQty} available)`;
+      break;
   }
+
+  // Append warehouse summary if detail is available
+  if (alert.warehouseDetail) {
+    const summary = formatWarehouseSummary(alert.warehouseDetail);
+    if (summary) {
+      line += `\n     ${summary}`;
+    }
+  }
+
+  return line;
 }
 
 /**

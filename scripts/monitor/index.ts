@@ -19,6 +19,7 @@ export type {
   SkuSnapshot,
   WarehouseQuantity,
   StockAlert,
+  AlertWarehouseDetail,
 } from './types.js';
 
 // Store (configuration and tracked product management)
