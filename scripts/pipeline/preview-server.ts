@@ -63,6 +63,22 @@ import {
 import { loadLatestSnapshot } from '../monitor/store.js';
 import { getSyncHealth } from '../sync/sync-poller.js';
 
+// Order Management (Phase 18)
+import {
+  listOrders,
+  getOrder as getOrderById,
+  getOrderByNumber,
+  addOrder,
+  updateOrderStatus,
+  syncWixOrders,
+  generateInvoice,
+  generateShippingLabel,
+  printInvoice,
+  printShippingLabel,
+  listPrinters,
+} from '../orders/index.js';
+import type { OrderStatus, OrderSource, OrderCustomer, OrderLineItem, OrderAddress } from '../orders/index.js';
+
 // Register both vendor adapters to ensure they're available at runtime
 import '../sanmar/adapter.js';
 import '../ss-activewear/adapter.js';
@@ -147,7 +163,7 @@ function sendJson(
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   });
   res.end(body);
@@ -175,13 +191,15 @@ function sendBuffer(
   statusCode: number,
   contentType: string,
   buffer: Buffer,
+  extraHeaders?: Record<string, string>,
 ): void {
   res.writeHead(statusCode, {
     'Content-Type': contentType,
     'Content-Length': buffer.length,
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
+    ...(extraHeaders ?? {}),
   });
   res.end(buffer);
 }
@@ -398,6 +416,59 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
     return { route: 'inventory-config' };
   }
 
+  // Order Management API (Phase 18)
+
+  // Match /api/orders/:id/invoice
+  const orderInvoiceMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/invoice\/?$/);
+  if (orderInvoiceMatch) {
+    return { route: 'order-invoice', param: orderInvoiceMatch[1] };
+  }
+
+  // Match /api/orders/:id/label
+  const orderLabelMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/label\/?$/);
+  if (orderLabelMatch) {
+    return { route: 'order-label', param: orderLabelMatch[1] };
+  }
+
+  // Match /api/orders/:id/print-invoice
+  const orderPrintInvoiceMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/print-invoice\/?$/);
+  if (orderPrintInvoiceMatch) {
+    return { route: 'order-print-invoice', param: orderPrintInvoiceMatch[1] };
+  }
+
+  // Match /api/orders/:id/print-label
+  const orderPrintLabelMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/print-label\/?$/);
+  if (orderPrintLabelMatch) {
+    return { route: 'order-print-label', param: orderPrintLabelMatch[1] };
+  }
+
+  // Match /api/orders/:id/status
+  const orderStatusMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/status\/?$/);
+  if (orderStatusMatch) {
+    return { route: 'order-status', param: orderStatusMatch[1] };
+  }
+
+  // Match /api/orders/sync (must come before /api/orders/:id)
+  if (urlPath === '/api/orders/sync') {
+    return { route: 'orders-sync' };
+  }
+
+  // Match /api/orders/:id (must come after sub-routes)
+  const orderByIdMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/?$/);
+  if (orderByIdMatch) {
+    return { route: 'order-by-id', param: orderByIdMatch[1] };
+  }
+
+  // Match /api/orders
+  if (urlPath === '/api/orders') {
+    return { route: 'orders' };
+  }
+
+  // Match /api/printers
+  if (urlPath === '/api/printers') {
+    return { route: 'printers' };
+  }
+
   // Match / (root)
   if (urlPath === '/' || urlPath === '/index.html') {
     return { route: 'serve-html' };
@@ -419,7 +490,7 @@ function startServer(port: number, initialStyle?: string): void {
       if (method === 'OPTIONS') {
         res.writeHead(204, {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         });
         res.end();
@@ -970,6 +1041,309 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error loading inventory config: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // ── Order Management API (Phase 18) ────────────────────────────
+
+          case 'orders': {
+            if (method === 'GET') {
+              // GET /api/orders — List orders with optional filters
+              try {
+                const urlObj = new URL(req.url ?? '/', 'http://localhost');
+                const statusFilter = urlObj.searchParams.get('status') as OrderStatus | null;
+                const sourceFilter = urlObj.searchParams.get('source') as OrderSource | null;
+                const filter: { status?: OrderStatus; source?: OrderSource } = {};
+                if (statusFilter) filter.status = statusFilter;
+                if (sourceFilter) filter.source = sourceFilter;
+                const orders = await listOrders(Object.keys(filter).length > 0 ? filter : undefined);
+                sendJson(res, 200, { orders, count: orders.length });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error listing orders: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            } else if (method === 'POST') {
+              // POST /api/orders — Create manual order
+              try {
+                const body = await readBody(req);
+                const payload = JSON.parse(body);
+
+                if (!payload.customer || !payload.lineItems || !Array.isArray(payload.lineItems) || payload.lineItems.length === 0) {
+                  sendJson(res, 400, { error: 'Missing required fields: customer, lineItems (non-empty array)' });
+                  break;
+                }
+
+                // Calculate subtotal from lineItems
+                const lineItems: OrderLineItem[] = payload.lineItems.map((item: OrderLineItem) => ({
+                  ...item,
+                  totalPrice: item.totalPrice ?? (item.quantity * item.unitPrice),
+                }));
+                const subtotal = lineItems.reduce((sum: number, li: OrderLineItem) => sum + li.totalPrice, 0);
+                const shippingCost = payload.shippingCost ?? 0;
+                const tax = payload.tax ?? 0;
+                const discount = payload.discount ?? 0;
+                const total = subtotal + shippingCost + tax - discount;
+
+                const order = await addOrder({
+                  source: 'manual',
+                  status: 'new',
+                  customer: payload.customer as OrderCustomer,
+                  lineItems,
+                  billingAddress: payload.billingAddress as OrderAddress | undefined,
+                  shippingAddress: payload.shippingAddress as OrderAddress | undefined,
+                  subtotal,
+                  shippingCost,
+                  tax,
+                  discount,
+                  total,
+                  notes: payload.notes,
+                });
+
+                sendJson(res, 201, { order });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error creating order: ${message}`);
+                sendJson(res, 400, { error: message });
+              }
+            } else {
+              sendJson(res, 405, { error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          case 'order-by-id': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/:id — Get single order by ID or order number
+            try {
+              const idParam = param!;
+              // If the param is all digits, look up by orderNumber; otherwise by ID
+              const isNumeric = /^\d+$/.test(idParam);
+              const order = isNumeric
+                ? await getOrderByNumber(parseInt(idParam, 10))
+                : await getOrderById(idParam);
+
+              if (!order) {
+                sendJson(res, 404, { error: `Order not found: ${idParam}` });
+                break;
+              }
+              sendJson(res, 200, { order });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error getting order ${param}: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'order-status': {
+            if (method !== 'PATCH') {
+              sendJson(res, 405, { error: 'Method not allowed. Use PATCH.' });
+              break;
+            }
+            // PATCH /api/orders/:id/status — Update order status
+            try {
+              const body = await readBody(req);
+              const payload = JSON.parse(body);
+
+              if (!payload.status) {
+                sendJson(res, 400, { error: 'Missing required field: status' });
+                break;
+              }
+
+              const order = await updateOrderStatus(
+                param!,
+                payload.status as OrderStatus,
+                payload.note,
+              );
+              sendJson(res, 200, { order });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              // Distinguish validation errors (400) from not-found (404) from server errors (500)
+              if (message.includes('not found')) {
+                sendJson(res, 404, { error: message });
+              } else if (message.includes('Cannot transition')) {
+                sendJson(res, 400, { error: message });
+              } else {
+                console.error(`[Preview] Error updating order status: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            }
+            break;
+          }
+
+          case 'orders-sync': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // POST /api/orders/sync — Trigger WIX order sync
+            try {
+              const body = await readBody(req);
+              let days = 7;
+              if (body) {
+                try {
+                  const payload = JSON.parse(body);
+                  if (payload.days && typeof payload.days === 'number') {
+                    days = payload.days;
+                  }
+                } catch {
+                  // Empty or invalid body is fine — use default
+                }
+              }
+              const result = await syncWixOrders(days);
+              sendJson(res, 200, { result });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error syncing WIX orders: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'order-invoice': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/:id/invoice — Generate and return invoice PDF
+            try {
+              const idParam = param!;
+              const isNumeric = /^\d+$/.test(idParam);
+              const order = isNumeric
+                ? await getOrderByNumber(parseInt(idParam, 10))
+                : await getOrderById(idParam);
+
+              if (!order) {
+                sendJson(res, 404, { error: `Order not found: ${idParam}` });
+                break;
+              }
+
+              const pdfBuffer = await generateInvoice(order);
+              sendBuffer(res, 200, 'application/pdf', pdfBuffer, {
+                'Content-Disposition': `inline; filename="INV-${order.orderNumber}.pdf"`,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error generating invoice for ${param}: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'order-label': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/:id/label — Generate and return shipping label PDF
+            try {
+              const idParam = param!;
+              const isNumeric = /^\d+$/.test(idParam);
+              const order = isNumeric
+                ? await getOrderByNumber(parseInt(idParam, 10))
+                : await getOrderById(idParam);
+
+              if (!order) {
+                sendJson(res, 404, { error: `Order not found: ${idParam}` });
+                break;
+              }
+
+              if (!order.shippingAddress) {
+                sendJson(res, 400, { error: `Order #${order.orderNumber} has no shipping address` });
+                break;
+              }
+
+              const pdfBuffer = await generateShippingLabel(order);
+              sendBuffer(res, 200, 'application/pdf', pdfBuffer, {
+                'Content-Disposition': `inline; filename="LABEL-${order.orderNumber}.pdf"`,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error generating label for ${param}: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'order-print-invoice': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // POST /api/orders/:id/print-invoice — Print invoice
+            try {
+              const idParam = param!;
+              const isNumeric = /^\d+$/.test(idParam);
+              const order = isNumeric
+                ? await getOrderByNumber(parseInt(idParam, 10))
+                : await getOrderById(idParam);
+
+              if (!order) {
+                sendJson(res, 404, { error: `Order not found: ${idParam}` });
+                break;
+              }
+
+              const result = await printInvoice(order);
+              sendJson(res, 200, { result });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error printing invoice for ${param}: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'order-print-label': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // POST /api/orders/:id/print-label — Print shipping label
+            try {
+              const idParam = param!;
+              const isNumeric = /^\d+$/.test(idParam);
+              const order = isNumeric
+                ? await getOrderByNumber(parseInt(idParam, 10))
+                : await getOrderById(idParam);
+
+              if (!order) {
+                sendJson(res, 404, { error: `Order not found: ${idParam}` });
+                break;
+              }
+
+              if (!order.shippingAddress) {
+                sendJson(res, 400, { error: `Order #${order.orderNumber} has no shipping address` });
+                break;
+              }
+
+              const result = await printShippingLabel(order);
+              sendJson(res, 200, { result });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error printing label for ${param}: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'printers': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/printers — List available system printers
+            try {
+              const printers = await listPrinters();
+              sendJson(res, 200, { printers });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error listing printers: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
             }
             break;
