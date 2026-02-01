@@ -9,7 +9,8 @@
  */
 
 import { getRecentOrders, mapWixOrderToOrder } from './wix-orders-api.js';
-import { loadOrders, saveOrders, upsertWixOrder } from './order-store.js';
+import { loadOrders, saveOrders, upsertWixOrder, clearWixOrders } from './order-store.js';
+import { listAllProducts, listCollections } from '../pipeline/wix-api.js';
 
 // =============================================================================
 // Types
@@ -27,6 +28,77 @@ export interface SyncResult {
   totalWixOrders: number;
   /** Error messages (sync continues despite individual errors) */
   errors: string[];
+}
+
+// =============================================================================
+// Collection Map Builder
+// =============================================================================
+
+/** Names of WIX system collections to skip when resolving a product's brand. */
+const SYSTEM_COLLECTIONS = new Set(['all products', 'featured products']);
+
+/** Lookup maps for resolving a product to its WIX collection. */
+interface CollectionLookup {
+  /** catalogItemId → collection name */
+  byId: Map<string, string>;
+  /** lowercase product name → collection name (fallback for items without catalogReference) */
+  byName: Map<string, string>;
+}
+
+/**
+ * Build product-to-collection lookups by cross-referencing the WIX
+ * Products API (which returns collectionIds on each product) with the
+ * Collections API (which provides id → name mapping).
+ *
+ * Returns two maps: one keyed by product ID (primary) and one keyed by
+ * lowercase product name (fallback for custom/manual line items that
+ * have no catalogReference).
+ *
+ * Gracefully returns empty maps if either API call fails so that order
+ * sync continues to work — labels will just show "General" instead.
+ */
+async function buildCollectionMap(): Promise<CollectionLookup> {
+  const byId = new Map<string, string>();
+  const byName = new Map<string, string>();
+
+  try {
+    const [products, collections] = await Promise.all([
+      listAllProducts(),
+      listCollections(),
+    ]);
+
+    // collectionId → name lookup
+    const collectionNames = new Map<string, string>();
+    for (const col of collections) {
+      collectionNames.set(col.id, col.name);
+    }
+
+    // productId & productName → first non-system collection name
+    for (const product of products) {
+      const collectionIds = (product as Record<string, unknown>).collectionIds as
+        | string[]
+        | undefined;
+      if (!collectionIds?.length) continue;
+
+      for (const colId of collectionIds) {
+        const name = collectionNames.get(colId);
+        if (name && !SYSTEM_COLLECTIONS.has(name.toLowerCase())) {
+          byId.set(product.id, name);
+          byName.set(product.name.toLowerCase(), name);
+          break;
+        }
+      }
+    }
+
+    console.log(`[ORDER SYNC] Built collection map: ${byId.size} products with collections`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `[ORDER SYNC] Could not build collection map (labels will show 'General'): ${msg}`,
+    );
+  }
+
+  return { byId, byName };
 }
 
 // =============================================================================
@@ -70,16 +142,39 @@ export async function syncWixOrders(days?: number): Promise<SyncResult> {
   result.totalWixOrders = wixOrders.length;
 
   if (wixOrders.length === 0) {
-    console.log(`[ORDER SYNC] No WIX orders found in the last ${lookbackDays} days.`);
+    console.log(`[ORDER SYNC] No WIX orders found (unfulfilled + last ${lookbackDays} days).`);
     return result;
   }
 
   console.log(`[ORDER SYNC] Processing ${wixOrders.length} WIX orders...`);
 
+  // Build product-to-collection map for pickup label generation
+  const collectionMap = await buildCollectionMap();
+
   // Process each order
   for (const wixOrder of wixOrders) {
     try {
       const mapped = mapWixOrderToOrder(wixOrder);
+
+      // Resolve collection from product catalog (for pickup labels).
+      // Check ALL line items — the first item with a known collection wins.
+      // Falls back to product name matching for custom items without catalogReference.
+      if (!mapped.collection && wixOrder.lineItems?.length) {
+        for (const li of wixOrder.lineItems) {
+          // Primary: look up by catalog product ID
+          const catId = li.catalogReference?.catalogItemId;
+          if (catId && collectionMap.byId.has(catId)) {
+            mapped.collection = collectionMap.byId.get(catId);
+            break;
+          }
+          // Fallback: match product name (for manual/custom line items)
+          const prodName = li.productName?.original ?? li.productName?.translated;
+          if (prodName && collectionMap.byName.has(prodName.toLowerCase())) {
+            mapped.collection = collectionMap.byName.get(prodName.toLowerCase());
+            break;
+          }
+        }
+      }
       const { order, isNew } = await upsertWixOrder(mapped);
 
       const customerName = `${order.customer.firstName} ${order.customer.lastName}`.trim() || 'Unknown';
@@ -125,11 +220,26 @@ export async function syncWixOrders(days?: number): Promise<SyncResult> {
 }
 
 /**
- * Convenience: sync last 7 days of WIX orders.
+ * Convenience: sync all unfulfilled orders + last 60 days.
  *
  * @returns Sync result
  */
 export async function autoSync(): Promise<SyncResult> {
-  console.log('[ORDER SYNC] Running auto-sync (last 7 days)...');
-  return syncWixOrders(7);
+  console.log('[ORDER SYNC] Running auto-sync (unfulfilled + last 60 days)...');
+  return syncWixOrders(60);
+}
+
+/**
+ * Clear all WIX orders from the local store and re-import fresh.
+ *
+ * This is a destructive operation — any manual status changes on WIX orders
+ * will be lost. Manual orders are preserved.
+ *
+ * @returns Sync result (all orders will be counted as "new")
+ */
+export async function resetAndResync(): Promise<SyncResult> {
+  const removed = await clearWixOrders();
+  console.log(`[ORDER SYNC] Cleared ${removed} WIX orders from local store.`);
+  console.log('[ORDER SYNC] Re-importing all WIX orders (unfulfilled + last 60 days)...');
+  return syncWixOrders(60);
 }

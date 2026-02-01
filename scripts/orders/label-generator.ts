@@ -1,9 +1,9 @@
 /**
- * Shipping Label PDF Generator
+ * Pickup Label PDF Generator
  *
- * Generates 4x6 inch shipping label PDFs using PDFKit. Labels are designed
- * for thermal printers (288x432 points at 72 DPI) and include return address,
- * ship-to address, and order reference.
+ * Generates 4x6 inch pickup/hand-delivery label PDFs using PDFKit. Labels are
+ * designed for thermal printers (288x432 points at 72 DPI) and display the
+ * customer name and collection/brand category (e.g., "Big Barn", "Board30").
  *
  * Phase 18: Order Management — Invoice & Label Printing (Plan 04)
  */
@@ -22,57 +22,22 @@ import type { Order } from './types.js';
 /** Label dimensions: 4x6 inches at 72 DPI */
 const LABEL_WIDTH = 288;
 const LABEL_HEIGHT = 432;
-const LABEL_MARGIN = 15;
-
-/** Store return address (from env or defaults) */
-function getStoreAddress(): {
-  name: string;
-  line1: string;
-  city: string;
-  state: string;
-  zip: string;
-} {
-  return {
-    name: 'HotBox Clothing',
-    line1: process.env.STORE_ADDRESS_LINE1 || '123 Main Street',
-    city: process.env.STORE_CITY || 'Anytown',
-    state: process.env.STORE_STATE || 'ST',
-    zip: process.env.STORE_ZIP || '00000',
-  };
-}
-
-/** Font sizes for label sections */
-const FONT_SIZE = {
-  FROM_LABEL: 7,
-  FROM_ADDRESS: 8,
-  SHIP_TO_LABEL: 8,
-  SHIP_TO_NAME: 14,
-  SHIP_TO_ADDRESS: 11,
-  ORDER_REF: 8,
-} as const;
+const LABEL_MARGIN = 20;
 
 // =============================================================================
 // Label Generator
 // =============================================================================
 
 /**
- * Generate a 4x6 shipping label PDF for the given order.
+ * Generate a 4x6 pickup label PDF for the given order.
  *
  * Layout:
- * - Top: Return address (small, "From:" + HotBox address)
- * - Divider: Thin horizontal rule
- * - Middle: Ship-to address (large, prominent)
+ * - Top: "PICKUP" header
+ * - Middle: Customer name (large, prominent)
+ * - Below: Collection/brand category (large, bold)
  * - Bottom: Order number and date
- *
- * @throws Error if order has no shipping address
  */
 export async function generateShippingLabel(order: Order): Promise<Buffer> {
-  if (!order.shippingAddress) {
-    throw new Error(
-      `Order #${order.orderNumber} has no shipping address — cannot generate label`
-    );
-  }
-
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Uint8Array[] = [];
 
@@ -86,126 +51,63 @@ export async function generateShippingLabel(order: Order): Promise<Buffer> {
     doc.on('error', reject);
 
     const contentWidth = LABEL_WIDTH - LABEL_MARGIN * 2;
-    let y = LABEL_MARGIN;
+    const centerX = LABEL_WIDTH / 2;
 
-    // ── Return address section ──────────────────────────────────────────
-    const store = getStoreAddress();
-
+    // ── "PICKUP" header ────────────────────────────────────────────────
     doc
-      .fontSize(FONT_SIZE.FROM_LABEL)
+      .fontSize(12)
       .font('Helvetica')
-      .fillColor('#666666')
-      .text('From:', LABEL_MARGIN, y);
-    y += 10;
+      .fillColor('#888888')
+      .text('PICKUP', LABEL_MARGIN, LABEL_MARGIN + 10, {
+        width: contentWidth,
+        align: 'center',
+      });
 
+    // ── Divider ────────────────────────────────────────────────────────
+    const divider1Y = LABEL_MARGIN + 32;
     doc
-      .fontSize(FONT_SIZE.FROM_ADDRESS)
-      .font('Helvetica-Bold')
-      .fillColor('#333333')
-      .text(store.name, LABEL_MARGIN, y);
-    y += 11;
-
-    doc
-      .fontSize(FONT_SIZE.FROM_ADDRESS)
-      .font('Helvetica')
-      .fillColor('#333333')
-      .text(store.line1, LABEL_MARGIN, y);
-    y += 11;
-
-    doc.text(
-      `${store.city}, ${store.state} ${store.zip}`,
-      LABEL_MARGIN,
-      y
-    );
-    y += 16;
-
-    // ── Divider ─────────────────────────────────────────────────────────
-    doc
-      .strokeColor('#999999')
+      .strokeColor('#CCCCCC')
       .lineWidth(0.5)
-      .moveTo(LABEL_MARGIN, y)
-      .lineTo(LABEL_WIDTH - LABEL_MARGIN, y)
+      .moveTo(LABEL_MARGIN, divider1Y)
+      .lineTo(LABEL_WIDTH - LABEL_MARGIN, divider1Y)
       .stroke();
-    y += 12;
 
-    // ── Ship-to section ─────────────────────────────────────────────────
-    // Already guarded at top of function — assert for TypeScript narrowing
-    const addr = order.shippingAddress!;
-
+    // ── Customer name (large, centered) ────────────────────────────────
+    const customerName = `${order.customer.firstName} ${order.customer.lastName}`;
     doc
-      .fontSize(FONT_SIZE.SHIP_TO_LABEL)
-      .font('Helvetica')
-      .fillColor('#666666')
-      .text('Ship To:', LABEL_MARGIN, y);
-    y += 14;
-
-    // Recipient name (large, bold)
-    const recipientName = `${addr.firstName} ${addr.lastName}`;
-    doc
-      .fontSize(FONT_SIZE.SHIP_TO_NAME)
+      .fontSize(24)
       .font('Helvetica-Bold')
       .fillColor('#000000')
-      .text(recipientName, LABEL_MARGIN, y, { width: contentWidth });
-    y += 20;
+      .text(customerName, LABEL_MARGIN, divider1Y + 40, {
+        width: contentWidth,
+        align: 'center',
+      });
 
-    // Company (if present)
-    if (addr.company) {
-      doc
-        .fontSize(FONT_SIZE.SHIP_TO_ADDRESS)
-        .font('Helvetica')
-        .fillColor('#000000')
-        .text(addr.company, LABEL_MARGIN, y, { width: contentWidth });
-      y += 16;
-    }
-
-    // Address line 1
+    // ── Collection/brand category ──────────────────────────────────────
+    const collection = order.collection || 'General';
     doc
-      .fontSize(FONT_SIZE.SHIP_TO_ADDRESS)
-      .font('Helvetica')
-      .fillColor('#000000')
-      .text(addr.addressLine1, LABEL_MARGIN, y, { width: contentWidth });
-    y += 16;
-
-    // Address line 2 (if present)
-    if (addr.addressLine2) {
-      doc.text(addr.addressLine2, LABEL_MARGIN, y, { width: contentWidth });
-      y += 16;
-    }
-
-    // City, State ZIP
-    doc
-      .fontSize(FONT_SIZE.SHIP_TO_ADDRESS)
+      .fontSize(28)
       .font('Helvetica-Bold')
-      .text(
-        `${addr.city}, ${addr.state} ${addr.postalCode}`,
-        LABEL_MARGIN,
-        y,
-        { width: contentWidth }
-      );
-    y += 16;
+      .fillColor('#333333')
+      .text(collection, LABEL_MARGIN, divider1Y + 120, {
+        width: contentWidth,
+        align: 'center',
+      });
 
-    // Country (if not US)
-    if (addr.country && addr.country !== 'US') {
-      doc
-        .fontSize(FONT_SIZE.SHIP_TO_ADDRESS)
-        .font('Helvetica')
-        .text(addr.country, LABEL_MARGIN, y, { width: contentWidth });
-      y += 16;
-    }
+    // ── Item count summary ─────────────────────────────────────────────
+    const itemCount = order.lineItems.reduce((sum, li) => sum + li.quantity, 0);
+    const itemText = itemCount === 1 ? '1 item' : `${itemCount} items`;
+    doc
+      .fontSize(11)
+      .font('Helvetica')
+      .fillColor('#888888')
+      .text(itemText, LABEL_MARGIN, divider1Y + 170, {
+        width: contentWidth,
+        align: 'center',
+      });
 
-    // Phone (if present)
-    if (addr.phone) {
-      y += 4;
-      doc
-        .fontSize(FONT_SIZE.FROM_ADDRESS)
-        .font('Helvetica')
-        .fillColor('#444444')
-        .text(`Phone: ${addr.phone}`, LABEL_MARGIN, y);
-      y += 14;
-    }
-
-    // ── Order reference (bottom section) ────────────────────────────────
-    const bottomY = LABEL_HEIGHT - LABEL_MARGIN - 30;
+    // ── Order reference (bottom section) ───────────────────────────────
+    const bottomY = LABEL_HEIGHT - LABEL_MARGIN - 40;
 
     doc
       .strokeColor('#CCCCCC')
@@ -215,10 +117,13 @@ export async function generateShippingLabel(order: Order): Promise<Buffer> {
       .stroke();
 
     doc
-      .fontSize(FONT_SIZE.ORDER_REF)
+      .fontSize(10)
       .font('Helvetica-Bold')
       .fillColor('#333333')
-      .text(`Order #${order.orderNumber}`, LABEL_MARGIN, bottomY);
+      .text(`Order #${order.orderNumber}`, LABEL_MARGIN, bottomY + 4, {
+        width: contentWidth,
+        align: 'center',
+      });
 
     const dateStr = new Date(order.createdAt).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -226,17 +131,20 @@ export async function generateShippingLabel(order: Order): Promise<Buffer> {
       day: 'numeric',
     });
     doc
-      .fontSize(FONT_SIZE.ORDER_REF)
+      .fontSize(9)
       .font('Helvetica')
       .fillColor('#666666')
-      .text(dateStr, LABEL_MARGIN, bottomY + 12);
+      .text(dateStr, LABEL_MARGIN, bottomY + 18, {
+        width: contentWidth,
+        align: 'center',
+      });
 
     doc.end();
   });
 }
 
 /**
- * Generate a shipping label PDF and save it to disk.
+ * Generate a pickup label PDF and save it to disk.
  *
  * @param order - Order to generate label for
  * @param outputPath - File path to save PDF (defaults to data/labels/LABEL-{orderNumber}.pdf)
@@ -267,7 +175,7 @@ export async function saveShippingLabel(
 const __filename = fileURLToPath(import.meta.url);
 
 async function runDemo(): Promise<void> {
-  console.log('Generating demo shipping label...\n');
+  console.log('Generating demo pickup label...\n');
 
   const demoOrder: Order = {
     id: 'demo-label-001',
@@ -280,18 +188,7 @@ async function runDemo(): Promise<void> {
       email: 'jane.smith@example.com',
       phone: '555-0199',
     },
-    shippingAddress: {
-      firstName: 'Jane',
-      lastName: 'Smith',
-      company: 'Smith Enterprises',
-      addressLine1: '456 Oak Avenue',
-      addressLine2: 'Suite 200',
-      city: 'Portland',
-      state: 'OR',
-      postalCode: '97201',
-      country: 'US',
-      phone: '555-0199',
-    },
+    collection: 'Big Barn',
     lineItems: [
       {
         productName: 'Port Authority Polo',
@@ -302,10 +199,10 @@ async function runDemo(): Promise<void> {
       },
     ],
     subtotal: 299.88,
-    shippingCost: 15.0,
+    shippingCost: 0,
     tax: 24.0,
     discount: 0,
-    total: 338.88,
+    total: 323.88,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     statusHistory: [

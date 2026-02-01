@@ -372,27 +372,51 @@ export async function getOrder(orderId: string): Promise<WixEcomOrder> {
 }
 
 /**
- * Get recent orders from the last N days.
+ * Get orders that need attention: all unfulfilled orders regardless of age,
+ * plus any orders from the last N days (default 60).
  *
- * Convenience wrapper around searchOrders with a date filter.
+ * This ensures no unfulfilled order is missed even if it's older than the
+ * lookback window, while also picking up recently fulfilled/cancelled orders
+ * for status sync.
  *
- * @param days - Number of days to look back (default 30)
- * @returns Array of raw WIX ecom orders sorted by createdDate DESC
+ * @param days - Max lookback for fulfilled orders (default 60)
+ * @returns Array of deduplicated WIX ecom orders sorted by createdDate DESC
  */
 export async function getRecentOrders(days?: number): Promise<WixEcomOrder[]> {
-  const lookbackDays = days ?? 30;
+  const lookbackDays = Math.min(days ?? 60, 60);
+
+  // 1. Fetch all unfulfilled orders (no date limit)
+  console.log('[WIX Orders] Fetching all unfulfilled orders...');
+  const unfulfilledFilter = {
+    fulfillmentStatus: {
+      $in: ['NOT_FULFILLED', 'PARTIALLY_FULFILLED'],
+    },
+  };
+  const unfulfilled = await searchOrders(unfulfilledFilter);
+  console.log(`[WIX Orders] Found ${unfulfilled.length} unfulfilled orders.`);
+
+  // 2. Fetch recent orders (up to lookback window) for status sync
   const since = new Date();
   since.setDate(since.getDate() - lookbackDays);
-
   console.log(`[WIX Orders] Fetching orders from last ${lookbackDays} days...`);
-
-  const filter = {
+  const recentFilter = {
     createdDate: {
       $gte: since.toISOString(),
     },
   };
+  const recent = await searchOrders(recentFilter);
 
-  const orders = await searchOrders(filter);
+  // 3. Deduplicate by order ID
+  const orderMap = new Map<string, WixEcomOrder>();
+  for (const order of unfulfilled) {
+    if (order.id) orderMap.set(order.id, order);
+  }
+  for (const order of recent) {
+    if (order.id) orderMap.set(order.id, order);
+  }
+
+  const orders = Array.from(orderMap.values());
+  console.log(`[WIX Orders] ${orders.length} unique orders after dedup.`);
 
   // Sort by createdDate descending (most recent first)
   orders.sort((a, b) => {

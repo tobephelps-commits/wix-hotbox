@@ -49,7 +49,7 @@ export type { OrderStore } from './order-store.js';
 // WIX Order Sync
 // =============================================================================
 
-export { syncWixOrders, autoSync } from './wix-order-sync.js';
+export { syncWixOrders, autoSync, resetAndResync } from './wix-order-sync.js';
 export type { SyncResult } from './wix-order-sync.js';
 
 // =============================================================================

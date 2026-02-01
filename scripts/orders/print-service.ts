@@ -12,6 +12,7 @@
  * Phase 18: Order Management — Invoice & Label Printing (Plan 04)
  */
 
+import 'dotenv/config';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
@@ -77,13 +78,18 @@ export async function printPdf(
     const usedPrinter = printerName || 'default';
 
     if (platform === 'win32') {
-      if (printerName) {
-        // Print to specific printer using PowerShell
-        command = `powershell -Command "Get-Content '${absolutePath}' | Out-Printer -Name '${printerName}'"`;
-      } else {
-        // Print to default printer using Start-Process
-        command = `powershell -Command "Start-Process -FilePath '${absolutePath}' -Verb Print -WindowStyle Hidden"`;
-      }
+      // Use PowerShell -EncodedCommand to avoid shell escaping issues with
+      // printer names containing spaces and file paths with special chars.
+      //
+      // When a printer is specified, use the 'printto' verb which passes the
+      // printer name directly to the PDF handler — no default-printer swapping.
+      // When no printer is specified, use 'Print' which uses the system default.
+      const psScript = printerName
+        ? `Start-Process -FilePath '${absolutePath}' -Verb printto -ArgumentList '${printerName}' -WindowStyle Hidden`
+        : `Start-Process -FilePath '${absolutePath}' -Verb Print -WindowStyle Hidden`;
+
+      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
+      command = `powershell -NoProfile -EncodedCommand ${encoded}`;
     } else {
       // macOS and Linux use lp command
       if (printerName) {

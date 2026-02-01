@@ -71,6 +71,7 @@ import {
   addOrder,
   updateOrderStatus,
   syncWixOrders,
+  resetAndResync,
   generateInvoice,
   generateShippingLabel,
   printInvoice,
@@ -1328,20 +1329,28 @@ function startServer(port: number, initialStyle?: string): void {
               break;
             }
             // POST /api/orders/sync — Trigger WIX order sync
+            //   body: { days?: number, reset?: boolean }
+            //   reset=true clears all WIX orders and re-imports fresh
             try {
               const body = await readBody(req);
               let days = 7;
+              let reset = false;
               if (body) {
                 try {
                   const payload = JSON.parse(body);
                   if (payload.days && typeof payload.days === 'number') {
                     days = payload.days;
                   }
+                  if (payload.reset === true) {
+                    reset = true;
+                  }
                 } catch {
                   // Empty or invalid body is fine — use default
                 }
               }
-              const result = await syncWixOrders(days);
+              const result = reset
+                ? await resetAndResync()
+                : await syncWixOrders(days);
               sendJson(res, 200, { result });
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);

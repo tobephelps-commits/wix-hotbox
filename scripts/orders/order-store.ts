@@ -64,7 +64,21 @@ export interface OrderStore {
 export async function loadOrders(): Promise<OrderStore> {
   try {
     const raw = await readFile(ORDERS_FILE, 'utf-8');
-    return JSON.parse(raw) as OrderStore;
+    const store = JSON.parse(raw) as OrderStore;
+
+    // Normalize orders that may be missing fields added after initial sync
+    for (const order of store.orders) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const o = order as any;
+      if (!o.source) o.source = 'wix';
+      if (!o.customer) o.customer = { firstName: '', lastName: '' };
+      if (!o.lineItems) o.lineItems = [];
+      if (o.total == null) o.total = 0;
+      if (o.subtotal == null) o.subtotal = 0;
+      if (!o.statusHistory) o.statusHistory = [];
+    }
+
+    return store;
   } catch {
     // File doesn't exist or is invalid — return empty store
     const emptyStore: OrderStore = {
@@ -240,6 +254,7 @@ export async function upsertWixOrder(order: Order): Promise<{ order: Order; isNe
     existing.discount = order.discount;
     existing.total = order.total;
     existing.notes = order.notes ?? existing.notes;
+    existing.collection = order.collection ?? existing.collection;
     existing.updatedAt = now;
 
     if (!shouldPreserveLocalStatus && existing.status !== order.status) {
@@ -283,6 +298,24 @@ export async function upsertWixOrder(order: Order): Promise<{ order: Order; isNe
   store.orders.push(newOrder);
   await saveOrders(store);
   return { order: newOrder, isNew: true };
+}
+
+/**
+ * Remove all WIX-sourced orders from the store.
+ *
+ * Preserves manual orders and the nextOrderNumber counter.
+ * Used by "reset & resync" to get a clean re-import from WIX.
+ *
+ * @returns Number of WIX orders removed
+ */
+export async function clearWixOrders(): Promise<number> {
+  const store = await loadOrders();
+  const before = store.orders.length;
+  store.orders = store.orders.filter((o) => o.source !== 'wix');
+  store.lastSync = '';
+  const removed = before - store.orders.length;
+  await saveOrders(store);
+  return removed;
 }
 
 /**

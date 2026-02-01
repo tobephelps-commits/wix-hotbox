@@ -37,7 +37,7 @@ import {
   getOrderByNumber,
   updateOrderStatus,
 } from './order-store.js';
-import { syncWixOrders } from './wix-order-sync.js';
+import { syncWixOrders, resetAndResync } from './wix-order-sync.js';
 
 // =============================================================================
 // ANSI Color Helpers
@@ -172,7 +172,7 @@ async function cmdList(args: string[]): Promise<void> {
 
     console.log(
       `#${order.orderNumber}`.padEnd(10) +
-      order.source.padEnd(10) +
+      (order.source || 'wix').padEnd(10) +
       colorStatus(order.status).padEnd(16 + 9) + // +9 for ANSI color codes
       customerName.substring(0, 23).padEnd(25) +
       `$${order.total.toFixed(2)}`.padEnd(12) +
@@ -363,7 +363,7 @@ async function cmdView(args: string[]): Promise<void> {
   // Print full order details
   console.log('');
   console.log(`${'='.repeat(60)}`);
-  console.log(`${COLORS.bold}Order #${order.orderNumber}${COLORS.reset}  [${order.source}]  ${colorStatus(order.status)}`);
+  console.log(`${COLORS.bold}Order #${order.orderNumber}${COLORS.reset}  [${order.source || 'wix'}]  ${colorStatus(order.status)}`);
   console.log(`${'='.repeat(60)}`);
 
   // Customer
@@ -446,17 +446,24 @@ async function cmdView(args: string[]): Promise<void> {
  * Run WIX order sync.
  */
 async function cmdSync(args: string[]): Promise<void> {
+  const isReset = args.includes('--reset');
+  const isForce = args.includes('--force');
   const daysStr = getFlag(args, '--days');
-  const days = daysStr ? parseInt(daysStr, 10) : 7;
+  const days = daysStr ? parseInt(daysStr, 10) : isForce ? 60 : 7;
 
   if (isNaN(days) || days < 1) {
     console.error(`Invalid days value: ${daysStr}`);
     process.exit(1);
   }
 
-  console.log(`Syncing WIX orders from the last ${days} days...\n`);
-
-  const result = await syncWixOrders(days);
+  let result;
+  if (isReset) {
+    console.log('Clearing all WIX orders and re-syncing from scratch...\n');
+    result = await resetAndResync();
+  } else {
+    console.log(`Syncing WIX orders from the last ${days} days...\n`);
+    result = await syncWixOrders(days);
+  }
 
   console.log('\n--- Sync Results ---');
   console.log(`  WIX orders found: ${result.totalWixOrders}`);
@@ -504,6 +511,8 @@ ${COLORS.bold}Commands:${COLORS.reset}
 
   ${COLORS.cyan}sync${COLORS.reset}                          Sync orders from WIX
     --days <number>               Days to look back (default 7)
+    --force                       Force full sync (60 days + collection refresh)
+    --reset                       Clear all WIX orders and re-import fresh
 
   ${COLORS.cyan}help${COLORS.reset}                          Show this help
 

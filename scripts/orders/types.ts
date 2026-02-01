@@ -151,6 +151,8 @@ export interface Order {
   discount: number;
   /** Order total (subtotal + shipping + tax - discount) */
   total: number;
+  /** Collection/brand category for pickup labels (e.g., "Big Barn", "Board30") */
+  collection?: string;
   /** Buyer notes or internal notes (optional) */
   notes?: string;
   /** ISO-8601 creation timestamp */

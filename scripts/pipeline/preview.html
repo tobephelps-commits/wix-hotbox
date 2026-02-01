@@ -1878,6 +1878,7 @@
       <div class="section-actions">
         <button type="button" class="btn-cart-fill" id="fillCartBtn" disabled>Fill SanMar Cart</button>
         <button type="button" class="btn btn-sm btn-primary" id="syncOrdersBtn">Sync WIX Orders</button>
+        <button type="button" class="btn btn-sm btn-outline" id="resetSyncBtn" title="Clear all WIX orders and re-import fresh">Reset &amp; Resync</button>
         <button type="button" class="btn btn-sm btn-outline" id="newManualOrderBtn">New Manual Order</button>
         <button type="button" class="btn btn-sm btn-outline" id="refreshOrdersBtn">Refresh</button>
       </div>
@@ -3735,6 +3736,7 @@
   var orderDetailContent = document.getElementById('orderDetailContent');
   var orderBackBtn = document.getElementById('orderBackBtn');
   var syncOrdersBtn = document.getElementById('syncOrdersBtn');
+  var resetSyncBtn = document.getElementById('resetSyncBtn');
   var newManualOrderBtn = document.getElementById('newManualOrderBtn');
   var refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
   var orderFilters = document.getElementById('orderFilters');
@@ -3794,8 +3796,9 @@
   }
 
   function sourceBadgeHtml(source) {
-    var cssClass = source === 'wix' ? 'src-wix' : 'src-manual';
-    return '<span class="order-source-badge ' + cssClass + '">' + escHtml(source.toUpperCase()) + '</span>';
+    var s = source || 'wix';
+    var cssClass = s === 'wix' ? 'src-wix' : 'src-manual';
+    return '<span class="order-source-badge ' + cssClass + '">' + escHtml(s.toUpperCase()) + '</span>';
   }
 
   // Filter pill click handlers
@@ -3858,8 +3861,9 @@
       '</tr></thead><tbody>';
 
     filtered.forEach(function(o) {
-      var custName = escHtml((o.customer.firstName || '') + ' ' + (o.customer.lastName || '')).trim() || 'Unknown';
-      var custEmail = o.customer.email ? '<br><span style="font-size:11px;color:#999;">' + escHtml(o.customer.email) + '</span>' : '';
+      var cust = o.customer || {};
+      var custName = escHtml((cust.firstName || '') + ' ' + (cust.lastName || '')).trim() || 'Unknown';
+      var custEmail = cust.email ? '<br><span style="font-size:11px;color:#999;">' + escHtml(cust.email) + '</span>' : '';
       var itemCount = (o.lineItems || []).length;
       var updated = new Date(o.updatedAt).toLocaleDateString();
 
@@ -3901,8 +3905,8 @@
     try {
       var res = await fetch('/api/orders/' + encodeURIComponent(orderId));
       if (!res.ok) throw new Error('Order not found');
-      var order = await res.json();
-      renderOrderDetail(order);
+      var json = await res.json();
+      renderOrderDetail(json.order || json);
     } catch (err) {
       orderDetailContent.innerHTML = '<div class="orders-empty">Error: ' + escHtml(err.message || String(err)) + '</div>';
     }
@@ -3926,9 +3930,10 @@
     html += '<div>';
     html += '<div class="order-detail-card">';
     html += '<h3>Customer</h3>';
-    html += '<p><strong>' + escHtml((order.customer.firstName || '') + ' ' + (order.customer.lastName || '')) + '</strong></p>';
-    if (order.customer.email) html += '<p><span class="label">Email:</span> ' + escHtml(order.customer.email) + '</p>';
-    if (order.customer.phone) html += '<p><span class="label">Phone:</span> ' + escHtml(order.customer.phone) + '</p>';
+    var detailCust = order.customer || {};
+    html += '<p><strong>' + escHtml((detailCust.firstName || '') + ' ' + (detailCust.lastName || '')).trim() || 'Unknown' + '</strong></p>';
+    if (detailCust.email) html += '<p><span class="label">Email:</span> ' + escHtml(detailCust.email) + '</p>';
+    if (detailCust.phone) html += '<p><span class="label">Phone:</span> ' + escHtml(detailCust.phone) + '</p>';
     html += '</div>';
 
     if (order.collection) {
@@ -3939,13 +3944,16 @@
     }
 
     if (order.shippingAddress) {
+      var sa = order.shippingAddress;
       html += '<div class="order-detail-card" style="margin-top:12px;">';
       html += '<h3>Shipping Address</h3>';
-      html += '<p>' + escHtml(order.shippingAddress.firstName + ' ' + order.shippingAddress.lastName) + '</p>';
-      if (order.shippingAddress.company) html += '<p>' + escHtml(order.shippingAddress.company) + '</p>';
-      html += '<p>' + escHtml(order.shippingAddress.addressLine1) + '</p>';
-      if (order.shippingAddress.addressLine2) html += '<p>' + escHtml(order.shippingAddress.addressLine2) + '</p>';
-      html += '<p>' + escHtml(order.shippingAddress.city + ', ' + order.shippingAddress.state + ' ' + order.shippingAddress.postalCode) + '</p>';
+      var saName = ((sa.firstName || '') + ' ' + (sa.lastName || '')).trim();
+      if (saName) html += '<p>' + escHtml(saName) + '</p>';
+      if (sa.company) html += '<p>' + escHtml(sa.company) + '</p>';
+      if (sa.addressLine1) html += '<p>' + escHtml(sa.addressLine1) + '</p>';
+      if (sa.addressLine2) html += '<p>' + escHtml(sa.addressLine2) + '</p>';
+      var saCityLine = [sa.city, sa.state, sa.postalCode].filter(Boolean).join(', ');
+      if (saCityLine) html += '<p>' + escHtml(saCityLine) + '</p>';
       html += '</div>';
     } else {
       html += '<div class="order-detail-card" style="margin-top:12px;">';
@@ -3954,14 +3962,17 @@
       html += '</div>';
     }
 
-    if (order.billingAddress && (!order.shippingAddress || order.billingAddress.addressLine1 !== order.shippingAddress.addressLine1)) {
+    if (order.billingAddress && (!order.shippingAddress || (order.billingAddress.addressLine1 || '') !== (order.shippingAddress.addressLine1 || ''))) {
+      var ba = order.billingAddress;
       html += '<div class="order-detail-card" style="margin-top:12px;">';
       html += '<h3>Billing Address</h3>';
-      html += '<p>' + escHtml(order.billingAddress.firstName + ' ' + order.billingAddress.lastName) + '</p>';
-      if (order.billingAddress.company) html += '<p>' + escHtml(order.billingAddress.company) + '</p>';
-      html += '<p>' + escHtml(order.billingAddress.addressLine1) + '</p>';
-      if (order.billingAddress.addressLine2) html += '<p>' + escHtml(order.billingAddress.addressLine2) + '</p>';
-      html += '<p>' + escHtml(order.billingAddress.city + ', ' + order.billingAddress.state + ' ' + order.billingAddress.postalCode) + '</p>';
+      var baName = ((ba.firstName || '') + ' ' + (ba.lastName || '')).trim();
+      if (baName) html += '<p>' + escHtml(baName) + '</p>';
+      if (ba.company) html += '<p>' + escHtml(ba.company) + '</p>';
+      if (ba.addressLine1) html += '<p>' + escHtml(ba.addressLine1) + '</p>';
+      if (ba.addressLine2) html += '<p>' + escHtml(ba.addressLine2) + '</p>';
+      var baCityLine = [ba.city, ba.state, ba.postalCode].filter(Boolean).join(', ');
+      if (baCityLine) html += '<p>' + escHtml(baCityLine) + '</p>';
       html += '</div>';
     }
 
@@ -4084,7 +4095,7 @@
           var json = await res.json();
           if (res.ok) {
             showToast('Status updated to ' + (ORDER_STATUS_LABELS[nextStatus] || nextStatus), 'success');
-            renderOrderDetail(json);
+            renderOrderDetail(json.order || json);
             loadOrders(); // refresh list in background
           } else {
             showToast('Error: ' + (json.error || 'Unknown error'), 'error');
@@ -4115,18 +4126,20 @@
           } else if (action === 'print-invoice') {
             var res = await fetch('/api/orders/' + encodeURIComponent(oid) + '/print-invoice', { method: 'POST' });
             var json = await res.json();
-            if (json.success) {
-              showToast('Invoice sent to printer', 'success');
+            var pr = json.result || json;
+            if (pr.success) {
+              showToast('Invoice sent to ' + (pr.printerUsed || 'printer'), 'success');
             } else {
-              showToast('Print error: ' + (json.error || 'Unknown'), 'error');
+              showToast('Print error: ' + (pr.message || json.error || 'Unknown'), 'error');
             }
           } else if (action === 'print-label') {
             var res2 = await fetch('/api/orders/' + encodeURIComponent(oid) + '/print-label', { method: 'POST' });
             var json2 = await res2.json();
-            if (json2.success) {
-              showToast('Pickup label sent to printer', 'success');
+            var pr2 = json2.result || json2;
+            if (pr2.success) {
+              showToast('Label sent to ' + (pr2.printerUsed || 'printer'), 'success');
             } else {
-              showToast('Print error: ' + (json2.error || 'Unknown'), 'error');
+              showToast('Print error: ' + (pr2.message || json2.error || 'Unknown'), 'error');
             }
           }
         } catch (err) {
@@ -4152,8 +4165,9 @@
       var res = await fetch('/api/orders/sync', { method: 'POST' });
       var json = await res.json();
       if (res.ok) {
-        var msg = 'Synced: ' + (json.created || 0) + ' new, ' + (json.updated || 0) + ' updated';
-        if (json.errors && json.errors.length > 0) msg += ', ' + json.errors.length + ' errors';
+        var r = json.result || {};
+        var msg = 'Synced: ' + (r.newOrders || 0) + ' new, ' + (r.updatedOrders || 0) + ' updated';
+        if (r.errors && r.errors.length > 0) msg += ', ' + r.errors.length + ' errors';
         showToast(msg, 'success');
         loadOrders();
       } else {
@@ -4164,6 +4178,36 @@
     }
     syncOrdersBtn.disabled = false;
     syncOrdersBtn.textContent = 'Sync WIX Orders';
+  });
+
+  // Reset & Resync — clear all WIX orders and re-import fresh
+  resetSyncBtn.addEventListener('click', async function() {
+    if (!confirm('This will clear all WIX orders and re-import them from scratch.\nManual orders will be preserved.\n\nContinue?')) return;
+    resetSyncBtn.disabled = true;
+    syncOrdersBtn.disabled = true;
+    resetSyncBtn.textContent = 'Resetting...';
+    try {
+      var res = await fetch('/api/orders/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reset: true }),
+      });
+      var json = await res.json();
+      if (res.ok) {
+        var r = json.result || {};
+        var msg = 'Reset complete: ' + (r.newOrders || 0) + ' orders re-imported';
+        if (r.errors && r.errors.length > 0) msg += ', ' + r.errors.length + ' errors';
+        showToast(msg, 'success');
+        loadOrders();
+      } else {
+        showToast('Reset error: ' + (json.error || 'Unknown'), 'error');
+      }
+    } catch (err) {
+      showToast('Reset error: ' + (err.message || String(err)), 'error');
+    }
+    resetSyncBtn.disabled = false;
+    syncOrdersBtn.disabled = false;
+    resetSyncBtn.textContent = 'Reset & Resync';
   });
 
   // Refresh orders
