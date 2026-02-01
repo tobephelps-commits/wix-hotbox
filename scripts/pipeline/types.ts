@@ -16,6 +16,9 @@
 import type { PricingConfig } from './pricing-rules.js';
 export type { PricingConfig } from './pricing-rules.js';
 
+// Import VendorId for vendor tracking on pipeline types
+import type { VendorId } from '../vendor/types.js';
+
 // =============================================================================
 // Template Types
 // =============================================================================
@@ -212,6 +215,8 @@ export interface CuratedProduct {
   style: string;
   /** Brand name from SanMar (e.g., "Port & Company") */
   brandName: string;
+  /** Source vendor for this product (optional, defaults to 'sanmar' for backward compatibility) — Phase 17 */
+  vendor?: VendorId;
   /** Product title from SanMar (e.g., "Essential Tee") */
   productTitle: string;
   /** Product description from SanMar productDescription */
@@ -263,6 +268,8 @@ export interface ProductPreview {
   style: string;
   /** Brand name */
   brandName: string;
+  /** Source vendor for this product (optional, defaults to 'sanmar' for backward compatibility) — Phase 17 */
+  vendor?: VendorId;
   /** Product title */
   productTitle: string;
   /** Product description */

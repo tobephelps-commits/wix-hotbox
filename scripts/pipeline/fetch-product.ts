@@ -1,31 +1,41 @@
 /**
- * SanMar Product Data Fetcher
+ * Vendor-Agnostic Product Data Fetcher
  *
- * Fetches ALL SanMar data needed for a given style number in a single
- * coordinated call. Queries 4 SanMar API endpoints in parallel:
- *   1. getProductByStyle  -> product info (all colors/sizes)
- *   2. getStylePricing    -> pricing info
- *   3. getStyleInventory  -> inventory per SKU
- *   4. getProductImages   -> all media content
+ * Fetches ALL product data needed for a given style number from any
+ * supported vendor (SanMar or S&S Activewear). Uses the VendorAdapter
+ * abstraction layer to route requests to the correct vendor API.
+ *
+ * For SanMar (default), queries 4 SOAP endpoints in parallel.
+ * For S&S Activewear, queries 1-2 REST endpoints.
  *
  * After all queries return, builds a ProductPreview for the curation UI
  * and groups images by color for the media payload builder.
  *
  * Usage:
  *   import { fetchProductData } from './fetch-product.js';
- *   const data = await fetchProductData('PC61');
- *   console.log(data.preview.brandName, data.preview.productTitle);
+ *   const data = await fetchProductData('PC61');           // SanMar (default)
+ *   const data = await fetchProductData('2000', 'ss');     // S&S Activewear
  *
  * CLI:
  *   npx tsx scripts/pipeline/fetch-product.ts PC61
+ *   npx tsx scripts/pipeline/fetch-product.ts --vendor ss 2000
  *
  * Phase 6: Product Creation Pipeline
+ * Phase 17: Vendor-agnostic refactor (VendorAdapter integration)
  */
 
 import 'dotenv/config';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+// Vendor adapter imports -- ensure both adapters are registered
+import '../sanmar/adapter.js';
+import '../ss-activewear/adapter.js';
+
+import { getVendor, parseVendorFlag } from '../vendor/index.js';
+import type { VendorId, UnifiedProductData, UnifiedMedia } from '../vendor/types.js';
+
+// SanMar-specific imports (needed for direct SanMar path and type compatibility)
 import {
   getProductByStyle,
   getStylePricing,
@@ -42,6 +52,7 @@ import type {
   PricingInfo,
   SkuInventory,
   MediaContent,
+  MediaClassType,
 } from '../sanmar/index.js';
 
 import { buildProductPreview } from './mapper.js';
@@ -53,13 +64,20 @@ import type { ProductPreview } from './types.js';
 // =============================================================================
 
 /**
- * Aggregated product data from all 4 SanMar API endpoints.
+ * Aggregated product data from vendor API endpoints.
  *
  * Contains raw data from each endpoint plus pre-computed values
  * for the mapper (imagesByColor map and ProductPreview).
+ *
+ * NOTE: This interface uses SanMar-specific types (ProductInfo, PricingInfo,
+ * SkuInventory, MediaContent) for backward compatibility with mapper.ts and
+ * create-product.ts. For non-SanMar vendors, the unifiedToProductData()
+ * bridge function constructs SanMar-shaped objects from unified types.
+ * This is a transitional design -- future phases may migrate pipeline
+ * internals to unified types directly.
  */
 export interface ProductData {
-  /** SanMar style number */
+  /** Vendor style number */
   style: string;
   /** All active products for this style (one per color+size combo) */
   products: ProductInfo[];
@@ -76,20 +94,174 @@ export interface ProductData {
 }
 
 // =============================================================================
+// Unified-to-ProductData Bridge (Transitional)
+// =============================================================================
+
+/**
+ * Convert UnifiedProductData to the existing ProductData shape.
+ *
+ * This is a transitional bridge so that mapper.ts and create-product.ts
+ * can consume data from any vendor without rewriting. For SanMar, this
+ * mapping is lossless. For S&S, it constructs SanMar-shaped objects from
+ * unified data.
+ *
+ * @param unified - Aggregated data from any VendorAdapter.fetchAllProductData()
+ * @returns ProductData compatible with existing pipeline consumers
+ */
+function unifiedToProductData(unified: UnifiedProductData): ProductData {
+  // --- Map UnifiedProduct[] -> ProductInfo[] ---
+  const products: ProductInfo[] = unified.products.map((p) => ({
+    productBasicInfo: {
+      brandName: p.brandName,
+      style: p.style,
+      productTitle: p.productTitle,
+      productDescription: p.description,
+      color: p.color,
+      catalogColor: p.colorCode,
+      size: p.size,
+      availableSizes: '',
+      productStatus: p.status,
+      caseSize: p.caseQty != null ? String(p.caseQty) : '0',
+      inventoryKey: `${p.style}-${p.colorCode}-${p.size}`,
+      sizeIndex: p.sizeOrder,
+      uniqueKey: `${p.style}-${p.colorCode}-${p.size}`,
+      category: p.category,
+      keywords: '',
+      pieceWeight: p.pieceWeight,
+    },
+    productImageInfo: {
+      frontModel: null,
+      backModel: null,
+      sideModel: null,
+      threeQModel: null,
+      frontFlat: null,
+      backFlat: null,
+      colorProductImage: null,
+      colorSquareImage: null,
+      brandLogoImage: null,
+      specSheet: null,
+    },
+    productPriceInfo: {
+      piecePrice: 0,
+      casePrice: 0,
+      dozenPrice: 0,
+      pieceSalePrice: 0,
+      caseSalePrice: 0,
+      priceCode: '',
+      priceText: '',
+      saleStartDate: null,
+      saleEndDate: null,
+    },
+  }));
+
+  // --- Map UnifiedPricing[] -> PricingInfo | null ---
+  // Use the first pricing entry as style-level pricing (SanMar pattern)
+  let pricing: PricingInfo | null = null;
+  if (unified.pricing.length > 0) {
+    const first = unified.pricing[0];
+    pricing = {
+      piecePrice: first.piecePrice,
+      casePrice: first.casePrice,
+      pieceSalePrice: first.salePrice ?? 0,
+      caseSalePrice: 0,
+      priceCode: first.priceCode ?? '',
+      priceText: '',
+      saleStartDate: null,
+      saleEndDate: first.saleExpiration,
+    };
+  }
+
+  // --- Map UnifiedInventory[] -> SkuInventory[] ---
+  const inventory: SkuInventory[] = unified.inventory.map((inv) => ({
+    color: inv.color,
+    size: inv.size,
+    whse: inv.warehouses.map((w) => ({
+      whseID: parseInt(w.id) || 0,
+      whseName: w.name,
+      qty: w.qty,
+    })),
+  }));
+
+  // --- Map UnifiedMedia[] -> MediaContent[] ---
+  // Expand each UnifiedMedia into multiple MediaContent entries
+  // (one per image type) to match the flat SanMar media format
+  const images: MediaContent[] = [];
+  for (const media of unified.media) {
+    const addImage = (url: string | null, classTypeId: number, classTypeName: string) => {
+      if (url) {
+        images.push({
+          productId: unified.style,
+          partId: null,
+          url,
+          mediaType: 'Image',
+          classType: { classTypeId, classTypeName } as MediaClassType,
+          color: media.color,
+        });
+      }
+    };
+
+    addImage(media.frontImage,    1007, 'Front');
+    addImage(media.backImage,     1008, 'Rear');
+    addImage(media.sideImage,     2001, 'High');
+    addImage(media.swatchImage,   1004, 'Swatch');
+    addImage(media.onModelFront,  1006, 'Primary');
+    // on-model back and side don't have SanMar classType equivalents;
+    // add them as generic images if needed in the future
+  }
+
+  // Group images by color
+  const imagesByColor = groupImagesByColor(images);
+
+  // Build preview
+  const preview = buildProductPreview(products, pricing, images, inventory);
+  preview.vendor = unified.vendor;
+
+  return {
+    style: unified.style,
+    products,
+    pricing,
+    inventory,
+    images,
+    imagesByColor,
+    preview,
+  };
+}
+
+// =============================================================================
 // Main Fetch Function
 // =============================================================================
 
 /**
- * Fetch all SanMar data for a style number.
+ * Fetch all product data for a style number from any supported vendor.
  *
- * Runs 4 API queries in parallel using Promise.all, then assembles
- * the aggregated ProductData with pre-computed imagesByColor and preview.
+ * When vendorId is 'sanmar' or undefined, uses the original direct SanMar
+ * API path for maximum backward compatibility. When vendorId is 'ss' or
+ * another registered vendor, routes through the VendorAdapter abstraction.
  *
- * @param style - SanMar style number (e.g., "PC61", "K420")
+ * @param style - Vendor-specific style number (e.g., "PC61" for SanMar, "2000" for S&S)
+ * @param vendorId - Which vendor to query (default: 'sanmar')
  * @returns Aggregated ProductData ready for curation and WIX creation
- * @throws Error if style not found or any API query fails
+ * @throws Error if style not found or any required API query fails
  */
-export async function fetchProductData(style: string): Promise<ProductData> {
+export async function fetchProductData(style: string, vendorId?: VendorId): Promise<ProductData> {
+  const resolvedVendor = vendorId ?? 'sanmar';
+
+  // For non-SanMar vendors, route through VendorAdapter
+  if (resolvedVendor !== 'sanmar') {
+    console.log(`Fetching ${style} from ${resolvedVendor}...`);
+    const adapter = getVendor(resolvedVendor);
+    const unified = await adapter.fetchAllProductData(style);
+    console.log(`  products: ${unified.products.length} SKUs`);
+    console.log(`  pricing: ${unified.pricing.length > 0 ? unified.pricing.length + ' entries' : 'unavailable'}`);
+    console.log(`  inventory: ${unified.inventory.length} SKUs`);
+    console.log(`  media: ${unified.media.length} colors`);
+
+    const data = unifiedToProductData(unified);
+    console.log(`Fetched ${style} via ${adapter.vendorName}: ${data.products.length} variants, ${data.images.length} images`);
+    return data;
+  }
+
+  // SanMar: use original direct API path for backward compatibility
   console.log(`Fetching ${style}...`);
 
   // Run all 4 queries in parallel using allSettled for graceful degradation.
@@ -178,6 +350,7 @@ export async function fetchProductData(style: string): Promise<ProductData> {
 
   // Build preview for the curation UI
   const preview = buildProductPreview(products, pricing, images, inventory);
+  preview.vendor = 'sanmar';
 
   console.log(`Fetched ${style}: ${products.length} variants, ${images.length} images`);
 
@@ -198,18 +371,44 @@ export async function fetchProductData(style: string): Promise<ProductData> {
 
 const __fetch_filename = fileURLToPath(import.meta.url);
 if (process.argv[1] && path.resolve(process.argv[1]) === __fetch_filename) {
-  const style = process.argv[2];
+  // Parse --vendor flag from CLI args
+  const vendorArgIdx = process.argv.indexOf('--vendor');
+  const vendorFlag = vendorArgIdx !== -1 ? process.argv[vendorArgIdx + 1] : undefined;
+  let vendorId: VendorId | undefined;
+  try {
+    vendorId = parseVendorFlag(vendorFlag);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
+
+  // Style is the first positional arg that isn't a flag or flag value
+  let style: string | undefined;
+  for (let i = 2; i < process.argv.length; i++) {
+    if (process.argv[i] === '--vendor') {
+      i++; // skip flag value
+      continue;
+    }
+    if (!process.argv[i].startsWith('-')) {
+      style = process.argv[i];
+      break;
+    }
+  }
+
   if (!style) {
-    console.error('Usage: npx tsx scripts/pipeline/fetch-product.ts <STYLE>');
-    console.error('Example: npx tsx scripts/pipeline/fetch-product.ts PC61');
+    console.error('Usage: npx tsx scripts/pipeline/fetch-product.ts [--vendor sanmar|ss] <STYLE>');
+    console.error('Examples:');
+    console.error('  npx tsx scripts/pipeline/fetch-product.ts PC61');
+    console.error('  npx tsx scripts/pipeline/fetch-product.ts --vendor ss 2000');
     process.exit(1);
   }
 
   try {
-    const data = await fetchProductData(style);
+    const data = await fetchProductData(style, vendorId);
     const p = data.preview;
 
     console.log('\n========================================');
+    console.log(`Vendor:      ${p.vendor ?? 'sanmar'}`);
     console.log(`Brand:       ${p.brandName}`);
     console.log(`Title:       ${p.productTitle}`);
     console.log(`Style:       ${p.style}`);
