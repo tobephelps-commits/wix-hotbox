@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 15 of 20 (Cost Tracking & Sale/Promo Pricing)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 15-02-PLAN.md
+Last activity: 2026-01-31 — Completed 15-03-PLAN.md
 
 Progress: █████░░░░░ 50%
 
@@ -78,6 +78,8 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 15-02 | Sale data in data/active-sales.json with original price snapshotting | Same gitignored pattern; snapshot enables reliable revert without external state |
 | 15-02 | Discount format parsing: 20% / $5 / @19.99 | CLI ergonomics for percent, fixed, and override discount types |
 | 15-02 | checkAndProcessSales() as manual trigger, not automated scheduler | Keeps system simple and CLI-driven; can be automated later if needed |
+| 15-03 | Local auth helpers duplicated from wix-api.ts for coupon module | Avoids modifying wix-api.ts private function exports; same pattern, isolated module |
+| 15-03 | PascalCase normalization for WIX Coupons V2 API type field | WIX API returns "PercentOff" not "percentOff"; case-insensitive comparison for display |
 
 ### Blockers/Concerns
 
@@ -92,5 +94,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 15-02-PLAN.md
+Stopped at: Completed 15-03-PLAN.md
 Resume file: None
