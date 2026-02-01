@@ -28,13 +28,14 @@
     "overlay-test": "npx tsx scripts/pipeline/overlay.ts",
     "margin-report": "npx tsx scripts/pipeline/margin-report.ts",
     "sale": "npx tsx scripts/pipeline/sale-pricing.ts",
-    "coupons": "npx tsx scripts/pipeline/wix-coupons.ts"
+    "coupons": "npx tsx scripts/pipeline/wix-coupons.ts",
+    "invoice:demo": "npx tsx scripts/orders/invoice-generator.ts --demo",
+    "label:demo": "npx tsx scripts/orders/label-generator.ts --demo"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/pdfkit": "^0.17.4",
     "dotenv": "^17.2.3",
     "nodemailer": "^7.0.13",
     "pdfkit": "^0.17.2",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
+    "@types/pdfkit": "^0.17.4",
     "@types/nodemailer": "^7.0.9",
     "playwright": "^1.58.1",
     "tsx": "^4.21.0",
