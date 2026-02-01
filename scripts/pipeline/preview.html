@@ -609,6 +609,211 @@
   }
   .overlay-note.visible { display: block; }
 
+  /* Margin Dashboard section (Phase 15) */
+  .margin-dashboard {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .margin-dashboard .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .margin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .margin-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .margin-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
+  .margin-table tr:hover {
+    background: #f8f8ff;
+    cursor: pointer;
+  }
+  .margin-table .margin-cell {
+    font-weight: 600;
+  }
+  .margin-cell.margin-high { color: #27ae60; }
+  .margin-cell.margin-mid { color: #e67e22; }
+  .margin-cell.margin-low { color: #e74c3c; }
+  .margin-empty {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+  }
+  .cost-history-row {
+    display: none;
+  }
+  .cost-history-row.visible {
+    display: table-row;
+  }
+  .cost-history-row td {
+    padding: 12px 10px;
+    background: #f9f9fb;
+  }
+  .cost-history-timeline {
+    font-size: 12px;
+    color: #555;
+  }
+  .cost-history-timeline .history-entry {
+    display: flex;
+    gap: 16px;
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .cost-history-timeline .history-entry:last-child {
+    border-bottom: none;
+  }
+  .history-entry .he-date { color: #999; min-width: 140px; }
+  .history-entry .he-reason {
+    font-weight: 500;
+    min-width: 80px;
+    text-transform: capitalize;
+  }
+
+  /* Sales section (Phase 15) */
+  .sales-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .sales-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sales-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .sales-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sales-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-badge.status-active { background: #d4edda; color: #155724; }
+  .status-badge.status-scheduled { background: #cce5ff; color: #004085; }
+  .status-badge.status-ended { background: #e2e3e5; color: #383d41; }
+  .status-badge.status-cancelled { background: #f8d7da; color: #721c24; }
+  .sale-actions .btn {
+    margin-right: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .btn-danger {
+    background: #e74c3c;
+    color: #fff;
+  }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-warning {
+    background: #f39c12;
+    color: #fff;
+  }
+  .btn-warning:hover { background: #d68910; }
+  .btn-info {
+    background: #3498db;
+    color: #fff;
+  }
+  .btn-info:hover { background: #2980b9; }
+  .sale-form {
+    background: #f8f8ff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .sale-form.visible { display: block; }
+  .sale-form-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .sale-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .sale-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sale-form-field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+  .sale-form-field input,
+  .sale-form-field select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  .sale-form-field input:focus,
+  .sale-form-field select:focus {
+    border-color: #6c63ff;
+  }
+  .sale-form-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .sales-empty {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+  }
+
   /* Responsive stacking for pricing controls */
   @media (max-width: 640px) {
     .pricing-controls { flex-direction: column; }
@@ -617,6 +822,7 @@
     .upcharge-table { grid-template-columns: 1fr; }
     .logo-controls { flex-direction: column; }
     .logo-control select { min-width: 100%; }
+    .sale-form-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -777,6 +983,71 @@
     </div>
     <div class="overlay-note" id="overlayNote">
       Logo will be applied to all product images during creation. Overlaid images saved to media/overlays/
+    </div>
+  </div>
+
+  <!-- Margin Dashboard (Phase 15) -->
+  <div class="margin-dashboard" id="marginDashboard">
+    <div class="section-header">
+      <div class="section-title">PRODUCT MARGINS</div>
+      <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-outline" id="refreshMarginsBtn">Refresh</button>
+      </div>
+    </div>
+    <div id="marginContent">
+      <div class="margin-empty">Loading margins...</div>
+    </div>
+  </div>
+
+  <!-- Sales & Promotions (Phase 15) -->
+  <div class="sales-section" id="salesSection">
+    <div class="section-header">
+      <div class="section-title">SALES &amp; PROMOTIONS</div>
+      <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-primary" id="newSaleBtn">New Sale</button>
+        <button type="button" class="btn btn-sm btn-outline" id="checkSalesBtn">Check Sales</button>
+      </div>
+    </div>
+    <!-- New Sale Form (hidden by default) -->
+    <div class="sale-form" id="saleForm">
+      <div class="sale-form-title">Create New Sale</div>
+      <div class="sale-form-grid">
+        <div class="sale-form-field">
+          <label for="saleNameInput">Name</label>
+          <input type="text" id="saleNameInput" placeholder="e.g. Flash Sale 20% Off">
+        </div>
+        <div class="sale-form-field">
+          <label for="saleDiscountType">Discount Type</label>
+          <select id="saleDiscountType">
+            <option value="percent">% Off</option>
+            <option value="fixed">$ Off</option>
+            <option value="override">Fixed Price</option>
+          </select>
+        </div>
+        <div class="sale-form-field">
+          <label for="saleDiscountValue">Discount Value</label>
+          <input type="number" id="saleDiscountValue" min="0" step="0.01" placeholder="e.g. 20">
+        </div>
+        <div class="sale-form-field">
+          <label for="saleStyles">Product Styles (comma-separated, blank=all)</label>
+          <input type="text" id="saleStyles" placeholder="e.g. PC61,K420">
+        </div>
+        <div class="sale-form-field">
+          <label for="saleStartDate">Start Date</label>
+          <input type="datetime-local" id="saleStartDate">
+        </div>
+        <div class="sale-form-field">
+          <label for="saleEndDate">End Date</label>
+          <input type="datetime-local" id="saleEndDate">
+        </div>
+      </div>
+      <div class="sale-form-actions">
+        <button type="button" class="btn btn-sm btn-success" id="submitSaleBtn">Create Sale</button>
+        <button type="button" class="btn btn-sm btn-outline" id="cancelSaleFormBtn">Cancel</button>
+      </div>
+    </div>
+    <div id="salesContent">
+      <div class="sales-empty">Loading sales...</div>
     </div>
   </div>
 
@@ -1792,6 +2063,350 @@
 
   // Fetch logos on page load
   fetchLogos();
+
+  // =========================================================================
+  // Margin Dashboard (Phase 15)
+  // =========================================================================
+
+  var marginDashboard = document.getElementById('marginDashboard');
+  var marginContent = document.getElementById('marginContent');
+  var refreshMarginsBtn = document.getElementById('refreshMarginsBtn');
+  var expandedStyles = {}; // Track which rows have expanded cost history
+
+  refreshMarginsBtn.addEventListener('click', function() {
+    loadMargins();
+  });
+
+  async function loadMargins() {
+    marginContent.innerHTML = '<div class="margin-empty">Loading margins...</div>';
+    try {
+      var res = await fetch('/api/margins');
+      var json = await res.json();
+      var margins = json.margins || [];
+      renderMarginTable(margins);
+    } catch (err) {
+      marginContent.innerHTML = '<div class="margin-empty">Error loading margins: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function renderMarginTable(margins) {
+    if (margins.length === 0) {
+      marginContent.innerHTML = '<div class="margin-empty">No products tracked yet. Create products via CLI to start tracking costs.</div>';
+      return;
+    }
+
+    var html = '<table class="margin-table"><thead><tr>' +
+      '<th>Style</th><th>Name</th><th>Wholesale</th><th>Decoration</th>' +
+      '<th>Total Cost</th><th>Retail</th><th>Margin $</th><th>Margin %</th><th>Preset</th>' +
+      '</tr></thead><tbody>';
+
+    margins.forEach(function(m) {
+      var marginPct = m.margin ? m.margin.percent : 0;
+      var marginDollars = m.margin ? m.margin.dollars : 0;
+      var marginClass = marginPct >= 40 ? 'margin-high' : (marginPct >= 20 ? 'margin-mid' : 'margin-low');
+
+      html += '<tr class="margin-data-row" data-style="' + escHtml(m.style) + '">';
+      html += '<td><strong>' + escHtml(m.style) + '</strong></td>';
+      html += '<td>' + escHtml(m.productName || '-') + '</td>';
+      html += '<td>$' + (m.wholesaleCost || 0).toFixed(2) + '</td>';
+      html += '<td>$' + (m.decorationCost || 0).toFixed(2) + '</td>';
+      html += '<td>$' + (m.totalCost || 0).toFixed(2) + '</td>';
+      html += '<td>$' + (m.retailPrice || 0).toFixed(2) + '</td>';
+      html += '<td class="margin-cell ' + marginClass + '">$' + marginDollars.toFixed(2) + '</td>';
+      html += '<td class="margin-cell ' + marginClass + '">' + marginPct.toFixed(1) + '%</td>';
+      html += '<td>' + escHtml(m.pricingPreset || '-') + '</td>';
+      html += '</tr>';
+
+      // Cost history expandable row
+      html += '<tr class="cost-history-row" id="history-' + escHtml(m.style) + '">';
+      html += '<td colspan="9"><div class="cost-history-timeline" id="timeline-' + escHtml(m.style) + '">Loading history...</div></td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    marginContent.innerHTML = html;
+
+    // Add click handlers for row expansion
+    var dataRows = marginContent.querySelectorAll('.margin-data-row');
+    dataRows.forEach(function(row) {
+      row.addEventListener('click', function() {
+        var style = row.dataset.style;
+        toggleCostHistory(style);
+      });
+    });
+  }
+
+  async function toggleCostHistory(style) {
+    var historyRow = document.getElementById('history-' + style);
+    var timeline = document.getElementById('timeline-' + style);
+
+    if (!historyRow) return;
+
+    if (historyRow.classList.contains('visible')) {
+      historyRow.classList.remove('visible');
+      expandedStyles[style] = false;
+      return;
+    }
+
+    historyRow.classList.add('visible');
+    expandedStyles[style] = true;
+
+    // Fetch history
+    try {
+      var res = await fetch('/api/margins/' + encodeURIComponent(style));
+      var json = await res.json();
+      var history = json.history || [];
+
+      if (history.length === 0) {
+        timeline.innerHTML = '<em>No history entries.</em>';
+        return;
+      }
+
+      var html = '';
+      history.forEach(function(h) {
+        var date = new Date(h.timestamp).toLocaleString();
+        var marginPct = h.margin ? h.margin.percent : 0;
+        html += '<div class="history-entry">';
+        html += '<span class="he-date">' + escHtml(date) + '</span>';
+        html += '<span class="he-reason">' + escHtml(h.reason) + '</span>';
+        html += '<span>Cost: $' + (h.totalCost || 0).toFixed(2) + '</span>';
+        html += '<span>Retail: $' + (h.retailPrice || 0).toFixed(2) + '</span>';
+        html += '<span>Margin: ' + marginPct.toFixed(1) + '%</span>';
+        html += '</div>';
+      });
+      timeline.innerHTML = html;
+    } catch (err) {
+      timeline.innerHTML = '<em>Error loading history: ' + escHtml(err.message || String(err)) + '</em>';
+    }
+  }
+
+  // Load margins on page load
+  loadMargins();
+
+  // =========================================================================
+  // Sales & Promotions (Phase 15)
+  // =========================================================================
+
+  var salesSection = document.getElementById('salesSection');
+  var salesContent = document.getElementById('salesContent');
+  var newSaleBtn = document.getElementById('newSaleBtn');
+  var checkSalesBtn = document.getElementById('checkSalesBtn');
+  var saleForm = document.getElementById('saleForm');
+  var submitSaleBtn = document.getElementById('submitSaleBtn');
+  var cancelSaleFormBtn = document.getElementById('cancelSaleFormBtn');
+  var saleNameInput = document.getElementById('saleNameInput');
+  var saleDiscountType = document.getElementById('saleDiscountType');
+  var saleDiscountValue = document.getElementById('saleDiscountValue');
+  var saleStyles = document.getElementById('saleStyles');
+  var saleStartDate = document.getElementById('saleStartDate');
+  var saleEndDate = document.getElementById('saleEndDate');
+
+  newSaleBtn.addEventListener('click', function() {
+    saleForm.classList.toggle('visible');
+    // Set default start date to now
+    if (!saleStartDate.value) {
+      var now = new Date();
+      saleStartDate.value = toLocalDateTimeString(now);
+    }
+    // Set default end date to 7 days from now
+    if (!saleEndDate.value) {
+      var week = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      saleEndDate.value = toLocalDateTimeString(week);
+    }
+  });
+
+  cancelSaleFormBtn.addEventListener('click', function() {
+    saleForm.classList.remove('visible');
+    clearSaleForm();
+  });
+
+  function toLocalDateTimeString(d) {
+    var year = d.getFullYear();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    var hours = String(d.getHours()).padStart(2, '0');
+    var minutes = String(d.getMinutes()).padStart(2, '0');
+    return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+  }
+
+  function clearSaleForm() {
+    saleNameInput.value = '';
+    saleDiscountType.value = 'percent';
+    saleDiscountValue.value = '';
+    saleStyles.value = '';
+    saleStartDate.value = '';
+    saleEndDate.value = '';
+  }
+
+  submitSaleBtn.addEventListener('click', async function() {
+    var name = saleNameInput.value.trim();
+    var discountType = saleDiscountType.value;
+    var discountValue = parseFloat(saleDiscountValue.value);
+    var styles = saleStyles.value.trim();
+    var startDate = saleStartDate.value;
+    var endDate = saleEndDate.value;
+
+    if (!name) { setStatus('Sale name is required.', 'error'); return; }
+    if (isNaN(discountValue) || discountValue <= 0) { setStatus('Valid discount value is required.', 'error'); return; }
+    if (!startDate) { setStatus('Start date is required.', 'error'); return; }
+    if (!endDate) { setStatus('End date is required.', 'error'); return; }
+
+    var productStyles = styles ? styles.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+
+    submitSaleBtn.disabled = true;
+    submitSaleBtn.textContent = 'Creating...';
+
+    try {
+      var res = await fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          discountType: discountType,
+          discountValue: discountValue,
+          productStyles: productStyles,
+          startDate: new Date(startDate).toISOString(),
+          endDate: new Date(endDate).toISOString()
+        })
+      });
+      var json = await res.json();
+
+      if (res.ok && json.sale) {
+        setStatus('Sale "' + escHtml(json.sale.name) + '" created (' + json.sale.status + ')', 'success');
+        saleForm.classList.remove('visible');
+        clearSaleForm();
+        loadSales();
+        // Refresh margins in case sale was applied
+        loadMargins();
+      } else {
+        setStatus('Error creating sale: ' + escHtml(json.error || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      setStatus('Error creating sale: ' + escHtml(err.message || String(err)), 'error');
+    }
+
+    submitSaleBtn.disabled = false;
+    submitSaleBtn.textContent = 'Create Sale';
+  });
+
+  checkSalesBtn.addEventListener('click', async function() {
+    checkSalesBtn.disabled = true;
+    checkSalesBtn.textContent = 'Checking...';
+
+    try {
+      var res = await fetch('/api/sales/check', { method: 'POST' });
+      var json = await res.json();
+      if (json.ok) {
+        setStatus('Sales checked and processed.', 'success');
+        loadSales();
+        loadMargins();
+      } else {
+        setStatus('Error checking sales: ' + escHtml(json.error || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      setStatus('Error checking sales: ' + escHtml(err.message || String(err)), 'error');
+    }
+
+    checkSalesBtn.disabled = false;
+    checkSalesBtn.textContent = 'Check Sales';
+  });
+
+  async function loadSales() {
+    salesContent.innerHTML = '<div class="sales-empty">Loading sales...</div>';
+    try {
+      var res = await fetch('/api/sales');
+      var json = await res.json();
+      var sales = json.sales || [];
+      renderSalesTable(sales);
+    } catch (err) {
+      salesContent.innerHTML = '<div class="sales-empty">Error loading sales: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  }
+
+  function renderSalesTable(sales) {
+    if (sales.length === 0) {
+      salesContent.innerHTML = '<div class="sales-empty">No sales yet. Click "New Sale" to create one.</div>';
+      return;
+    }
+
+    var html = '<table class="sales-table"><thead><tr>' +
+      '<th>Name</th><th>Discount</th><th>Products</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th>' +
+      '</tr></thead><tbody>';
+
+    sales.forEach(function(s) {
+      var discountStr = '';
+      if (s.discountType === 'percent') discountStr = s.discountValue + '% Off';
+      else if (s.discountType === 'fixed') discountStr = '$' + s.discountValue + ' Off';
+      else if (s.discountType === 'override') discountStr = '$' + s.discountValue + ' (Fixed)';
+
+      var statusClass = 'status-' + s.status;
+      var startStr = new Date(s.startDate).toLocaleDateString();
+      var endStr = new Date(s.endDate).toLocaleDateString();
+      var productsStr = s.productStyles && s.productStyles.length > 0 ? s.productStyles.join(', ') : 'All';
+
+      html += '<tr>';
+      html += '<td><strong>' + escHtml(s.name) + '</strong></td>';
+      html += '<td>' + escHtml(discountStr) + '</td>';
+      html += '<td>' + escHtml(productsStr) + '</td>';
+      html += '<td>' + escHtml(startStr) + '</td>';
+      html += '<td>' + escHtml(endStr) + '</td>';
+      html += '<td><span class="status-badge ' + statusClass + '">' + escHtml(s.status) + '</span></td>';
+      html += '<td class="sale-actions">';
+
+      if (s.status === 'scheduled') {
+        html += '<button class="btn btn-sm btn-info sale-action-btn" data-action="apply" data-id="' + escHtml(s.id) + '">Apply</button>';
+        html += '<button class="btn btn-sm btn-danger sale-action-btn" data-action="cancel" data-id="' + escHtml(s.id) + '">Cancel</button>';
+      } else if (s.status === 'active') {
+        html += '<button class="btn btn-sm btn-warning sale-action-btn" data-action="revert" data-id="' + escHtml(s.id) + '">Revert</button>';
+        html += '<button class="btn btn-sm btn-danger sale-action-btn" data-action="cancel" data-id="' + escHtml(s.id) + '">Cancel</button>';
+      }
+
+      html += '</td></tr>';
+    });
+
+    html += '</tbody></table>';
+    salesContent.innerHTML = html;
+
+    // Add event listeners for action buttons
+    var actionBtns = salesContent.querySelectorAll('.sale-action-btn');
+    actionBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var action = btn.dataset.action;
+        var saleId = btn.dataset.id;
+        handleSaleAction(action, saleId, btn);
+      });
+    });
+  }
+
+  async function handleSaleAction(action, saleId, btn) {
+    var originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    var endpoint = '/api/sales/' + encodeURIComponent(saleId) + '/' + action;
+
+    try {
+      var res = await fetch(endpoint, { method: 'POST' });
+      var json = await res.json();
+
+      if (json.ok || res.ok) {
+        setStatus('Sale ' + action + ' successful.', 'success');
+        loadSales();
+        loadMargins();
+      } else {
+        setStatus('Error: ' + escHtml(json.error || 'Unknown error'), 'error');
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    } catch (err) {
+      setStatus('Error: ' + escHtml(err.message || String(err)), 'error');
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  // Load sales on page load
+  loadSales();
 
   // =========================================================================
   // Auto-load style from URL query param
