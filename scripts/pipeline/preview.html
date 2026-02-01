@@ -1476,6 +1476,123 @@
   .toast.toast-success { background: #27ae60; }
   .toast.toast-error { background: #e74c3c; }
 
+  /* Cart Fill Modal (Phase 19) */
+  .cart-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .cart-modal-overlay.visible { display: flex; }
+  .cart-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
+  .cart-modal h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #222;
+  }
+  .cart-modal .cart-summary {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  .cart-modal .cart-summary strong { color: #333; }
+  .cart-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .cart-items-table th {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 2px solid #eee;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  .cart-items-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+  }
+  .cart-items-table tr:last-child td { border-bottom: none; }
+  .cart-warning {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #795548;
+    margin-bottom: 12px;
+  }
+  .cart-modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+  .cart-loading-msg {
+    text-align: center;
+    padding: 24px;
+    color: #666;
+    font-size: 14px;
+  }
+  .cart-history-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+  }
+  .cart-history-section h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  .cart-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 12px;
+    color: #666;
+  }
+  .cart-history-item .ch-status {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .ch-status-success { background: #e8f5e9; color: #2e7d32; }
+  .ch-status-partial { background: #fff3e0; color: #e65100; }
+  .ch-status-failed { background: #ffebee; color: #c62828; }
+  .btn-cart-fill {
+    background: #e67e22;
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-cart-fill:hover { background: #d35400; }
+  .btn-cart-fill:disabled { background: #bbb; cursor: not-allowed; }
+
   /* Responsive stacking for pricing controls */
   @media (max-width: 640px) {
     .pricing-controls { flex-direction: column; }
@@ -1759,6 +1876,7 @@
         ORDERS <span class="count" id="orderCount"></span>
       </div>
       <div class="section-actions">
+        <button type="button" class="btn-cart-fill" id="fillCartBtn" disabled>Fill SanMar Cart</button>
         <button type="button" class="btn btn-sm btn-primary" id="syncOrdersBtn">Sync WIX Orders</button>
         <button type="button" class="btn btn-sm btn-outline" id="newManualOrderBtn">New Manual Order</button>
         <button type="button" class="btn btn-sm btn-outline" id="refreshOrdersBtn">Refresh</button>
@@ -1812,6 +1930,19 @@
         <div class="order-form-field">
           <label>Phone</label>
           <input type="tel" id="moPhone">
+        </div>
+      </div>
+
+      <div class="order-form-section-title">Collection / Brand</div>
+      <div class="order-form-grid">
+        <div class="order-form-field">
+          <label>Collection</label>
+          <select id="moCollection">
+            <option value="">-- Select --</option>
+            <option value="Big Barn">Big Barn</option>
+            <option value="Board30">Board30</option>
+            <option value="HotBox">HotBox</option>
+          </select>
         </div>
       </div>
 
@@ -1876,6 +2007,21 @@
       <div class="order-form-actions">
         <button type="button" class="btn btn-outline" id="moCancelBtn">Cancel</button>
         <button type="button" class="btn btn-success" id="moCreateBtn">Create Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Fill Preview Modal (Phase 19) -->
+  <div class="cart-modal-overlay" id="cartModalOverlay">
+    <div class="cart-modal">
+      <h2>Fill SanMar Cart</h2>
+      <div class="cart-summary" id="cartSummary"></div>
+      <div id="cartPreviewContent">
+        <div class="cart-loading-msg">Loading cart preview...</div>
+      </div>
+      <div class="cart-modal-actions" id="cartModalActions">
+        <button type="button" class="btn btn-outline" id="cartCancelBtn">Cancel</button>
+        <button type="button" class="btn-cart-fill" id="cartExecuteBtn" style="padding:8px 20px;font-size:14px;">Fill Cart</button>
       </div>
     </div>
   </div>
@@ -3678,6 +3824,10 @@
       _ordersCache = json.orders || [];
       orderCount.textContent = '(' + _ordersCache.length + ')';
       renderOrderList(_ordersCache);
+      // Enable/disable Fill SanMar Cart button based on new orders
+      var newCount = _ordersCache.filter(function(o) { return o.status === 'new'; }).length;
+      var fillBtn = document.getElementById('fillCartBtn');
+      if (fillBtn) fillBtn.disabled = newCount === 0;
     } catch (err) {
       orderListContent.innerHTML = '<div class="orders-empty">Error loading orders: ' + escHtml(err.message || String(err)) + '</div>';
     }
@@ -3781,6 +3931,13 @@
     if (order.customer.phone) html += '<p><span class="label">Phone:</span> ' + escHtml(order.customer.phone) + '</p>';
     html += '</div>';
 
+    if (order.collection) {
+      html += '<div class="order-detail-card" style="margin-top:12px;">';
+      html += '<h3>Collection</h3>';
+      html += '<p style="font-size:16px;font-weight:600;">' + escHtml(order.collection) + '</p>';
+      html += '</div>';
+    }
+
     if (order.shippingAddress) {
       html += '<div class="order-detail-card" style="margin-top:12px;">';
       html += '<h3>Shipping Address</h3>';
@@ -3861,10 +4018,8 @@
     html += '<div class="order-print-actions">';
     html += '<button class="btn btn-sm btn-primary print-action-btn" data-action="print-invoice" data-order-id="' + order.id + '">Print Invoice</button>';
     html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-invoice" data-order-id="' + order.id + '">Download Invoice</button>';
-    if (order.shippingAddress) {
-      html += '<button class="btn btn-sm btn-info print-action-btn" data-action="print-label" data-order-id="' + order.id + '">Print Shipping Label</button>';
-      html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-label" data-order-id="' + order.id + '">Download Label</button>';
-    }
+    html += '<button class="btn btn-sm btn-info print-action-btn" data-action="print-label" data-order-id="' + order.id + '">Print Pickup Label</button>';
+    html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-label" data-order-id="' + order.id + '">Download Pickup Label</button>';
     html += '</div>';
     html += '</div>';
 
@@ -3956,7 +4111,7 @@
             showToast('Invoice PDF opened in new tab', 'success');
           } else if (action === 'download-label') {
             window.open('/api/orders/' + encodeURIComponent(oid) + '/label', '_blank');
-            showToast('Shipping label opened in new tab', 'success');
+            showToast('Pickup label opened in new tab', 'success');
           } else if (action === 'print-invoice') {
             var res = await fetch('/api/orders/' + encodeURIComponent(oid) + '/print-invoice', { method: 'POST' });
             var json = await res.json();
@@ -3969,7 +4124,7 @@
             var res2 = await fetch('/api/orders/' + encodeURIComponent(oid) + '/print-label', { method: 'POST' });
             var json2 = await res2.json();
             if (json2.success) {
-              showToast('Shipping label sent to printer', 'success');
+              showToast('Pickup label sent to printer', 'success');
             } else {
               showToast('Print error: ' + (json2.error || 'Unknown'), 'error');
             }
@@ -4077,6 +4232,7 @@
     });
     if (lineItems.length === 0) { showToast('Add at least one line item.', 'error'); return; }
 
+    var collectionVal = document.getElementById('moCollection').value;
     var body = {
       customer: {
         firstName: firstName,
@@ -4085,6 +4241,7 @@
         phone: document.getElementById('moPhone').value.trim() || undefined
       },
       lineItems: lineItems,
+      collection: collectionVal || undefined,
       shippingCost: parseFloat(document.getElementById('moShippingCost').value) || 0,
       tax: parseFloat(document.getElementById('moTax').value) || 0,
       notes: document.getElementById('moNotes').value.trim() || undefined
@@ -4123,6 +4280,7 @@
         document.getElementById('moLastName').value = '';
         document.getElementById('moEmail').value = '';
         document.getElementById('moPhone').value = '';
+        document.getElementById('moCollection').value = '';
         document.getElementById('moHasShipping').checked = false;
         document.getElementById('moShippingFields').style.display = 'none';
         document.getElementById('moShippingCost').value = '0';
@@ -4146,6 +4304,169 @@
     createBtn2.disabled = false;
     createBtn2.textContent = 'Create Order';
   });
+
+  // =========================================================================
+  // SanMar Cart Fill (Phase 19)
+  // =========================================================================
+
+  var fillCartBtn = document.getElementById('fillCartBtn');
+  var cartModalOverlay = document.getElementById('cartModalOverlay');
+  var cartSummary = document.getElementById('cartSummary');
+  var cartPreviewContent = document.getElementById('cartPreviewContent');
+  var cartCancelBtn = document.getElementById('cartCancelBtn');
+  var cartExecuteBtn = document.getElementById('cartExecuteBtn');
+
+  // Open cart preview modal
+  fillCartBtn.addEventListener('click', async function() {
+    cartModalOverlay.classList.add('visible');
+    cartPreviewContent.innerHTML = '<div class="cart-loading-msg">Loading cart preview...</div>';
+    cartSummary.textContent = '';
+    cartExecuteBtn.disabled = true;
+
+    try {
+      var res = await fetch('/api/cart/preview');
+      var json = await res.json();
+
+      if (!json.items || json.items.length === 0) {
+        cartSummary.innerHTML = '<strong>No SanMar items to order.</strong> All items may be from other vendors or missing vendor style numbers.';
+        cartPreviewContent.innerHTML = '';
+        cartExecuteBtn.disabled = true;
+        // Load cart history even if empty cart
+        loadCartHistory();
+        return;
+      }
+
+      cartSummary.innerHTML = '<strong>' + json.orderCount + ' order' + (json.orderCount === 1 ? '' : 's') +
+        '</strong> &rarr; <strong>' + json.itemCount + ' unique cart item' + (json.itemCount === 1 ? '' : 's') + '</strong>';
+
+      var html = '';
+
+      // Warning for skipped items
+      if (json.skippedCount > 0) {
+        html += '<div class="cart-warning">' + json.skippedCount + ' item' + (json.skippedCount === 1 ? '' : 's') +
+          ' skipped (no vendor style, missing color/size, or non-SanMar vendor)</div>';
+      }
+
+      // Cart items table
+      html += '<table class="cart-items-table">';
+      html += '<thead><tr><th>Style</th><th>Color</th><th>Size</th><th>Qty</th><th>Source Orders</th></tr></thead>';
+      html += '<tbody>';
+      for (var i = 0; i < json.items.length; i++) {
+        var item = json.items[i];
+        var sources = item.sourceOrders.map(function(n) { return '#' + n; }).join(', ');
+        html += '<tr>';
+        html += '<td><strong>' + escHtml(item.vendorStyle) + '</strong></td>';
+        html += '<td>' + escHtml(item.color) + '</td>';
+        html += '<td>' + escHtml(item.size) + '</td>';
+        html += '<td>' + item.quantity + '</td>';
+        html += '<td style="color:#888;font-size:12px;">' + escHtml(sources) + '</td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+
+      cartPreviewContent.innerHTML = html;
+      cartExecuteBtn.disabled = false;
+
+      // Load cart history below the table
+      loadCartHistory();
+
+    } catch (err) {
+      cartPreviewContent.innerHTML = '<div class="cart-loading-msg" style="color:#e74c3c;">Error loading preview: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  });
+
+  // Cancel cart modal
+  cartCancelBtn.addEventListener('click', function() {
+    cartModalOverlay.classList.remove('visible');
+  });
+
+  // Close cart modal on overlay click
+  cartModalOverlay.addEventListener('click', function(e) {
+    if (e.target === cartModalOverlay) cartModalOverlay.classList.remove('visible');
+  });
+
+  // Close cart modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && cartModalOverlay.classList.contains('visible')) {
+      cartModalOverlay.classList.remove('visible');
+    }
+  });
+
+  // Execute cart fill
+  cartExecuteBtn.addEventListener('click', async function() {
+    cartExecuteBtn.disabled = true;
+    cartExecuteBtn.textContent = 'Filling...';
+    cartPreviewContent.innerHTML = '<div class="cart-loading-msg">Filling SanMar cart... This may take a few minutes.</div>';
+
+    try {
+      var res = await fetch('/api/cart/fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      var json = await res.json();
+
+      if (json.result === null) {
+        showToast('No orders to process.', 'error');
+      } else if (json.result) {
+        var r = json.result;
+        var successCount = r.itemResults ? r.itemResults.filter(function(ir) { return ir.success; }).length : 0;
+        var totalCount = r.itemResults ? r.itemResults.length : 0;
+
+        if (r.status === 'success') {
+          showToast('SanMar cart filled! ' + successCount + ' items added. Browser opened at checkout.', 'success');
+        } else if (r.status === 'partial') {
+          showToast('Cart partially filled: ' + successCount + ' of ' + totalCount + ' items added. Check results for errors.', 'error');
+        } else {
+          showToast('Cart fill failed. See console for details.', 'error');
+        }
+      } else if (json.error) {
+        showToast('Cart fill error: ' + json.error, 'error');
+      }
+
+      cartModalOverlay.classList.remove('visible');
+      loadOrders(); // Refresh orders (should now show 'ordered' status)
+    } catch (err) {
+      showToast('Cart fill error: ' + (err.message || String(err)), 'error');
+      cartModalOverlay.classList.remove('visible');
+    }
+
+    cartExecuteBtn.disabled = false;
+    cartExecuteBtn.textContent = 'Fill Cart';
+  });
+
+  // Load cart history into the modal
+  async function loadCartHistory() {
+    try {
+      var res = await fetch('/api/cart/history');
+      var json = await res.json();
+      var fills = json.fills || [];
+
+      if (fills.length === 0) return; // Don't show section if no history
+
+      var html = '<div class="cart-history-section"><h4>Recent Cart Fills</h4>';
+      // Show last 5 fills
+      var shown = fills.slice(0, 5);
+      for (var i = 0; i < shown.length; i++) {
+        var fill = shown[i];
+        var date = new Date(fill.completedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        var itemCount = fill.itemResults ? fill.itemResults.length : 0;
+        var statusClass = 'ch-status-' + fill.status;
+        var statusLabel = fill.status.charAt(0).toUpperCase() + fill.status.slice(1);
+
+        html += '<div class="cart-history-item">';
+        html += '<span>' + escHtml(date) + ' &mdash; ' + itemCount + ' item' + (itemCount === 1 ? '' : 's') + '</span>';
+        html += '<span class="ch-status ' + statusClass + '">' + statusLabel + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      // Append to cartPreviewContent
+      cartPreviewContent.insertAdjacentHTML('beforeend', html);
+    } catch (err) {
+      // Silently ignore history load errors
+    }
+  }
 
   // Auto-refresh orders every 60 seconds
   function startOrderRefresh() {
