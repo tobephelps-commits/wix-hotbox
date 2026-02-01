@@ -39,6 +39,20 @@ import {
   getPositionPreset,
   listLogos,
 } from './overlay.js';
+import {
+  getAllProductCosts,
+  getProductCost,
+  getCostHistory,
+} from './cost-tracker.js';
+import {
+  listSales,
+  createSale,
+  applySale,
+  revertSale,
+  cancelSale,
+  checkAndProcessSales,
+} from './sale-pricing.js';
+import type { SaleConfig } from './types.js';
 
 // =============================================================================
 // Configuration
@@ -269,6 +283,45 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const overlayFileMatch = urlPath.match(/^\/api\/overlays\/([A-Za-z0-9._-]+)\/?$/);
   if (overlayFileMatch) {
     return { route: 'overlay-file', param: overlayFileMatch[1] };
+  }
+
+  // Match /api/margins/:style (must come before /api/margins)
+  const marginStyleMatch = urlPath.match(/^\/api\/margins\/([A-Za-z0-9._-]+)\/?$/);
+  if (marginStyleMatch) {
+    return { route: 'margin-by-style', param: marginStyleMatch[1] };
+  }
+
+  // Match /api/margins
+  if (urlPath === '/api/margins') {
+    return { route: 'margins' };
+  }
+
+  // Match /api/sales/:id/apply
+  const saleApplyMatch = urlPath.match(/^\/api\/sales\/([A-Za-z0-9._-]+)\/apply\/?$/);
+  if (saleApplyMatch) {
+    return { route: 'sale-apply', param: saleApplyMatch[1] };
+  }
+
+  // Match /api/sales/:id/revert
+  const saleRevertMatch = urlPath.match(/^\/api\/sales\/([A-Za-z0-9._-]+)\/revert\/?$/);
+  if (saleRevertMatch) {
+    return { route: 'sale-revert', param: saleRevertMatch[1] };
+  }
+
+  // Match /api/sales/:id/cancel
+  const saleCancelMatch = urlPath.match(/^\/api\/sales\/([A-Za-z0-9._-]+)\/cancel\/?$/);
+  if (saleCancelMatch) {
+    return { route: 'sale-cancel', param: saleCancelMatch[1] };
+  }
+
+  // Match /api/sales/check
+  if (urlPath === '/api/sales/check') {
+    return { route: 'sales-check' };
+  }
+
+  // Match /api/sales
+  if (urlPath === '/api/sales') {
+    return { route: 'sales' };
   }
 
   // Match / (root)
@@ -507,6 +560,173 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error serving overlay file: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // Cost/Margin API (Phase 15)
+
+          case 'margins': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const costs = await getAllProductCosts();
+              sendJson(res, 200, { margins: costs });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading margins: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'margin-by-style': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const current = await getProductCost(param!);
+              if (!current) {
+                sendJson(res, 404, { error: `Style "${param}" not found in cost history` });
+                break;
+              }
+              const history = await getCostHistory(param!);
+              sendJson(res, 200, { current, history });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading margin for ${param}: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // Sale Pricing API (Phase 15)
+
+          case 'sales': {
+            if (method === 'GET') {
+              try {
+                const urlObj = new URL(req.url ?? '/', `http://localhost`);
+                const statusFilter = urlObj.searchParams.get('status') as 'active' | 'scheduled' | 'ended' | 'cancelled' | null;
+                const sales = await listSales(statusFilter ?? undefined);
+                sendJson(res, 200, { sales });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error listing sales: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            } else if (method === 'POST') {
+              try {
+                const body = await readBody(req);
+                const payload = JSON.parse(body);
+
+                // Validate required fields
+                if (!payload.name || !payload.discountType || payload.discountValue === undefined ||
+                    !payload.startDate || !payload.endDate) {
+                  sendJson(res, 400, {
+                    error: 'Missing required fields: name, discountType, discountValue, startDate, endDate',
+                  });
+                  break;
+                }
+
+                // Validate discount type
+                if (!['percent', 'fixed', 'override'].includes(payload.discountType)) {
+                  sendJson(res, 400, { error: 'Invalid discountType. Must be: percent, fixed, or override' });
+                  break;
+                }
+
+                const sale = await createSale({
+                  name: payload.name,
+                  discountType: payload.discountType as SaleConfig['discountType'],
+                  discountValue: payload.discountValue,
+                  productStyles: payload.productStyles || [],
+                  startDate: payload.startDate,
+                  endDate: payload.endDate,
+                });
+
+                // If start date is now/past and sale is active, apply it
+                if (sale.status === 'active') {
+                  try {
+                    await applySale(sale.id);
+                  } catch (applyErr) {
+                    console.warn(`[Preview] Sale created but apply failed: ${applyErr instanceof Error ? applyErr.message : String(applyErr)}`);
+                  }
+                }
+
+                sendJson(res, 201, { sale });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error creating sale: ${message}`);
+                sendJson(res, 400, { error: message });
+              }
+            } else {
+              sendJson(res, 405, { error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          case 'sale-apply': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              await applySale(param!);
+              sendJson(res, 200, { ok: true, message: `Sale "${param}" applied` });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error applying sale ${param}: ${message}`);
+              sendJson(res, 400, { error: message });
+            }
+            break;
+          }
+
+          case 'sale-revert': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              await revertSale(param!);
+              sendJson(res, 200, { ok: true, message: `Sale "${param}" reverted` });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error reverting sale ${param}: ${message}`);
+              sendJson(res, 400, { error: message });
+            }
+            break;
+          }
+
+          case 'sale-cancel': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              await cancelSale(param!);
+              sendJson(res, 200, { ok: true, message: `Sale "${param}" cancelled` });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error cancelling sale ${param}: ${message}`);
+              sendJson(res, 400, { error: message });
+            }
+            break;
+          }
+
+          case 'sales-check': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              await checkAndProcessSales();
+              sendJson(res, 200, { ok: true, message: 'Sales checked and processed' });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error checking sales: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
             }
             break;
