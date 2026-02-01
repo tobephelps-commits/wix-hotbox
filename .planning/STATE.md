@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17 of 20 (S&S Activewear API Integration)
-Plan: 2 of 7 in current phase
+Plan: 4 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17-02-PLAN.md
+Last activity: 2026-02-01 — Completed 17-04-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -104,6 +104,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 17-02 | Sliding window rate limiter as shared singleton | All S&S usage (pipeline, monitoring, sync) shares 60 req/min budget |
 | 17-02 | 404 returns empty array, not error | Query-style endpoints: "not found" is a valid empty result, not exceptional |
 | 17-02 | Image URL resolver replaces _fm suffix with size param | S&S returns medium by default; _fl for product pages, _fs for thumbnails |
+| 17-04 | Use products endpoint for inventory (not /v2/inventory/) | Inventory items lack color/size names; products endpoint provides full context in one call |
+| 17-04 | Style enrichment optional with try/catch fallback | Failure to fetch title/description doesn't block core product data |
+| 17-04 | Swatch images use _fm (medium); all others use _fl (full/large) | Appropriate resolution for each image use case |
 
 ### Blockers/Concerns
 
@@ -118,5 +121,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-02-PLAN.md
+Stopped at: Completed 17-04-PLAN.md
 Resume file: None
