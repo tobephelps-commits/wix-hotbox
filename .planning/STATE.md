@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 17 of 20 (S&S Activewear API Integration) -- COMPLETE
-Plan: 7 of 7 in current phase (all complete)
-Status: Phase 17 complete, ready for Phase 18
-Last activity: 2026-02-01 — Completed 17-07-PLAN.md (Phase 17 final plan)
+Phase: 18 of 20 (Order Management — Invoice & Label Printing)
+Plan: 1 of 6 in current phase
+Status: In progress
+Last activity: 2026-02-01 — Completed 18-01-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -121,6 +121,9 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 17-07 | Vendor-specific pricing detail section adapts: Price Code for SanMar, MAP/Customer Price for S&S | Each vendor has unique pricing concepts worth surfacing |
 | 17-07 | Warehouse labels adaptive: numeric IDs show as #N (SanMar), abbreviation codes show as-is (S&S) | Auto-detect format rather than requiring vendor context |
 | 17-07 | Phase 17 complete -- S&S Activewear fully integrated across vendor types, API client, adapters, pipeline, monitor/sync, and preview server | Preview server is single interface for product curation from either vendor |
+| 18-01 | Auth helpers duplicated locally for orders module | Same pattern as Phase 15-03 coupon module; avoids modifying wix-api.ts internals |
+| 18-01 | Customer name from billingInfo.contactDetails (not buyerInfo) | WIX eCommerce V1 puts name/phone in contactDetails; buyerInfo only has contactId/email |
+| 18-01 | WIX addressLine mapped to addressLine1 | WIX V1 ecom uses single addressLine field, not addressLine1/addressLine2 |
 
 ### Blockers/Concerns
 
@@ -135,5 +138,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-07-PLAN.md — Phase 17 complete
+Stopped at: Completed 18-01-PLAN.md — Order types and WIX Orders API client
 Resume file: None
