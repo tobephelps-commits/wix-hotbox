@@ -85,3 +85,19 @@ export {
 } from './print-service.js';
 
 export type { PrintResult } from './print-service.js';
+
+// =============================================================================
+// Cart Types & Consolidation (SanMar Cart Automation)
+// =============================================================================
+
+export type {
+  CartItem,
+  CartFillRequest,
+  CartFillResult,
+  CartItemResult,
+} from './cart-types.js';
+
+export {
+  consolidateOrders,
+  getOrdersForCartFill,
+} from './cart-consolidator.js';
