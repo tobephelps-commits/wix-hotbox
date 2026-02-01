@@ -121,10 +121,16 @@ Plans:
 **Depends on**: Phase 16
 **Research**: Likely (new external API integration, need current S&S Activewear API docs)
 **Research topics**: S&S Activewear API authentication, product search, inventory endpoints, response format mapping to existing pipeline
-**Plans**: TBD
+**Plans**: 7 plans in 4 waves
 
 Plans:
-- [ ] 17-01: TBD
+- [ ] 17-01: Vendor abstraction types and VendorAdapter interface (Wave 1)
+- [ ] 17-02: S&S Activewear API client core (Wave 1)
+- [ ] 17-03: SanMar vendor adapter (Wave 2)
+- [ ] 17-04: S&S Activewear vendor adapter (Wave 2)
+- [ ] 17-05: Pipeline vendor-agnostic refactor (Wave 3)
+- [ ] 17-06: Monitor and sync vendor-agnostic refactor (Wave 3)
+- [ ] 17-07: Preview server vendor support (Wave 4)
 
 #### Phase 18: Order Management — Invoice & Label Printing
 
@@ -181,7 +187,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 14. Logo Overlay Engine | v0.2 | 3/3 | Complete | 2026-01-31 |
 | 15. Cost Tracking & Sale/Promo Pricing | v0.2 | 4/4 | Complete | 2026-01-31 |
 | 16. Real-time Stock Sync & Multi-warehouse | v0.2 | 5/5 | Complete | 2026-01-31 |
-| 17. S&S Activewear API Integration | v0.2 | 0/? | Not started | - |
+| 17. S&S Activewear API Integration | v0.2 | 0/7 | Planned | - |
 | 18. Order Management — Invoice & Label Printing | v0.2 | 0/? | Not started | - |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 0/? | Not started | - |
 | 20. Integration Testing & Polish | v0.2 | 0/? | Not started | - |
