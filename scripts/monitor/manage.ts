@@ -12,6 +12,9 @@
  *   start                       - Start continuous polling
  *   alerts                      - Show recent alerts (last 50)
  *   alerts clear                - Clear the alert log
+ *   warehouse <style>           - Show per-warehouse inventory for a style
+ *   priority <style>            - Show current poll priority
+ *   priority <style> <tier>     - Set poll priority (hot|normal|slow)
  *   config                      - Print current monitor config
  *   config set <key> <value>    - Update a config value
  *   help                        - Print usage information
@@ -29,17 +32,20 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-import type { MonitorConfig, TrackedProduct } from './types.js';
+import type { MonitorConfig, TrackedProduct, PollPriority } from './types.js';
 import {
   loadConfig,
   saveConfig,
   loadTrackedProducts,
+  saveTrackedProducts,
   addTrackedProduct,
   removeTrackedProduct,
+  loadLatestSnapshot,
 } from './store.js';
 import { pollOnce, startPolling } from './poller.js';
 import { formatAlert } from './alerts.js';
 import { getRecentAlerts, clearAlertLog } from './alert-log.js';
+import { WAREHOUSES } from '../sanmar/index.js';
 
 // =============================================================================
 // Usage
@@ -53,17 +59,20 @@ Inventory Monitor CLI
 Usage: npx tsx scripts/monitor/manage.ts <command> [args]
 
 Commands:
-  add <style> [name]          Add a SanMar style to inventory tracking
-                              If name is omitted, style number is used as name
-  remove <style>              Remove a style from inventory tracking
-  list                        List all tracked products
-  poll                        Run a single inventory poll cycle (with alert detection)
-  start                       Start continuous polling (Ctrl+C to stop)
-  alerts                      Show recent alerts (last 50)
-  alerts clear                Clear the alert log
-  config                      Print current monitor configuration
-  config set <key> <value>    Update a config value (numeric fields only)
-  help                        Show this help message
+  add <style> [name]              Add a SanMar style to inventory tracking
+                                  If name is omitted, style number is used as name
+  remove <style>                  Remove a style from inventory tracking
+  list                            List all tracked products
+  poll                            Run a single inventory poll cycle (with alert detection)
+  start                           Start continuous polling (Ctrl+C to stop)
+  alerts                          Show recent alerts (last 50)
+  alerts clear                    Clear the alert log
+  warehouse <style>               Show per-warehouse inventory for a tracked style
+  priority <style>                Show current poll priority for a product
+  priority <style> <hot|normal|slow>  Set poll priority for a product
+  config                          Print current monitor configuration
+  config set <key> <value>        Update a config value (numeric fields only)
+  help                            Show this help message
 
 Examples:
   npx tsx scripts/monitor/manage.ts add PC61 "Port & Company Essential Tee"
@@ -71,6 +80,9 @@ Examples:
   npx tsx scripts/monitor/manage.ts remove PC61
   npx tsx scripts/monitor/manage.ts list
   npx tsx scripts/monitor/manage.ts poll
+  npx tsx scripts/monitor/manage.ts warehouse PC61
+  npx tsx scripts/monitor/manage.ts priority PC61
+  npx tsx scripts/monitor/manage.ts priority PC61 hot
   npx tsx scripts/monitor/manage.ts alerts
   npx tsx scripts/monitor/manage.ts alerts clear
   npx tsx scripts/monitor/manage.ts config
@@ -249,6 +261,169 @@ async function handleConfig(args: string[]): Promise<void> {
 }
 
 // =============================================================================
+// Warehouse Inventory
+// =============================================================================
+
+/**
+ * Format a number with commas for display (e.g., 12450 -> "12,450").
+ */
+function formatNumber(n: number): string {
+  return n.toLocaleString('en-US');
+}
+
+async function handleWarehouse(args: string[]): Promise<void> {
+  const style = args[0];
+  if (!style) {
+    console.error('Error: Style number is required.');
+    console.error('Usage: npx tsx scripts/monitor/manage.ts warehouse <style>');
+    process.exit(1);
+  }
+
+  const styleUpper = style.toUpperCase();
+  const config = await loadConfig();
+  const products = await loadTrackedProducts(config);
+  const product = products.find((p) => p.style === styleUpper);
+
+  if (!product) {
+    console.error(`Error: Style ${styleUpper} is not tracked. Add it with: npx tsx scripts/monitor/manage.ts add ${styleUpper}`);
+    process.exit(1);
+  }
+
+  const snapshot = await loadLatestSnapshot(styleUpper, config);
+
+  if (!snapshot) {
+    console.log(`No snapshot data for ${styleUpper}. Run 'poll' to refresh.`);
+    return;
+  }
+
+  // Check if any SKU has warehouse data
+  const hasWarehouseData = snapshot.skus.some((s) => s.warehouses && s.warehouses.length > 0);
+
+  if (!hasWarehouseData) {
+    console.log(`No warehouse data for ${styleUpper}. Run 'poll' to refresh.`);
+    return;
+  }
+
+  // Aggregate per-warehouse totals across all SKUs
+  const warehouseTotals = new Map<number, { name: string; qty: number }>();
+
+  for (const sku of snapshot.skus) {
+    if (!sku.warehouses) continue;
+    for (const wh of sku.warehouses) {
+      const existing = warehouseTotals.get(wh.warehouseId);
+      if (existing) {
+        existing.qty += wh.qty;
+      } else {
+        // Use WAREHOUSES constant for location name if available
+        const warehouseInfo = WAREHOUSES.find((w) => w.id === wh.warehouseId);
+        const displayName = warehouseInfo ? warehouseInfo.location : wh.warehouseName;
+        warehouseTotals.set(wh.warehouseId, { name: displayName, qty: wh.qty });
+      }
+    }
+  }
+
+  // Sort by qty descending
+  const sorted = [...warehouseTotals.entries()].sort((a, b) => b[1].qty - a[1].qty);
+
+  // Determine stock status
+  function getStatus(qty: number): string {
+    if (qty === 0) return 'Out of stock';
+    if (qty < config.criticalStockThreshold) return 'Critical';
+    if (qty < config.lowStockThreshold) return 'Low stock';
+    if (qty >= 1000) return 'Well-stocked';
+    return 'Normal';
+  }
+
+  // Print table
+  const lastPolled = snapshot.timestamp.slice(0, 19).replace('T', ' ');
+  console.log(`\nWarehouse Inventory: ${styleUpper} (${product.name})`);
+  console.log(`Last polled: ${lastPolled}`);
+  console.log('');
+
+  const nameWidth = 20;
+  const qtyWidth = 11;
+  const statusWidth = 14;
+  console.log(`${'Warehouse'.padEnd(nameWidth)} | ${'Total Qty'.padStart(qtyWidth)} | ${'Status'}`);
+  console.log(`${'\u2500'.repeat(nameWidth)}\u253c${'\u2500'.repeat(qtyWidth + 2)}\u253c${'\u2500'.repeat(statusWidth)}`);
+
+  let grandTotal = 0;
+  for (const [, wh] of sorted) {
+    const name = wh.name.length > nameWidth ? wh.name.slice(0, nameWidth - 3) + '...' : wh.name.padEnd(nameWidth);
+    const qty = formatNumber(wh.qty).padStart(qtyWidth);
+    const status = getStatus(wh.qty);
+    console.log(`${name} | ${qty} | ${status}`);
+    grandTotal += wh.qty;
+  }
+
+  console.log(`${'\u2500'.repeat(nameWidth)}\u253c${'\u2500'.repeat(qtyWidth + 2)}\u253c${'\u2500'.repeat(statusWidth)}`);
+  console.log(`${'Total across all'.padEnd(nameWidth)} | ${formatNumber(grandTotal).padStart(qtyWidth)} |`);
+  console.log('');
+}
+
+// =============================================================================
+// Priority Management
+// =============================================================================
+
+const VALID_PRIORITIES: PollPriority[] = ['hot', 'normal', 'slow'];
+
+async function handlePriority(args: string[]): Promise<void> {
+  const style = args[0];
+  if (!style) {
+    console.error('Error: Style number is required.');
+    console.error('Usage: npx tsx scripts/monitor/manage.ts priority <style> [hot|normal|slow]');
+    process.exit(1);
+  }
+
+  const styleUpper = style.toUpperCase();
+  const config = await loadConfig();
+  const products = await loadTrackedProducts(config);
+  const product = products.find((p) => p.style === styleUpper);
+
+  if (!product) {
+    console.error(`Error: Style ${styleUpper} is not tracked. Add it with: npx tsx scripts/monitor/manage.ts add ${styleUpper}`);
+    process.exit(1);
+  }
+
+  const newPriority = args[1]?.toLowerCase();
+
+  // If no priority argument, show current priority
+  if (!newPriority) {
+    const current = product.priority ?? 'normal';
+    const interval = getIntervalForDisplay(current, config);
+    console.log(`${styleUpper} (${product.name}): priority = ${current} (polls every ${interval} minutes)`);
+    return;
+  }
+
+  // Validate priority value
+  if (!VALID_PRIORITIES.includes(newPriority as PollPriority)) {
+    console.error(`Error: Invalid priority "${newPriority}". Must be one of: ${VALID_PRIORITIES.join(', ')}`);
+    process.exit(1);
+  }
+
+  // Update priority
+  product.priority = newPriority as PollPriority;
+  await saveTrackedProducts(products, config);
+
+  const interval = getIntervalForDisplay(newPriority as PollPriority, config);
+  console.log(`Set ${styleUpper} priority to ${newPriority} (polls every ${interval} minutes)`);
+}
+
+/**
+ * Get the poll interval in minutes for display based on priority and config.
+ */
+function getIntervalForDisplay(priority: PollPriority, config: MonitorConfig): number {
+  switch (priority) {
+    case 'hot':
+      return config.hotIntervalMinutes ?? 15;
+    case 'slow':
+      return config.slowIntervalMinutes ?? 120;
+    case 'normal':
+    default:
+      return config.pollIntervalMinutes;
+  }
+}
+
+// =============================================================================
 // CLI Entry Point
 // =============================================================================
 
@@ -276,6 +451,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         break;
       case 'alerts':
         await handleAlerts(args);
+        break;
+      case 'warehouse':
+        await handleWarehouse(args);
+        break;
+      case 'priority':
+        await handlePriority(args);
         break;
       case 'config':
         await handleConfig(args);
