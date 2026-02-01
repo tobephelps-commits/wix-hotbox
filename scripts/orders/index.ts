@@ -101,3 +101,16 @@ export {
   consolidateOrders,
   getOrdersForCartFill,
 } from './cart-consolidator.js';
+
+// =============================================================================
+// SanMar Cart Filler (Browser Automation)
+// =============================================================================
+
+export {
+  fillSanMarCart,
+  fillCartForPendingOrders,
+  saveCartFillResult,
+  markOrdersAsOrdered,
+} from './sanmar-cart-filler.js';
+
+export type { CartFillOptions } from './sanmar-cart-filler.js';
