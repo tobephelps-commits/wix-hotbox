@@ -8,7 +8,7 @@
  *
  * Endpoints:
  *   GET  /                    -> Serve preview.html
- *   GET  /api/product/:style  -> Fetch SanMar data, return ProductPreview JSON
+ *   GET  /api/product/:style  -> Fetch vendor data, return ProductPreview JSON (?vendor=ss|sanmar)
  *   POST /api/create          -> Accept CuratedProduct, create WIX draft
  *
  * Usage:
@@ -18,6 +18,7 @@
  * No external dependencies -- uses Node.js built-in http, fs, path, url.
  *
  * Phase 6: Product Creation Pipeline
+ * Phase 17: Vendor-agnostic support (vendor parameter on endpoints)
  */
 
 import 'dotenv/config';
@@ -30,6 +31,7 @@ import { fetchProductData } from './fetch-product.js';
 import type { ProductData } from './fetch-product.js';
 import { createWixProduct } from './create-product.js';
 import type { CuratedProduct } from './types.js';
+import type { VendorId } from '../vendor/types.js';
 import { listTemplates, getTemplate, saveTemplate, deleteTemplate } from './templates.js';
 import { PRICING_PRESETS } from './pricing-rules.js';
 import {
@@ -61,6 +63,10 @@ import {
 import { loadLatestSnapshot } from '../monitor/store.js';
 import { getSyncHealth } from '../sync/sync-poller.js';
 
+// Register both vendor adapters to ensure they're available at runtime
+import '../sanmar/adapter.js';
+import '../ss-activewear/adapter.js';
+
 // =============================================================================
 // Configuration
 // =============================================================================
@@ -70,15 +76,48 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // =============================================================================
+// Vendor Helpers
+// =============================================================================
+
+/**
+ * Parse vendor query parameter from a request URL.
+ * Accepts: 'sanmar', 'ss'. Defaults to 'sanmar' if missing or invalid.
+ */
+function parseVendorParam(reqUrl: string): VendorId {
+  try {
+    const urlObj = new URL(reqUrl, 'http://localhost');
+    const v = urlObj.searchParams.get('vendor');
+    if (v === 'ss') return 'ss';
+    return 'sanmar';
+  } catch {
+    return 'sanmar';
+  }
+}
+
+/**
+ * Human-readable vendor name for display.
+ */
+function vendorDisplayName(vendor: VendorId): string {
+  if (vendor === 'ss') return 'S&S Activewear';
+  return 'SanMar';
+}
+
+// =============================================================================
 // In-Memory Cache
 // =============================================================================
 
 /**
  * Simple in-memory cache for fetched product data.
- * Keyed by style number. Reused between GET /api/product and POST /api/create
- * so we don't refetch the same style. Cleared when a new style is fetched.
+ * Keyed by "STYLE:vendor" composite key. Reused between GET /api/product
+ * and POST /api/create so we don't refetch the same style.
+ * Cleared when a new style is fetched.
  */
 const productCache = new Map<string, ProductData>();
+
+/** Build cache key from style + vendor */
+function cacheKey(style: string, vendor: VendorId): string {
+  return `${style.toUpperCase()}:${vendor}`;
+}
 
 // =============================================================================
 // Request Helpers
@@ -152,23 +191,24 @@ function sendBuffer(
 // =============================================================================
 
 /**
- * GET /api/product/:style
+ * GET /api/product/:style?vendor=ss|sanmar
  *
- * Fetch SanMar data for a style and return the ProductPreview JSON.
+ * Fetch vendor data for a style and return the ProductPreview JSON.
  * Caches the full ProductData for reuse in POST /api/create.
  */
 async function handleGetProduct(
   res: http.ServerResponse,
   style: string,
+  vendor: VendorId,
 ): Promise<void> {
   try {
-    console.log(`[Preview] Fetching product data for style: ${style}`);
+    console.log(`[Preview] Fetching product data for style: ${style} (vendor: ${vendor})`);
 
-    const data = await fetchProductData(style);
+    const data = await fetchProductData(style, vendor);
 
     // Cache for later use by POST /api/create
     productCache.clear();
-    productCache.set(style.toUpperCase(), data);
+    productCache.set(cacheKey(style, vendor), data);
 
     sendJson(res, 200, { ok: true, data: data.preview });
   } catch (err) {
@@ -221,11 +261,12 @@ async function handleCreateProduct(
     }
 
     // Get cached product data (or re-fetch)
-    let productData = productCache.get(curated.style.toUpperCase());
+    const curatedVendor: VendorId = curated.vendor ?? 'sanmar';
+    let productData = productCache.get(cacheKey(curated.style, curatedVendor));
     if (!productData) {
-      console.log(`[Preview] Cache miss for ${curated.style}, re-fetching...`);
-      productData = await fetchProductData(curated.style);
-      productCache.set(curated.style.toUpperCase(), productData);
+      console.log(`[Preview] Cache miss for ${curated.style} (${curatedVendor}), re-fetching...`);
+      productData = await fetchProductData(curated.style, curatedVendor);
+      productCache.set(cacheKey(curated.style, curatedVendor), productData);
     }
 
     console.log(
@@ -400,7 +441,8 @@ function startServer(port: number, initialStyle?: string): void {
               sendJson(res, 405, { ok: false, error: 'Method not allowed' });
               break;
             }
-            await handleGetProduct(res, param!);
+            const productVendor = parseVendorParam(req.url ?? '/');
+            await handleGetProduct(res, param!, productVendor);
             break;
           }
 
@@ -774,7 +816,13 @@ function startServer(port: number, initialStyle?: string): void {
             }
             try {
               const config = await loadConfig();
-              const products = await loadTrackedProducts(config);
+              const allProducts = await loadTrackedProducts(config);
+              // Optional vendor filter via ?vendor= query param
+              const invVendorFilter = parseVendorParam(req.url ?? '/');
+              const hasVendorFilter = (req.url ?? '').includes('vendor=');
+              const products = hasVendorFilter
+                ? allProducts.filter(p => (p.vendor ?? 'sanmar') === invVendorFilter)
+                : allProducts;
               const result = [];
               for (const p of products) {
                 const snapshot = await loadLatestSnapshot(p.style, config);
@@ -793,6 +841,8 @@ function startServer(port: number, initialStyle?: string): void {
                 result.push({
                   style: p.style,
                   name: p.name,
+                  vendor: p.vendor ?? 'sanmar',
+                  vendorName: vendorDisplayName(p.vendor ?? 'sanmar'),
                   priority: p.priority ?? 'normal',
                   lastPolledAt: p.lastPolledAt ?? null,
                   totalSkus,
