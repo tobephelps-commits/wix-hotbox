@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 16 of 20 (Real-time Stock Sync & Multi-warehouse)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase (16-01, 16-03 complete)
 Status: In progress
-Last activity: 2026-01-31 — Completed 16-01-PLAN.md
+Last activity: 2026-01-31 — Completed 16-03-PLAN.md
 
-Progress: █████████░ 76%
+Progress: █████████░ 88%
 
 ## Performance Metrics
 
@@ -84,6 +84,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 16-01 | WarehouseQuantity uses warehouseId/warehouseName (not whseID/whseName) | Cleaner consumer-facing API; SanMar naming is an implementation detail |
 | 16-01 | Zero-qty warehouses filtered from breakdown | Keeps snapshot JSON concise; consumers only see warehouses with stock |
 | 16-01 | warehouses field optional on SkuSnapshot | Backward compatibility with existing snapshot files and consumers |
+| 16-03 | Tick-based loop (1 min) instead of multiple timers for priority tiers | Single loop naturally handles hot/normal/slow by checking elapsed time each tick |
+| 16-03 | pollDue delegates to pollOnce with productsOverride | Code reuse -- no duplication of snapshot/alert/warehouse logic |
+| 16-03 | Health state is module-level, not persisted | Daemon state resets on restart which is appropriate; no stale health files |
+| 16-03 | Error escalation threshold at 5 consecutive failures | Avoids log spam for transient errors while surfacing persistent issues |
 
 ### Blockers/Concerns
 
@@ -98,5 +102,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 16-01-PLAN.md
+Stopped at: Completed 16-03-PLAN.md
 Resume file: None
