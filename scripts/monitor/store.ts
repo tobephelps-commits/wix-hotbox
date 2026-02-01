@@ -204,3 +204,34 @@ export async function saveSnapshot(
   const snapshotPath = path.join(snapshotsDir, `${snapshot.style}.json`);
   await writeFile(snapshotPath, JSON.stringify(snapshot, null, 2), 'utf-8');
 }
+
+// =============================================================================
+// Product Last-Polled Tracking
+// =============================================================================
+
+/**
+ * Update a single product's lastPolledAt timestamp in the tracked products file.
+ *
+ * Loads the tracked products list, finds the product by style, updates its
+ * lastPolledAt field, and saves the list back. This enables priority-based
+ * polling where each product tracks when it was last checked.
+ *
+ * @param style - SanMar style number to update
+ * @param timestamp - ISO timestamp of the poll
+ * @param config - Monitor configuration (provides dataDir)
+ */
+export async function updateProductLastPolled(
+  style: string,
+  timestamp: string,
+  config: MonitorConfig,
+): Promise<void> {
+  const products = await loadTrackedProducts(config);
+  const product = products.find((p) => p.style === style);
+
+  if (!product) {
+    return; // Product not found -- silently skip (may have been removed mid-poll)
+  }
+
+  product.lastPolledAt = timestamp;
+  await saveTrackedProducts(products, config);
+}

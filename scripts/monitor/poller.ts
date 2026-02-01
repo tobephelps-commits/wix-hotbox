@@ -237,22 +237,11 @@ export async function pollDue(
 
   console.log(`[Monitor] ${dueProducts.length} of ${allProducts.length} product(s) due for polling...`);
 
-  // Try batch approach first: collect all styles and fetch in one batch call
-  const snapshots: InventorySnapshot[] = [];
-  let totalAlerts = 0;
-  const batchFailedStyles = new Set<string>();
-
-  // Attempt batch inventory fetch using style names as partIds
-  // getInventoryBatch expects partIds but we can use product styles
-  // For styles, we'll use per-style queries via getStyleInventory since
-  // batch requires specific partIds (color-size combos), not style-level
-  // queries. Instead, we use pollOnce with the productsOverride for the
-  // standard per-style approach, which is already efficient.
-  //
-  // However, if multiple styles are due, we poll them via pollOnce with
-  // the override to avoid reloading tracked products and to benefit from
-  // the existing snapshot/alert logic.
-
+  // Poll due products via pollOnce with productsOverride.
+  // This reuses the existing per-style getStyleInventory approach, which already
+  // handles snapshot saving, alert detection, and per-warehouse breakdown.
+  // getInventoryBatch is available for future optimization when partId-based
+  // batch queries are beneficial (e.g., specific color/size combos across styles).
   const pollSnapshots = await pollOnce(config, onAlerts, dueProducts);
 
   // Update lastPolledAt for each successfully polled product
