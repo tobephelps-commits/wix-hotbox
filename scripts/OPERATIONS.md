@@ -348,6 +348,191 @@ How to enable stock change email alerts. Gmail example:
 
 **Note:** Any SMTP-compatible email provider works (not just Gmail). Adjust SMTP_HOST and SMTP_PORT for your provider.
 
+### Multi-Vendor Product Creation
+
+How to create products from S&S Activewear (secondary vendor):
+
+1. **Fetch the product from S&S:**
+   ```bash
+   npm run fetch-product -- 1000 --vendor ss
+   ```
+   The `--vendor ss` flag routes the request to S&S Activewear's REST API instead of SanMar's SOAP API.
+
+2. **Preview with vendor selection:**
+   ```bash
+   npm run preview
+   ```
+   In the preview server UI, use the vendor selector dropdown to switch between SanMar and S&S Activewear. Enter the style number and click Fetch.
+
+3. **Create product with vendor-specific pricing:**
+   ```bash
+   npm run create-product -- 1000 --vendor ss --price 19.99
+   ```
+   S&S products use REST/JSON (no SOAP). Media handling differs -- S&S provides direct image URLs with size suffixes (_fl for full, _fs for small, _fm for medium).
+
+4. **Key differences from SanMar workflow:**
+   - S&S uses REST API with API key auth (not SOAP with username/password)
+   - Rate limited to 60 requests/minute (shared across all S&S usage)
+   - Inventory data comes from the products endpoint (not a separate inventory endpoint)
+   - Image URLs use suffix-based sizing (_fl, _fs, _fm)
+
+**Default vendor is SanMar.** Omitting `--vendor` uses SanMar.
+
+### Using Templates
+
+How to save and reuse product creation configurations:
+
+1. **Create a template via the preview server:**
+   Start the preview server (`npm run preview`), configure a product, then save as template from the UI. Or create via CLI.
+
+2. **List available templates:**
+   ```bash
+   npm run create-product -- --list-templates
+   ```
+
+3. **Create a product using a template:**
+   ```bash
+   npm run create-product -- PC61 --template "BigBarn Tee"
+   ```
+   Templates can include pricing preset, markup, collections, logo overlay, and color/size preferences.
+
+4. **Template precedence:** CLI flags override template values, which override defaults:
+   ```
+   CLI flags > template > defaults
+   ```
+   For example, `--price 24.99 --template "BigBarn Tee"` uses $24.99 regardless of what the template specifies.
+
+5. **Collections are additive:** If you specify `--collection "New Arrivals"` with a template that includes "Big Barn Crossfit", the product goes to both collections.
+
+6. **Template names are case-insensitive.** "BigBarn Tee" and "bigbarn tee" match the same template.
+
+### Logo Overlays
+
+How to apply brand logos to product images:
+
+1. **Add a logo file to the project:**
+   Place your logo PNG in `media/logos/` (e.g., `media/logos/BB.png`).
+
+2. **Register the logo in the registry:**
+   Edit `data/logos.json` to add the logo entry with position presets. The registry maps short keys (like `bb`) to file paths and default positions.
+
+3. **Apply a logo during product creation:**
+   ```bash
+   npm run create-product -- PC61 --logo bb --logo-position left-chest
+   ```
+   The overlay engine uses Sharp for image compositing with multiply blend mode (screen-print effect).
+
+4. **Preview overlays in the preview server:**
+   Start the preview server and use the overlay tab to preview how logos look on product images. The preview is visual verification only -- the CLI handles actual overlay compositing.
+
+5. **Logo positioning uses proportional coordinates (0.0-1.0).**
+   This works across all image sizes without pixel recalculation. Preset positions include left-chest, right-chest, center, back, left-sleeve, and right-sleeve.
+
+6. **Templates can include logo overlay settings.** A template with `logoOverlay` configured automatically applies the logo to all products created with that template.
+
+### Order Management
+
+Complete order workflow from WIX sync to fulfillment:
+
+1. **Sync orders from WIX:**
+   ```bash
+   npm run orders:sync
+   ```
+   Pulls new orders from the WIX eCommerce V1 API. Upserts into local store -- existing orders with advanced statuses are not regressed.
+
+2. **List all orders:**
+   ```bash
+   npm run orders:list
+   ```
+   Shows order number, customer, status, item count, and total.
+
+3. **Create a manual order (not from WIX):**
+   ```bash
+   npm run orders:add
+   ```
+   Useful for phone orders, custom jobs, or direct sales.
+
+4. **Order lifecycle statuses:**
+   ```
+   new → ordered → received → in-production → packed → shipped → delivered
+   ```
+   Status transitions are managed through the CLI or the preview server order dashboard. The "cancelled" status is also available.
+
+5. **Generate and print invoices:**
+   ```bash
+   npm run invoice:demo       # Generate a demo invoice PDF
+   ```
+   Invoices are branded PDFs generated with PDFKit. They are saved to `data/invoices/`.
+
+6. **Generate and print shipping labels:**
+   ```bash
+   npm run label:demo         # Generate a demo shipping label PDF
+   ```
+   Labels are saved to `data/labels/`.
+
+7. **Print documents:**
+   ```bash
+   npm run print:list         # See available printers
+   ```
+   Printing uses platform-native commands (PowerShell on Windows, lp on macOS/Linux). Configure preferred printers with `INVOICE_PRINTER` and `LABEL_PRINTER` env vars.
+
+8. **Use the order dashboard:**
+   Start the preview server (`npm run preview`) and navigate to the Orders tab. The dashboard provides filter pills, status updates, sync button, and invoice/label generation.
+
+### SanMar Cart Fill
+
+How to automate adding order items to the SanMar web shopping cart:
+
+1. **Preview cart items (no browser opened):**
+   ```bash
+   npm run cart
+   ```
+   Shows what items would be added to the SanMar cart, grouped by vendor style/color/size with consolidated quantities. Only SanMar items from orders with "new" status are included.
+
+2. **Execute cart fill automation:**
+   ```bash
+   npm run cart:fill
+   ```
+   Opens a Playwright-controlled Chromium browser, navigates to SanMar.com, and adds items to the cart. Uses headless-to-headed browser handoff via Playwright storageState for visible checkout.
+
+3. **Fill from the dashboard UI:**
+   In the preview server Orders tab, use the "Fill SanMar Cart" button. The button is disabled when no orders with "new" status exist.
+
+4. **Review cart fill results:**
+   Cart fill results are logged to `data/cart-fills/`. Each fill records items attempted, successes, and failures with per-item error isolation.
+
+5. **Key behaviors:**
+   - Preview is the default command; `--fill` must be explicit to prevent accidental automation
+   - Only orders with "new" status are eligible for cart fill
+   - S&S Activewear items are excluded (SanMar only)
+   - Items without vendor style, color, or size are skipped with console warnings
+   - After successful cart fill, eligible orders transition from "new" to "ordered"
+
+### Cost Tracking & Sales
+
+How to manage profitability, sales, and coupons:
+
+1. **View profit margins:**
+   ```bash
+   npm run margin-report
+   ```
+   Shows per-product wholesale cost, retail price, margin percentage, and decoration cost (if configured).
+
+2. **Create a sale:**
+   ```bash
+   npm run sale -- create PC61 --discount 20% --name "Spring Sale"
+   ```
+   Discount formats: `20%` (percentage), `$5` (fixed amount), `@19.99` (price override). Sale data is saved in `data/active-sales.json` with the original price snapshotted for reliable revert.
+
+3. **Manage coupons:**
+   ```bash
+   npm run coupons
+   ```
+   Integrates with the WIX Coupons V2 API for creating and listing coupon codes.
+
+4. **Use the preview server dashboard:**
+   The Margin and Sales sections in the preview server provide visual margin tracking and sale controls.
+
 ---
 
 ## Troubleshooting
@@ -370,6 +555,12 @@ How to enable stock change email alerts. Gmail example:
 | `NOTIFY_ENABLED=true but SMTP_USER is not set. Notifications disabled.` | Email notifications enabled but SMTP credentials incomplete | Set SMTP_USER and SMTP_PASS in .env, or set NOTIFY_ENABLED=false to suppress warning. |
 | `Cannot build preview: no products provided` | fetchProductData returned zero products | Style may have been completely discontinued. Try a different style. |
 | `Port 3456 in use, trying 3457...` | Another process is using port 3456 | Not an error -- the preview server will try the next port automatically. |
+| `S&S API 401 Unauthorized` | S&S credentials missing or invalid | Check SS_API_KEY and SS_ACCOUNT_NUMBER in .env |
+| `Rate limit exceeded for S&S Activewear` | More than 60 requests/minute to S&S | Wait 60 seconds and retry; the rate limiter handles this automatically |
+| `No orders with status 'new' found` | Cart fill has no orders to process | Only orders with "new" status are eligible for cart fill |
+| `Playwright browser not found` | Playwright browsers not installed | Run `npx playwright install chromium` |
+| `Template 'X' not found` | Template name doesn't match | Check names with `--list-templates`; names are case-insensitive |
+| `Logo 'X' not found in registry` | Logo key not in data/logos.json | Register the logo in data/logos.json first |
 
 ### Diagnostic Commands
 
@@ -402,7 +593,7 @@ npm run sync -- notify-test
 
 ## Architecture Overview
 
-The pipeline has 4 modules that work together:
+The pipeline has 7 modules that work together:
 
 ### `scripts/sanmar/` -- SanMar API Client
 SOAP-based client for querying SanMar data. Talks to 4 SanMar endpoints:
@@ -411,49 +602,94 @@ SOAP-based client for querying SanMar data. Talks to 4 SanMar endpoints:
 - **Inventory** (getStyleInventory via PromoStandards) -- per-SKU stock quantities by warehouse
 - **Media** (getProductImages via PromoStandards) -- product photos, swatch images, front/back views
 
+### `scripts/ss-activewear/` -- S&S Activewear API Client
+REST-based client for querying S&S Activewear catalog. Rate-limited to 60 req/min (sliding window, shared singleton).
+- **Product search and details** -- styles, colors, sizes via REST/JSON
+- **Inventory by style** -- per-SKU stock quantities from products endpoint
+- **Style/color/size resolution** -- maps S&S data structures to unified types
+- **Image URL resolver** -- replaces _fm suffix with size param (_fl for full, _fs for small)
+
+### `scripts/vendor/` -- Multi-Vendor Registry
+Unified vendor adapter interface for SanMar and S&S Activewear:
+- **VendorAdapter interface** -- product, inventory, media, pricing abstractions
+- **Vendor registry** with factory pattern for runtime vendor selection
+- **SanMar adapter** -- wraps existing SOAP client into VendorAdapter interface
+- **S&S adapter** -- wraps REST client into VendorAdapter interface
+- **Shared types** -- UnifiedProduct, UnifiedInventory, UnifiedMedia, UnifiedWarehouse
+- **Bridge mapping** -- unifiedToProductData constructs SanMar-shaped objects from unified types
+
 ### `scripts/pipeline/` -- Product Creation Pipeline
-Transforms SanMar data into WIX draft products:
-- **fetch-product.ts** -- Fetches all 4 SanMar endpoints in parallel, assembles ProductData
-- **mapper.ts** -- Maps SanMar data to WIX V1 product schema
+Transforms vendor data into WIX draft products:
+- **fetch-product.ts** -- Fetches vendor endpoints in parallel, assembles ProductData
+- **mapper.ts** -- Maps vendor data to WIX V1 product schema
 - **create-product.ts** -- Orchestrates WIX product creation (create -> media -> variants -> verify)
 - **wix-api.ts** -- WIX REST API client for products, media, and variants
-- **preview-server.ts** -- Local web server for visual product curation
+- **preview-server.ts** -- Local web server for visual product curation and order dashboard
 - **preview.html** -- Self-contained curation UI (no build tools, no CDN, pure vanilla JS)
 - **pricing-rules.ts** -- Pure-function pricing engine with category presets and size upcharges
 - **validate-pipeline.ts** -- Read-only health check across all subsystems
+- **overlay.ts** -- Sharp-based logo overlay compositing engine
+- **margin-report.ts** -- Cost tracking and margin calculation CLI
+- **sale-pricing.ts** -- Sale/promo pricing engine with WIX price updates
+- **wix-coupons.ts** -- WIX Coupons V2 API integration for coupon management
+- **template system** -- Save/load product creation presets (pricing, collections, overlays)
+- **collection routing** -- Multi-collection product assignment during creation
 
 ### `scripts/monitor/` -- Inventory Monitoring
-Polls SanMar inventory at configurable intervals and detects stock changes:
-- **poller.ts** -- Poll engine that fetches inventory and compares against previous snapshots
-- **alerts.ts** -- Alert generation for stock level transitions (in-stock -> low, low -> out-of-stock, etc.)
+Polls vendor inventory at configurable intervals and detects stock changes:
+- **poller.ts** -- Poll engine with priority-based tiers (hot/normal/slow), batch queries, and daemon resilience
+- **alerts.ts** -- Alert generation for stock level transitions with warehouse-aware detail
 - **alert-log.ts** -- Persistent alert history (capped at 1000 entries with FIFO trimming)
-- **store.ts** -- File-based storage for config, tracked products, and inventory snapshots
-- **manage.ts** -- CLI for all monitor operations
+- **store.ts** -- File-based storage for config, tracked products, and inventory snapshots with per-warehouse breakdown
+- **manage.ts** -- CLI for all monitor operations including warehouse inventory and priority management
 
 ### `scripts/sync/` -- Stock Sync to WIX
-Updates WIX product variant visibility based on SanMar inventory:
+Updates WIX product variant visibility based on vendor inventory:
 - **stock-sync.ts** -- Core sync logic: poll inventory, compare to thresholds, update WIX variant visibility
 - **sync-poller.ts** -- Continuous sync loop combining monitor polling with WIX updates
-- **product-map.ts** -- Manages SanMar style -> WIX product ID mappings
-- **notifications.ts** -- SMTP email delivery via Nodemailer for stock change alerts
+- **product-map.ts** -- Manages style:vendor composite -> WIX product ID mappings
+- **notifications.ts** -- SMTP email delivery via Nodemailer with warehouse-enriched stock change alerts
 - **manage.ts** -- CLI for all sync operations
+
+### `scripts/orders/` -- Order Management
+Complete order lifecycle from WIX sync to fulfillment:
+- **wix-orders.ts** -- WIX eCommerce V1 Orders API client
+- **order-store.ts** -- Local order store with JSON persistence (order numbers start at 1001)
+- **invoice-generator.ts** -- Branded invoice PDF generation with PDFKit
+- **invoice-template.ts** -- Reusable layout helpers for invoice design
+- **label-generator.ts** -- Shipping label PDF generation
+- **print-service.ts** -- Cross-platform print service (PowerShell on Windows, lp on macOS/Linux)
+- **cart-consolidation.ts** -- Consolidation engine that groups order items by vendor style/color/size
+- **cart-automation.ts** -- SanMar.com Playwright browser automation for cart filling
+- **cart-cli.ts** -- CLI for cart preview and fill operations
+- **manage.ts** -- CLI for order listing, manual creation, WIX sync, and status updates
+- **index.ts** -- Barrel export as single import surface for preview server
 
 ---
 
 ## Data Files
 
-Runtime data is stored in the `data/` directory (gitignored -- never committed):
+Runtime data is stored in the `data/` directory (gitignored -- never committed, unless noted otherwise):
 
 | Path | Purpose |
 |------|---------|
 | `data/monitor/config.json` | Monitor configuration (poll interval, stock thresholds) |
-| `data/monitor/tracked.json` | List of SanMar styles being tracked for inventory |
-| `data/monitor/snapshots/` | Latest inventory snapshot per tracked style (one file per style, overwritten each poll) |
+| `data/monitor/tracked.json` | List of styles being tracked for inventory (keyed by style:vendor) |
+| `data/monitor/snapshots/` | Latest inventory snapshot per tracked style (one file per style, with per-warehouse breakdown) |
 | `data/monitor/alerts.json` | Alert history log (capped at 1000 entries, FIFO trimmed) |
-| `data/sync/product-map.json` | SanMar style -> WIX product ID mappings |
+| `data/sync/product-map.json` | Style:vendor composite -> WIX product ID mappings |
+| `data/collections.json` | WIX collection name-to-ID cache (regenerated via `--list-collections`) |
+| `data/templates.json` | Saved product creation templates (pricing, collections, overlay settings) |
+| `data/logos.json` | Logo registry with position presets (**committed, not gitignored** -- project configuration) |
+| `data/cost-history.json` | Per-product cost snapshots for margin tracking |
+| `data/active-sales.json` | Active/scheduled sale pricing configurations with original price snapshots |
+| `data/orders/` | Order JSON files (one per order, keyed by order ID) |
+| `data/invoices/` | Generated invoice PDF files |
+| `data/labels/` | Generated shipping label PDF files |
+| `data/cart-fills/` | Cart automation result logs |
 | `.env` | Credentials and configuration (never commit this file) |
 
-**Note:** The `data/` directory is created automatically on first use. If you delete it, all monitor tracking and sync mappings are lost. The pipeline will recreate the directory structure on next run but you'll need to re-add tracked products and re-scan for mappings.
+**Note:** The `data/` directory is created automatically on first use. If you delete it, all monitor tracking, sync mappings, orders, and templates are lost. The pipeline will recreate the directory structure on next run but you'll need to re-add tracked products, re-scan for mappings, re-create templates, and re-sync orders.
 
 ---
 
@@ -480,12 +716,19 @@ When creating products through the preview UI or CLI, these presets control mark
 These behaviors are worth knowing for day-to-day operation:
 
 - **Products are always created as invisible drafts.** You must publish them manually in the WIX Dashboard after review.
-- **Pricing, inventory, and media are optional.** If any of those SanMar APIs fail, the product is still created -- you just get a warning about what's missing.
+- **Pricing, inventory, and media are optional.** If any vendor APIs fail, the product is still created -- you just get a warning about what's missing.
 - **First inventory poll skips low-stock alerts.** Only critical (near zero) and out-of-stock alerts fire on the initial poll. This prevents a flood of alerts when you first start monitoring.
 - **Stock sync updates variant visibility, not the entire product.** When a variant goes out of stock, it's hidden (visible: false). When it comes back in stock, it's shown again. Existing price, SKU, and weight are preserved.
 - **Email is skipped when nothing changed.** If a sync cycle finds no stock changes, no email is sent.
 - **The validation script is completely read-only.** It never creates, modifies, or deletes any WIX data.
 - **Style numbers are case-insensitive.** `pc61`, `PC61`, and `Pc61` all work the same way.
+- **Multi-vendor support.** Use `--vendor ss` to fetch from S&S Activewear. Default is SanMar. The vendor adapter system handles the differences transparently.
+- **Templates save time.** Save pricing, collections, and overlay settings as reusable templates. Template names are case-insensitive.
+- **Orders sync from WIX.** Run `npm run orders:sync` to pull new orders. Manual orders can be created directly. Sync preserves locally-advanced statuses.
+- **Cart fill is preview-first.** `npm run cart` shows what would be added to the SanMar cart without acting. `npm run cart:fill` actually opens a browser and requires the `--fill` flag.
+- **Invoices and labels are PDFs.** Generated locally in `data/invoices/` and `data/labels/`. Print via configured printers or download from the dashboard.
+- **Logo overlays use multiply blend mode.** Creates a screen-print effect where the logo appears as if printed on the garment fabric.
+- **Warehouse inventory is tracked per-location.** Multi-warehouse breakdown is available in snapshots, alerts, and email notifications.
 
 ---
 
