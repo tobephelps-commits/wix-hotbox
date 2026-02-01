@@ -134,14 +134,18 @@ Plans:
 
 #### Phase 18: Order Management — Invoice & Label Printing
 
-**Goal**: Print invoices and shipping labels from both WIX and manual orders
+**Goal**: Full order dashboard as command center — WIX orders auto-sync, manual order entry, lifecycle tracking (New → Delivered), branded invoice PDFs, shipping label PDFs, and printing integration
 **Depends on**: Phase 17
-**Research**: Likely (PDF generation libraries, shipping label format standards, printing integration)
-**Research topics**: PDFKit vs Puppeteer for PDF generation, USPS/UPS label API formats, thermal printer support
-**Plans**: TBD
+**Research**: Complete (PDFKit for PDF generation, pdf-to-printer for Windows, WIX eCommerce Orders V1 API)
+**Plans**: 6 plans in 3 waves
 
 Plans:
-- [ ] 18-01: TBD
+- [ ] 18-01: Order types and WIX eCommerce Orders API client (Wave 1)
+- [ ] 18-02: Invoice PDF generation with PDFKit (Wave 2)
+- [ ] 18-03: Order store, WIX sync, and management CLI (Wave 2)
+- [ ] 18-04: Shipping label PDF and print service (Wave 2)
+- [ ] 18-05: Order module API and preview server endpoints (Wave 3)
+- [ ] 18-06: Order dashboard UI in preview server (Wave 3)
 
 #### Phase 19: Order Management — SanMar Cart Automation
 
