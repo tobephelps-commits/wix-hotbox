@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 19 of 20 (Order Management — SanMar Cart Automation)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 19-01-PLAN.md
+Last activity: 2026-02-01 — Completed 19-02-PLAN.md
 
-Progress: █████████░ 94%
+Progress: █████████░ 95%
 
 ## Performance Metrics
 
@@ -143,6 +143,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 19-01 | SanMar-only filtering: vendor==='ss' excluded, undefined defaults to SanMar | Backward compatible with existing orders that lack vendor field |
 | 19-01 | Items without vendorStyle/color/size skipped with console warnings | Operator visibility without throwing; prevents broken cart items |
 | 19-01 | Case-insensitive composite key with preserved original casing | Handles inconsistent casing in source data while producing clean output |
+| 19-02 | Headless-to-headed browser handoff via Playwright storageState | Transfers cookies/session from headless automation to visible checkout browser |
+| 19-02 | Multi-strategy selectors: swatch -> dropdown -> button fallback | Robust against SanMar.com DOM variations; clear comments mark update points |
+| 19-02 | Per-item error isolation in batch cart filling | One item failing doesn't abort the rest; graceful degradation |
+| 19-02 | Status update guard: only 'new' orders transition to 'ordered' | Prevents regression of already-advanced orders in lifecycle |
 
 ### Blockers/Concerns
 
@@ -157,5 +161,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 19-01-PLAN.md — cart types and order consolidation engine
+Stopped at: Completed 19-02-PLAN.md — Playwright browser automation engine for SanMar.com cart filling
 Resume file: None
