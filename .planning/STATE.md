@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 20 of 20 (Integration Testing & Polish)
-Plan: 1 of 3 in current phase (20-02 complete, 20-01 and 20-03 pending)
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 20-02-PLAN.md
+Last activity: 2026-02-01 — Completed 20-01-PLAN.md
 
-Progress: █████████░ 98%
+Progress: █████████░ 99%
 
 ## Performance Metrics
 
@@ -151,6 +151,8 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 19-03 | Preview is default command; --fill must be explicit | Prevents accidental browser automation execution |
 | 19-03 | Fill SanMar Cart button disabled when no 'new' orders | Prevents empty cart fills; button enables dynamically on loadOrders |
 | 19-03 | Phase 19 complete -- cart automation accessible from CLI, REST API, and dashboard UI | Three entry points with preview-before-execute pattern across all surfaces |
+| 20-01 | Smoke test uses temp file approach for module imports | tsx -e with relative imports fails on Windows; temp file workaround |
+| 20-01 | CLI tests use help/dry-run to avoid side effects | Validates code loads and argument parsing without requiring env vars |
 | 20-02 | Quick Reference organized by category instead of flat list | Better scannability for 40+ commands |
 | 20-02 | Architecture section expanded from 4 to 7 modules | Accurately reflects v0.2 system topology |
 
@@ -167,5 +169,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 20-02-PLAN.md — OPERATIONS.md v0.2 runbook update
+Stopped at: Completed 20-01-PLAN.md — Smoke test script validates 29 system checks, all passing
 Resume file: None
