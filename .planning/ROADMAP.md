@@ -170,7 +170,9 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 20-01: TBD
+- [ ] 20-01: Build smoke test script for full system health check
+- [x] 20-02: Update OPERATIONS.md runbook for v0.2
+- [ ] 20-03: TBD
 
 ## Progress
 
@@ -198,4 +200,4 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 17. S&S Activewear API Integration | v0.2 | 7/7 | Complete | 2026-02-01 |
 | 18. Order Management — Invoice & Label Printing | v0.2 | 6/6 | Complete | 2026-02-01 |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 3/3 | Complete | 2026-02-01 |
-| 20. Integration Testing & Polish | v0.2 | 0/? | Not started | - |
+| 20. Integration Testing & Polish | v0.2 | 1/3 | In progress | - |
