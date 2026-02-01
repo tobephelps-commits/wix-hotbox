@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17 of 20 (S&S Activewear API Integration)
-Plan: 1 of 7 in current phase
+Plan: 2 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17-01-PLAN.md
+Last activity: 2026-02-01 — Completed 17-02-PLAN.md
 
 Progress: █████████░ 90%
 
@@ -100,6 +100,10 @@ All v0.1 decisions marked with outcomes. See PROJECT.md for full list.
 | 17-01 | String warehouse IDs in UnifiedWarehouse for both numeric (SanMar) and abbreviation (S&S) formats | Avoids type conversion; string accommodates both vendors naturally |
 | 17-01 | Optional vendor-specific pricing fields (priceCode, customerPrice, mapPrice) | Each vendor has unique pricing concepts; optional fields avoid forcing irrelevant data |
 | 17-01 | parseVendorFlag defaults to 'sanmar' when undefined | Backward compatibility with existing CLI that doesn't specify --vendor |
+| 17-02 | Zero new dependencies for S&S — uses Node.js built-in fetch | REST/JSON API needs no libraries; keeps install footprint minimal |
+| 17-02 | Sliding window rate limiter as shared singleton | All S&S usage (pipeline, monitoring, sync) shares 60 req/min budget |
+| 17-02 | 404 returns empty array, not error | Query-style endpoints: "not found" is a valid empty result, not exceptional |
+| 17-02 | Image URL resolver replaces _fm suffix with size param | S&S returns medium by default; _fl for product pages, _fs for thumbnails |
 
 ### Blockers/Concerns
 
@@ -114,5 +118,5 @@ None carried forward. v0.1 blockers resolved or addressed in v0.2 scope.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-01-PLAN.md
+Stopped at: Completed 17-02-PLAN.md
 Resume file: None
