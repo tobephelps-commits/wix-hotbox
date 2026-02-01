@@ -17,6 +17,7 @@ export type {
   TrackedProduct,
   InventorySnapshot,
   SkuSnapshot,
+  WarehouseQuantity,
   StockAlert,
 } from './types.js';
 

@@ -53,6 +53,7 @@ export {
   getTotalQuantity,
   isInStock,
   isWellStocked,
+  getWarehouseBreakdown,
   formatInventorySummary,
 } from './services/inventory.js';
 
