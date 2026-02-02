@@ -538,90 +538,185 @@
     color: #999;
     margin-left: 8px;
   }
-  .logo-controls {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    margin-bottom: 16px;
-  }
-  .logo-control {
+  .logo-top-control {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    margin-bottom: 16px;
   }
-  .logo-control label {
+  .logo-top-control label {
     font-size: 12px;
     font-weight: 500;
     color: #666;
   }
-  .logo-control select,
-  .logo-control input[type="number"] {
+  .logo-top-control select {
     padding: 6px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
     outline: none;
     background: #fff;
+    min-width: 220px;
+    max-width: 300px;
   }
-  .logo-control select:focus,
-  .logo-control input[type="number"]:focus {
-    border-color: #6c63ff;
+  .logo-top-control select:focus { border-color: #6c63ff; }
+  .logo-angle-hint {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: #fff3cd;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #856404;
+    display: none;
   }
-  .logo-control select { min-width: 180px; }
-  .logo-control input[type="number"] { width: 80px; }
-  .logo-scale-row {
+  .logo-angle-hint.visible { display: block; }
+
+  /* Angle overlay cards */
+  .angle-overlay-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .angle-overlay-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 14px;
+    min-width: 220px;
+    flex: 1;
+    background: #fff;
+    transition: opacity 0.2s;
+  }
+  .angle-overlay-card.disabled {
+    opacity: 0.45;
+  }
+  .angle-overlay-card.disabled .angle-controls,
+  .angle-overlay-card.disabled .angle-preview-btn,
+  .angle-overlay-card.disabled .angle-preview-area {
+    pointer-events: none;
+  }
+  .angle-overlay-card.no-image {
+    opacity: 0.35;
+  }
+  .angle-overlay-card.no-image .angle-header input[type="checkbox"] {
+    pointer-events: none;
+  }
+  .angle-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 10px;
   }
-  .logo-scale-row input[type="range"] {
-    width: 160px;
+  .angle-header input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
     cursor: pointer;
+    accent-color: #6c63ff;
   }
-  .logo-scale-label {
-    font-size: 13px;
+  .angle-header .angle-label {
+    font-size: 14px;
     font-weight: 600;
     color: #333;
-    min-width: 36px;
   }
-  .custom-coords {
-    display: none;
+  .angle-header .no-image-badge {
+    font-size: 11px;
+    color: #999;
+    font-weight: 400;
+    margin-left: auto;
+  }
+  .angle-controls {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
-    align-items: center;
-    margin-top: 4px;
+    margin-bottom: 10px;
   }
-  .custom-coords.visible { display: flex; }
-  .custom-coords input[type="number"] {
-    width: 70px;
-    padding: 4px 8px;
+  .angle-control {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .angle-control label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+  }
+  .angle-control select {
+    padding: 5px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 13px;
     outline: none;
+    background: #fff;
   }
-  .custom-coords input[type="number"]:focus { border-color: #6c63ff; }
-  .custom-coords label {
+  .angle-control select:focus { border-color: #6c63ff; }
+  .angle-scale-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .angle-scale-row input[type="range"] {
+    width: 120px;
+    cursor: pointer;
+  }
+  .angle-scale-label {
     font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    min-width: 32px;
+  }
+  .angle-custom-coords {
+    display: none;
+    gap: 6px;
+    align-items: center;
+    margin-top: 2px;
+  }
+  .angle-custom-coords.visible { display: flex; }
+  .angle-custom-coords input[type="number"] {
+    width: 60px;
+    padding: 3px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+  }
+  .angle-custom-coords input[type="number"]:focus { border-color: #6c63ff; }
+  .angle-custom-coords label {
+    font-size: 11px;
     color: #666;
   }
-  .overlay-preview-area {
+  .angle-preview-btn {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: #6c63ff;
+    color: #fff;
+    transition: background 0.15s;
+    align-self: flex-start;
+    margin-bottom: 8px;
+  }
+  .angle-preview-btn:hover { background: #5a52d5; }
+  .angle-preview-btn:disabled { background: #aaa; cursor: not-allowed; }
+  .angle-preview-area {
     display: none;
-    margin-top: 16px;
     text-align: center;
   }
-  .overlay-preview-area.visible { display: block; }
-  .overlay-preview-img {
-    max-width: 400px;
-    width: 100%;
+  .angle-preview-area.visible { display: block; }
+  .angle-preview-area img {
+    max-width: 100%;
+    max-height: 260px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
-  .overlay-details {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #666;
+  .angle-preview-details {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #888;
   }
   .overlay-note {
     margin-top: 12px;
@@ -633,6 +728,15 @@
     display: none;
   }
   .overlay-note.visible { display: block; }
+
+  @media (max-width: 700px) {
+    .angle-overlay-cards {
+      flex-direction: column;
+    }
+    .angle-overlay-card {
+      min-width: 0;
+    }
+  }
 
   /* Margin Dashboard section (Phase 15) */
   .margin-dashboard {
@@ -1761,45 +1865,120 @@
     <div class="size-grid" id="sizeGrid"></div>
   </div>
 
-  <!-- Logo Overlay section -->
+  <!-- Logo Overlay section (Phase 22 - Per-Angle) -->
   <div class="logo-overlay-section" id="logoOverlaySection">
     <div class="logo-overlay-title">
       LOGO OVERLAY <span class="optional-badge">(Optional)</span>
     </div>
-    <div class="logo-controls">
-      <div class="logo-control">
-        <label for="logoSelect">Logo</label>
-        <select id="logoSelect">
-          <option value="">None (no overlay)</option>
-        </select>
+    <div class="logo-top-control">
+      <label for="logoSelect">Logo</label>
+      <select id="logoSelect">
+        <option value="">None (no overlay)</option>
+      </select>
+    </div>
+    <div class="logo-angle-hint" id="logoAngleHint">
+      Enable at least one angle to apply the logo.
+    </div>
+    <div class="angle-overlay-cards" id="angleOverlayCards">
+      <!-- Front card -->
+      <div class="angle-overlay-card disabled" id="angleCardFront" data-angle="front">
+        <div class="angle-header">
+          <input type="checkbox" id="angleFrontToggle">
+          <span class="angle-label">Front</span>
+          <span class="no-image-badge" id="angleFrontNoImage" style="display:none;">No image available</span>
+        </div>
+        <div class="angle-controls">
+          <div class="angle-control">
+            <label>Position</label>
+            <select id="angleFrontPosition"><option value="center-chest">Center Chest</option></select>
+          </div>
+          <div class="angle-control">
+            <label>Scale</label>
+            <div class="angle-scale-row">
+              <input type="range" id="angleFrontScale" min="0.10" max="0.60" step="0.05" value="0.25">
+              <span class="angle-scale-label" id="angleFrontScaleLabel">25%</span>
+            </div>
+          </div>
+          <div class="angle-custom-coords" id="angleFrontCustom">
+            <label>X:</label>
+            <input type="number" id="angleFrontCustomX" min="0" max="1" step="0.05" value="0.50">
+            <label>Y:</label>
+            <input type="number" id="angleFrontCustomY" min="0" max="1" step="0.05" value="0.33">
+          </div>
+        </div>
+        <button type="button" class="angle-preview-btn" id="angleFrontPreviewBtn" disabled>Preview</button>
+        <div class="angle-preview-area" id="angleFrontPreviewArea">
+          <img id="angleFrontPreviewImg" alt="Front overlay preview">
+          <div class="angle-preview-details" id="angleFrontDetails"></div>
+        </div>
       </div>
-      <div class="logo-control">
-        <label for="positionSelect">Position</label>
-        <select id="positionSelect">
-          <option value="center-chest">Center Chest</option>
-        </select>
+      <!-- Back card -->
+      <div class="angle-overlay-card disabled" id="angleCardBack" data-angle="back">
+        <div class="angle-header">
+          <input type="checkbox" id="angleBackToggle">
+          <span class="angle-label">Back</span>
+          <span class="no-image-badge" id="angleBackNoImage" style="display:none;">No image available</span>
+        </div>
+        <div class="angle-controls">
+          <div class="angle-control">
+            <label>Position</label>
+            <select id="angleBackPosition"><option value="center-back">Center Back</option></select>
+          </div>
+          <div class="angle-control">
+            <label>Scale</label>
+            <div class="angle-scale-row">
+              <input type="range" id="angleBackScale" min="0.10" max="0.60" step="0.05" value="0.25">
+              <span class="angle-scale-label" id="angleBackScaleLabel">25%</span>
+            </div>
+          </div>
+          <div class="angle-custom-coords" id="angleBackCustom">
+            <label>X:</label>
+            <input type="number" id="angleBackCustomX" min="0" max="1" step="0.05" value="0.50">
+            <label>Y:</label>
+            <input type="number" id="angleBackCustomY" min="0" max="1" step="0.05" value="0.30">
+          </div>
+        </div>
+        <button type="button" class="angle-preview-btn" id="angleBackPreviewBtn" disabled>Preview</button>
+        <div class="angle-preview-area" id="angleBackPreviewArea">
+          <img id="angleBackPreviewImg" alt="Back overlay preview">
+          <div class="angle-preview-details" id="angleBackDetails"></div>
+        </div>
       </div>
-      <div class="logo-control">
-        <label>Scale</label>
-        <div class="logo-scale-row">
-          <input type="range" id="scaleSlider" min="0.10" max="0.60" step="0.05" value="0.25">
-          <span class="logo-scale-label" id="scaleLabel">25%</span>
+      <!-- Side card -->
+      <div class="angle-overlay-card disabled" id="angleCardSide" data-angle="side">
+        <div class="angle-header">
+          <input type="checkbox" id="angleSideToggle">
+          <span class="angle-label">Side</span>
+          <span class="no-image-badge" id="angleSideNoImage" style="display:none;">No image available</span>
+        </div>
+        <div class="angle-controls">
+          <div class="angle-control">
+            <label>Position</label>
+            <select id="angleSidePosition"><option value="center-chest">Center Chest</option></select>
+          </div>
+          <div class="angle-control">
+            <label>Scale</label>
+            <div class="angle-scale-row">
+              <input type="range" id="angleSideScale" min="0.10" max="0.60" step="0.05" value="0.25">
+              <span class="angle-scale-label" id="angleSideScaleLabel">25%</span>
+            </div>
+          </div>
+          <div class="angle-custom-coords" id="angleSideCustom">
+            <label>X:</label>
+            <input type="number" id="angleSideCustomX" min="0" max="1" step="0.05" value="0.50">
+            <label>Y:</label>
+            <input type="number" id="angleSideCustomY" min="0" max="1" step="0.05" value="0.33">
+          </div>
+        </div>
+        <button type="button" class="angle-preview-btn" id="angleSidePreviewBtn" disabled>Preview</button>
+        <div class="angle-preview-area" id="angleSidePreviewArea">
+          <img id="angleSidePreviewImg" alt="Side overlay preview">
+          <div class="angle-preview-details" id="angleSideDetails"></div>
         </div>
       </div>
     </div>
-    <div class="custom-coords" id="customCoords">
-      <label>X:</label>
-      <input type="number" id="customX" min="0" max="1" step="0.05" value="0.50">
-      <label>Y:</label>
-      <input type="number" id="customY" min="0" max="1" step="0.05" value="0.33">
-    </div>
-    <button type="button" class="btn btn-primary" id="previewOverlayBtn" disabled>Preview Overlay</button>
-    <div class="overlay-preview-area" id="overlayPreviewArea">
-      <img class="overlay-preview-img" id="overlayPreviewImg" alt="Logo overlay preview">
-      <div class="overlay-details" id="overlayDetails"></div>
-    </div>
     <div class="overlay-note" id="overlayNote">
-      Logo will be applied to all product images during creation. Overlaid images saved to media/overlays/
+      Logo will be applied per-angle to product images during creation. Overlaid images saved to media/overlays/
     </div>
   </div>
 
@@ -2118,7 +2297,12 @@
   var productData = null;   // ProductPreview from server
   var currentVendor = 'sanmar'; // Current vendor selection ('sanmar' or 'ss')
   var logoData = null;      // { logos: Record, positionPresets: Record } from /api/logos
-  var overlayBlobUrl = null; // Current blob URL for overlay preview (to revoke)
+  // Per-angle overlay state (Phase 22)
+  var angleOverlayState = {
+    front: { enabled: false, position: 'center-chest', scale: 0.25, customX: 0.5, customY: 0.33 },
+    back:  { enabled: false, position: 'center-back',  scale: 0.25, customX: 0.5, customY: 0.30 },
+    side:  { enabled: false, position: 'center-chest', scale: 0.25, customX: 0.5, customY: 0.33 }
+  };
   var selectedColors = {};  // { catalogColor: true/false }
   var selectedSizes = {};   // { size: true/false }
   var pricingConfig = {
@@ -2169,20 +2353,63 @@
   var upchargeTable = document.getElementById('upchargeTable');
   var priceSummary = document.getElementById('priceSummary');
 
-  // Logo overlay DOM refs
+  // Logo overlay DOM refs (Phase 22 - Per-Angle)
   var logoOverlaySection = document.getElementById('logoOverlaySection');
   var logoSelect = document.getElementById('logoSelect');
-  var positionSelect = document.getElementById('positionSelect');
-  var scaleSlider = document.getElementById('scaleSlider');
-  var scaleLabel = document.getElementById('scaleLabel');
-  var customCoords = document.getElementById('customCoords');
-  var customX = document.getElementById('customX');
-  var customY = document.getElementById('customY');
-  var previewOverlayBtn = document.getElementById('previewOverlayBtn');
-  var overlayPreviewArea = document.getElementById('overlayPreviewArea');
-  var overlayPreviewImg = document.getElementById('overlayPreviewImg');
-  var overlayDetails = document.getElementById('overlayDetails');
+  var logoAngleHint = document.getElementById('logoAngleHint');
   var overlayNote = document.getElementById('overlayNote');
+
+  // Per-angle DOM refs
+  var angleDom = {
+    front: {
+      card: document.getElementById('angleCardFront'),
+      toggle: document.getElementById('angleFrontToggle'),
+      noImage: document.getElementById('angleFrontNoImage'),
+      position: document.getElementById('angleFrontPosition'),
+      scale: document.getElementById('angleFrontScale'),
+      scaleLabel: document.getElementById('angleFrontScaleLabel'),
+      customCoords: document.getElementById('angleFrontCustom'),
+      customX: document.getElementById('angleFrontCustomX'),
+      customY: document.getElementById('angleFrontCustomY'),
+      previewBtn: document.getElementById('angleFrontPreviewBtn'),
+      previewArea: document.getElementById('angleFrontPreviewArea'),
+      previewImg: document.getElementById('angleFrontPreviewImg'),
+      details: document.getElementById('angleFrontDetails'),
+      blobUrl: null
+    },
+    back: {
+      card: document.getElementById('angleCardBack'),
+      toggle: document.getElementById('angleBackToggle'),
+      noImage: document.getElementById('angleBackNoImage'),
+      position: document.getElementById('angleBackPosition'),
+      scale: document.getElementById('angleBackScale'),
+      scaleLabel: document.getElementById('angleBackScaleLabel'),
+      customCoords: document.getElementById('angleBackCustom'),
+      customX: document.getElementById('angleBackCustomX'),
+      customY: document.getElementById('angleBackCustomY'),
+      previewBtn: document.getElementById('angleBackPreviewBtn'),
+      previewArea: document.getElementById('angleBackPreviewArea'),
+      previewImg: document.getElementById('angleBackPreviewImg'),
+      details: document.getElementById('angleBackDetails'),
+      blobUrl: null
+    },
+    side: {
+      card: document.getElementById('angleCardSide'),
+      toggle: document.getElementById('angleSideToggle'),
+      noImage: document.getElementById('angleSideNoImage'),
+      position: document.getElementById('angleSidePosition'),
+      scale: document.getElementById('angleSideScale'),
+      scaleLabel: document.getElementById('angleSideScaleLabel'),
+      customCoords: document.getElementById('angleSideCustom'),
+      customX: document.getElementById('angleSideCustomX'),
+      customY: document.getElementById('angleSideCustomY'),
+      previewBtn: document.getElementById('angleSidePreviewBtn'),
+      previewArea: document.getElementById('angleSidePreviewArea'),
+      previewImg: document.getElementById('angleSidePreviewImg'),
+      details: document.getElementById('angleSideDetails'),
+      blobUrl: null
+    }
+  };
 
   // =========================================================================
   // Status helpers
@@ -2964,6 +3191,12 @@
       }
     });
 
+    // Include per-angle logo overlay config if active (Phase 22)
+    var logoAngles = buildLogoAnglesConfig();
+    if (logoAngles) {
+      curated.logoAngles = logoAngles;
+    }
+
     createBtn.disabled = true;
     showSpinner('Creating WIX draft... This may take 10-20 seconds.');
 
@@ -3015,10 +3248,13 @@
   }
 
   // =========================================================================
-  // Logo Overlay
+  // Logo Overlay (Phase 22 - Per-Angle)
   // =========================================================================
 
-  // Fetch logo registry on page load
+  var ANGLE_KEYS = ['front', 'back', 'side'];
+  var ANGLE_IMAGE_FIELDS = { front: 'frontImageUrl', back: 'backImageUrl', side: 'sideImageUrl' };
+
+  // Fetch logo registry on page load and populate all angle dropdowns
   async function fetchLogos() {
     try {
       var res = await fetch('/api/logos');
@@ -3027,7 +3263,6 @@
 
       var logoNames = Object.keys(logoData.logos || {});
       if (logoNames.length === 0) {
-        // No logos registered -- hide section entirely
         logoOverlaySection.classList.remove('visible');
         return;
       }
@@ -3042,24 +3277,29 @@
         logoSelect.appendChild(opt);
       });
 
-      // Populate position presets dropdown
+      // Populate position presets for all 3 angle cards
       var presets = logoData.positionPresets || {};
       var presetNames = Object.keys(presets);
-      positionSelect.innerHTML = '';
-      presetNames.forEach(function(name) {
-        var opt = document.createElement('option');
-        opt.value = name;
-        // Format name: "center-chest" -> "Center Chest"
-        opt.textContent = name.split('-').map(function(w) {
-          return w.charAt(0).toUpperCase() + w.slice(1);
-        }).join(' ');
-        positionSelect.appendChild(opt);
+      ANGLE_KEYS.forEach(function(angle) {
+        var sel = angleDom[angle].position;
+        sel.innerHTML = '';
+        presetNames.forEach(function(name) {
+          var opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name.split('-').map(function(w) {
+            return w.charAt(0).toUpperCase() + w.slice(1);
+          }).join(' ');
+          sel.appendChild(opt);
+        });
+        // Add Custom option
+        var customOpt = document.createElement('option');
+        customOpt.value = 'custom';
+        customOpt.textContent = 'Custom...';
+        sel.appendChild(customOpt);
+
+        // Set default selection from angleOverlayState
+        sel.value = angleOverlayState[angle].position;
       });
-      // Add Custom option
-      var customOpt = document.createElement('option');
-      customOpt.value = 'custom';
-      customOpt.textContent = 'Custom...';
-      positionSelect.appendChild(customOpt);
 
     } catch (err) {
       console.warn('Failed to fetch logos:', err);
@@ -3067,92 +3307,198 @@
     }
   }
 
-  // Show logo overlay section when product is loaded
+  // Show logo overlay section when product is loaded; check per-angle image availability
   function showLogoSection() {
     if (!logoData) return;
     var logoNames = Object.keys(logoData.logos || {});
-    if (logoNames.length > 0) {
-      logoOverlaySection.classList.add('visible');
+    if (logoNames.length === 0) return;
+
+    logoOverlaySection.classList.add('visible');
+
+    // Reset all angle toggles
+    ANGLE_KEYS.forEach(function(angle) {
+      angleOverlayState[angle].enabled = false;
+      angleDom[angle].toggle.checked = false;
+      angleDom[angle].card.classList.add('disabled');
+      angleDom[angle].card.classList.remove('no-image');
+      angleDom[angle].noImage.style.display = 'none';
+      angleDom[angle].toggle.disabled = false;
+      angleDom[angle].previewArea.classList.remove('visible');
+      if (angleDom[angle].blobUrl) {
+        URL.revokeObjectURL(angleDom[angle].blobUrl);
+        angleDom[angle].blobUrl = null;
+      }
+    });
+
+    // Check image availability per angle
+    if (productData && productData.availableColors) {
+      ANGLE_KEYS.forEach(function(angle) {
+        var field = ANGLE_IMAGE_FIELDS[angle];
+        var hasImage = productData.availableColors.some(function(c) {
+          return !!c[field];
+        });
+        if (!hasImage) {
+          angleDom[angle].card.classList.add('no-image');
+          angleDom[angle].noImage.style.display = 'inline';
+          angleDom[angle].toggle.disabled = true;
+        }
+      });
     }
+
+    // Update hint visibility
+    updateAngleHint();
   }
 
   // Logo select change handler
   logoSelect.addEventListener('change', function() {
     var logoName = logoSelect.value;
     if (logoName && logoData && logoData.logos[logoName]) {
-      previewOverlayBtn.disabled = false;
       overlayNote.classList.add('visible');
-      // Update scale slider default from logo entry
+      // Update all angle scale sliders from logo default
       var entry = logoData.logos[logoName];
       if (entry.defaultScale) {
-        scaleSlider.value = entry.defaultScale;
-        scaleLabel.textContent = Math.round(entry.defaultScale * 100) + '%';
+        ANGLE_KEYS.forEach(function(angle) {
+          angleDom[angle].scale.value = entry.defaultScale;
+          angleDom[angle].scaleLabel.textContent = Math.round(entry.defaultScale * 100) + '%';
+          angleOverlayState[angle].scale = entry.defaultScale;
+        });
       }
+      // Enable preview buttons for enabled angles
+      ANGLE_KEYS.forEach(function(angle) {
+        angleDom[angle].previewBtn.disabled = !angleOverlayState[angle].enabled;
+      });
+      updateAngleHint();
     } else {
-      previewOverlayBtn.disabled = true;
-      overlayPreviewArea.classList.remove('visible');
+      // "None" selected — reset everything
       overlayNote.classList.remove('visible');
+      ANGLE_KEYS.forEach(function(angle) {
+        angleOverlayState[angle].enabled = false;
+        angleDom[angle].toggle.checked = false;
+        angleDom[angle].card.classList.add('disabled');
+        angleDom[angle].previewBtn.disabled = true;
+        angleDom[angle].previewArea.classList.remove('visible');
+        if (angleDom[angle].blobUrl) {
+          URL.revokeObjectURL(angleDom[angle].blobUrl);
+          angleDom[angle].blobUrl = null;
+        }
+      });
+      logoAngleHint.classList.remove('visible');
     }
   });
 
-  // Position select change handler
-  positionSelect.addEventListener('change', function() {
-    if (positionSelect.value === 'custom') {
-      customCoords.classList.add('visible');
+  // Set up per-angle event handlers
+  ANGLE_KEYS.forEach(function(angle) {
+    var dom = angleDom[angle];
+    var state = angleOverlayState[angle];
+
+    // Toggle handler
+    dom.toggle.addEventListener('change', function() {
+      state.enabled = dom.toggle.checked;
+      if (state.enabled) {
+        dom.card.classList.remove('disabled');
+        dom.previewBtn.disabled = !logoSelect.value;
+      } else {
+        dom.card.classList.add('disabled');
+        dom.previewBtn.disabled = true;
+        dom.previewArea.classList.remove('visible');
+        if (dom.blobUrl) {
+          URL.revokeObjectURL(dom.blobUrl);
+          dom.blobUrl = null;
+        }
+      }
+      updateAngleHint();
+    });
+
+    // Position change handler
+    dom.position.addEventListener('change', function() {
+      state.position = dom.position.value;
+      if (dom.position.value === 'custom') {
+        dom.customCoords.classList.add('visible');
+      } else {
+        dom.customCoords.classList.remove('visible');
+      }
+    });
+
+    // Scale slider handler
+    dom.scale.addEventListener('input', function() {
+      var val = parseFloat(dom.scale.value);
+      state.scale = val;
+      dom.scaleLabel.textContent = Math.round(val * 100) + '%';
+    });
+
+    // Custom X/Y handlers
+    dom.customX.addEventListener('change', function() {
+      state.customX = parseFloat(dom.customX.value);
+    });
+    dom.customY.addEventListener('change', function() {
+      state.customY = parseFloat(dom.customY.value);
+    });
+
+    // Preview button handler
+    dom.previewBtn.addEventListener('click', function() {
+      generateAnglePreview(angle);
+    });
+  });
+
+  // Show/hide hint when logo selected but no angles enabled
+  function updateAngleHint() {
+    if (!logoSelect.value) {
+      logoAngleHint.classList.remove('visible');
+      return;
+    }
+    var anyEnabled = ANGLE_KEYS.some(function(a) { return angleOverlayState[a].enabled; });
+    if (anyEnabled) {
+      logoAngleHint.classList.remove('visible');
     } else {
-      customCoords.classList.remove('visible');
+      logoAngleHint.classList.add('visible');
     }
-  });
+  }
 
-  // Scale slider handler
-  scaleSlider.addEventListener('input', function() {
-    scaleLabel.textContent = Math.round(parseFloat(scaleSlider.value) * 100) + '%';
-  });
-
-  // Preview overlay button handler
-  previewOverlayBtn.addEventListener('click', function() {
-    generateOverlayPreview();
-  });
-
-  async function generateOverlayPreview() {
-    if (!productData || !logoSelect.value) return;
-
-    // Find first front image URL from selected colors (or any available color)
-    var imageUrl = null;
+  // Find the best image URL for a given angle from product data
+  function findAngleImageUrl(angle) {
+    if (!productData || !productData.availableColors) return null;
+    var field = ANGLE_IMAGE_FIELDS[angle];
     var colors = productData.availableColors;
     // Prefer selected colors
     for (var i = 0; i < colors.length; i++) {
-      if (selectedColors[colors[i].catalogColor] && colors[i].frontImageUrl) {
-        imageUrl = colors[i].frontImageUrl;
-        break;
+      if (selectedColors[colors[i].catalogColor] && colors[i][field]) {
+        return colors[i][field];
       }
     }
-    // Fallback: any color with front image
-    if (!imageUrl) {
-      for (var j = 0; j < colors.length; j++) {
-        if (colors[j].frontImageUrl) {
-          imageUrl = colors[j].frontImageUrl;
-          break;
-        }
+    // Fallback: any color with this angle's image
+    for (var j = 0; j < colors.length; j++) {
+      if (colors[j][field]) {
+        return colors[j][field];
       }
     }
+    return null;
+  }
+
+  // Generate overlay preview for a specific angle
+  async function generateAnglePreview(angle) {
+    if (!productData || !logoSelect.value) return;
+
+    var imageUrl = findAngleImageUrl(angle);
     if (!imageUrl) {
-      setStatus('No product image available for overlay preview.', 'error');
+      setStatus('No ' + angle + ' image available for overlay preview.', 'error');
       return;
     }
 
+    var dom = angleDom[angle];
+    var state = angleOverlayState[angle];
+
     // Determine position
     var position;
-    if (positionSelect.value === 'custom') {
-      position = parseFloat(customX.value) + ',' + parseFloat(customY.value);
+    if (state.position === 'custom') {
+      position = parseFloat(dom.customX.value) + ',' + parseFloat(dom.customY.value);
     } else {
-      position = positionSelect.value;
+      position = state.position;
     }
 
-    var scale = parseFloat(scaleSlider.value);
+    var scale = parseFloat(dom.scale.value);
 
-    previewOverlayBtn.disabled = true;
-    previewOverlayBtn.textContent = 'Generating...';
+    dom.previewBtn.disabled = true;
+    dom.previewBtn.textContent = 'Loading...';
 
     try {
       var res = await fetch('/api/overlay', {
@@ -3168,38 +3514,60 @@
 
       if (!res.ok) {
         var errJson = await res.json();
-        setStatus('Overlay error: ' + (errJson.error || 'Unknown error'), 'error');
-        previewOverlayBtn.disabled = false;
-        previewOverlayBtn.textContent = 'Preview Overlay';
+        setStatus('Overlay error (' + angle + '): ' + (errJson.error || 'Unknown error'), 'error');
+        dom.previewBtn.disabled = false;
+        dom.previewBtn.textContent = 'Preview';
         return;
       }
 
       var blob = await res.blob();
 
       // Revoke previous blob URL to prevent memory leaks
-      if (overlayBlobUrl) {
-        URL.revokeObjectURL(overlayBlobUrl);
+      if (dom.blobUrl) {
+        URL.revokeObjectURL(dom.blobUrl);
       }
-      overlayBlobUrl = URL.createObjectURL(blob);
+      dom.blobUrl = URL.createObjectURL(blob);
 
-      overlayPreviewImg.src = overlayBlobUrl;
-      overlayPreviewArea.classList.add('visible');
+      dom.previewImg.src = dom.blobUrl;
+      dom.previewArea.classList.add('visible');
 
       // Show details
       var logoEntry = logoData.logos[logoSelect.value];
-      var posLabel = positionSelect.value === 'custom'
-        ? 'Custom (' + customX.value + ', ' + customY.value + ')'
-        : positionSelect.options[positionSelect.selectedIndex].textContent;
-      overlayDetails.textContent = 'Logo: ' + (logoEntry.displayName || logoSelect.value) +
-        ' | Position: ' + posLabel +
-        ' | Scale: ' + Math.round(scale * 100) + '%';
+      var posLabel = state.position === 'custom'
+        ? 'Custom (' + dom.customX.value + ', ' + dom.customY.value + ')'
+        : dom.position.options[dom.position.selectedIndex].textContent;
+      dom.details.textContent = (logoEntry.displayName || logoSelect.value) +
+        ' | ' + posLabel + ' | ' + Math.round(scale * 100) + '%';
 
     } catch (err) {
-      setStatus('Overlay error: ' + (err.message || err), 'error');
+      setStatus('Overlay error (' + angle + '): ' + (err.message || err), 'error');
     }
 
-    previewOverlayBtn.disabled = false;
-    previewOverlayBtn.textContent = 'Preview Overlay';
+    dom.previewBtn.disabled = false;
+    dom.previewBtn.textContent = 'Preview';
+  }
+
+  // Build per-angle logo config for the creation request
+  function buildLogoAnglesConfig() {
+    if (!logoSelect.value) return null;
+    var anyEnabled = ANGLE_KEYS.some(function(a) { return angleOverlayState[a].enabled; });
+    if (!anyEnabled) return null;
+
+    var config = { logoName: logoSelect.value, angles: {} };
+    ANGLE_KEYS.forEach(function(angle) {
+      var state = angleOverlayState[angle];
+      if (!state.enabled) return;
+      var dom = angleDom[angle];
+      var pos = state.position;
+      if (pos === 'custom') {
+        pos = parseFloat(dom.customX.value) + ',' + parseFloat(dom.customY.value);
+      }
+      config.angles[angle] = {
+        position: pos,
+        scale: parseFloat(dom.scale.value)
+      };
+    });
+    return config;
   }
 
   // Fetch logos on page load
