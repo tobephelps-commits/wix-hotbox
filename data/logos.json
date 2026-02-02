@@ -1,11 +1,13 @@
 {
-  "logos": {"test": {
-    "displayName": "Test Logo",
-    "filePath": "media/logos/BB.png",
-    "defaultScale": 0.25,
-    "defaultBlendMode": "multiply",
-    "defaultOpacity": 0.88
-  }},
+  "logos": {
+    "test": {
+      "displayName": "Test Logo",
+      "filePath": "media/logos/BB.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    }
+  },
   "positionPresets": {
     "center-chest": {
       "x": 0.5,
@@ -24,7 +26,7 @@
       "y": 0.3
     },
     "left-sleeve": {
-      "x": 0.80,
+      "x": 0.8,
       "y": 0.32
     }
   }
