@@ -721,9 +721,6 @@
     touch-action: none;
     z-index: 5;
   }
-  .logo-draggable.dragging {
-    cursor: grabbing;
-  }
   .logo-draggable img {
     width: 100%;
     height: 100%;
@@ -731,37 +728,10 @@
     pointer-events: none;
     display: block;
   }
-  .logo-handle {
-    width: 10px;
-    height: 10px;
-    background: #fff;
-    border: 1px solid #6c63ff;
-    position: absolute;
-    z-index: 10;
-    touch-action: none;
-  }
-  .logo-handle:hover {
-    background: #6c63ff;
-  }
   .logo-handle.handle-tl { cursor: nwse-resize; }
   .logo-handle.handle-tr { cursor: nesw-resize; }
   .logo-handle.handle-bl { cursor: nesw-resize; }
   .logo-handle.handle-br { cursor: nwse-resize; }
-  .logo-placement-coords {
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.65);
-    color: #fff;
-    font-size: 11px;
-    font-family: monospace;
-    padding: 2px 8px;
-    border-radius: 3px;
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 20;
-  }
   .logo-placement-empty {
     color: #999;
     font-size: 12px;
@@ -810,6 +780,142 @@
     font-weight: 600;
     color: #333;
     min-width: 32px;
+  }
+  .placement-scale-label.at-limit {
+    color: #e74c3c;
+    transition: color 0.15s;
+  }
+
+  /* Phase 23-02: Alignment guides */
+  .alignment-guide {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+  }
+  .alignment-guide-h {
+    left: 0;
+    right: 0;
+    height: 1px;
+    top: 50%;
+    border-top: 1px dashed rgba(108,99,255,0.4);
+  }
+  .alignment-guide-v {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    left: 50%;
+    border-left: 1px dashed rgba(108,99,255,0.4);
+  }
+  .alignment-guide-h.snap-active {
+    border-top-color: rgba(108,99,255,0.8);
+    border-top-width: 2px;
+  }
+  .alignment-guide-v.snap-active {
+    border-left-color: rgba(108,99,255,0.8);
+    border-left-width: 2px;
+  }
+  .snap-label {
+    position: absolute;
+    z-index: 25;
+    pointer-events: none;
+    font-size: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+    color: #6c63ff;
+    background: rgba(255,255,255,0.9);
+    padding: 1px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+  }
+  .snap-label.visible {
+    opacity: 1;
+  }
+
+  /* Phase 23-02: Drag lift effect */
+  .logo-draggable.dragging {
+    cursor: grabbing;
+    opacity: 0.85;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transform: scale(1.02);
+  }
+  .logo-draggable.drop-settle {
+    transition: opacity 0.15s, box-shadow 0.15s, transform 0.15s;
+    opacity: 1;
+    box-shadow: none;
+    transform: scale(1);
+  }
+
+  /* Phase 23-02: Handle hover states */
+  .logo-handle {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 1px solid #6c63ff;
+    position: absolute;
+    z-index: 10;
+    touch-action: none;
+    transition: width 0.1s, height 0.1s, margin-left 0.1s, margin-top 0.1s;
+  }
+  .logo-handle:hover {
+    background: #6c63ff;
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Phase 23-02: Coordinate display pill (top-right) */
+  .logo-placement-coords {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+    padding: 3px 10px;
+    border-radius: 12px;
+    pointer-events: auto;
+    white-space: nowrap;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .coord-copy-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    padding: 0;
+    font-size: 12px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+  }
+  .coord-copy-btn:hover {
+    color: #fff;
+  }
+  .coord-copy-btn.copied {
+    color: #2ecc71;
+  }
+
+  /* Phase 23-02: Responsive min-height for placement container */
+  @media (max-width: 700px) {
+    .logo-placement-container {
+      min-height: 200px;
+    }
+  }
+
+  /* Phase 23-02: Focus state for keyboard control */
+  .logo-draggable:focus {
+    outline: 2px solid #6c63ff;
+    outline-offset: 2px;
+  }
+  .logo-draggable:focus:not(:focus-visible) {
+    outline: none;
   }
 
   /* Margin Dashboard section (Phase 15) */
@@ -3297,8 +3403,9 @@
 
   var LogoPlacementEngine = (function() {
     // Per-angle state managed by the engine
-    var _state = {}; // angle -> { container, imgEl, logoDiv, handles[], coordsEl, logoUrl, aspectRatio, resizeObs }
+    var _state = {}; // angle -> { container, imgEl, logoDiv, handles[], coordsEl, logoUrl, aspectRatio, resizeObs, guideH, guideV, snapLabelH, snapLabelV, snapActiveX, snapActiveY }
     var _syncing = false; // guard for circular slider updates
+    var SNAP_THRESHOLD = 8; // px distance to trigger snap-to-center
 
     function init(containerEl, angle) {
       // Clean up any previous state for this angle
@@ -3311,15 +3418,54 @@
         logoDiv: null,
         handles: [],
         coordsEl: null,
+        coordCopyBtn: null,
         logoUrl: null,
         aspectRatio: 1,
         resizeObs: null,
         imgDisplayW: 0,
         imgDisplayH: 0,
         imgOffsetX: 0,
-        imgOffsetY: 0
+        imgOffsetY: 0,
+        guideH: null,
+        guideV: null,
+        snapLabelH: null,
+        snapLabelV: null,
+        snapActiveX: false,
+        snapActiveY: false,
+        snapFlashRafX: null,
+        snapFlashRafY: null
       };
       containerEl.classList.add('active');
+
+      // Create alignment guides (always visible as subtle reference)
+      var guideH = document.createElement('div');
+      guideH.className = 'alignment-guide alignment-guide-h';
+      containerEl.appendChild(guideH);
+      _state[angle].guideH = guideH;
+
+      var guideV = document.createElement('div');
+      guideV.className = 'alignment-guide alignment-guide-v';
+      containerEl.appendChild(guideV);
+      _state[angle].guideV = guideV;
+
+      // Create snap labels
+      var snapLabelH = document.createElement('div');
+      snapLabelH.className = 'snap-label';
+      snapLabelH.textContent = 'Center Y';
+      snapLabelH.style.top = '50%';
+      snapLabelH.style.left = '8px';
+      snapLabelH.style.transform = 'translateY(-50%)';
+      containerEl.appendChild(snapLabelH);
+      _state[angle].snapLabelH = snapLabelH;
+
+      var snapLabelV = document.createElement('div');
+      snapLabelV.className = 'snap-label';
+      snapLabelV.textContent = 'Center X';
+      snapLabelV.style.left = '50%';
+      snapLabelV.style.top = '8px';
+      snapLabelV.style.transform = 'translateX(-50%)';
+      containerEl.appendChild(snapLabelV);
+      _state[angle].snapLabelV = snapLabelV;
     }
 
     function loadProductImage(angle, imageUrl) {
@@ -3376,6 +3522,20 @@
       // The image might be centered in the container — calculate offsets
       s.imgOffsetX = imgRect.left - containerRect.left;
       s.imgOffsetY = imgRect.top - containerRect.top;
+
+      // Update alignment guide positions to center on image area
+      if (s.guideH) {
+        s.guideH.style.top = (s.imgOffsetY + s.imgDisplayH / 2) + 'px';
+        s.guideH.style.left = s.imgOffsetX + 'px';
+        s.guideH.style.right = 'auto';
+        s.guideH.style.width = s.imgDisplayW + 'px';
+      }
+      if (s.guideV) {
+        s.guideV.style.left = (s.imgOffsetX + s.imgDisplayW / 2) + 'px';
+        s.guideV.style.top = s.imgOffsetY + 'px';
+        s.guideV.style.bottom = 'auto';
+        s.guideV.style.height = s.imgDisplayH + 'px';
+      }
     }
 
     function loadLogo(angle, logoUrl) {
@@ -3397,6 +3557,7 @@
       // Create logo div
       var logoDiv = document.createElement('div');
       logoDiv.className = 'logo-draggable';
+      logoDiv.setAttribute('tabindex', '0');
       var logoImg = document.createElement('img');
       logoImg.crossOrigin = 'anonymous';
       logoImg.src = logoUrl;
@@ -3412,13 +3573,36 @@
         s.container.appendChild(h);
       });
 
-      // Create coordinate display
+      // Create coordinate display pill with copy button
       var coordsEl = document.createElement('div');
       coordsEl.className = 'logo-placement-coords';
-      coordsEl.textContent = 'x: 0.50  y: 0.33  scale: 0.25';
+      var coordsText = document.createElement('span');
+      coordsText.className = 'coord-text';
+      coordsText.textContent = 'x: 0.50 \u00B7 y: 0.33 \u00B7 25%';
+      coordsEl.appendChild(coordsText);
+      var copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'coord-copy-btn';
+      copyBtn.title = 'Copy coordinates';
+      copyBtn.innerHTML = '\u2398'; // clipboard icon character
+      copyBtn.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        var st = angleOverlayState[angle];
+        var coordStr = st.customX.toFixed(2) + ',' + st.customY.toFixed(2);
+        navigator.clipboard.writeText(coordStr).then(function() {
+          copyBtn.classList.add('copied');
+          copyBtn.innerHTML = '\u2713'; // checkmark
+          setTimeout(function() {
+            copyBtn.classList.remove('copied');
+            copyBtn.innerHTML = '\u2398';
+          }, 1200);
+        });
+      });
+      coordsEl.appendChild(copyBtn);
       s.container.appendChild(coordsEl);
 
       s.logoDiv = logoDiv;
+      s.coordCopyBtn = copyBtn;
       s.handles = handles;
       s.coordsEl = coordsEl;
       s.container.appendChild(logoDiv);
@@ -3434,6 +3618,7 @@
         setFromCoords(angle, st.customX, st.customY, st.scale);
         _setupDrag(angle);
         _setupResize(angle);
+        _setupKeyboard(angle);
       };
 
       // If image is already cached
@@ -3444,6 +3629,7 @@
         setFromCoords(angle, st.customX, st.customY, st.scale);
         _setupDrag(angle);
         _setupResize(angle);
+        _setupKeyboard(angle);
       }
     }
 
@@ -3461,6 +3647,7 @@
         e.preventDefault();
         e.stopPropagation();
         logoDiv.setPointerCapture(e.pointerId);
+        logoDiv.classList.remove('drop-settle');
         logoDiv.classList.add('dragging');
 
         var startX = e.clientX;
@@ -3480,6 +3667,24 @@
           newLeft = Math.max(s.imgOffsetX, Math.min(newLeft, maxLeft));
           newTop = Math.max(s.imgOffsetY, Math.min(newTop, maxTop));
 
+          // Snap-to-center logic
+          var logoCenterX = newLeft + logoDiv.offsetWidth / 2;
+          var logoCenterY = newTop + logoDiv.offsetHeight / 2;
+          var imgCenterX = s.imgOffsetX + s.imgDisplayW / 2;
+          var imgCenterY = s.imgOffsetY + s.imgDisplayH / 2;
+
+          var snappedX = false, snappedY = false;
+          if (Math.abs(logoCenterX - imgCenterX) < SNAP_THRESHOLD) {
+            newLeft = imgCenterX - logoDiv.offsetWidth / 2;
+            snappedX = true;
+          }
+          if (Math.abs(logoCenterY - imgCenterY) < SNAP_THRESHOLD) {
+            newTop = imgCenterY - logoDiv.offsetHeight / 2;
+            snappedY = true;
+          }
+
+          _handleSnapFeedback(angle, snappedX, snappedY);
+
           logoDiv.style.left = newLeft + 'px';
           logoDiv.style.top = newTop + 'px';
           _updateHandles(angle);
@@ -3489,8 +3694,10 @@
         function onUp(ev) {
           logoDiv.releasePointerCapture(ev.pointerId);
           logoDiv.classList.remove('dragging');
+          logoDiv.classList.add('drop-settle');
           logoDiv.removeEventListener('pointermove', onMove);
           logoDiv.removeEventListener('pointerup', onUp);
+          _clearSnapFeedback(angle);
           _extractCoords(angle);
         }
 
@@ -3629,17 +3836,30 @@
       angleOverlayState[angle].scale = parseFloat(scale.toFixed(4));
       angleOverlayState[angle].position = 'custom';
 
-      // Update coordinate display
+      // Update coordinate display (pill format)
       if (s.coordsEl) {
-        s.coordsEl.textContent = 'x: ' + x.toFixed(2) + '  y: ' + y.toFixed(2) + '  scale: ' + scale.toFixed(2);
+        var coordText = s.coordsEl.querySelector('.coord-text');
+        if (coordText) {
+          coordText.textContent = 'x: ' + x.toFixed(2) + ' \u00B7 y: ' + y.toFixed(2) + ' \u00B7 ' + Math.round(scale * 100) + '%';
+        }
       }
 
-      // Sync scale slider (avoid circular loop)
+      // Sync scale slider (avoid circular loop) + scale limit flash
       if (!_syncing) {
         _syncing = true;
         if (angleDom && angleDom[angle] && angleDom[angle].scale) {
           angleDom[angle].scale.value = scale.toFixed(2);
           angleDom[angle].scaleLabel.textContent = Math.round(scale * 100) + '%';
+          // Flash scale label red at limits
+          var atMin = scale <= 0.05 + 0.005;
+          var atMax = scale >= 0.60 - 0.005;
+          if (atMin || atMax) {
+            angleDom[angle].scaleLabel.classList.add('at-limit');
+            clearTimeout(angleDom[angle]._scaleLimitTimer);
+            angleDom[angle]._scaleLimitTimer = setTimeout(function() {
+              angleDom[angle].scaleLabel.classList.remove('at-limit');
+            }, 600);
+          }
         }
         _syncing = false;
       }
@@ -3674,8 +3894,117 @@
       angleOverlayState[angle].position = 'custom';
 
       if (s.coordsEl) {
-        s.coordsEl.textContent = 'x: ' + x.toFixed(2) + '  y: ' + y.toFixed(2) + '  scale: ' + scale.toFixed(2);
+        var coordText = s.coordsEl.querySelector('.coord-text');
+        if (coordText) {
+          coordText.textContent = 'x: ' + x.toFixed(2) + ' \u00B7 y: ' + y.toFixed(2) + ' \u00B7 ' + Math.round(scale * 100) + '%';
+        }
       }
+    }
+
+    // Snap feedback: flash guide lines and show labels
+    function _handleSnapFeedback(angle, snappedX, snappedY) {
+      var s = _state[angle];
+      if (!s) return;
+
+      // Vertical guide (for X centering)
+      if (snappedX && !s.snapActiveX) {
+        s.snapActiveX = true;
+        s.guideV.classList.add('snap-active');
+        s.snapLabelV.classList.add('visible');
+        if (snappedY) {
+          s.snapLabelV.textContent = 'Centered';
+        } else {
+          s.snapLabelV.textContent = 'Center X';
+        }
+      } else if (!snappedX && s.snapActiveX) {
+        s.snapActiveX = false;
+        s.guideV.classList.remove('snap-active');
+        s.snapLabelV.classList.remove('visible');
+      }
+
+      // Horizontal guide (for Y centering)
+      if (snappedY && !s.snapActiveY) {
+        s.snapActiveY = true;
+        s.guideH.classList.add('snap-active');
+        s.snapLabelH.classList.add('visible');
+        if (snappedX) {
+          s.snapLabelH.textContent = 'Centered';
+          s.snapLabelV.textContent = 'Centered';
+        } else {
+          s.snapLabelH.textContent = 'Center Y';
+        }
+      } else if (!snappedY && s.snapActiveY) {
+        s.snapActiveY = false;
+        s.guideH.classList.remove('snap-active');
+        s.snapLabelH.classList.remove('visible');
+      }
+
+      // Update label text for dual snap
+      if (snappedX && snappedY) {
+        s.snapLabelH.textContent = 'Centered';
+        s.snapLabelV.textContent = 'Centered';
+      }
+    }
+
+    function _clearSnapFeedback(angle) {
+      var s = _state[angle];
+      if (!s) return;
+      s.snapActiveX = false;
+      s.snapActiveY = false;
+      // Fade out after 300ms
+      var guideV = s.guideV;
+      var guideH = s.guideH;
+      var labelV = s.snapLabelV;
+      var labelH = s.snapLabelH;
+      setTimeout(function() {
+        if (guideV) guideV.classList.remove('snap-active');
+        if (guideH) guideH.classList.remove('snap-active');
+        if (labelV) labelV.classList.remove('visible');
+        if (labelH) labelH.classList.remove('visible');
+      }, 300);
+    }
+
+    // Keyboard nudge: arrow keys move logo 1px (5px with Shift), Escape deselects
+    function _setupKeyboard(angle) {
+      var s = _state[angle];
+      if (!s || !s.logoDiv) return;
+
+      s.logoDiv.addEventListener('keydown', function(e) {
+        var step = e.shiftKey ? 5 : 1;
+        var handled = false;
+
+        switch (e.key) {
+          case 'ArrowLeft':
+            s.logoDiv.style.left = Math.max(s.imgOffsetX, s.logoDiv.offsetLeft - step) + 'px';
+            handled = true;
+            break;
+          case 'ArrowRight':
+            var maxL = s.imgOffsetX + s.imgDisplayW - s.logoDiv.offsetWidth;
+            s.logoDiv.style.left = Math.min(maxL, s.logoDiv.offsetLeft + step) + 'px';
+            handled = true;
+            break;
+          case 'ArrowUp':
+            s.logoDiv.style.top = Math.max(s.imgOffsetY, s.logoDiv.offsetTop - step) + 'px';
+            handled = true;
+            break;
+          case 'ArrowDown':
+            var maxT = s.imgOffsetY + s.imgDisplayH - s.logoDiv.offsetHeight;
+            s.logoDiv.style.top = Math.min(maxT, s.logoDiv.offsetTop + step) + 'px';
+            handled = true;
+            break;
+          case 'Escape':
+            s.logoDiv.blur();
+            handled = true;
+            break;
+        }
+
+        if (handled) {
+          e.preventDefault();
+          e.stopPropagation();
+          _updateHandles(angle);
+          _extractCoords(angle);
+        }
+      });
     }
 
     function remove(angle) {
@@ -3684,6 +4013,11 @@
       if (s.logoDiv && s.logoDiv.parentNode) s.container.removeChild(s.logoDiv);
       s.handles.forEach(function(h) { if (h.parentNode) h.parentNode.removeChild(h); });
       if (s.coordsEl && s.coordsEl.parentNode) s.coordsEl.parentNode.removeChild(s.coordsEl);
+      // Remove alignment guides and snap labels
+      if (s.guideH && s.guideH.parentNode) s.guideH.parentNode.removeChild(s.guideH);
+      if (s.guideV && s.guideV.parentNode) s.guideV.parentNode.removeChild(s.guideV);
+      if (s.snapLabelH && s.snapLabelH.parentNode) s.snapLabelH.parentNode.removeChild(s.snapLabelH);
+      if (s.snapLabelV && s.snapLabelV.parentNode) s.snapLabelV.parentNode.removeChild(s.snapLabelV);
       if (s.resizeObs) s.resizeObs.disconnect();
       if (s.imgEl && s.imgEl.parentNode) s.container.removeChild(s.imgEl);
       s.container.classList.remove('active');
@@ -3708,8 +4042,11 @@
       setSyncing: setSyncing,
       _setupDrag: _setupDrag,
       _setupResize: _setupResize,
+      _setupKeyboard: _setupKeyboard,
       _updateHandles: _updateHandles,
-      _extractCoords: _extractCoords
+      _extractCoords: _extractCoords,
+      _handleSnapFeedback: _handleSnapFeedback,
+      _clearSnapFeedback: _clearSnapFeedback
     };
   })();
 
