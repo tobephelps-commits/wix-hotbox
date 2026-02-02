@@ -163,10 +163,12 @@ Plans:
 **Goal**: End-to-end testing of all v1.0 features, regression checks, and documentation updates
 **Depends on**: Phase 29
 **Research**: Unlikely (testing and polish, internal patterns)
-**Plans**: TBD
+**Plans**: 3
 
 Plans:
-- [ ] 30-01: TBD
+- [ ] 30-01: Update smoke test for v1.0 coverage (new endpoints, customer module)
+- [ ] 30-02: Update OPERATIONS.md for v1.0 features
+- [ ] 30-03: Final smoke test verification and v1.0 milestone close-out
 
 ## Progress
 
