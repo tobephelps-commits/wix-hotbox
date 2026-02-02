@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 28 of 30 (Order Management Hardening)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-02 - Completed 28-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-02 - Completed 28-02-PLAN.md
 
 Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 89 (34 v0.1 + 38 v0.2 + 17 v1.0)
+- Total plans completed: 90 (34 v0.1 + 38 v0.2 + 18 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -103,6 +103,8 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 28 | on-hold transitions bidirectional (new <-> on-hold, ordered <-> on-hold) | Allows pausing and resuming orders from the same lifecycle point |
 | 28 | Only WIX API fetch retried, not per-order errors | Per-order errors are data issues, not transient; retry would re-process all orders |
 | 28 | errored as cross-cutting count, not a real status | Orders with errors still need their actual lifecycle status for workflow progression |
+| 28 | CSS custom properties for timeline dot colors | Allows pseudo-element coloring from JS without inline styles |
+| 28 | Session-only banner dismiss (no persistent state) | Error banner is transient UI; re-shows on next page load if errors persist |
 
 ### Blockers/Concerns
 
@@ -119,6 +121,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 28-01-PLAN.md (error tracking, retry logic, summary/error endpoints)
+Stopped at: Completed 28-02-PLAN.md (order dashboard UI hardening)
 Resume file: None
-Note: Phase 28 in progress (1/2 plans). Next: 28-02-PLAN.md.
+Note: Phase 28 complete (2/2 plans). Next: Phase 29 planning.
