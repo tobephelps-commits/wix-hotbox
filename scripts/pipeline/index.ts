@@ -23,6 +23,7 @@ export type {
   ProductTemplate,
   LogoPosition,
   LogoOverlayConfig,
+  AngleOverlayConfig,
   LogoRegistryEntry,
   LogoRegistry,
 } from './types.js';
@@ -79,6 +80,7 @@ export {
 export {
   compositeLogoOnImage,
   overlayProductImages,
+  overlayProductImagesByAngle,
   loadLogoRegistry,
   getLogoEntry,
   getPositionPreset,

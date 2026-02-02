@@ -26,6 +26,7 @@ import type {
   LogoRegistryEntry,
   LogoPosition,
   LogoOverlayConfig,
+  AngleOverlayConfig,
 } from './types.js';
 
 // =============================================================================
@@ -341,6 +342,73 @@ export async function overlayProductImages(
   }
 
   return outputPaths;
+}
+
+/**
+ * Apply logo overlay to product images with per-angle configuration.
+ * Each angle (front/back/side) gets its own independent placement.
+ * Angles set to null or omitted are skipped (no logo applied).
+ *
+ * Processes images sequentially to avoid memory pressure.
+ * Skips failed downloads with a warning instead of failing the entire batch.
+ *
+ * @param angleImages - Map of angle to image URL { front?: string, back?: string, side?: string }
+ * @param config - Per-angle overlay configuration
+ * @param outputDir - Output directory (default: media/overlays/)
+ * @returns Map of angle to local overlay file path { front?: string, back?: string, side?: string }
+ *
+ * Phase 22: Multi-Angle Logo Overlay
+ */
+export async function overlayProductImagesByAngle(
+  angleImages: { front?: string; back?: string; side?: string },
+  config: AngleOverlayConfig,
+  outputDir: string = DEFAULT_OUTPUT_DIR,
+): Promise<{ front?: string; back?: string; side?: string }> {
+  // Create output directory if it doesn't exist
+  const resolvedDir = path.resolve(outputDir);
+  if (!fs.existsSync(resolvedDir)) {
+    fs.mkdirSync(resolvedDir, { recursive: true });
+  }
+
+  const result: { front?: string; back?: string; side?: string } = {};
+  const angles = ['front', 'back', 'side'] as const;
+
+  // Process each angle sequentially
+  for (const angle of angles) {
+    const imageUrl = angleImages[angle];
+    const angleConfig = config[angle];
+
+    // Skip if no image URL or config is null/undefined for this angle
+    if (!imageUrl || angleConfig === null || angleConfig === undefined) {
+      continue;
+    }
+
+    try {
+      // Build a LogoOverlayConfig from the angle-specific fields + shared logoName
+      const overlayConfig: LogoOverlayConfig = {
+        logoName: config.logoName,
+        position: angleConfig.position,
+        scale: angleConfig.scale,
+        opacity: angleConfig.opacity,
+        blendMode: angleConfig.blendMode,
+      };
+
+      const resultBuffer = await compositeLogoOnImage(imageUrl, overlayConfig);
+
+      // Generate filename from MD5 hash of the URL + angle suffix
+      const hash = crypto.createHash('md5').update(imageUrl).digest('hex');
+      const filename = `${hash}_overlay_${angle}.jpg`;
+      const outputPath = path.join(resolvedDir, filename);
+
+      fs.writeFileSync(outputPath, resultBuffer);
+      result[angle] = outputPath;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`Warning: Failed to process ${angle} image (${imageUrl}): ${message}`);
+    }
+  }
+
+  return result;
 }
 
 // =============================================================================

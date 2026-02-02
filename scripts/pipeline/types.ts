@@ -60,6 +60,12 @@ export interface ProductTemplate {
     scale?: number;
     /** Opacity override */
     opacity?: number;
+    /** Per-angle overrides. If present, each angle uses its own config. Phase 22 */
+    angles?: {
+      front?: { position: string; scale?: number; opacity?: number } | null;
+      back?: { position: string; scale?: number; opacity?: number } | null;
+      side?: { position: string; scale?: number; opacity?: number } | null;
+    };
   };
   /** Per-unit decoration cost in dollars (optional, Phase 15) */
   decorationCost?: number;
@@ -354,6 +360,41 @@ export interface LogoOverlayConfig {
   opacity?: number;
   /** Blend mode for screen-print effect (default "multiply") */
   blendMode?: string;
+}
+
+/**
+ * Per-angle logo overlay configuration. Each angle is independent.
+ *
+ * Enables front/back/side images to have their own independent logo
+ * placement, scale, and opacity settings. Angles set to null or omitted
+ * are skipped (no logo applied).
+ *
+ * Phase 22: Multi-Angle Logo Overlay
+ */
+export interface AngleOverlayConfig {
+  /** Logo name (key in logos.json registry) -- shared across all enabled angles */
+  logoName: string;
+  /** Front angle config (null = no logo on front) */
+  front?: {
+    position: LogoPosition;
+    scale?: number;
+    opacity?: number;
+    blendMode?: string;
+  } | null;
+  /** Back angle config (null = no logo on back) */
+  back?: {
+    position: LogoPosition;
+    scale?: number;
+    opacity?: number;
+    blendMode?: string;
+  } | null;
+  /** Side angle config (null = no logo on side) */
+  side?: {
+    position: LogoPosition;
+    scale?: number;
+    opacity?: number;
+    blendMode?: string;
+  } | null;
 }
 
 /**
