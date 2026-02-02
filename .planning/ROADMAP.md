@@ -156,7 +156,7 @@ Plans:
 Plans:
 - [x] 29-01: Per-product thresholds, case-insensitive SKU matching, and snapshot staleness detection -- completed 2026-02-02
 - [x] 29-02: Sync health timing, notification delivery tracking, mapping audit, and alert log retention -- completed 2026-02-02
-- [ ] 29-03: Inventory reliability dashboard UI (health cards, alert filtering, threshold badges, audit controls)
+- [x] 29-03: Inventory reliability dashboard UI (health cards, alert filtering, threshold badges, audit controls) -- completed 2026-02-02
 
 #### Phase 30: Integration Testing & Polish
 
@@ -203,5 +203,5 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 26. Royalty Calculation & PDF Reporting | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 27. Pipeline Automation | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 28. Order Management Hardening | v1.0 | 2/2 | Complete | 2026-02-02 |
-| 29. Inventory Sync Reliability | v1.0 | 2/3 | In progress | - |
+| 29. Inventory Sync Reliability | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 30. Integration Testing & Polish | v1.0 | 0/? | Not started | - |

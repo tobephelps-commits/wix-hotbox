@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 29 of 30 (Inventory Sync Reliability)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-02 - Completed 29-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-02 - Completed 29-03-PLAN.md
 
-Progress: █████████░ 98%
+Progress: █████████░ 99%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 92 (34 v0.1 + 38 v0.2 + 20 v1.0)
+- Total plans completed: 93 (34 v0.1 + 38 v0.2 + 21 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -117,6 +117,9 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 29 | Cumulative moving average for tick duration | Lower memory than sliding window, sufficient for operational alerting |
 | 29 | 200ms rate limit between WIX API calls during audit | Prevents rate limit hits during full product mapping validation |
 | 29 | 30-day default retention for alert log pruning | Applied before count cap for dual retention strategy |
+| 29 | Health cards hidden when daemon not running | Avoids empty/misleading zero metrics in dashboard |
+| 29 | Server-side alert filtering via query params | Accurate results from full alert log, not client-side truncated set |
+| 29 | Hover tooltip for threshold badges (not click popover) | Read-only display of override values; simpler UX |
 
 ### Blockers/Concerns
 
@@ -133,6 +136,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 29-02-PLAN.md (sync health timing, notification tracking, mapping audit, alert retention)
+Stopped at: Completed 29-03-PLAN.md (inventory reliability dashboard UI)
 Resume file: None
-Note: Phase 29 in progress (2/3 plans). Next: 29-03-PLAN.md (inventory reliability dashboard UI).
+Note: Phase 29 complete (3/3 plans). Next: Phase 30 (Integration Testing & Polish).
