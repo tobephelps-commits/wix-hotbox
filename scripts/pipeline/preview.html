@@ -7702,8 +7702,22 @@
         opt.textContent = c.name;
         royaltyCustomerSelect.appendChild(opt);
       });
+      // Show empty state when no customers exist
+      if (custs.length === 0) {
+        royaltyContent.innerHTML =
+          '<div class="royalty-empty">' +
+          'No customers found. Create a customer in the Customers section above first.' +
+          '</div>';
+        generateRoyaltyBtn.disabled = true;
+        downloadRoyaltyPdfBtn.disabled = true;
+      } else {
+        generateRoyaltyBtn.disabled = !royaltyCustomerSelect.value;
+      }
     } catch (err) {
       console.error('[Royalty] Error loading customers:', err);
+      royaltyContent.innerHTML =
+        '<div class="royalty-empty">Error loading customers: ' + escHtml(err.message) + '</div>';
+      generateRoyaltyBtn.disabled = true;
     }
   }
 
@@ -7873,7 +7887,11 @@
   // Event listeners
   generateRoyaltyBtn.addEventListener('click', generateRoyaltyReport);
   downloadRoyaltyPdfBtn.addEventListener('click', downloadRoyaltyPdf);
-  royaltyCustomerSelect.addEventListener('change', clearRoyaltyReport);
+  royaltyCustomerSelect.addEventListener('change', function() {
+    clearRoyaltyReport();
+    // Disable Generate Report when no customer selected
+    generateRoyaltyBtn.disabled = !royaltyCustomerSelect.value;
+  });
   royaltyStartDate.addEventListener('change', clearRoyaltyReport);
   royaltyEndDate.addEventListener('change', clearRoyaltyReport);
 
