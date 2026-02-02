@@ -225,6 +225,10 @@ class SSAdapter implements VendorAdapter {
     // Single call gets all product data (flat SSProduct objects)
     const ssProducts = await getSSProductsByStyle(style);
 
+    if (ssProducts.length === 0) {
+      throw new Error(`Style '${style}' not found in S&S Activewear catalog`);
+    }
+
     // Optionally enrich with style metadata (title, description, category)
     let enrichedTitle = '';
     let enrichedDescription = '';
