@@ -24,6 +24,7 @@ import { getProduct, updateProductVariants } from '../pipeline/wix-api.js';
 import type { WixVariantUpdate } from '../pipeline/types.js';
 import type { MonitorConfig, InventorySnapshot, SkuSnapshot } from '../monitor/types.js';
 import { classifyStockLevel } from '../monitor/alerts.js';
+import { isSnapshotStale } from '../monitor/store.js';
 import { findMapping } from './product-map.js';
 import type { SyncConfig, SyncResult } from './types.js';
 
@@ -66,8 +67,8 @@ export function parseSku(
     return null;
   }
 
-  const catalogColor = remainder.slice(0, lastDash);
-  const size = remainder.slice(lastDash + 1);
+  const catalogColor = remainder.slice(0, lastDash).trim();
+  const size = remainder.slice(lastDash + 1).trim();
 
   return { catalogColor, size };
 }
@@ -113,8 +114,21 @@ export async function syncProductStock(
     variantsHidden: 0,
     variantsRestored: 0,
     variantsUnchanged: 0,
+    parseErrors: 0,
     errors: [],
   };
+
+  // Check snapshot staleness before syncing
+  const maxAge = config.snapshotMaxAgeMinutes ?? 180;
+  if (isSnapshotStale(snapshot, maxAge)) {
+    const snapshotTime = new Date(snapshot.timestamp).getTime();
+    const ageMinutes = Math.round((Date.now() - snapshotTime) / (1000 * 60));
+    console.log(
+      `[Sync] ${style}: Snapshot is ${ageMinutes}min old (max: ${maxAge}min) — skipping sync to avoid stale data`,
+    );
+    result.errors.push('Snapshot too old — poll may have failed');
+    return result;
+  }
 
   try {
     // Fetch current WIX variant state
@@ -125,10 +139,11 @@ export async function syncProductStock(
       return result;
     }
 
-    // Build a lookup map for snapshot SKUs: "color|size" -> SkuSnapshot
+    // Build a lookup map for snapshot SKUs: "lowercasedColor|size" -> SkuSnapshot
+    // Color is lowercased for case-insensitive matching; sizes are always uppercase
     const snapshotMap = new Map<string, SkuSnapshot>();
     for (const sku of snapshot.skus) {
-      snapshotMap.set(`${sku.color}|${sku.size}`, sku);
+      snapshotMap.set(`${sku.color.toLowerCase()}|${sku.size}`, sku);
     }
 
     // Determine updates needed
@@ -138,14 +153,15 @@ export async function syncProductStock(
       // Parse SKU to extract catalogColor and size
       const parsed = parseSku(variant.variant.sku, style);
       if (!parsed) {
-        // Can't parse SKU -- skip this variant
+        // Can't parse SKU -- track as parse error
+        result.parseErrors++;
         result.errors.push(`Could not parse SKU: ${variant.variant.sku}`);
         result.variantsUnchanged++;
         continue;
       }
 
-      // Find matching snapshot SKU
-      const snapshotSku = snapshotMap.get(`${parsed.catalogColor}|${parsed.size}`);
+      // Find matching snapshot SKU (case-insensitive color match)
+      const snapshotSku = snapshotMap.get(`${parsed.catalogColor.toLowerCase()}|${parsed.size}`);
       if (!snapshotSku) {
         // No inventory data for this color/size -- leave unchanged
         result.variantsUnchanged++;
@@ -277,6 +293,9 @@ export function buildSyncSummary(results: SyncResult[]): string {
     parts.push(`${r.variantsUnchanged} unchanged`);
 
     let line = `  ${r.style} ${r.productName}: ${parts.join(', ')}`;
+    if (r.parseErrors > 0) {
+      line += ` [${r.parseErrors} parse error(s)]`;
+    }
     if (r.errors.length > 0) {
       line += ` [${r.errors.length} error(s)]`;
     }

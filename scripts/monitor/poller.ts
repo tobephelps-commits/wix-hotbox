@@ -179,8 +179,8 @@ export async function pollOnce(
       await saveSnapshot(snapshot, config);
       snapshots.push(snapshot);
 
-      // Detect stock level transitions
-      const alerts = detectAlerts(snapshot, previousSnapshot, config, product.name);
+      // Detect stock level transitions (pass product for per-product thresholds)
+      const alerts = detectAlerts(snapshot, previousSnapshot, config, product.name, product);
 
       if (alerts.length > 0) {
         // Log alerts to console
@@ -194,8 +194,15 @@ export async function pollOnce(
         totalAlerts += alerts.length;
       }
 
-      const vendorLabel = vendorId === 'sanmar' ? 'SanMar' : 'S&S';
-      console.log(`[Monitor] ${product.style} (${vendorLabel}): ${skuSnapshots.length} SKUs fetched`);
+      // Count unique warehouses across all SKUs
+      const warehouseIds = new Set<string>();
+      for (const s of skuSnapshots) {
+        if (s.warehouses) {
+          for (const w of s.warehouses) warehouseIds.add(w.warehouseId);
+        }
+      }
+
+      console.log(`[Monitor] ${product.style}: Fresh snapshot (${skuSnapshots.length} SKUs, ${warehouseIds.size} warehouses)`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Monitor] ${product.style}: Error - ${message}`);
