@@ -92,6 +92,17 @@ import {
 } from '../orders/index.js';
 import type { CartFillResult } from '../orders/index.js';
 
+// Customer Account System (Phase 25)
+import {
+  loadCustomers,
+  getCustomer,
+  addCustomer,
+  updateCustomer,
+  deleteCustomer,
+  listCustomers,
+} from '../customers/store.js';
+import type { CustomerAccount } from '../customers/types.js';
+
 // Register both vendor adapters to ensure they're available at runtime
 import '../sanmar/adapter.js';
 import '../ss-activewear/adapter.js';
@@ -542,6 +553,19 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/printers
   if (urlPath === '/api/printers') {
     return { route: 'printers' };
+  }
+
+  // Customer Account API (Phase 25)
+
+  // Match /api/customers/:id (must come after /api/customers)
+  const customerByIdMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/?$/);
+  if (customerByIdMatch) {
+    return { route: 'customer-by-id', param: customerByIdMatch[1] };
+  }
+
+  // Match /api/customers
+  if (urlPath === '/api/customers') {
+    return { route: 'customers' };
   }
 
   // Match / (root)
@@ -1653,6 +1677,184 @@ function startServer(port: number, initialStyle?: string): void {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error listing printers: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // ── Customer Account API (Phase 25) ─────────────────────────
+
+          case 'customers': {
+            if (method === 'GET') {
+              // GET /api/customers — List all customers
+              try {
+                const urlObj = new URL(req.url ?? '/', 'http://localhost');
+                const activeParam = urlObj.searchParams.get('active');
+                const activeOnly = activeParam === 'true' ? true : undefined;
+                const customers = await listCustomers(activeOnly);
+                sendJson(res, 200, { ok: true, customers });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error listing customers: ${message}`);
+                sendJson(res, 500, { ok: false, error: 'Internal server error' });
+              }
+            } else if (method === 'POST') {
+              // POST /api/customers — Create a new customer
+              try {
+                const body = await readBody(req);
+                const payload = JSON.parse(body);
+
+                // Validate required fields
+                if (!payload.name || typeof payload.name !== 'string' || payload.name.trim() === '') {
+                  sendJson(res, 400, { ok: false, error: 'Missing required field: name' });
+                  break;
+                }
+                if (!payload.contactName || typeof payload.contactName !== 'string' || payload.contactName.trim() === '') {
+                  sendJson(res, 400, { ok: false, error: 'Missing required field: contactName' });
+                  break;
+                }
+                if (payload.markupPercent === undefined || payload.markupPercent === null) {
+                  sendJson(res, 400, { ok: false, error: 'Missing required field: markupPercent' });
+                  break;
+                }
+                if (payload.royaltyPercent === undefined || payload.royaltyPercent === null) {
+                  sendJson(res, 400, { ok: false, error: 'Missing required field: royaltyPercent' });
+                  break;
+                }
+
+                // Validate markupPercent — must be a finite non-negative number
+                const markup = Number(payload.markupPercent);
+                if (!Number.isFinite(markup) || markup < 0) {
+                  sendJson(res, 400, { ok: false, error: 'markupPercent must be a non-negative number' });
+                  break;
+                }
+
+                // Validate royaltyPercent — must be a finite non-negative number
+                const royalty = Number(payload.royaltyPercent);
+                if (!Number.isFinite(royalty) || royalty < 0) {
+                  sendJson(res, 400, { ok: false, error: 'royaltyPercent must be a non-negative number' });
+                  break;
+                }
+
+                // Validate logoKeys if provided
+                if (payload.logoKeys !== undefined) {
+                  if (!Array.isArray(payload.logoKeys) || !payload.logoKeys.every((k: unknown) => typeof k === 'string')) {
+                    sendJson(res, 400, { ok: false, error: 'logoKeys must be an array of strings' });
+                    break;
+                  }
+                }
+
+                const customer = await addCustomer({
+                  name: payload.name.trim(),
+                  contactName: payload.contactName.trim(),
+                  email: payload.email || '',
+                  phone: payload.phone || undefined,
+                  logoKeys: payload.logoKeys || [],
+                  markupPercent: markup,
+                  royaltyPercent: royalty,
+                  notes: payload.notes || undefined,
+                  active: payload.active !== undefined ? Boolean(payload.active) : true,
+                });
+
+                sendJson(res, 201, { ok: true, customer });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error creating customer: ${message}`);
+                sendJson(res, 400, { ok: false, error: message });
+              }
+            } else {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          case 'customer-by-id': {
+            if (method === 'GET') {
+              // GET /api/customers/:id — Get single customer
+              try {
+                const customer = await getCustomer(param!);
+                if (!customer) {
+                  sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                  break;
+                }
+                sendJson(res, 200, { ok: true, customer });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error getting customer ${param}: ${message}`);
+                sendJson(res, 500, { ok: false, error: 'Internal server error' });
+              }
+            } else if (method === 'PATCH') {
+              // PATCH /api/customers/:id — Update customer
+              try {
+                const body = await readBody(req);
+                const payload = JSON.parse(body);
+
+                // Validate markupPercent if present
+                if (payload.markupPercent !== undefined) {
+                  const markup = Number(payload.markupPercent);
+                  if (!Number.isFinite(markup) || markup < 0) {
+                    sendJson(res, 400, { ok: false, error: 'markupPercent must be a non-negative number' });
+                    break;
+                  }
+                  payload.markupPercent = markup;
+                }
+
+                // Validate royaltyPercent if present
+                if (payload.royaltyPercent !== undefined) {
+                  const royalty = Number(payload.royaltyPercent);
+                  if (!Number.isFinite(royalty) || royalty < 0) {
+                    sendJson(res, 400, { ok: false, error: 'royaltyPercent must be a non-negative number' });
+                    break;
+                  }
+                  payload.royaltyPercent = royalty;
+                }
+
+                // Validate logoKeys if present
+                if (payload.logoKeys !== undefined) {
+                  if (!Array.isArray(payload.logoKeys) || !payload.logoKeys.every((k: unknown) => typeof k === 'string')) {
+                    sendJson(res, 400, { ok: false, error: 'logoKeys must be an array of strings' });
+                    break;
+                  }
+                }
+
+                // Build updates object with only the fields provided
+                const updates: Record<string, unknown> = {};
+                if (payload.name !== undefined) updates.name = payload.name;
+                if (payload.contactName !== undefined) updates.contactName = payload.contactName;
+                if (payload.email !== undefined) updates.email = payload.email;
+                if (payload.phone !== undefined) updates.phone = payload.phone;
+                if (payload.logoKeys !== undefined) updates.logoKeys = payload.logoKeys;
+                if (payload.markupPercent !== undefined) updates.markupPercent = payload.markupPercent;
+                if (payload.royaltyPercent !== undefined) updates.royaltyPercent = payload.royaltyPercent;
+                if (payload.notes !== undefined) updates.notes = payload.notes;
+                if (payload.active !== undefined) updates.active = Boolean(payload.active);
+
+                const customer = await updateCustomer(param!, updates as any);
+                sendJson(res, 200, { ok: true, customer });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                if (message.includes('not found')) {
+                  sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                } else {
+                  console.error(`[Preview] Error updating customer ${param}: ${message}`);
+                  sendJson(res, 500, { ok: false, error: 'Internal server error' });
+                }
+              }
+            } else if (method === 'DELETE') {
+              // DELETE /api/customers/:id — Delete customer
+              try {
+                const deleted = await deleteCustomer(param!);
+                if (!deleted) {
+                  sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                  break;
+                }
+                sendJson(res, 200, { ok: true });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error deleting customer ${param}: ${message}`);
+                sendJson(res, 500, { ok: false, error: 'Internal server error' });
+              }
+            } else {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
             }
             break;
           }
