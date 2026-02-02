@@ -110,6 +110,9 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 
 | Phase | Decision | Rationale |
 |-------|----------|-----------|
+| 29 | snapshotMaxAgeMinutes defaults to 180 (3 hours) | Generous to avoid false staleness positives on normal poll intervals |
+| 29 | Per-product thresholds fully optional | Backward compatible with existing TrackedProduct JSON files |
+| 29 | Color matching lowercased, size matching kept exact | Sizes are always uppercase; colors have vendor-specific casing |
 | 29 | NotificationResult return type for sendSyncNotification | Enables delivery tracking without silently swallowing errors |
 | 29 | Cumulative moving average for tick duration | Lower memory than sliding window, sufficient for operational alerting |
 | 29 | 200ms rate limit between WIX API calls during audit | Prevents rate limit hits during full product mapping validation |

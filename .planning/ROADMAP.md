@@ -154,7 +154,7 @@ Plans:
 **Plans**: 3
 
 Plans:
-- [ ] 29-01: Per-product thresholds, case-insensitive SKU matching, and snapshot staleness detection
+- [x] 29-01: Per-product thresholds, case-insensitive SKU matching, and snapshot staleness detection -- completed 2026-02-02
 - [x] 29-02: Sync health timing, notification delivery tracking, mapping audit, and alert log retention -- completed 2026-02-02
 - [ ] 29-03: Inventory reliability dashboard UI (health cards, alert filtering, threshold badges, audit controls)
 
