@@ -171,6 +171,183 @@ export function listPositionPresets(): Record<string, LogoPosition> {
 }
 
 // =============================================================================
+// Logo Registry Management (Phase 24)
+// =============================================================================
+
+/** Regex for valid logo registry keys: alphanumeric, dash, underscore only */
+const VALID_KEY_REGEX = /^[a-zA-Z0-9_-]+$/;
+
+/**
+ * Save the logo registry to data/logos.json.
+ *
+ * @param registry - The updated LogoRegistry to persist
+ */
+export function saveLogoRegistry(registry: LogoRegistry): void {
+  const dir = path.dirname(REGISTRY_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2), 'utf-8');
+}
+
+/**
+ * Add a new logo entry to the registry.
+ *
+ * @param key - Registry key (alphanumeric, dash, underscore only)
+ * @param entry - Logo registry entry to add
+ * @returns Updated LogoRegistry
+ * @throws Error if key already exists, key is invalid, or filePath doesn't exist
+ */
+export function addLogo(key: string, entry: LogoRegistryEntry): LogoRegistry {
+  if (!VALID_KEY_REGEX.test(key)) {
+    throw new Error(
+      `Invalid logo key "${key}". Keys must contain only alphanumeric characters, dashes, and underscores.`
+    );
+  }
+
+  const registry = loadLogoRegistry();
+
+  if (registry.logos[key]) {
+    throw new Error(`Logo key "${key}" already exists. Use updateLogo() to modify it.`);
+  }
+
+  const filePath = path.resolve(entry.filePath);
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Logo file not found at "${entry.filePath}" (resolved: ${filePath}).`);
+  }
+
+  registry.logos[key] = entry;
+  saveLogoRegistry(registry);
+  return registry;
+}
+
+/**
+ * Update an existing logo entry in the registry.
+ *
+ * @param key - Registry key to update
+ * @param updates - Partial fields to merge into the existing entry
+ * @returns Updated LogoRegistryEntry
+ * @throws Error if key doesn't exist
+ */
+export function updateLogo(key: string, updates: Partial<LogoRegistryEntry>): LogoRegistryEntry {
+  const registry = loadLogoRegistry();
+
+  if (!registry.logos[key]) {
+    throw new Error(`Logo key "${key}" not found. Available logos: ${Object.keys(registry.logos).join(', ')}`);
+  }
+
+  Object.assign(registry.logos[key], updates);
+  saveLogoRegistry(registry);
+  return registry.logos[key];
+}
+
+/**
+ * Remove a logo from the registry and optionally delete the file.
+ *
+ * @param key - Registry key to remove
+ * @param deleteFile - If true, also delete the PNG file from disk (default: false)
+ * @throws Error if key doesn't exist
+ */
+export function removeLogo(key: string, deleteFile?: boolean): void {
+  const registry = loadLogoRegistry();
+
+  if (!registry.logos[key]) {
+    throw new Error(`Logo key "${key}" not found. Available logos: ${Object.keys(registry.logos).join(', ')}`);
+  }
+
+  const entry = registry.logos[key];
+  delete registry.logos[key];
+  saveLogoRegistry(registry);
+
+  if (deleteFile) {
+    const filePath = path.resolve(entry.filePath);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+}
+
+/**
+ * Process an uploaded logo file: validate, resize, convert to PNG, and register.
+ *
+ * Validates the image buffer using Sharp, resizes if any dimension exceeds 2000px,
+ * converts to PNG for alpha channel support, saves to media/logos/{key}.png,
+ * and registers in the logo registry.
+ *
+ * @param fileBuffer - Raw image buffer from upload
+ * @param originalName - Original filename (for logging)
+ * @param key - Registry key (alphanumeric, dash, underscore only)
+ * @param displayName - Human-readable display name
+ * @returns The created LogoRegistryEntry
+ * @throws Error if image is invalid, format unsupported, or key is invalid
+ *
+ * Phase 24: Logo Upload & Management
+ */
+export async function processLogoUpload(
+  fileBuffer: Buffer,
+  originalName: string,
+  key: string,
+  displayName: string,
+): Promise<LogoRegistryEntry> {
+  // Validate key format
+  if (!VALID_KEY_REGEX.test(key)) {
+    throw new Error(
+      `Invalid logo key "${key}". Keys must contain only alphanumeric characters, dashes, and underscores.`
+    );
+  }
+
+  // Validate image using Sharp metadata
+  const metadata = await sharp(fileBuffer).metadata();
+  const supportedFormats = ['png', 'jpeg', 'webp', 'gif'];
+
+  if (!metadata.format || !supportedFormats.includes(metadata.format)) {
+    throw new Error(
+      `Unsupported image format: "${metadata.format ?? 'unknown'}". Accepted formats: PNG, JPEG, WebP, GIF.`
+    );
+  }
+
+  // Process: resize if needed, convert to PNG
+  let pipeline = sharp(fileBuffer);
+
+  const width = metadata.width ?? 0;
+  const height = metadata.height ?? 0;
+
+  if (width > 2000 || height > 2000) {
+    pipeline = pipeline.resize({
+      width: 2000,
+      height: 2000,
+      fit: 'inside',
+      withoutEnlargement: true,
+    });
+  }
+
+  const pngBuffer = await pipeline.png({ compressionLevel: 9 }).toBuffer();
+
+  // Ensure media/logos/ directory exists
+  const logosDir = path.resolve('media/logos');
+  if (!fs.existsSync(logosDir)) {
+    fs.mkdirSync(logosDir, { recursive: true });
+  }
+
+  // Write processed PNG to disk
+  const outputPath = `media/logos/${key}.png`;
+  const resolvedOutput = path.resolve(outputPath);
+  fs.writeFileSync(resolvedOutput, pngBuffer);
+
+  // Register in logo registry
+  const entry: LogoRegistryEntry = {
+    displayName,
+    filePath: outputPath,
+    defaultScale: 0.25,
+    defaultBlendMode: 'multiply',
+    defaultOpacity: 0.88,
+  };
+
+  addLogo(key, entry);
+  return entry;
+}
+
+// =============================================================================
 // Image Compositing
 // =============================================================================
 

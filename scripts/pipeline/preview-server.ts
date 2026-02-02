@@ -665,7 +665,7 @@ function startServer(port: number, initialStyle?: string): void {
               break;
             }
             try {
-              const logoName = routeMatch.param!;
+              const logoName = param!;
               const entry = getLogoEntry(logoName);
               const logoFilePath = path.resolve(entry.filePath);
               if (!fs.existsSync(logoFilePath)) {
