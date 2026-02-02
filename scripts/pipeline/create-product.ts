@@ -18,7 +18,7 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-import type { CuratedProduct, ProductTemplate, LogoOverlayConfig } from './types.js';
+import type { CuratedProduct, ProductTemplate, LogoOverlayConfig, AngleOverlayConfig } from './types.js';
 import type { ProductData } from './fetch-product.js';
 import { fetchProductData } from './fetch-product.js';
 import { parseVendorFlag } from '../vendor/index.js';
@@ -47,6 +47,7 @@ import {
   listLogos,
   listPositionPresets,
   overlayProductImages,
+  overlayProductImagesByAngle,
 } from './overlay.js';
 
 // =============================================================================
@@ -302,6 +303,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const flagsWithValues = new Set([
     '--vendor', '--template', '--save-template', '--preset', '--price',
     '--collection', '--logo', '--logo-position', '--logo-scale',
+    '--logo-angles', '--logo-back-position', '--logo-side-position',
     '--decoration-cost', '--decoration-type',
   ]);
   let style: string | undefined;
@@ -318,29 +320,33 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
 
   if (!style || style === '--help' || process.argv.includes('--help')) {
     console.error(
-      'Usage: npx tsx scripts/pipeline/create-product.ts [--vendor sanmar|ss] <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N] [--decoration-cost N] [--decoration-type TYPE]',
+      'Usage: npx tsx scripts/pipeline/create-product.ts [--vendor sanmar|ss] <STYLE> [--template "name"] [--save-template "name"] [--preset KEY] [--price N] [--collection "Name" ...] [--logo NAME] [--logo-position PRESET] [--logo-scale N] [--logo-angles ANGLES] [--logo-back-position PRESET] [--logo-side-position PRESET] [--decoration-cost N] [--decoration-type TYPE]',
     );
     console.error('');
     console.error('Options:');
-    console.error('  --vendor sanmar|ss     Select vendor (default: sanmar)');
-    console.error('  --template "name"      Apply saved template (pricing, sizes, colors, collections, logo)');
-    console.error('  --save-template "name" Save current settings as reusable template after creation');
-    console.error('  --preset KEY           Select pricing preset (default: standard-tee)');
-    console.error('  --price N              Set retail price (overrides preset pricing)');
-    console.error('  --collection "Name"    Assign to WIX collection (repeatable)');
-    console.error('  --logo NAME            Apply logo overlay from registry (e.g., "bigbarn")');
-    console.error('  --logo-position PRESET Position preset or "x,y" coordinates (default: center-chest)');
-    console.error('  --logo-scale N         Logo scale as proportion of image width (0.1-0.8)');
-    console.error('  --decoration-cost N    Per-unit decoration cost in dollars (default: 0)');
-    console.error('  --decoration-type TYPE Decoration method: screen-print, embroidery, heat-transfer, dtg, none (default: none)');
-    console.error('  --list-presets         Show available pricing presets');
-    console.error('  --list-templates       Show saved product templates');
-    console.error('  --list-logos           Show available logos from registry');
-    console.error('  --list-positions       Show available position presets');
+    console.error('  --vendor sanmar|ss          Select vendor (default: sanmar)');
+    console.error('  --template "name"           Apply saved template (pricing, sizes, colors, collections, logo)');
+    console.error('  --save-template "name"      Save current settings as reusable template after creation');
+    console.error('  --preset KEY                Select pricing preset (default: standard-tee)');
+    console.error('  --price N                   Set retail price (overrides preset pricing)');
+    console.error('  --collection "Name"         Assign to WIX collection (repeatable)');
+    console.error('  --logo NAME                 Apply logo overlay from registry (e.g., "bigbarn")');
+    console.error('  --logo-position PRESET      Position preset or "x,y" coordinates (default: center-chest)');
+    console.error('  --logo-scale N              Logo scale as proportion of image width (0.1-0.8)');
+    console.error('  --logo-angles ANGLES        Comma-separated angles for logo: front,back,side (default: front)');
+    console.error('  --logo-back-position PRESET Position preset for back angle (default: center-back)');
+    console.error('  --logo-side-position PRESET Position preset for side angle (default: center-chest)');
+    console.error('  --decoration-cost N         Per-unit decoration cost in dollars (default: 0)');
+    console.error('  --decoration-type TYPE      Decoration method: screen-print, embroidery, heat-transfer, dtg, none (default: none)');
+    console.error('  --list-presets              Show available pricing presets');
+    console.error('  --list-templates            Show saved product templates');
+    console.error('  --list-logos                Show available logos from registry');
+    console.error('  --list-positions            Show available position presets');
     console.error('');
     console.error('Precedence (highest to lowest):');
     console.error('  Pricing:    --price > --preset > --template pricing > default (standard-tee)');
     console.error('  Logo:       --logo > --template logoOverlay > none');
+    console.error('  Angles:     --logo-angles > template logoOverlay.angles > single-config (backward compat)');
     console.error('  Decoration: --decoration-cost > template decorationCost > 0');
     console.error('');
     console.error('Examples:');
@@ -354,6 +360,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --collection "Big Barn Crossfit" --collection "Clothing"');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --logo bigbarn --logo-position center-chest');
     console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --logo bigbarn --logo-position "0.5,0.3" --logo-scale 0.3');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --logo bigbarn --logo-angles front,back');
+    console.error('  npx tsx scripts/pipeline/create-product.ts PC61 --logo bigbarn --logo-angles front,back,side --logo-back-position center-back');
     if (!style) process.exit(1);
     process.exit(0);
   }
@@ -398,6 +406,21 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   // Parse optional --logo-scale argument
   const logoScaleArgIdx = process.argv.indexOf('--logo-scale');
   const logoScaleArg = logoScaleArgIdx !== -1 ? parseFloat(process.argv[logoScaleArgIdx + 1]) : null;
+
+  // Parse optional --logo-angles argument (comma-separated: front,back,side)
+  const logoAnglesArgIdx = process.argv.indexOf('--logo-angles');
+  const logoAnglesArg = logoAnglesArgIdx !== -1 ? process.argv[logoAnglesArgIdx + 1] : null;
+  const logoAngles: Set<string> | null = logoAnglesArg
+    ? new Set(logoAnglesArg.split(',').map(a => a.trim().toLowerCase()))
+    : null;
+
+  // Parse optional --logo-back-position argument
+  const logoBackPosArgIdx = process.argv.indexOf('--logo-back-position');
+  const logoBackPositionArg = logoBackPosArgIdx !== -1 ? process.argv[logoBackPosArgIdx + 1] : null;
+
+  // Parse optional --logo-side-position argument
+  const logoSidePosArgIdx = process.argv.indexOf('--logo-side-position');
+  const logoSidePositionArg = logoSidePosArgIdx !== -1 ? process.argv[logoSidePosArgIdx + 1] : null;
 
   // Parse optional --decoration-cost argument
   const decorCostArgIdx = process.argv.indexOf('--decoration-cost');
@@ -497,7 +520,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
 
     // --- Determine logo overlay config ---
     // Precedence: --logo > template logoOverlay > none
+    // Per-angle: --logo-angles > template logoOverlay.angles > single-config (backward compat)
     let logoOverlayConfig: LogoOverlayConfig | null = null;
+    let angleOverlayConfig: AngleOverlayConfig | null = null;
     let logoSource: string = 'none';
 
     if (logoName) {
@@ -513,6 +538,34 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         blendMode: logoEntry.defaultBlendMode,
       };
       logoSource = `--logo ${logoName} at ${positionName}`;
+
+      // Build per-angle config if --logo-angles is specified or template has angles
+      if (logoAngles || template?.logoOverlay?.angles) {
+        const enabledAngles = logoAngles ?? new Set(Object.keys(template?.logoOverlay?.angles ?? {}).filter(k => template?.logoOverlay?.angles?.[k as 'front' | 'back' | 'side'] !== null));
+        angleOverlayConfig = {
+          logoName,
+          front: enabledAngles.has('front') ? {
+            position: getPositionPreset(logoPositionArg ?? template?.logoOverlay?.angles?.front?.position ?? 'center-chest'),
+            scale: logoScaleArg ?? template?.logoOverlay?.angles?.front?.scale ?? logoEntry.defaultScale,
+            opacity: template?.logoOverlay?.angles?.front?.opacity ?? logoEntry.defaultOpacity,
+            blendMode: logoEntry.defaultBlendMode,
+          } : null,
+          back: enabledAngles.has('back') ? {
+            position: getPositionPreset(logoBackPositionArg ?? template?.logoOverlay?.angles?.back?.position ?? 'center-back'),
+            scale: logoScaleArg ?? template?.logoOverlay?.angles?.back?.scale ?? logoEntry.defaultScale,
+            opacity: template?.logoOverlay?.angles?.back?.opacity ?? logoEntry.defaultOpacity,
+            blendMode: logoEntry.defaultBlendMode,
+          } : null,
+          side: enabledAngles.has('side') ? {
+            position: getPositionPreset(logoSidePositionArg ?? template?.logoOverlay?.angles?.side?.position ?? 'center-chest'),
+            scale: logoScaleArg ?? template?.logoOverlay?.angles?.side?.scale ?? logoEntry.defaultScale,
+            opacity: template?.logoOverlay?.angles?.side?.opacity ?? logoEntry.defaultOpacity,
+            blendMode: logoEntry.defaultBlendMode,
+          } : null,
+        };
+        const activeAngles = ['front', 'back', 'side'].filter(a => enabledAngles.has(a));
+        logoSource = `--logo ${logoName} angles: ${activeAngles.join(',')}`;
+      }
     } else if (template?.logoOverlay) {
       // Template provides logo overlay defaults
       const tLogo = template.logoOverlay;
@@ -526,6 +579,33 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         blendMode: logoEntry.defaultBlendMode,
       };
       logoSource = `template: ${tLogo.logoName} at ${tLogo.position}`;
+
+      // Build per-angle config from template if template has angles
+      if (tLogo.angles) {
+        const enabledAngles = Object.keys(tLogo.angles).filter(k => tLogo.angles![k as 'front' | 'back' | 'side'] !== null);
+        angleOverlayConfig = {
+          logoName: tLogo.logoName,
+          front: tLogo.angles.front !== null && tLogo.angles.front !== undefined ? {
+            position: getPositionPreset(tLogo.angles.front.position),
+            scale: tLogo.angles.front.scale ?? logoEntry.defaultScale,
+            opacity: tLogo.angles.front.opacity ?? logoEntry.defaultOpacity,
+            blendMode: logoEntry.defaultBlendMode,
+          } : null,
+          back: tLogo.angles.back !== null && tLogo.angles.back !== undefined ? {
+            position: getPositionPreset(tLogo.angles.back.position),
+            scale: tLogo.angles.back.scale ?? logoEntry.defaultScale,
+            opacity: tLogo.angles.back.opacity ?? logoEntry.defaultOpacity,
+            blendMode: logoEntry.defaultBlendMode,
+          } : null,
+          side: tLogo.angles.side !== null && tLogo.angles.side !== undefined ? {
+            position: getPositionPreset(tLogo.angles.side.position),
+            scale: tLogo.angles.side.scale ?? logoEntry.defaultScale,
+            opacity: tLogo.angles.side.opacity ?? logoEntry.defaultOpacity,
+            blendMode: logoEntry.defaultBlendMode,
+          } : null,
+        };
+        logoSource = `template: ${tLogo.logoName} angles: ${enabledAngles.join(',')}`;
+      }
     }
 
     // --- Determine decoration cost and type ---
@@ -562,7 +642,35 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
 
     // --- Apply logo overlay to product images (before WIX creation) ---
     let overlayPaths: string[] = [];
-    if (logoOverlayConfig) {
+    if (angleOverlayConfig) {
+      // Per-angle overlay: process each selected color's front/back/side images independently
+      console.log(`\nApplying per-angle logo overlay: ${angleOverlayConfig.logoName} (${logoSource})...`);
+      for (const color of selectedColors) {
+        const colorPreview = data.preview.availableColors.find(
+          (c) => c.catalogColor.toLowerCase() === color.catalogColor.toLowerCase(),
+        );
+        if (!colorPreview) continue;
+
+        const angleImages: { front?: string; back?: string; side?: string } = {};
+        if (colorPreview.frontImageUrl) angleImages.front = colorPreview.frontImageUrl;
+        if (colorPreview.backImageUrl) angleImages.back = colorPreview.backImageUrl;
+        if (colorPreview.sideImageUrl) angleImages.side = colorPreview.sideImageUrl;
+
+        const results = await overlayProductImagesByAngle(angleImages, angleOverlayConfig, 'media/overlays/');
+        const paths = Object.values(results).filter(Boolean) as string[];
+        overlayPaths.push(...paths);
+
+        if (paths.length > 0) {
+          console.log(`  ${color.displayColor}: ${paths.length} angle(s) overlaid`);
+        }
+      }
+      if (overlayPaths.length > 0) {
+        console.log(`  Total: Applied logo to ${overlayPaths.length} images across ${selectedColors.length} color(s)`);
+        console.log(`  Overlaid images saved to media/overlays/`);
+        console.log(`  Note: Upload overlaid images to WIX Media Manager to replace vendor photos`);
+      }
+    } else if (logoOverlayConfig) {
+      // Legacy single-config overlay: applies same position to all images
       const mediaPayload = buildMediaPayload(curated, data.imagesByColor);
       const imageUrls = mediaPayload.map((m) => m.url).filter(Boolean);
 
@@ -635,6 +743,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
             position: logoPositionArg ?? template?.logoOverlay?.position ?? 'center-chest',
             scale: logoOverlayConfig.scale,
             opacity: logoOverlayConfig.opacity,
+            ...(angleOverlayConfig ? {
+              angles: {
+                ...(angleOverlayConfig.front ? { front: { position: logoPositionArg ?? template?.logoOverlay?.angles?.front?.position ?? 'center-chest', scale: angleOverlayConfig.front.scale, opacity: angleOverlayConfig.front.opacity } } : angleOverlayConfig.front === null ? { front: null } : {}),
+                ...(angleOverlayConfig.back ? { back: { position: logoBackPositionArg ?? template?.logoOverlay?.angles?.back?.position ?? 'center-back', scale: angleOverlayConfig.back.scale, opacity: angleOverlayConfig.back.opacity } } : angleOverlayConfig.back === null ? { back: null } : {}),
+                ...(angleOverlayConfig.side ? { side: { position: logoSidePositionArg ?? template?.logoOverlay?.angles?.side?.position ?? 'center-chest', scale: angleOverlayConfig.side.scale, opacity: angleOverlayConfig.side.opacity } } : angleOverlayConfig.side === null ? { side: null } : {}),
+              },
+            } : {}),
           },
         } : {}),
         ...(decorationCost > 0 ? { decorationCost, decorationType } : {}),
