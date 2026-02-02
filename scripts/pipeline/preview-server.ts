@@ -63,8 +63,15 @@ import {
   loadTrackedProducts,
   getRecentAlerts,
 } from '../monitor/index.js';
-import { loadLatestSnapshot } from '../monitor/store.js';
+import { loadLatestSnapshot, isSnapshotStale } from '../monitor/store.js';
+import { getEffectiveThresholds } from '../monitor/alerts.js';
 import { getSyncHealth } from '../sync/sync-poller.js';
+import {
+  auditProductMappings,
+  removeOrphanedMappings,
+  getDefaultSyncConfig,
+} from '../sync/product-map.js';
+import type { MappingAuditResult } from '../sync/types.js';
 
 // Order Management (Phase 18)
 import {
@@ -656,6 +663,16 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/sales
   if (urlPath === '/api/sales') {
     return { route: 'sales' };
+  }
+
+  // Match /api/inventory/audit/cleanup (must come before /api/inventory/audit)
+  if (urlPath === '/api/inventory/audit/cleanup') {
+    return { route: 'inventory-audit-cleanup' };
+  }
+
+  // Match /api/inventory/audit
+  if (urlPath === '/api/inventory/audit') {
+    return { route: 'inventory-audit' };
   }
 
   // Match /api/inventory/product/:style (must come before /api/inventory/products)
@@ -1364,6 +1381,7 @@ function startServer(port: number, initialStyle?: string): void {
               const products = hasVendorFilter
                 ? allProducts.filter(p => (p.vendor ?? 'sanmar') === invVendorFilter)
                 : allProducts;
+              const maxAge = config.snapshotMaxAgeMinutes ?? 180;
               const result = [];
               for (const p of products) {
                 const snapshot = await loadLatestSnapshot(p.style, config);
@@ -1379,6 +1397,17 @@ function startServer(port: number, initialStyle?: string): void {
                     if (sku.warehouses && sku.warehouses.length > 0) hasWarehouseData = true;
                   }
                 }
+                // Per-product threshold overrides (Phase 29)
+                const thresholds = p.thresholds ?? null;
+                const effectiveThresholds = getEffectiveThresholds(p, config);
+                // Snapshot age and staleness (Phase 29)
+                let snapshotAgeMinutes: number | null = null;
+                let isStale = false;
+                if (snapshot) {
+                  const ageMs = Date.now() - new Date(snapshot.timestamp).getTime();
+                  snapshotAgeMinutes = Math.round(ageMs / (1000 * 60));
+                  isStale = isSnapshotStale(snapshot, maxAge);
+                }
                 result.push({
                   style: p.style,
                   name: p.name,
@@ -1390,6 +1419,10 @@ function startServer(port: number, initialStyle?: string): void {
                   outOfStockSkus,
                   lowStockSkus,
                   hasWarehouseData,
+                  thresholds,
+                  effectiveThresholds,
+                  snapshotAgeMinutes,
+                  isStale,
                 });
               }
               sendJson(res, 200, { products: result });
@@ -1459,11 +1492,84 @@ function startServer(port: number, initialStyle?: string): void {
               const urlObj = new URL(req.url ?? '/', `http://localhost`);
               const countParam = urlObj.searchParams.get('count');
               const count = countParam ? parseInt(countParam, 10) : 50;
-              const alerts = await getRecentAlerts(config, count);
+              // Type filter: ?type=out-of-stock,critical (comma-separated)
+              const typeParam = urlObj.searchParams.get('type');
+              const typeFilters = typeParam ? typeParam.split(',').map(t => t.trim()).filter(Boolean) : [];
+              // Style filter: ?style=PC61
+              const styleFilter = urlObj.searchParams.get('style') ?? '';
+              // Load a larger set to filter from, then apply count limit
+              let alerts = await getRecentAlerts(config, 1000);
+              if (typeFilters.length > 0) {
+                alerts = alerts.filter(a => typeFilters.includes(a.type));
+              }
+              if (styleFilter) {
+                alerts = alerts.filter(a => a.style === styleFilter);
+              }
+              // Apply count limit after filtering
+              if (alerts.length > count) {
+                alerts = alerts.slice(alerts.length - count);
+              }
               sendJson(res, 200, { alerts });
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error loading inventory alerts: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'inventory-audit': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const syncConfig = getDefaultSyncConfig();
+              const auditResult = await auditProductMappings(syncConfig);
+              sendJson(res, 200, auditResult);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error auditing product mappings: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'inventory-audit-cleanup': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const syncConfig = getDefaultSyncConfig();
+              // First run audit to get current orphaned mappings
+              const auditResult = await auditProductMappings(syncConfig);
+              const body = await readBody(req);
+              let stylesToRemove: string[] = [];
+              if (body.trim()) {
+                try {
+                  const parsed = JSON.parse(body);
+                  if (parsed.styles && Array.isArray(parsed.styles)) {
+                    stylesToRemove = parsed.styles;
+                  }
+                } catch { /* ignore parse errors, remove all orphaned */ }
+              }
+              // Filter audit to only requested styles if specified
+              let filteredAudit: MappingAuditResult;
+              if (stylesToRemove.length > 0) {
+                const styleSet = new Set(stylesToRemove);
+                filteredAudit = {
+                  ...auditResult,
+                  orphaned: auditResult.orphaned.filter(m => styleSet.has(m.style)),
+                };
+              } else {
+                filteredAudit = auditResult;
+              }
+              const removed = await removeOrphanedMappings(filteredAudit, syncConfig);
+              sendJson(res, 200, { removed, remaining: auditResult.orphaned.length - removed });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error cleaning up orphaned mappings: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
             }
             break;
