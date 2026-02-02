@@ -128,10 +128,12 @@ Plans:
 **Goal**: Bulk operations, smarter defaults, and reduced manual steps in product creation workflow
 **Depends on**: Phase 26
 **Research**: Unlikely (internal pipeline improvements)
-**Plans**: TBD
+**Plans**: 3
 
 Plans:
-- [ ] 27-01: TBD
+- [ ] 27-01: Recent-choice memory (localStorage + server-side preferences persistence)
+- [ ] 27-02: Batch processing engine with SSE progress stream
+- [ ] 27-03: Batch creation UI with live progress queue
 
 #### Phase 28: Order Management Hardening
 
