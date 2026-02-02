@@ -84,10 +84,11 @@ Plans:
 **Depends on**: Phase 22
 **Research**: Likely (browser-based image editing UI)
 **Research topics**: Canvas API vs HTML5 drag-and-drop vs library, coordinate mapping between preview and actual image dimensions, real-time preview rendering
-**Plans**: TBD
+**Plans**: 2
 
 Plans:
-- [ ] 23-01: TBD
+- [x] 23-01: Core drag-and-drop placement engine and angle card integration -- completed 2026-02-02
+- [ ] 23-02: TBD
 
 #### Phase 24: Logo Upload & Management
 
@@ -189,7 +190,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 20. Integration Testing & Polish | v0.2 | 3/3 | Complete | 2026-02-01 |
 | 21. Multi-Angle Image Support | v1.0 | 1/1 | Complete | 2026-02-02 |
 | 22. Multi-Angle Logo Overlay | v1.0 | 2/2 | Complete | 2026-02-02 |
-| 23. Visual Logo Placement UI | v1.0 | 0/? | Not started | - |
+| 23. Visual Logo Placement UI | v1.0 | 1/2 | In progress | - |
 | 24. Logo Upload & Management | v1.0 | 0/? | Not started | - |
 | 25. Customer Account System | v1.0 | 0/? | Not started | - |
 | 26. Royalty Calculation & PDF Reporting | v1.0 | 0/? | Not started | - |
