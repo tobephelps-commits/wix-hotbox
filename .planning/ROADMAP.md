@@ -119,7 +119,7 @@ Plans:
 **Plans**: 3
 
 Plans:
-- [ ] 26-01: Royalty calculation engine and API endpoints
+- [x] 26-01: Royalty calculation engine and API endpoints -- completed 2026-02-02
 - [ ] 26-02: Royalty statement PDF generator
 - [ ] 26-03: Royalty reporting dashboard UI
 
@@ -195,7 +195,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 23. Visual Logo Placement UI | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 24. Logo Upload & Management | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 25. Customer Account System | v1.0 | 3/3 | Complete | 2026-02-02 |
-| 26. Royalty Calculation & PDF Reporting | v1.0 | 0/? | Not started | - |
+| 26. Royalty Calculation & PDF Reporting | v1.0 | 1/3 | In progress | - |
 | 27. Pipeline Automation | v1.0 | 0/? | Not started | - |
 | 28. Order Management Hardening | v1.0 | 0/? | Not started | - |
 | 29. Inventory Sync Reliability | v1.0 | 0/? | Not started | - |

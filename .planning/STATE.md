@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 25 of 30 (Customer Account System)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-02 - Completed 25-03-PLAN.md
+Phase: 26 of 30 (Royalty Calculation & PDF Reporting)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-02 - Completed 26-01-PLAN.md
 
-Progress: ████████░░ 82%
+Progress: ████████░░ 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 82 (34 v0.1 + 38 v0.2 + 10 v1.0)
+- Total plans completed: 83 (34 v0.1 + 38 v0.2 + 11 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -72,6 +72,13 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 25 | Money rounding at each calculation step (not just final) | Prevents floating-point drift accumulation in multi-step pricing |
 | 25 | Royalty calculated on retail price (not wholesale) | Standard royalty accounting practice |
 
+### Phase 26 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 26 | Conservative discount heuristic: order.discount > 0 zeros all line items | Avoids royalty on staff/discount orders where markup was removed |
+| 26 | Dynamic import for PDF module in API endpoint | Allows Plan 01 and 02 to run independently; 501 until module exists |
+
 ### Blockers/Concerns
 
 None
@@ -87,6 +94,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 25-03-PLAN.md (customer-aware pricing and logo integration)
+Stopped at: Completed 26-01-PLAN.md (royalty calculation engine and API endpoints)
 Resume file: None
-Note: Phase 25 complete (3/3 plans). Next: Phase 26 (royalty calculation & PDF reporting).
+Note: Phase 26 in progress (1/3 plans). Next: 26-02 (royalty statement PDF generator).
