@@ -918,6 +918,250 @@
     outline: none;
   }
 
+  /* Logo Library section (Phase 24) */
+  .logo-library-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .logo-library-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .logo-library-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .logo-upload-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fafafa;
+    margin-bottom: 16px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .logo-upload-zone:hover {
+    border-color: #6c63ff;
+    background: #f5f4ff;
+  }
+  .logo-upload-zone.dragover {
+    border-color: #6c63ff;
+    background: #eef;
+    border-style: solid;
+  }
+  .logo-upload-zone .upload-icon {
+    font-size: 32px;
+    color: #999;
+    line-height: 1;
+  }
+  .logo-upload-zone .upload-text {
+    font-size: 14px;
+    color: #666;
+  }
+  .logo-upload-zone .upload-hint {
+    font-size: 12px;
+    color: #999;
+  }
+  .logo-upload-form {
+    display: none;
+    background: #f8f8ff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .logo-upload-form.visible { display: block; }
+  .logo-upload-form-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .logo-upload-preview {
+    width: 64px;
+    height: 64px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    object-fit: contain;
+    background: repeating-conic-gradient(#e8e8e8 0% 25%, #f4f4f4 0% 50%) 50% / 8px 8px;
+    flex-shrink: 0;
+  }
+  .logo-upload-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 150px;
+  }
+  .logo-upload-field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+  .logo-upload-field input[type="text"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  .logo-upload-field input[type="text"]:focus { border-color: #6c63ff; }
+  .logo-upload-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .logo-upload-status {
+    font-size: 13px;
+    color: #666;
+    margin-left: 8px;
+  }
+  .logo-upload-status.error { color: #e74c3c; }
+  .logo-upload-status.success { color: #27ae60; }
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .logo-grid-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 32px 16px;
+    color: #999;
+    font-size: 14px;
+  }
+  .logo-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .logo-card:hover {
+    border-color: #6c63ff;
+    box-shadow: 0 2px 8px rgba(108,99,255,0.1);
+  }
+  .logo-card-thumb {
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+    background: repeating-conic-gradient(#e8e8e8 0% 25%, #f4f4f4 0% 50%) 50% / 12px 12px;
+    display: block;
+    padding: 8px;
+  }
+  .logo-card-body {
+    padding: 10px 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .logo-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .logo-card-key {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    color: #999;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .logo-card-meta {
+    font-size: 11px;
+    color: #bbb;
+    margin-bottom: 8px;
+  }
+  .logo-card-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .logo-card-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f8f8;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    color: #555;
+  }
+  .logo-card-btn:hover {
+    background: #eee;
+    border-color: #bbb;
+  }
+  .logo-card-btn.delete:hover {
+    background: #fee;
+    border-color: #e74c3c;
+    color: #e74c3c;
+  }
+  .logo-card-edit {
+    display: none;
+    padding: 10px 12px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+  }
+  .logo-card-edit.visible { display: block; }
+  .logo-card-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+  .logo-card-edit-field label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+  }
+  .logo-card-edit-field input[type="text"],
+  .logo-card-edit-field input[type="number"] {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+    outline: none;
+  }
+  .logo-card-edit-field input:focus { border-color: #6c63ff; }
+  .logo-card-edit-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  @media (max-width: 700px) {
+    .logo-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .logo-upload-form-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .logo-upload-preview {
+      align-self: center;
+    }
+  }
+
   /* Margin Dashboard section (Phase 15) */
   .margin-dashboard {
     background: #fff;
@@ -2045,6 +2289,49 @@
     <div class="size-grid" id="sizeGrid"></div>
   </div>
 
+  <!-- Logo Library section (Phase 24) -->
+  <div class="logo-library-section" id="logoLibrarySection">
+    <div class="section-header">
+      <div class="logo-library-title">LOGO LIBRARY</div>
+      <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-outline" id="refreshLogosBtn">Refresh</button>
+      </div>
+    </div>
+
+    <!-- Upload drop zone -->
+    <div class="logo-upload-zone" id="logoUploadZone">
+      <div class="upload-icon">&#128247;</div>
+      <div class="upload-text">Drop logo here or click to browse</div>
+      <div class="upload-hint">PNG, JPEG, WebP, GIF &mdash; max 10 MB</div>
+    </div>
+    <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+
+    <!-- Upload metadata form (shown after file selected) -->
+    <div class="logo-upload-form" id="logoUploadForm">
+      <div class="logo-upload-form-row">
+        <img id="logoUploadPreviewImg" class="logo-upload-preview" alt="Preview">
+        <div class="logo-upload-field">
+          <label for="logoUploadKey">Key</label>
+          <input type="text" id="logoUploadKey" placeholder="e.g. my-logo">
+        </div>
+        <div class="logo-upload-field">
+          <label for="logoUploadName">Display Name</label>
+          <input type="text" id="logoUploadName" placeholder="e.g. My Logo">
+        </div>
+      </div>
+      <div class="logo-upload-actions">
+        <button type="button" class="btn btn-sm btn-primary" id="logoUploadBtn">Upload</button>
+        <button type="button" class="btn btn-sm btn-outline" id="logoUploadCancelBtn">Cancel</button>
+        <span class="logo-upload-status" id="logoUploadStatus"></span>
+      </div>
+    </div>
+
+    <!-- Logo grid -->
+    <div class="logo-grid" id="logoGrid">
+      <div class="logo-grid-empty">No logos uploaded yet. Drop a logo above to get started.</div>
+    </div>
+  </div>
+
   <!-- Logo Overlay section (Phase 22 - Per-Angle) -->
   <div class="logo-overlay-section" id="logoOverlaySection">
     <div class="logo-overlay-title">
@@ -2508,6 +2795,21 @@
   var upchargeSection = document.getElementById('upchargeSection');
   var upchargeTable = document.getElementById('upchargeTable');
   var priceSummary = document.getElementById('priceSummary');
+
+  // Logo Library DOM refs (Phase 24)
+  var logoLibrarySection = document.getElementById('logoLibrarySection');
+  var logoUploadZone = document.getElementById('logoUploadZone');
+  var logoFileInput = document.getElementById('logoFileInput');
+  var logoUploadForm = document.getElementById('logoUploadForm');
+  var logoUploadPreviewImg = document.getElementById('logoUploadPreviewImg');
+  var logoUploadKey = document.getElementById('logoUploadKey');
+  var logoUploadName = document.getElementById('logoUploadName');
+  var logoUploadBtn = document.getElementById('logoUploadBtn');
+  var logoUploadCancelBtn = document.getElementById('logoUploadCancelBtn');
+  var logoUploadStatus = document.getElementById('logoUploadStatus');
+  var logoGrid = document.getElementById('logoGrid');
+  var refreshLogosBtn = document.getElementById('refreshLogosBtn');
+  var pendingLogoFile = null; // File selected for upload
 
   // Logo overlay DOM refs (Phase 22 - Per-Angle)
   var logoOverlaySection = document.getElementById('logoOverlaySection');
@@ -4055,28 +4357,383 @@
   var ANGLE_KEYS = ['front', 'back', 'side'];
   var ANGLE_IMAGE_FIELDS = { front: 'frontImageUrl', back: 'backImageUrl', side: 'sideImageUrl' };
 
-  // Fetch logo registry on page load and populate all angle dropdowns
+  // =========================================================================
+  // Logo Library Management (Phase 24)
+  // =========================================================================
+
+  // Refresh logo selector dropdown(s), preserving current selection
+  function refreshLogoSelectors() {
+    if (!logoData) return;
+    var currentVal = logoSelect.value;
+    logoSelect.innerHTML = '<option value="">None (no overlay)</option>';
+    var logoNames = Object.keys(logoData.logos || {});
+    logoNames.forEach(function(name) {
+      var entry = logoData.logos[name];
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = entry.displayName || name;
+      logoSelect.appendChild(opt);
+    });
+    // Preserve selection if still exists
+    if (currentVal && logoData.logos[currentVal]) {
+      logoSelect.value = currentVal;
+    } else {
+      logoSelect.value = '';
+    }
+  }
+
+  // Render the logo grid from logoData
+  function renderLogoGrid() {
+    if (!logoData) {
+      logoGrid.innerHTML = '<div class="logo-grid-empty">No logos uploaded yet. Drop a logo above to get started.</div>';
+      return;
+    }
+    var logoNames = Object.keys(logoData.logos || {});
+    if (logoNames.length === 0) {
+      logoGrid.innerHTML = '<div class="logo-grid-empty">No logos uploaded yet. Drop a logo above to get started.</div>';
+      return;
+    }
+    logoGrid.innerHTML = '';
+    logoNames.forEach(function(name) {
+      var entry = logoData.logos[name];
+      var card = document.createElement('div');
+      card.className = 'logo-card';
+      card.dataset.logoKey = name;
+
+      var thumb = document.createElement('img');
+      thumb.className = 'logo-card-thumb';
+      thumb.src = '/api/logo-file/' + encodeURIComponent(name) + '?t=' + Date.now();
+      thumb.alt = entry.displayName || name;
+      thumb.loading = 'lazy';
+      card.appendChild(thumb);
+
+      var body = document.createElement('div');
+      body.className = 'logo-card-body';
+
+      var nameEl = document.createElement('div');
+      nameEl.className = 'logo-card-name';
+      nameEl.textContent = entry.displayName || name;
+      body.appendChild(nameEl);
+
+      var keyEl = document.createElement('div');
+      keyEl.className = 'logo-card-key';
+      keyEl.textContent = name;
+      body.appendChild(keyEl);
+
+      var metaEl = document.createElement('div');
+      metaEl.className = 'logo-card-meta';
+      var scale = entry.defaultScale ? Math.round(entry.defaultScale * 100) + '%' : '25%';
+      var opacity = entry.defaultOpacity !== undefined ? Math.round(entry.defaultOpacity * 100) + '%' : '100%';
+      metaEl.textContent = 'Scale: ' + scale + ' \u00B7 Opacity: ' + opacity;
+      body.appendChild(metaEl);
+
+      var actions = document.createElement('div');
+      actions.className = 'logo-card-actions';
+
+      var editBtn = document.createElement('button');
+      editBtn.className = 'logo-card-btn';
+      editBtn.textContent = '\u270F Edit';
+      editBtn.addEventListener('click', function() {
+        var editPanel = card.querySelector('.logo-card-edit');
+        if (editPanel) {
+          editPanel.classList.toggle('visible');
+        }
+      });
+      actions.appendChild(editBtn);
+
+      var deleteBtn = document.createElement('button');
+      deleteBtn.className = 'logo-card-btn delete';
+      deleteBtn.textContent = '\uD83D\uDDD1 Delete';
+      deleteBtn.addEventListener('click', function() {
+        var displayName = entry.displayName || name;
+        if (!confirm('Delete ' + displayName + '? This cannot be undone.')) return;
+        deleteLogo(name);
+      });
+      actions.appendChild(deleteBtn);
+
+      body.appendChild(actions);
+      card.appendChild(body);
+
+      // Edit panel (hidden by default)
+      var editPanel = document.createElement('div');
+      editPanel.className = 'logo-card-edit';
+
+      var nameField = document.createElement('div');
+      nameField.className = 'logo-card-edit-field';
+      nameField.innerHTML = '<label>Display Name</label>';
+      var nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = entry.displayName || name;
+      nameInput.dataset.field = 'displayName';
+      nameField.appendChild(nameInput);
+      editPanel.appendChild(nameField);
+
+      var scaleField = document.createElement('div');
+      scaleField.className = 'logo-card-edit-field';
+      scaleField.innerHTML = '<label>Default Scale (0.05 - 1.0)</label>';
+      var scaleInput = document.createElement('input');
+      scaleInput.type = 'number';
+      scaleInput.min = '0.05';
+      scaleInput.max = '1.0';
+      scaleInput.step = '0.01';
+      scaleInput.value = entry.defaultScale || 0.25;
+      scaleInput.dataset.field = 'defaultScale';
+      scaleField.appendChild(scaleInput);
+      editPanel.appendChild(scaleField);
+
+      var opacityField = document.createElement('div');
+      opacityField.className = 'logo-card-edit-field';
+      opacityField.innerHTML = '<label>Default Opacity (0.0 - 1.0)</label>';
+      var opacityInput = document.createElement('input');
+      opacityInput.type = 'number';
+      opacityInput.min = '0';
+      opacityInput.max = '1';
+      opacityInput.step = '0.05';
+      opacityInput.value = entry.defaultOpacity !== undefined ? entry.defaultOpacity : 1;
+      opacityInput.dataset.field = 'defaultOpacity';
+      opacityField.appendChild(opacityInput);
+      editPanel.appendChild(opacityField);
+
+      var editActions = document.createElement('div');
+      editActions.className = 'logo-card-edit-actions';
+
+      var saveBtn = document.createElement('button');
+      saveBtn.className = 'btn btn-sm btn-primary';
+      saveBtn.textContent = 'Save';
+      saveBtn.addEventListener('click', function() {
+        var updates = {
+          displayName: nameInput.value.trim() || name,
+          defaultScale: parseFloat(scaleInput.value) || 0.25,
+          defaultOpacity: parseFloat(opacityInput.value)
+        };
+        if (isNaN(updates.defaultOpacity)) updates.defaultOpacity = 1;
+        updateLogoEntry(name, updates);
+      });
+      editActions.appendChild(saveBtn);
+
+      var cancelEditBtn = document.createElement('button');
+      cancelEditBtn.className = 'btn btn-sm btn-outline';
+      cancelEditBtn.textContent = 'Cancel';
+      cancelEditBtn.addEventListener('click', function() {
+        editPanel.classList.remove('visible');
+      });
+      editActions.appendChild(cancelEditBtn);
+
+      editPanel.appendChild(editActions);
+      card.appendChild(editPanel);
+
+      logoGrid.appendChild(card);
+    });
+  }
+
+  // Upload a logo file
+  async function uploadLogo(file, key, displayName) {
+    logoUploadStatus.className = 'logo-upload-status';
+    logoUploadStatus.innerHTML = '<span class="spinner"></span> Uploading...';
+    logoUploadBtn.disabled = true;
+
+    try {
+      var res = await fetch('/api/logos/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+          'X-Logo-Key': key,
+          'X-Logo-Display-Name': displayName
+        },
+        body: file
+      });
+      var json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || 'Upload failed');
+      }
+      logoUploadStatus.className = 'logo-upload-status success';
+      logoUploadStatus.textContent = 'Uploaded successfully!';
+      // Refresh data
+      await fetchLogos();
+      // Reset form after short delay
+      setTimeout(function() {
+        resetUploadForm();
+      }, 1500);
+    } catch (err) {
+      logoUploadStatus.className = 'logo-upload-status error';
+      logoUploadStatus.textContent = err.message || 'Upload failed';
+    } finally {
+      logoUploadBtn.disabled = false;
+    }
+  }
+
+  // Update a logo entry via PUT /api/logos/:name
+  async function updateLogoEntry(name, updates) {
+    try {
+      var res = await fetch('/api/logos/' + encodeURIComponent(name), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (!res.ok) {
+        var json = await res.json();
+        throw new Error(json.error || 'Update failed');
+      }
+      await fetchLogos();
+    } catch (err) {
+      alert('Failed to update logo: ' + (err.message || err));
+    }
+  }
+
+  // Delete a logo via DELETE /api/logos/:name
+  async function deleteLogo(name) {
+    try {
+      var res = await fetch('/api/logos/' + encodeURIComponent(name), {
+        method: 'DELETE'
+      });
+      if (!res.ok) {
+        var json = await res.json();
+        throw new Error(json.error || 'Delete failed');
+      }
+      await fetchLogos();
+    } catch (err) {
+      alert('Failed to delete logo: ' + (err.message || err));
+    }
+  }
+
+  // Reset upload form
+  function resetUploadForm() {
+    logoUploadForm.classList.remove('visible');
+    logoUploadPreviewImg.src = '';
+    logoUploadKey.value = '';
+    logoUploadName.value = '';
+    logoUploadStatus.textContent = '';
+    logoUploadStatus.className = 'logo-upload-status';
+    pendingLogoFile = null;
+  }
+
+  // Generate key from filename: lowercase, replace spaces/dots with dashes, strip non-alnum/dash/underscore
+  function generateLogoKey(filename) {
+    var name = filename.replace(/\.[^.]+$/, ''); // strip extension
+    return name
+      .toLowerCase()
+      .replace(/[\s.]+/g, '-')
+      .replace(/[^a-z0-9_-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  // Generate display name from filename: remove extension, title case
+  function generateLogoDisplayName(filename) {
+    var name = filename.replace(/\.[^.]+$/, '');
+    return name
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  }
+
+  // Handle file selection (from drop or browse)
+  function handleFileSelected(file) {
+    // Validate type
+    if (!file.type.startsWith('image/')) {
+      logoUploadStatus.className = 'logo-upload-status error';
+      logoUploadStatus.textContent = 'Invalid file type. Please select an image file.';
+      logoUploadForm.classList.add('visible');
+      return;
+    }
+    // Validate size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      logoUploadStatus.className = 'logo-upload-status error';
+      logoUploadStatus.textContent = 'File too large. Maximum size is 10 MB.';
+      logoUploadForm.classList.add('visible');
+      return;
+    }
+    pendingLogoFile = file;
+    // Show preview
+    var objectUrl = URL.createObjectURL(file);
+    logoUploadPreviewImg.src = objectUrl;
+    // Auto-generate key and display name
+    logoUploadKey.value = generateLogoKey(file.name);
+    logoUploadName.value = generateLogoDisplayName(file.name);
+    logoUploadStatus.textContent = '';
+    logoUploadStatus.className = 'logo-upload-status';
+    logoUploadForm.classList.add('visible');
+  }
+
+  // Drop zone events
+  logoUploadZone.addEventListener('click', function() {
+    logoFileInput.click();
+  });
+  logoFileInput.addEventListener('change', function() {
+    if (logoFileInput.files && logoFileInput.files[0]) {
+      handleFileSelected(logoFileInput.files[0]);
+    }
+    logoFileInput.value = ''; // reset so same file can be re-selected
+  });
+  logoUploadZone.addEventListener('dragenter', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    logoUploadZone.classList.add('dragover');
+  });
+  logoUploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    logoUploadZone.classList.add('dragover');
+  });
+  logoUploadZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    logoUploadZone.classList.remove('dragover');
+  });
+  logoUploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    logoUploadZone.classList.remove('dragover');
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelected(e.dataTransfer.files[0]);
+    }
+  });
+
+  // Upload button click
+  logoUploadBtn.addEventListener('click', function() {
+    if (!pendingLogoFile) return;
+    var key = logoUploadKey.value.trim();
+    var displayName = logoUploadName.value.trim();
+    if (!key) {
+      logoUploadStatus.className = 'logo-upload-status error';
+      logoUploadStatus.textContent = 'Key is required.';
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
+      logoUploadStatus.className = 'logo-upload-status error';
+      logoUploadStatus.textContent = 'Key must be alphanumeric, dashes, underscores only.';
+      return;
+    }
+    uploadLogo(pendingLogoFile, key, displayName || key);
+  });
+
+  // Cancel upload
+  logoUploadCancelBtn.addEventListener('click', function() {
+    resetUploadForm();
+  });
+
+  // Refresh button
+  refreshLogosBtn.addEventListener('click', function() {
+    fetchLogos();
+  });
+
+  // Fetch logo registry on page load and populate all angle dropdowns + logo grid
   async function fetchLogos() {
     try {
       var res = await fetch('/api/logos');
       var json = await res.json();
       logoData = json;
 
+      // Always render the logo grid (even if empty)
+      renderLogoGrid();
+
+      // Refresh logo selectors
+      refreshLogoSelectors();
+
       var logoNames = Object.keys(logoData.logos || {});
       if (logoNames.length === 0) {
         logoOverlaySection.classList.remove('visible');
         return;
       }
-
-      // Populate logo dropdown
-      logoSelect.innerHTML = '<option value="">None (no overlay)</option>';
-      logoNames.forEach(function(name) {
-        var entry = logoData.logos[name];
-        var opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = entry.displayName || name;
-        logoSelect.appendChild(opt);
-      });
 
       // Populate quick-position preset buttons for all 3 angle cards (Phase 23)
       var presets = logoData.positionPresets || {};
@@ -4108,6 +4765,7 @@
     } catch (err) {
       console.warn('Failed to fetch logos:', err);
       logoData = null;
+      renderLogoGrid();
     }
   }
 
