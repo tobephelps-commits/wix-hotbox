@@ -2539,6 +2539,165 @@
     .customer-grid { grid-template-columns: 1fr; }
     .customer-form-row { flex-direction: column; }
     .customer-pricing-grid { grid-template-columns: 1fr; }
+    .royalty-controls { flex-direction: column; }
+    .royalty-summary { flex-direction: column; }
+    .royalty-table-wrap { font-size: 12px; }
+  }
+
+  /* Royalty Reporting section (Phase 26) */
+  .royalty-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .royalty-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .royalty-section .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .royalty-controls {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .royalty-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .royalty-control label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+  .royalty-control select,
+  .royalty-control input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  .royalty-control select:focus,
+  .royalty-control input[type="date"]:focus {
+    border-color: #6c63ff;
+  }
+  .royalty-control select { min-width: 200px; }
+  .royalty-summary {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .royalty-summary-card {
+    flex: 1;
+    min-width: 120px;
+    background: #f9f9fb;
+    border: 1px solid #e8e8ec;
+    border-radius: 6px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .royalty-summary-card .rs-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .royalty-summary-card .rs-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+  }
+  .royalty-summary-card.rs-highlight {
+    border-color: #6c63ff;
+    background: #f4f3ff;
+  }
+  .royalty-summary-card.rs-highlight .rs-value {
+    color: #6c63ff;
+  }
+  .royalty-disc-note {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .royalty-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .royalty-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .royalty-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+  }
+  .royalty-table th.num { text-align: right; }
+  .royalty-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
+  .royalty-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .royalty-table tr:nth-child(even) { background: #fafafa; }
+  .royalty-table tr.royalty-discounted td { color: #999; }
+  .royalty-table tr.royalty-discounted td .disc-tag {
+    font-size: 10px;
+    color: #bbb;
+    margin-left: 4px;
+  }
+  .royalty-table .product-detail {
+    color: #999;
+    font-size: 12px;
+  }
+  .royalty-total-row td {
+    font-weight: 700;
+    border-top: 2px solid #e0e0e0;
+    border-bottom: none;
+    padding-top: 10px;
+  }
+  .royalty-total-row .rt-royalty {
+    color: #6c63ff;
+  }
+  .royalty-empty {
+    padding: 32px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+  }
+  .royalty-loading {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
   }
 </style>
 </head>
@@ -3137,6 +3296,36 @@
         <button type="button" class="btn btn-outline" id="custCancelBtn">Cancel</button>
         <button type="button" class="btn btn-success" id="custSaveBtn">Save Customer</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Royalty Reports section (Phase 26) -->
+  <div class="royalty-section" id="royaltySection">
+    <div class="section-header">
+      <div class="section-title">ROYALTY REPORTS</div>
+    </div>
+    <div class="royalty-controls" id="royaltyControls">
+      <div class="royalty-control">
+        <label for="royaltyCustomerSelect">Customer</label>
+        <select id="royaltyCustomerSelect">
+          <option value="">Select customer...</option>
+        </select>
+      </div>
+      <div class="royalty-control">
+        <label for="royaltyStartDate">Start</label>
+        <input type="date" id="royaltyStartDate">
+      </div>
+      <div class="royalty-control">
+        <label for="royaltyEndDate">End</label>
+        <input type="date" id="royaltyEndDate">
+      </div>
+      <div class="royalty-control" style="flex-direction:row;gap:8px;align-items:flex-end;">
+        <button type="button" class="btn btn-primary" id="generateRoyaltyBtn">Generate Report</button>
+        <button type="button" class="btn btn-outline" id="downloadRoyaltyPdfBtn" disabled>Download PDF</button>
+      </div>
+    </div>
+    <div id="royaltyContent">
+      <div class="royalty-empty">Select a customer and date range, then click "Generate Report".</div>
     </div>
   </div>
 
@@ -7455,6 +7644,241 @@
 
   // Initial load
   loadCustomers();
+
+  // =========================================================================
+  // Royalty Reporting (Phase 26)
+  // =========================================================================
+
+  var royaltyCustomerSelect = document.getElementById('royaltyCustomerSelect');
+  var royaltyStartDate = document.getElementById('royaltyStartDate');
+  var royaltyEndDate = document.getElementById('royaltyEndDate');
+  var generateRoyaltyBtn = document.getElementById('generateRoyaltyBtn');
+  var downloadRoyaltyPdfBtn = document.getElementById('downloadRoyaltyPdfBtn');
+  var royaltyContent = document.getElementById('royaltyContent');
+
+  var currentRoyaltyReport = null; // Stores last generated report
+
+  // Set default date range (first of current month to today)
+  (function setRoyaltyDateDefaults() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    royaltyStartDate.value = year + '-' + month + '-01';
+    royaltyEndDate.value = year + '-' + month + '-' + day;
+  })();
+
+  // Format a number as $X,XXX.XX
+  function formatMoney(val) {
+    var n = Number(val) || 0;
+    var parts = n.toFixed(2).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return '$' + parts.join('.');
+  }
+
+  // Format ISO date as MM/DD/YY
+  function formatDateShort(isoStr) {
+    if (!isoStr) return '';
+    var d = new Date(isoStr);
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    var yy = String(d.getFullYear()).slice(-2);
+    return mm + '/' + dd + '/' + yy;
+  }
+
+  // Load active customers into the royalty dropdown
+  async function loadRoyaltyCustomers() {
+    try {
+      var resp = await fetch('/api/customers?active=true');
+      if (!resp.ok) throw new Error('Failed to load customers');
+      var data = await resp.json();
+      var custs = data.customers || data || [];
+      // Clear existing options except placeholder
+      royaltyCustomerSelect.innerHTML = '<option value="">Select customer...</option>';
+      custs.forEach(function(c) {
+        if (c.active === false) return; // extra filter for safety
+        var opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        royaltyCustomerSelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error('[Royalty] Error loading customers:', err);
+    }
+  }
+
+  // Generate royalty report
+  async function generateRoyaltyReport() {
+    var customerId = royaltyCustomerSelect.value;
+    if (!customerId) {
+      showToast('Please select a customer', 'error');
+      return;
+    }
+    var startVal = royaltyStartDate.value;
+    var endVal = royaltyEndDate.value;
+    if (!startVal || !endVal) {
+      showToast('Please set start and end dates', 'error');
+      return;
+    }
+
+    // Show loading
+    royaltyContent.innerHTML = '<div class="royalty-loading">Loading report...</div>';
+    downloadRoyaltyPdfBtn.disabled = true;
+    currentRoyaltyReport = null;
+
+    try {
+      var url = '/api/customers/' + encodeURIComponent(customerId) + '/royalty?start=' +
+        encodeURIComponent(startVal) + '&end=' + encodeURIComponent(endVal);
+      var resp = await fetch(url);
+      if (!resp.ok) {
+        var errBody = await resp.json().catch(function() { return {}; });
+        throw new Error(errBody.error || 'Server returned ' + resp.status);
+      }
+      var json = await resp.json();
+      var report = json.data || json;
+      currentRoyaltyReport = report;
+      renderRoyaltyReport(report);
+      downloadRoyaltyPdfBtn.disabled = false;
+    } catch (err) {
+      royaltyContent.innerHTML = '<div class="royalty-empty">Error: ' + escHtml(err.message) + '</div>';
+      showToast('Error generating report: ' + err.message, 'error');
+    }
+  }
+
+  // Render the royalty report
+  function renderRoyaltyReport(report) {
+    if (!report.lineItems || report.lineItems.length === 0) {
+      royaltyContent.innerHTML = '<div class="royalty-empty">No orders found for this customer in the selected period.</div>';
+      downloadRoyaltyPdfBtn.disabled = true;
+      return;
+    }
+
+    var html = '';
+
+    // Summary cards
+    html += '<div class="royalty-summary">';
+    html += '<div class="royalty-summary-card">' +
+      '<div class="rs-label">Orders</div>' +
+      '<div class="rs-value">' + (report.orderCount || 0) + '</div></div>';
+    html += '<div class="royalty-summary-card">' +
+      '<div class="rs-label">Total Units</div>' +
+      '<div class="rs-value">' + (report.totalUnits || 0) + '</div></div>';
+    html += '<div class="royalty-summary-card">' +
+      '<div class="rs-label">Revenue</div>' +
+      '<div class="rs-value">' + formatMoney(report.totalRevenue) + '</div></div>';
+    html += '<div class="royalty-summary-card rs-highlight">' +
+      '<div class="rs-label">Total Royalty</div>' +
+      '<div class="rs-value">' + formatMoney(report.totalRoyalty) + '</div></div>';
+    html += '</div>';
+
+    // Discount note
+    if (report.discountedLineItems > 0) {
+      html += '<div class="royalty-disc-note">' + report.discountedLineItems +
+        ' line item' + (report.discountedLineItems !== 1 ? 's' : '') + ' with royalty waived</div>';
+    }
+
+    // Line-item table
+    html += '<div class="royalty-table-wrap">';
+    html += '<table class="royalty-table">';
+    html += '<thead><tr>' +
+      '<th>Date</th>' +
+      '<th>Order #</th>' +
+      '<th>Product</th>' +
+      '<th class="num">Qty</th>' +
+      '<th class="num">Unit Price</th>' +
+      '<th class="num">Royalty/Unit</th>' +
+      '<th class="num">Total</th>' +
+      '</tr></thead>';
+    html += '<tbody>';
+
+    report.lineItems.forEach(function(item) {
+      var rowClass = item.discounted ? ' class="royalty-discounted"' : '';
+      html += '<tr' + rowClass + '>';
+      html += '<td>' + formatDateShort(item.orderDate) + '</td>';
+      html += '<td>#' + escHtml(String(item.orderNumber)) + '</td>';
+
+      // Product column with color/size detail
+      var productHtml = escHtml(item.productName);
+      var detailParts = [];
+      if (item.color) detailParts.push(escHtml(item.color));
+      if (item.size) detailParts.push(escHtml(item.size));
+      if (detailParts.length > 0) {
+        productHtml += ' <span class="product-detail">(' + detailParts.join(', ') + ')</span>';
+      }
+      html += '<td>' + productHtml + '</td>';
+
+      html += '<td class="num">' + item.quantity + '</td>';
+      html += '<td class="num">' + formatMoney(item.unitPrice) + '</td>';
+
+      // Royalty/Unit
+      if (item.discounted) {
+        html += '<td class="num">$0.00<span class="disc-tag">(disc.)</span></td>';
+      } else {
+        html += '<td class="num">' + formatMoney(item.royaltyPerUnit) + '</td>';
+      }
+
+      // Total
+      if (item.discounted) {
+        html += '<td class="num">$0.00<span class="disc-tag">(disc.)</span></td>';
+      } else {
+        html += '<td class="num">' + formatMoney(item.royaltyTotal) + '</td>';
+      }
+
+      html += '</tr>';
+    });
+
+    // Totals row
+    html += '<tr class="royalty-total-row">';
+    html += '<td colspan="3"><strong>Totals</strong></td>';
+    html += '<td class="num">' + (report.totalUnits || 0) + '</td>';
+    html += '<td class="num">' + formatMoney(report.totalRevenue) + '</td>';
+    html += '<td class="num"></td>';
+    html += '<td class="num rt-royalty">' + formatMoney(report.totalRoyalty) + '</td>';
+    html += '</tr>';
+
+    html += '</tbody></table></div>';
+
+    royaltyContent.innerHTML = html;
+  }
+
+  // Download PDF
+  function downloadRoyaltyPdf() {
+    var customerId = royaltyCustomerSelect.value;
+    var startVal = royaltyStartDate.value;
+    var endVal = royaltyEndDate.value;
+    if (!customerId || !startVal || !endVal) return;
+
+    var url = '/api/customers/' + encodeURIComponent(customerId) + '/royalty/pdf?start=' +
+      encodeURIComponent(startVal) + '&end=' + encodeURIComponent(endVal);
+
+    // Open in new tab — if 501 is returned, handle gracefully
+    var win = window.open(url, '_blank');
+    // Also try a fetch to catch 501
+    fetch(url).then(function(resp) {
+      if (resp.status === 501) {
+        showToast('PDF generation not yet available', 'error');
+      }
+    }).catch(function() {
+      // Ignore — the new tab will show the error
+    });
+  }
+
+  // Clear report when customer or date changes
+  function clearRoyaltyReport() {
+    currentRoyaltyReport = null;
+    royaltyContent.innerHTML = '<div class="royalty-empty">Select a customer and date range, then click "Generate Report".</div>';
+    downloadRoyaltyPdfBtn.disabled = true;
+  }
+
+  // Event listeners
+  generateRoyaltyBtn.addEventListener('click', generateRoyaltyReport);
+  downloadRoyaltyPdfBtn.addEventListener('click', downloadRoyaltyPdf);
+  royaltyCustomerSelect.addEventListener('change', clearRoyaltyReport);
+  royaltyStartDate.addEventListener('change', clearRoyaltyReport);
+  royaltyEndDate.addEventListener('change', clearRoyaltyReport);
+
+  // Auto-load customers for royalty section
+  loadRoyaltyCustomers();
 
   // =========================================================================
   // Auto-load style from URL query param
