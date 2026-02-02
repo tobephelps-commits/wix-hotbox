@@ -107,6 +107,7 @@ import type { CustomerPricingSummary } from '../customers/pricing.js';
 
 // Royalty Calculation (Phase 26)
 import { generateRoyaltyReport } from '../customers/royalty.js';
+import { generateRoyaltyStatement, saveRoyaltyStatement } from '../customers/royalty-statement.js';
 import { loadOrders as loadOrderStore } from '../orders/order-store.js';
 
 // Register both vendor adapters to ensure they're available at runtime
@@ -1859,11 +1860,12 @@ function startServer(port: number, initialStyle?: string): void {
           }
 
           case 'customer-royalty-pdf': {
-            if (method !== 'GET') {
+            if (method !== 'GET' && method !== 'POST') {
               sendJson(res, 405, { ok: false, error: 'Method not allowed' });
               break;
             }
-            // GET /api/customers/:id/royalty/pdf?start=YYYY-MM-DD&end=YYYY-MM-DD
+            // GET  /api/customers/:id/royalty/pdf?start=YYYY-MM-DD&end=YYYY-MM-DD — return PDF inline
+            // POST /api/customers/:id/royalty/pdf?start=YYYY-MM-DD&end=YYYY-MM-DD — save PDF to disk, return path
             try {
               const customer = await getCustomer(param!);
               if (!customer) {
@@ -1892,16 +1894,17 @@ function startServer(port: number, initialStyle?: string): void {
                 periodEnd,
               });
 
-              // Dynamic import for PDF generator (Plan 02 creates this module)
-              try {
-                const { generateRoyaltyStatement } = await import('../customers/royalty-statement.js');
+              if (method === 'POST') {
+                // Save PDF to disk and return path + report
+                const savedPath = await saveRoyaltyStatement(royaltyReport, customer);
+                sendJson(res, 200, { ok: true, data: { path: savedPath, report: royaltyReport } });
+              } else {
+                // Generate PDF buffer and return inline
                 const pdfBuffer = await generateRoyaltyStatement(royaltyReport, customer);
                 const safeName = customer.name.replace(/[^A-Za-z0-9_-]/g, '-');
                 sendBuffer(res, 200, 'application/pdf', pdfBuffer, {
                   'Content-Disposition': `inline; filename="ROYALTY-${safeName}-${startParam}-to-${endParam}.pdf"`,
                 });
-              } catch {
-                sendJson(res, 501, { ok: false, error: 'PDF generation not yet available' });
               }
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
