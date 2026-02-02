@@ -122,7 +122,7 @@ function mapSanMarInventory(sku: SkuInventory, style: string): UnifiedInventory 
  *   1008 → backImage (Rear flat)
  *   1006 → onModelFront (Primary/lifestyle)
  *   1004 → swatchImage (Color swatch)
- *   2001 → sideImage (High-resolution, used as side view)
+ *   2001 → (High-resolution, typically another front/lifestyle shot — NOT a side view)
  */
 function mapSanMarMediaForColor(color: string, items: MediaContent[]): UnifiedMedia {
   let frontImage: string | null = null;
@@ -144,7 +144,12 @@ function mapSanMarMediaForColor(color: string, items: MediaContent[]): UnifiedMe
         backImage = item.url;
         break;
       case MEDIA_CLASS_TYPES.High:
-        sideImage = item.url;
+        // SanMar 2001 "High" is a high-resolution image, typically another
+        // front/lifestyle shot — NOT a true side view. Do not map as sideImage.
+        // If no Primary image exists, use High as a fallback on-model image.
+        if (!onModelFront) {
+          onModelFront = item.url;
+        }
         break;
       case MEDIA_CLASS_TYPES.Swatch:
         swatchImage = item.url;
@@ -152,8 +157,8 @@ function mapSanMarMediaForColor(color: string, items: MediaContent[]): UnifiedMe
       case MEDIA_CLASS_TYPES.Primary:
         onModelFront = item.url;
         break;
-      // SanMar doesn't provide separate on-model back/side images
-      // via PromoStandards, so those remain null
+      // SanMar doesn't provide separate side-view, on-model back, or
+      // on-model side images via PromoStandards, so those remain null
     }
   }
 

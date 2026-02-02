@@ -61,7 +61,7 @@ const CLASS_TYPE_FRONT = 1007;
 const CLASS_TYPE_REAR = 1008;
 /** Primary product image classTypeId */
 const CLASS_TYPE_PRIMARY = 1006;
-/** High-resolution / side-view image classTypeId */
+/** High-resolution image classTypeId (NOT a side view — typically another front/lifestyle shot) */
 const CLASS_TYPE_HIGH = 2001;
 
 /** Maximum images per WIX product */
