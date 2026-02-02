@@ -103,12 +103,13 @@ Plans:
 
 **Goal**: Multi-customer branded accounts with configurable markup and royalty structures
 **Depends on**: Phase 24
-**Research**: Likely (new data model for customer accounts with multi-tier markup)
-**Research topics**: Customer account data model design, multi-tier markup calculation patterns, account management UI
-**Plans**: TBD
+**Research**: No (single markup % per customer, established JSON store + REST API + preview UI patterns)
+**Plans**: 3
 
 Plans:
-- [ ] 25-01: TBD
+- [ ] 25-01: Customer account types, store, and REST API
+- [ ] 25-02: Customer management dashboard UI
+- [ ] 25-03: Customer-aware pricing calculations and logo integration
 
 #### Phase 26: Royalty Calculation & PDF Reporting
 
@@ -191,7 +192,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 22. Multi-Angle Logo Overlay | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 23. Visual Logo Placement UI | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 24. Logo Upload & Management | v1.0 | 2/2 | Complete | 2026-02-02 |
-| 25. Customer Account System | v1.0 | 0/? | Not started | - |
+| 25. Customer Account System | v1.0 | 0/3 | Planned | - |
 | 26. Royalty Calculation & PDF Reporting | v1.0 | 0/? | Not started | - |
 | 27. Pipeline Automation | v1.0 | 0/? | Not started | - |
 | 28. Order Management Hardening | v1.0 | 0/? | Not started | - |
