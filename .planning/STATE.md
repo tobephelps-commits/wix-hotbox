@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 26 of 30 (Royalty Calculation & PDF Reporting)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-02 - Completed 26-01-PLAN.md
+Last activity: 2026-02-02 - Completed 26-02-PLAN.md
 
-Progress: ████████░░ 83%
+Progress: ████████░░ 84%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 83 (34 v0.1 + 38 v0.2 + 11 v1.0)
+- Total plans completed: 84 (34 v0.1 + 38 v0.2 + 12 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -78,6 +78,8 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 |-------|----------|-----------|
 | 26 | Conservative discount heuristic: order.discount > 0 zeros all line items | Avoids royalty on staff/discount orders where markup was removed |
 | 26 | Dynamic import for PDF module in API endpoint | Allows Plan 01 and 02 to run independently; 501 until module exists |
+| 26 | Single-file royalty-statement.ts (template + generator combined) | Self-contained concern unlike invoices which separate for multi-order-type reuse |
+| 26 | Static import replaces dynamic import after Plan 02 | Module now exists; cleaner code, better type checking |
 
 ### Blockers/Concerns
 
@@ -94,6 +96,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 26-01-PLAN.md (royalty calculation engine and API endpoints)
+Stopped at: Completed 26-02-PLAN.md (royalty statement PDF generator)
 Resume file: None
-Note: Phase 26 in progress (1/3 plans). Next: 26-02 (royalty statement PDF generator).
+Note: Phase 26 in progress (2/3 plans). Next: 26-03 (royalty reporting dashboard UI).
