@@ -2,7 +2,7 @@
 
 ## Overview
 
-Transform HotBox Clothing from a manually-managed WIX store into a streamlined operation with optimized storefront UX and automated SanMar product pipeline. The first half focuses on conversion -- fixing navigation, mobile experience, and checkout on the live store. The second half builds the SanMar integration that eliminates manual product creation, adds inventory monitoring, and automates stock-level responses. v0.2 extends into multi-brand operations with secondary vendor fallback, order fulfillment automation, and advanced pricing/inventory capabilities.
+Transform HotBox Clothing from a manually-managed WIX store into a streamlined operation with optimized storefront UX and automated SanMar product pipeline. The first half focuses on conversion -- fixing navigation, mobile experience, and checkout on the live store. The second half builds the SanMar integration that eliminates manual product creation, adds inventory monitoring, and automates stock-level responses. v0.2 extends into multi-brand operations with secondary vendor fallback, order fulfillment automation, and advanced pricing/inventory capabilities. v1.0 adds multi-angle branded product imagery with visual placement tools, customer royalty tracking with PDF reporting, and pipeline/operations hardening.
 
 ## Domain Expertise
 
@@ -12,6 +12,7 @@ None
 
 - ✅ **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
 - ✅ **v0.2 Multi-Brand Operations** -- Phases 11-20 (shipped 2026-02-01)
+- 🚧 **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (in progress)
 
 ## Completed Milestones
 
@@ -52,10 +53,116 @@ None
 
 </details>
 
+### 🚧 v1.0 Visual Branding & Business Operations (In Progress)
+
+**Milestone Goal:** Multi-angle branded product imagery with visual placement tools, customer royalty tracking with PDF reporting, and pipeline/operations hardening.
+
+#### Phase 21: Multi-Angle Image Support
+
+**Goal**: Extend product pipeline to fetch and store back and left-side product images from vendors
+**Depends on**: Previous milestone complete
+**Research**: Unlikely (extending existing vendor API clients)
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01: TBD (run /gsd:plan-phase 21 to break down)
+
+#### Phase 22: Multi-Angle Logo Overlay
+
+**Goal**: Extend logo overlay engine to composite logos on all 3 angles with per-angle placement configuration
+**Depends on**: Phase 21
+**Research**: Unlikely (extending existing Sharp-based engine)
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01: TBD
+
+#### Phase 23: Visual Logo Placement UI
+
+**Goal**: Browser-based drag-and-drop interface for positioning and sizing logos per angle
+**Depends on**: Phase 22
+**Research**: Likely (browser-based image editing UI)
+**Research topics**: Canvas API vs HTML5 drag-and-drop vs library, coordinate mapping between preview and actual image dimensions, real-time preview rendering
+**Plans**: TBD
+
+Plans:
+- [ ] 23-01: TBD
+
+#### Phase 24: Logo Upload & Management
+
+**Goal**: Upload facility with resize, format handling, and logo library management
+**Depends on**: Phase 23
+**Research**: Unlikely (file upload + Sharp resize, established patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 24-01: TBD
+
+#### Phase 25: Customer Account System
+
+**Goal**: Multi-customer branded accounts with configurable markup and royalty structures
+**Depends on**: Phase 24
+**Research**: Likely (new data model for customer accounts with multi-tier markup)
+**Research topics**: Customer account data model design, multi-tier markup calculation patterns, account management UI
+**Plans**: TBD
+
+Plans:
+- [ ] 25-01: TBD
+
+#### Phase 26: Royalty Calculation & PDF Reporting
+
+**Goal**: Period-based royalty calculation with branded PDF statement generation per customer
+**Depends on**: Phase 25
+**Research**: Unlikely (PDFKit already in codebase from v0.2 invoice generation)
+**Plans**: TBD
+
+Plans:
+- [ ] 26-01: TBD
+
+#### Phase 27: Pipeline Automation
+
+**Goal**: Bulk operations, smarter defaults, and reduced manual steps in product creation workflow
+**Depends on**: Phase 26
+**Research**: Unlikely (internal pipeline improvements)
+**Plans**: TBD
+
+Plans:
+- [ ] 27-01: TBD
+
+#### Phase 28: Order Management Hardening
+
+**Goal**: Improve order tracking reliability, fulfillment workflow visibility, and vendor PO management
+**Depends on**: Phase 27
+**Research**: Unlikely (hardening existing order management code)
+**Plans**: TBD
+
+Plans:
+- [ ] 28-01: TBD
+
+#### Phase 29: Inventory Sync Reliability
+
+**Goal**: Tighten stock sync accuracy between vendors and WIX, improve alert reliability and threshold management
+**Depends on**: Phase 28
+**Research**: Unlikely (hardening existing inventory sync code)
+**Plans**: TBD
+
+Plans:
+- [ ] 29-01: TBD
+
+#### Phase 30: Integration Testing & Polish
+
+**Goal**: End-to-end testing of all v1.0 features, regression checks, and documentation updates
+**Depends on**: Phase 29
+**Research**: Unlikely (testing and polish, internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 30-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20
+Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 → 28 → 29 → 30
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|---------------|--------|-----------|
@@ -79,3 +186,13 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15 → 16 → 17 �
 | 18. Order Management — Invoice & Label Printing | v0.2 | 6/6 | Complete | 2026-02-01 |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 3/3 | Complete | 2026-02-01 |
 | 20. Integration Testing & Polish | v0.2 | 3/3 | Complete | 2026-02-01 |
+| 21. Multi-Angle Image Support | v1.0 | 0/? | Not started | - |
+| 22. Multi-Angle Logo Overlay | v1.0 | 0/? | Not started | - |
+| 23. Visual Logo Placement UI | v1.0 | 0/? | Not started | - |
+| 24. Logo Upload & Management | v1.0 | 0/? | Not started | - |
+| 25. Customer Account System | v1.0 | 0/? | Not started | - |
+| 26. Royalty Calculation & PDF Reporting | v1.0 | 0/? | Not started | - |
+| 27. Pipeline Automation | v1.0 | 0/? | Not started | - |
+| 28. Order Management Hardening | v1.0 | 0/? | Not started | - |
+| 29. Inventory Sync Reliability | v1.0 | 0/? | Not started | - |
+| 30. Integration Testing & Polish | v1.0 | 0/? | Not started | - |
