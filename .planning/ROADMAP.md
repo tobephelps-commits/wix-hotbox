@@ -166,7 +166,7 @@ Plans:
 **Plans**: 3
 
 Plans:
-- [ ] 30-01: Update smoke test for v1.0 coverage (new endpoints, customer module)
+- [x] 30-01: Update smoke test for v1.0 coverage (new endpoints, customer module) -- completed 2026-02-02
 - [ ] 30-02: Update OPERATIONS.md for v1.0 features
 - [ ] 30-03: Final smoke test verification and v1.0 milestone close-out
 
@@ -206,4 +206,4 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 27. Pipeline Automation | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 28. Order Management Hardening | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 29. Inventory Sync Reliability | v1.0 | 3/3 | Complete | 2026-02-02 |
-| 30. Integration Testing & Polish | v1.0 | 0/? | Not started | - |
+| 30. Integration Testing & Polish | v1.0 | 1/3 | In progress | - |
