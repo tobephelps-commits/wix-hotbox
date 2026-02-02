@@ -1711,6 +1711,47 @@
   .order-status-badge.os-shipped { background: #d6eaf8; color: #2e4053; }
   .order-status-badge.os-delivered { background: #d4edda; color: #155724; }
   .order-status-badge.os-cancelled { background: #e2e3e5; color: #383d41; }
+  .order-status-badge.os-on-hold { background: #fff3cd; color: #856404; }
+
+  /* Order Summary Cards (Phase 28) */
+  .order-summary-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .order-summary-card {
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: #f9f9f9;
+    border-left: 3px solid #ddd;
+    cursor: pointer;
+    font-size: 13px;
+    min-width: 80px;
+    transition: background 0.15s;
+  }
+  .order-summary-card:hover { background: #f0f0ff; }
+  .order-summary-card.dimmed { opacity: 0.4; border-left-color: #ddd; }
+  .order-summary-card .card-count { font-size: 18px; font-weight: 700; display: block; }
+  .order-summary-card .card-label { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 0.3px; }
+  .sync-health {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sync-health .sync-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .sync-dot.fresh { background: #2ecc71; }
+  .sync-dot.stale { background: #f5a623; }
+  .sync-dot.never { background: #999; }
   .order-source-badge {
     display: inline-block;
     padding: 1px 6px;
@@ -3485,9 +3526,13 @@
 
     <!-- Order List View -->
     <div id="orderListView">
+      <div id="orderSummaryRow" class="order-summary-row"></div>
+      <div id="syncHealthIndicator" class="sync-health"></div>
+      <div id="errorAlertBanner"></div>
       <div class="order-filters" id="orderFilters">
         <span class="order-filter-pill active" data-filter="all">All</span>
         <span class="order-filter-pill" data-filter="new">New</span>
+        <span class="order-filter-pill" data-filter="on-hold">On Hold</span>
         <span class="order-filter-pill" data-filter="in-progress">In Progress</span>
         <span class="order-filter-pill" data-filter="shipped">Shipped</span>
         <span class="order-filter-pill" data-filter="delivered">Delivered</span>
@@ -7288,25 +7333,29 @@
   var ORDER_FILTER_GROUPS = {
     'all': null,
     'new': ['new'],
+    'on-hold': ['on-hold'],
     'in-progress': ['ordered', 'received', 'in-production', 'packed'],
     'shipped': ['shipped'],
-    'delivered': ['delivered']
+    'delivered': ['delivered'],
+    'errored': null  // special: handled in renderOrderList
   };
 
   // Status transitions (mirrors types.ts)
   var ORDER_STATUS_TRANSITIONS = {
-    'new': ['ordered', 'cancelled'],
-    'ordered': ['received', 'cancelled'],
-    'received': ['in-production', 'cancelled'],
-    'in-production': ['packed', 'cancelled'],
-    'packed': ['shipped', 'cancelled'],
-    'shipped': ['delivered', 'cancelled'],
+    'new': ['ordered', 'on-hold', 'cancelled'],
+    'on-hold': ['new', 'ordered', 'cancelled'],
+    'ordered': ['received', 'on-hold', 'cancelled'],
+    'received': ['in-production', 'on-hold', 'cancelled'],
+    'in-production': ['packed', 'on-hold', 'cancelled'],
+    'packed': ['shipped', 'on-hold', 'cancelled'],
+    'shipped': ['delivered', 'on-hold', 'cancelled'],
     'delivered': [],
     'cancelled': []
   };
 
   var ORDER_STATUS_LABELS = {
     'new': 'New',
+    'on-hold': 'On Hold',
     'ordered': 'Ordered',
     'received': 'Received',
     'in-production': 'In Production',
@@ -7356,6 +7405,130 @@
     renderOrderList(_ordersCache);
   });
 
+  // Summary card status colors
+  var SUMMARY_CARD_COLORS = {
+    'new': '#4a90d9',
+    'on-hold': '#f5a623',
+    'ordered': '#6c63ff',
+    'received': '#6c63ff',
+    'in-production': '#6c63ff',
+    'packed': '#2ecc71',
+    'shipped': '#2ecc71',
+    'delivered': '#999'
+  };
+
+  // Order summary statuses to show cards for (in display order)
+  var SUMMARY_STATUSES = ['new', 'on-hold', 'ordered', 'received', 'in-production', 'packed', 'shipped', 'delivered'];
+
+  var _orderSummaryData = null;
+
+  function formatRelativeTime(isoString) {
+    if (!isoString) return 'Never';
+    var now = Date.now();
+    var then = new Date(isoString).getTime();
+    if (isNaN(then)) return 'Unknown';
+    var diffMs = now - then;
+    if (diffMs < 0) return 'Just now';
+    var diffSec = Math.floor(diffMs / 1000);
+    if (diffSec < 60) return 'Just now';
+    var diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return diffMin + ' minute' + (diffMin === 1 ? '' : 's') + ' ago';
+    var diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return diffHr + ' hour' + (diffHr === 1 ? '' : 's') + ' ago';
+    var diffDays = Math.floor(diffHr / 24);
+    return diffDays + ' day' + (diffDays === 1 ? '' : 's') + ' ago';
+  }
+
+  function formatDuration(ms) {
+    if (!ms || ms < 0) return '';
+    var totalMin = Math.floor(ms / 60000);
+    if (totalMin < 1) return '< 1m';
+    var hrs = Math.floor(totalMin / 60);
+    var mins = totalMin % 60;
+    if (hrs > 0) return hrs + 'h ' + mins + 'm';
+    return mins + 'm';
+  }
+
+  async function loadOrderSummary() {
+    try {
+      var res = await fetch('/api/orders/summary');
+      var json = await res.json();
+      _orderSummaryData = json;
+      renderOrderSummary(json);
+    } catch (err) {
+      // Silently fail — summary is supplementary
+    }
+  }
+
+  function renderOrderSummary(data) {
+    var summaryRow = document.getElementById('orderSummaryRow');
+    var syncHealth = document.getElementById('syncHealthIndicator');
+
+    // Build summary cards
+    var html = '';
+    SUMMARY_STATUSES.forEach(function(status) {
+      var count = (data.statusCounts && data.statusCounts[status]) || 0;
+      var color = SUMMARY_CARD_COLORS[status] || '#999';
+      var dimmed = count === 0 ? ' dimmed' : '';
+      var borderStyle = count > 0 ? 'border-left-color:' + color : '';
+      html += '<div class="order-summary-card' + dimmed + '" style="' + borderStyle + '" data-summary-filter="' + status + '">';
+      html += '<span class="card-count">' + count + '</span>';
+      html += '<span class="card-label">' + escHtml(ORDER_STATUS_LABELS[status] || status) + '</span>';
+      html += '</div>';
+    });
+
+    // Error card
+    if (data.errorCount > 0) {
+      html += '<div class="order-summary-card" style="border-left-color:#e74c3c" data-summary-filter="errored">';
+      html += '<span class="card-count">' + data.errorCount + '</span>';
+      html += '<span class="card-label">\u26A0 Errors</span>';
+      html += '</div>';
+    }
+
+    summaryRow.innerHTML = html;
+
+    // Attach click handlers to summary cards
+    summaryRow.querySelectorAll('.order-summary-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var filterVal = card.dataset.summaryFilter;
+        // Find matching filter pill and activate it
+        var pill = document.querySelector('#orderFilters .order-filter-pill[data-filter="' + filterVal + '"]');
+        if (pill) {
+          document.querySelectorAll('#orderFilters [data-filter]').forEach(function(p) { p.classList.remove('active'); });
+          pill.classList.add('active');
+          _orderStatusFilter = filterVal;
+          renderOrderList(_ordersCache);
+        } else if (filterVal === 'errored') {
+          // Special errored filter - set _orderStatusFilter to errored
+          document.querySelectorAll('#orderFilters [data-filter]').forEach(function(p) { p.classList.remove('active'); });
+          _orderStatusFilter = 'errored';
+          renderOrderList(_ordersCache);
+        } else {
+          // Single status not in pill groups — use direct status filter
+          document.querySelectorAll('#orderFilters [data-filter]').forEach(function(p) { p.classList.remove('active'); });
+          _orderStatusFilter = filterVal;
+          renderOrderList(_ordersCache);
+        }
+      });
+    });
+
+    // Sync health indicator
+    var lastSync = data.lastSync;
+    var syncHtml = '';
+    if (!lastSync) {
+      syncHtml = '<span class="sync-dot never"></span><span style="color:#f5a623">Never synced</span>';
+    } else {
+      var diffMs = Date.now() - new Date(lastSync).getTime();
+      var isStale = diffMs > 3600000; // 1 hour
+      var dotClass = isStale ? 'stale' : 'fresh';
+      var textColor = isStale ? '#f5a623' : '#2ecc71';
+      var relTime = formatRelativeTime(lastSync);
+      var suffix = isStale ? ' (stale)' : '';
+      syncHtml = '<span class="sync-dot ' + dotClass + '"></span><span style="color:' + textColor + '">Last synced: ' + relTime + suffix + '</span>';
+    }
+    syncHealth.innerHTML = syncHtml;
+  }
+
   async function loadOrders() {
     try {
       var res = await fetch('/api/orders');
@@ -7367,6 +7540,8 @@
       var newCount = _ordersCache.filter(function(o) { return o.status === 'new'; }).length;
       var fillBtn = document.getElementById('fillCartBtn');
       if (fillBtn) fillBtn.disabled = newCount === 0;
+      // Load summary cards and sync health
+      loadOrderSummary();
     } catch (err) {
       orderListContent.innerHTML = '<div class="orders-empty">Error loading orders: ' + escHtml(err.message || String(err)) + '</div>';
     }
@@ -7375,9 +7550,19 @@
   function renderOrderList(orders) {
     // Apply status filter
     var filtered = orders;
-    var statusGroup = ORDER_FILTER_GROUPS[_orderStatusFilter];
-    if (statusGroup) {
-      filtered = filtered.filter(function(o) { return statusGroup.indexOf(o.status) !== -1; });
+    if (_orderStatusFilter === 'errored') {
+      // Special: show only orders with unresolved errors
+      filtered = filtered.filter(function(o) {
+        return o.errors && o.errors.some(function(e) { return !e.resolved; });
+      });
+    } else {
+      var statusGroup = ORDER_FILTER_GROUPS[_orderStatusFilter];
+      if (statusGroup) {
+        filtered = filtered.filter(function(o) { return statusGroup.indexOf(o.status) !== -1; });
+      } else if (_orderStatusFilter !== 'all') {
+        // Direct single-status filter (from summary card click for statuses not in pill groups)
+        filtered = filtered.filter(function(o) { return o.status === _orderStatusFilter; });
+      }
     }
     // Apply source filter
     if (_orderSourceFilter !== 'all') {
