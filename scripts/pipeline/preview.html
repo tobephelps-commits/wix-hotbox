@@ -1587,6 +1587,152 @@
     font-size: 13px;
   }
 
+  /* Inventory Reliability Dashboard (Phase 29) */
+  .inv-health-cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .inv-health-card {
+    background: #f9f9fb;
+    border: 1px solid #e8e8ef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 120px;
+    flex: 1;
+  }
+  .inv-health-card .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .inv-health-card .card-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+  }
+  .inv-health-card .card-value.green { color: #27ae60; }
+  .inv-health-card .card-value.yellow { color: #f39c12; }
+  .inv-health-card .card-value.red { color: #e74c3c; }
+  .inv-health-card .card-sub {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+  }
+  .alert-filter-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  .alert-filter-pill {
+    padding: 4px 12px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: #fff;
+    color: #555;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .alert-filter-pill:hover { background: #f0f0ff; border-color: #aaa; }
+  .alert-filter-pill.active { background: #6c63ff; color: #fff; border-color: #6c63ff; }
+  .alert-style-select {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+    color: #555;
+    margin-left: 8px;
+  }
+  .threshold-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid #c0c0d0;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #6c63ff;
+    background: #f0f0ff;
+    cursor: help;
+    position: relative;
+    margin-left: 4px;
+  }
+  .threshold-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 6px;
+    background: #1a1a2e;
+    color: #eee;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .threshold-badge:hover .threshold-tooltip { display: block; }
+  .stale-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #e67e22;
+    font-weight: 500;
+  }
+  .stale-warning-icon {
+    font-size: 13px;
+  }
+  .audit-section {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+  }
+  .audit-section .audit-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .audit-result {
+    font-size: 13px;
+    padding: 8px 12px;
+    background: #f9f9fb;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  .audit-result .audit-stat {
+    display: inline-block;
+    margin-right: 16px;
+    font-weight: 500;
+  }
+  .audit-result .audit-stat.healthy { color: #27ae60; }
+  .audit-result .audit-stat.orphaned { color: #e74c3c; }
+  .audit-result .audit-stat.errored { color: #f39c12; }
+  .audit-orphaned-list {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #555;
+  }
+  .audit-orphaned-item {
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
   /* Vendor badge (Phase 17) */
   .vendor-badge {
     display: inline-block;
@@ -3605,11 +3751,29 @@
         <button type="button" class="btn btn-sm btn-outline" id="refreshInventoryBtn">Refresh</button>
       </div>
     </div>
+    <div class="inv-health-cards" id="invHealthCards" style="display:none;"></div>
     <div id="inventoryContent">
       <div class="inventory-empty">Loading inventory...</div>
     </div>
+    <div class="audit-section" id="auditSection">
+      <div class="audit-title">
+        Mapping Audit
+        <button type="button" class="btn btn-sm btn-outline" id="auditMappingsBtn">Audit Mappings</button>
+      </div>
+      <div id="auditResultArea"></div>
+    </div>
     <div class="alert-feed" id="alertFeed">
       <div class="alert-feed-title">Recent Alerts</div>
+      <div class="alert-filter-bar" id="alertFilterBar">
+        <span class="alert-filter-pill active" data-alert-type="all">All</span>
+        <span class="alert-filter-pill" data-alert-type="out-of-stock">Out of Stock</span>
+        <span class="alert-filter-pill" data-alert-type="critical">Critical</span>
+        <span class="alert-filter-pill" data-alert-type="low-stock">Low Stock</span>
+        <span class="alert-filter-pill" data-alert-type="back-in-stock">Back in Stock</span>
+        <select class="alert-style-select" id="alertStyleFilter">
+          <option value="">All Products</option>
+        </select>
+      </div>
       <div class="alert-list" id="alertList">
         <div class="alerts-empty">Loading alerts...</div>
       </div>
@@ -7153,14 +7317,43 @@
   var daemonLabel = document.getElementById('daemonLabel');
   var daemonTooltip = document.getElementById('daemonTooltip');
   var refreshInventoryBtn = document.getElementById('refreshInventoryBtn');
+  var invHealthCards = document.getElementById('invHealthCards');
+  var alertFilterBar = document.getElementById('alertFilterBar');
+  var alertStyleFilter = document.getElementById('alertStyleFilter');
+  var auditMappingsBtn = document.getElementById('auditMappingsBtn');
+  var auditResultArea = document.getElementById('auditResultArea');
   var _invExpandedStyle = null;
   var _invRefreshTimer = null;
   var _alertRefreshTimer = null;
+  var _alertTypeFilter = 'all';
+  var _alertStyleFilter = '';
+  var _trackedProductStyles = [];
 
   refreshInventoryBtn.addEventListener('click', function() {
     loadInventoryProducts();
     loadInventoryAlerts();
     loadDaemonHealth();
+  });
+
+  // Alert filter pill click handlers
+  alertFilterBar.addEventListener('click', function(e) {
+    var pill = e.target.closest('.alert-filter-pill');
+    if (!pill) return;
+    var pills = alertFilterBar.querySelectorAll('.alert-filter-pill');
+    for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
+    pill.classList.add('active');
+    _alertTypeFilter = pill.getAttribute('data-alert-type') || 'all';
+    loadInventoryAlerts();
+  });
+
+  alertStyleFilter.addEventListener('change', function() {
+    _alertStyleFilter = alertStyleFilter.value;
+    loadInventoryAlerts();
+  });
+
+  // Audit button handler
+  auditMappingsBtn.addEventListener('click', function() {
+    runMappingAudit();
   });
 
   function relativeTime(isoStr) {
@@ -7189,8 +7382,12 @@
   function renderInventoryTable(products) {
     if (!products || products.length === 0) {
       inventoryContent.innerHTML = '<div class="inventory-empty">No tracked products. Use <code>npm run monitor -- add &lt;STYLE&gt;</code> to start tracking.</div>';
+      _trackedProductStyles = [];
       return;
     }
+    // Build tracked products list for alert style filter dropdown
+    _trackedProductStyles = products.map(function(p) { return p.style; });
+    populateAlertStyleFilter();
     var html = '<table class="inventory-table"><thead><tr>' +
       '<th>Style</th><th>Vendor</th><th>Name</th><th>Priority</th><th>Last Polled</th>' +
       '<th>Total SKUs</th><th>OOS SKUs</th><th>Status</th>' +
@@ -7210,12 +7407,28 @@
       var pVendor = p.vendor || 'sanmar';
       var pVendorLabel = p.vendorName || (pVendor === 'ss' ? 'S&S' : 'SanMar');
       var vendorBadgeCls = 'vendor-badge vendor-' + pVendor;
+      // Per-product threshold badge (Phase 29)
+      var thresholdBadge = '';
+      if (p.thresholds) {
+        var et = p.effectiveThresholds || {};
+        var tipParts = [];
+        if (p.thresholds.lowStockThreshold != null) tipParts.push('Low: ' + p.thresholds.lowStockThreshold);
+        if (p.thresholds.criticalStockThreshold != null) tipParts.push('Critical: ' + p.thresholds.criticalStockThreshold);
+        if (p.thresholds.outOfStockThreshold != null) tipParts.push('OOS: ' + p.thresholds.outOfStockThreshold);
+        var tipText = tipParts.join(' | ');
+        thresholdBadge = '<span class="threshold-badge">Custom<span class="threshold-tooltip">' + escHtml(tipText) + '</span></span>';
+      }
+      // Stale snapshot warning (Phase 29)
+      var staleHtml = '';
+      if (p.isStale && p.snapshotAgeMinutes != null) {
+        staleHtml = '<span class="stale-warning"><span class="stale-warning-icon">\u26A0</span> Stale (' + p.snapshotAgeMinutes + 'min)</span>';
+      }
       html += '<tr class="inv-row" data-style="' + escHtml(p.style) + '">' +
-        '<td><strong>' + escHtml(p.style) + '</strong></td>' +
+        '<td><strong>' + escHtml(p.style) + '</strong>' + thresholdBadge + '</td>' +
         '<td><span class="' + vendorBadgeCls + '" style="font-size:10px;padding:2px 6px;">' + escHtml(pVendorLabel) + '</span></td>' +
         '<td>' + escHtml(p.name) + '</td>' +
         '<td><span class="priority-badge ' + priorityClass + '">' + escHtml(p.priority) + '</span></td>' +
-        '<td>' + relativeTime(p.lastPolledAt) + '</td>' +
+        '<td>' + relativeTime(p.lastPolledAt) + (staleHtml ? '<br>' + staleHtml : '') + '</td>' +
         '<td>' + p.totalSkus + '</td>' +
         '<td>' + p.outOfStockSkus + '</td>' +
         '<td><span class="stock-status-dot ' + statusDotClass + '"></span>' + statusLabel + '</td>' +
@@ -7320,12 +7533,29 @@
 
   async function loadInventoryAlerts() {
     try {
-      var res = await fetch('/api/inventory/alerts?count=20');
+      var params = 'count=50';
+      if (_alertTypeFilter && _alertTypeFilter !== 'all') {
+        params += '&type=' + encodeURIComponent(_alertTypeFilter);
+      }
+      if (_alertStyleFilter) {
+        params += '&style=' + encodeURIComponent(_alertStyleFilter);
+      }
+      var res = await fetch('/api/inventory/alerts?' + params);
       var json = await res.json();
       renderAlertFeed(json.alerts || []);
     } catch (err) {
       alertList.innerHTML = '<div class="alerts-empty">Error loading alerts: ' + escHtml(err.message || String(err)) + '</div>';
     }
+  }
+
+  function populateAlertStyleFilter() {
+    var current = alertStyleFilter.value;
+    var html = '<option value="">All Products</option>';
+    for (var i = 0; i < _trackedProductStyles.length; i++) {
+      var s = _trackedProductStyles[i];
+      html += '<option value="' + escHtml(s) + '"' + (s === current ? ' selected' : '') + '>' + escHtml(s) + '</option>';
+    }
+    alertStyleFilter.innerHTML = html;
   }
 
   function renderAlertFeed(alerts) {
@@ -7366,6 +7596,19 @@
     alertList.innerHTML = html;
   }
 
+  function formatTickDuration(ms) {
+    if (ms == null || ms === 0) return '—';
+    if (ms < 1000) return ms + 'ms';
+    return (ms / 1000).toFixed(1) + 's';
+  }
+
+  function tickDurationColor(avgMs) {
+    if (avgMs == null || avgMs === 0) return '';
+    if (avgMs < 5000) return 'green';
+    if (avgMs < 15000) return 'yellow';
+    return 'red';
+  }
+
   async function loadDaemonHealth() {
     try {
       var res = await fetch('/api/inventory/health');
@@ -7382,15 +7625,112 @@
           tooltipHtml += '<div>Last success: ' + relativeTime(json.lastSuccessAt) + '</div>';
         }
         daemonTooltip.innerHTML = tooltipHtml;
+
+        // Render health cards (Phase 29)
+        var avgColor = tickDurationColor(json.avgTickDurationMs);
+        var maxColor = tickDurationColor(json.maxTickDurationMs);
+        var cardsHtml = '';
+        cardsHtml += '<div class="inv-health-card"><div class="card-label">Avg Tick</div>';
+        cardsHtml += '<div class="card-value ' + avgColor + '">' + formatTickDuration(json.avgTickDurationMs) + '</div>';
+        cardsHtml += '<div class="card-sub">Last: ' + formatTickDuration(json.lastTickDurationMs) + '</div></div>';
+        cardsHtml += '<div class="inv-health-card"><div class="card-label">Max Tick</div>';
+        cardsHtml += '<div class="card-value ' + maxColor + '">' + formatTickDuration(json.maxTickDurationMs) + '</div>';
+        cardsHtml += '<div class="card-sub">' + json.totalCycles + ' cycles</div></div>';
+        // Notification status card
+        var notif = json.notifications;
+        if (notif) {
+          var notifColor = notif.failed > 0 ? 'red' : 'green';
+          var notifValue = notif.sent > 0 ? '\u2713 ' + notif.sent + ' sent' : '0 sent';
+          if (notif.failed > 0) notifValue += ' / \u2717 ' + notif.failed + ' failed';
+          var notifSub = '';
+          if (notif.lastFailureReason) notifSub = escHtml(notif.lastFailureReason);
+          else if (notif.lastSentAt) notifSub = 'Last: ' + relativeTime(notif.lastSentAt);
+          cardsHtml += '<div class="inv-health-card"><div class="card-label">Notifications</div>';
+          cardsHtml += '<div class="card-value ' + notifColor + '">' + notifValue + '</div>';
+          if (notifSub) cardsHtml += '<div class="card-sub">' + notifSub + '</div>';
+          cardsHtml += '</div>';
+        }
+        cardsHtml += '<div class="inv-health-card"><div class="card-label">Uptime</div>';
+        cardsHtml += '<div class="card-value">' + relativeTime(json.startedAt).replace(' ago', '') + '</div>';
+        cardsHtml += '<div class="card-sub">' + json.consecutiveErrors + ' consecutive errors</div></div>';
+        invHealthCards.innerHTML = cardsHtml;
+        invHealthCards.style.display = 'flex';
       } else {
         daemonBadge.className = 'daemon-badge stopped';
         daemonLabel.textContent = 'Stopped';
         daemonTooltip.innerHTML = 'Daemon not running';
+        invHealthCards.style.display = 'none';
       }
     } catch (err) {
       daemonBadge.className = 'daemon-badge stopped';
       daemonLabel.textContent = 'Unknown';
       daemonTooltip.innerHTML = 'Error checking health';
+      invHealthCards.style.display = 'none';
+    }
+  }
+
+  // Mapping Audit (Phase 29)
+  async function runMappingAudit() {
+    auditMappingsBtn.disabled = true;
+    auditMappingsBtn.textContent = 'Auditing...';
+    auditResultArea.innerHTML = '<div class="inventory-empty">Running audit — checking each mapping against WIX API...</div>';
+    try {
+      var res = await fetch('/api/inventory/audit', { method: 'POST' });
+      var json = await res.json();
+      renderAuditResult(json);
+    } catch (err) {
+      auditResultArea.innerHTML = '<div class="inventory-empty">Error: ' + escHtml(err.message || String(err)) + '</div>';
+    } finally {
+      auditMappingsBtn.disabled = false;
+      auditMappingsBtn.textContent = 'Audit Mappings';
+    }
+  }
+
+  function renderAuditResult(result) {
+    var html = '<div class="audit-result">';
+    html += '<span class="audit-stat healthy">\u2713 ' + result.healthy + ' healthy</span>';
+    html += '<span class="audit-stat orphaned">\u2717 ' + result.orphaned.length + ' orphaned</span>';
+    html += '<span class="audit-stat errored">\u26A0 ' + result.errors.length + ' errors</span>';
+    html += '<span class="audit-stat" style="color:#888;">(' + result.total + ' total)</span>';
+    html += '</div>';
+    if (result.orphaned.length > 0) {
+      html += '<div class="audit-orphaned-list">';
+      html += '<div style="font-weight:600;margin-bottom:4px;">Orphaned Mappings (WIX product deleted):</div>';
+      for (var i = 0; i < result.orphaned.length; i++) {
+        var m = result.orphaned[i];
+        html += '<div class="audit-orphaned-item">' + escHtml(m.style) + ' — ' + escHtml(m.productName) + ' <span style="color:#999;">(WIX: ' + escHtml(m.wixProductId) + ')</span></div>';
+      }
+      html += '<button type="button" class="btn btn-sm" style="background:#e74c3c;color:#fff;margin-top:8px;" id="removeOrphanedBtn">Remove Orphaned</button>';
+      html += '</div>';
+    }
+    if (result.errors.length > 0) {
+      html += '<div style="margin-top:8px;font-size:12px;color:#999;">';
+      for (var j = 0; j < result.errors.length; j++) {
+        var e = result.errors[j];
+        html += '<div>' + escHtml(e.mapping.style) + ': ' + escHtml(e.error) + '</div>';
+      }
+      html += '</div>';
+    }
+    auditResultArea.innerHTML = html;
+
+    // Attach remove handler if orphaned exist
+    var removeBtn = document.getElementById('removeOrphanedBtn');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', async function() {
+        removeBtn.disabled = true;
+        removeBtn.textContent = 'Removing...';
+        try {
+          var cRes = await fetch('/api/inventory/audit/cleanup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+          });
+          var cJson = await cRes.json();
+          auditResultArea.innerHTML = '<div class="audit-result"><span class="audit-stat healthy">\u2713 Removed ' + cJson.removed + ' orphaned mapping(s)</span></div>';
+        } catch (err) {
+          removeBtn.textContent = 'Error: ' + (err.message || String(err));
+        }
+      });
     }
   }
 
