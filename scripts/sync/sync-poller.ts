@@ -53,6 +53,25 @@ export interface SyncHealth {
   totalErrors: number;
   /** Total products polled this session */
   productsPolled: number;
+  /** Duration of last tick in milliseconds */
+  lastTickDurationMs: number;
+  /** Average tick duration in milliseconds (rolling) */
+  avgTickDurationMs: number;
+  /** Longest tick duration seen in milliseconds */
+  maxTickDurationMs: number;
+  /** Notification delivery tracking */
+  notifications: {
+    /** Total emails sent successfully */
+    sent: number;
+    /** Total email send failures */
+    failed: number;
+    /** ISO timestamp of last successful email */
+    lastSentAt: string | null;
+    /** ISO timestamp of last failed email attempt */
+    lastFailedAt: string | null;
+    /** Last failure message (for dashboard display) */
+    lastFailureReason: string | null;
+  };
 }
 
 /** Module-level health state -- populated when smart sync loop starts */
@@ -229,6 +248,10 @@ export async function startSmartSyncLoop(
     totalCycles: 0,
     totalErrors: 0,
     productsPolled: 0,
+    lastTickDurationMs: 0,
+    avgTickDurationMs: 0,
+    maxTickDurationMs: 0,
+    notifications: { sent: 0, failed: 0, lastSentAt: null, lastFailedAt: null, lastFailureReason: null },
   };
 
   const hotInterval = monitorConfig.hotIntervalMinutes ?? 15;
@@ -286,6 +309,8 @@ async function executeTick(
   _syncHealth.totalCycles++;
   _syncHealth.lastTickAt = new Date().toISOString();
 
+  const tickStart = Date.now();
+
   try {
     // Capture alerts from poll cycle
     let pollAlerts: StockAlert[] = [];
@@ -301,7 +326,19 @@ async function executeTick(
       console.log(buildSyncSummary(results));
 
       // Send email notification (if enabled and there are changes)
-      await notifySyncResults(results, pollAlerts, syncConfig);
+      const notifResult = await notifySyncResults(results, pollAlerts, syncConfig);
+
+      // Track notification delivery in health state
+      if (notifResult !== null) {
+        if (notifResult.success) {
+          _syncHealth.notifications.sent++;
+          _syncHealth.notifications.lastSentAt = new Date().toISOString();
+        } else {
+          _syncHealth.notifications.failed++;
+          _syncHealth.notifications.lastFailedAt = new Date().toISOString();
+          _syncHealth.notifications.lastFailureReason = notifResult.error ?? 'Unknown error';
+        }
+      }
     }
 
     // Success -- reset consecutive error counter
@@ -325,5 +362,26 @@ async function executeTick(
     }
 
     // Never crash -- continue to next tick
+  } finally {
+    // Update tick duration metrics (always, even on failure)
+    const tickDurationMs = Date.now() - tickStart;
+    _syncHealth.lastTickDurationMs = tickDurationMs;
+    _syncHealth.maxTickDurationMs = Math.max(_syncHealth.maxTickDurationMs, tickDurationMs);
+
+    // Cumulative moving average: ((prev * (n-1)) + current) / n
+    const n = _syncHealth.totalCycles;
+    if (n === 1) {
+      _syncHealth.avgTickDurationMs = tickDurationMs;
+    } else {
+      _syncHealth.avgTickDurationMs =
+        ((_syncHealth.avgTickDurationMs * (n - 1)) + tickDurationMs) / n;
+    }
+
+    // Slow tick detection: warn if > 3x average and enough data points
+    if (n > 5 && tickDurationMs > _syncHealth.avgTickDurationMs * 3) {
+      console.warn(
+        `[Sync] SLOW TICK: ${tickDurationMs}ms (avg: ${Math.round(_syncHealth.avgTickDurationMs)}ms)`,
+      );
+    }
   }
 }

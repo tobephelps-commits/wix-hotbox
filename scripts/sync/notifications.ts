@@ -15,7 +15,7 @@
 import nodemailer from 'nodemailer';
 import type { StockAlert, InventorySnapshot } from '../monitor/types.js';
 import { loadLatestSnapshot, loadConfig as loadMonitorConfig } from '../monitor/store.js';
-import type { SyncResult, SyncConfig, NotificationConfig } from './types.js';
+import type { SyncResult, SyncConfig, NotificationConfig, NotificationResult } from './types.js';
 
 // =============================================================================
 // Warehouse Email Helpers
@@ -307,7 +307,7 @@ export async function sendSyncNotification(
   subject: string,
   body: string,
   config: NotificationConfig,
-): Promise<void> {
+): Promise<NotificationResult> {
   try {
     const transport = nodemailer.createTransport({
       host: config.smtp.host,
@@ -327,10 +327,12 @@ export async function sendSyncNotification(
     });
 
     console.log(`[Sync] Notification email sent to ${config.to}`);
+    return { success: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[Sync] Failed to send notification email: ${message}`);
     // Do NOT throw -- email is best-effort, sync should continue
+    return { success: false, error: message };
   }
 }
 
@@ -356,15 +358,15 @@ export async function notifySyncResults(
   results: SyncResult[],
   alerts: StockAlert[],
   config: SyncConfig,
-): Promise<void> {
+): Promise<NotificationResult | null> {
   if (!config.notification.enabled) {
-    return; // Notifications disabled
+    return null; // Notifications disabled
   }
 
   const body = await buildSyncEmailBody(results, alerts);
   if (!body) {
     console.log('[Sync] No changes to report -- skipping notification email.');
-    return;
+    return null;
   }
 
   // Build subject line
@@ -378,5 +380,5 @@ export async function notifySyncResults(
       ? `[HotBox] Stock Sync: ${totalChanges + alertCount} change(s) detected`
       : '[HotBox] Stock Sync: No changes';
 
-  await sendSyncNotification(subject, body, config.notification);
+  return sendSyncNotification(subject, body, config.notification);
 }

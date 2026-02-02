@@ -67,6 +67,23 @@ export interface SyncResult {
 }
 
 // =============================================================================
+// Notification Result
+// =============================================================================
+
+/**
+ * Result of a notification delivery attempt.
+ *
+ * Returned by sendSyncNotification so callers can track delivery
+ * success/failure in SyncHealth without swallowing errors.
+ */
+export interface NotificationResult {
+  /** Whether the email was sent successfully */
+  success: boolean;
+  /** Error message if delivery failed */
+  error?: string;
+}
+
+// =============================================================================
 // Configuration
 // =============================================================================
 
