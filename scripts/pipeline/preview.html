@@ -405,6 +405,31 @@
     cursor: pointer;
   }
 
+  /* Angle tabs for multi-angle image display */
+  .angle-tabs {
+    display: flex;
+    gap: 0;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .angle-tab {
+    flex: 1;
+    padding: 4px 0;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #666;
+    transition: background 0.15s, color 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .angle-tab:hover:not(:disabled) { background: #e8e8e8; }
+  .angle-tab.active { background: #fff; color: #6c63ff; border-bottom: 2px solid #6c63ff; }
+  .angle-tab:disabled { color: #ccc; cursor: default; }
+
   /* Size grid */
   .size-grid {
     display: flex;
@@ -2572,9 +2597,78 @@
         card.classList.add('filtered-out');
       }
 
-      // Image
-      if (color.frontImageUrl) {
-        card.innerHTML += '<img class="color-card-image" src="' + escHtml(color.frontImageUrl) + '" alt="' + escHtml(color.displayColor) + '" loading="lazy">';
+      // Store multi-angle image URLs as data attributes
+      card.dataset.frontUrl = color.frontImageUrl || '';
+      card.dataset.backUrl = color.backImageUrl || '';
+      card.dataset.sideUrl = color.sideImageUrl || '';
+
+      // Angle tabs
+      var hasFront = !!color.frontImageUrl;
+      var hasBack = !!color.backImageUrl;
+      var hasSide = !!color.sideImageUrl;
+      var hasAnyAngle = hasFront || hasBack || hasSide;
+
+      if (hasAnyAngle) {
+        var tabsDiv = document.createElement('div');
+        tabsDiv.className = 'angle-tabs';
+
+        var frontTab = document.createElement('button');
+        frontTab.className = 'angle-tab' + (hasFront ? ' active' : '');
+        frontTab.textContent = 'Front';
+        frontTab.disabled = !hasFront;
+        frontTab.dataset.angle = 'front';
+        tabsDiv.appendChild(frontTab);
+
+        var backTab = document.createElement('button');
+        backTab.className = 'angle-tab';
+        backTab.textContent = 'Back';
+        backTab.disabled = !hasBack;
+        backTab.dataset.angle = 'back';
+        tabsDiv.appendChild(backTab);
+
+        var sideTab = document.createElement('button');
+        sideTab.className = 'angle-tab';
+        sideTab.textContent = 'Side';
+        sideTab.disabled = !hasSide;
+        sideTab.dataset.angle = 'side';
+        tabsDiv.appendChild(sideTab);
+
+        card.appendChild(tabsDiv);
+
+        // Default image: front, or first available angle
+        var defaultUrl = color.frontImageUrl || color.backImageUrl || color.sideImageUrl;
+        var imgEl = document.createElement('img');
+        imgEl.className = 'color-card-image';
+        imgEl.src = defaultUrl;
+        imgEl.alt = color.displayColor;
+        imgEl.loading = 'lazy';
+        card.appendChild(imgEl);
+
+        // If front is not available but another angle is, activate that tab
+        if (!hasFront) {
+          frontTab.classList.remove('active');
+          if (hasBack) backTab.classList.add('active');
+          else if (hasSide) sideTab.classList.add('active');
+        }
+
+        // Tab click handler
+        tabsDiv.addEventListener('click', function(e) {
+          var btn = e.target;
+          if (btn.tagName !== 'BUTTON' || btn.disabled) return;
+          e.stopPropagation();
+          var angle = btn.dataset.angle;
+          var parentCard = btn.closest('.color-card');
+          var urlKey = angle + 'Url';
+          var newUrl = parentCard.dataset[urlKey];
+          if (!newUrl) return;
+          // Update active tab
+          var allTabs = parentCard.querySelectorAll('.angle-tab');
+          allTabs.forEach(function(t) { t.classList.remove('active'); });
+          btn.classList.add('active');
+          // Update image
+          var img = parentCard.querySelector('.color-card-image');
+          if (img) img.src = newUrl;
+        });
       } else if (color.swatchUrl) {
         card.innerHTML += '<img class="color-card-image" src="' + escHtml(color.swatchUrl) + '" alt="' + escHtml(color.displayColor) + '" loading="lazy">';
       } else {
