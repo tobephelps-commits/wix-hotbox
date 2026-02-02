@@ -350,6 +350,12 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
     return { route: 'logos' };
   }
 
+  // Match /api/logo-file/:name (Phase 23: serve logo PNG for visual placement)
+  const logoFileMatch = urlPath.match(/^\/api\/logo-file\/(.+)\/?$/);
+  if (logoFileMatch) {
+    return { route: 'logo-file', param: decodeURIComponent(logoFileMatch[1]) };
+  }
+
   // Match /api/overlay
   if (urlPath === '/api/overlay') {
     return { route: 'overlay' };
@@ -648,6 +654,46 @@ function startServer(port: number, initialStyle?: string): void {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error loading logo registry: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'logo-file': {
+            // GET /api/logo-file/:name - Serve logo PNG file for visual placement (Phase 23)
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              const logoName = routeMatch.param!;
+              const entry = getLogoEntry(logoName);
+              const logoFilePath = path.resolve(entry.filePath);
+              if (!fs.existsSync(logoFilePath)) {
+                sendJson(res, 404, { error: `Logo file not found: ${entry.filePath}` });
+                break;
+              }
+              const logoBuffer = fs.readFileSync(logoFilePath);
+              const ext = path.extname(logoFilePath).toLowerCase();
+              const mimeTypes: Record<string, string> = {
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg',
+                '.gif': 'image/gif',
+                '.svg': 'image/svg+xml',
+                '.webp': 'image/webp',
+              };
+              const contentType = mimeTypes[ext] || 'application/octet-stream';
+              res.writeHead(200, {
+                'Content-Type': contentType,
+                'Content-Length': logoBuffer.length.toString(),
+                'Cache-Control': 'public, max-age=3600',
+                'Access-Control-Allow-Origin': '*',
+              });
+              res.end(logoBuffer);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error serving logo file: ${message}`);
+              sendJson(res, 404, { error: message });
             }
             break;
           }

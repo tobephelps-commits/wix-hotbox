@@ -592,10 +592,9 @@
   .angle-overlay-card.disabled {
     opacity: 0.45;
   }
-  .angle-overlay-card.disabled .angle-controls,
-  .angle-overlay-card.disabled .angle-preview-btn,
-  .angle-overlay-card.disabled .angle-preview-area {
+  .angle-overlay-card.disabled .angle-card-content {
     pointer-events: none;
+    opacity: 0.5;
   }
   .angle-overlay-card.no-image {
     opacity: 0.35;
@@ -626,65 +625,10 @@
     font-weight: 400;
     margin-left: auto;
   }
-  .angle-controls {
+  .angle-card-content {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .angle-control {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .angle-control label {
-    font-size: 11px;
-    font-weight: 500;
-    color: #666;
-  }
-  .angle-control select {
-    padding: 5px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 13px;
-    outline: none;
-    background: #fff;
-  }
-  .angle-control select:focus { border-color: #6c63ff; }
-  .angle-scale-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .angle-scale-row input[type="range"] {
-    width: 120px;
-    cursor: pointer;
-  }
-  .angle-scale-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #333;
-    min-width: 32px;
-  }
-  .angle-custom-coords {
-    display: none;
     gap: 6px;
-    align-items: center;
-    margin-top: 2px;
-  }
-  .angle-custom-coords.visible { display: flex; }
-  .angle-custom-coords input[type="number"] {
-    width: 60px;
-    padding: 3px 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 12px;
-    outline: none;
-  }
-  .angle-custom-coords input[type="number"]:focus { border-color: #6c63ff; }
-  .angle-custom-coords label {
-    font-size: 11px;
-    color: #666;
   }
   .angle-preview-btn {
     padding: 5px 12px;
@@ -2017,29 +1961,21 @@
           <span class="angle-label">Front</span>
           <span class="no-image-badge" id="angleFrontNoImage" style="display:none;">No image available</span>
         </div>
-        <div class="angle-controls">
-          <div class="angle-control">
-            <label>Position</label>
-            <select id="angleFrontPosition"><option value="center-chest">Center Chest</option></select>
+        <div class="angle-card-content">
+          <div class="logo-placement-container" id="angleFrontPlacement">
+            <div class="logo-placement-empty">Enable angle &amp; select a logo</div>
           </div>
-          <div class="angle-control">
+          <div class="quick-position-row" id="angleFrontQuickPos"></div>
+          <div class="placement-scale-row">
             <label>Scale</label>
-            <div class="angle-scale-row">
-              <input type="range" id="angleFrontScale" min="0.10" max="0.60" step="0.05" value="0.25">
-              <span class="angle-scale-label" id="angleFrontScaleLabel">25%</span>
-            </div>
+            <input type="range" id="angleFrontScale" min="0.05" max="0.60" step="0.01" value="0.25">
+            <span class="placement-scale-label" id="angleFrontScaleLabel">25%</span>
           </div>
-          <div class="angle-custom-coords" id="angleFrontCustom">
-            <label>X:</label>
-            <input type="number" id="angleFrontCustomX" min="0" max="1" step="0.05" value="0.50">
-            <label>Y:</label>
-            <input type="number" id="angleFrontCustomY" min="0" max="1" step="0.05" value="0.33">
+          <button type="button" class="angle-preview-btn" id="angleFrontPreviewBtn" disabled>Render Final</button>
+          <div class="angle-preview-area" id="angleFrontPreviewArea">
+            <img id="angleFrontPreviewImg" alt="Front overlay preview">
+            <div class="angle-preview-details" id="angleFrontDetails"></div>
           </div>
-        </div>
-        <button type="button" class="angle-preview-btn" id="angleFrontPreviewBtn" disabled>Preview</button>
-        <div class="angle-preview-area" id="angleFrontPreviewArea">
-          <img id="angleFrontPreviewImg" alt="Front overlay preview">
-          <div class="angle-preview-details" id="angleFrontDetails"></div>
         </div>
       </div>
       <!-- Back card -->
@@ -2049,29 +1985,21 @@
           <span class="angle-label">Back</span>
           <span class="no-image-badge" id="angleBackNoImage" style="display:none;">No image available</span>
         </div>
-        <div class="angle-controls">
-          <div class="angle-control">
-            <label>Position</label>
-            <select id="angleBackPosition"><option value="center-back">Center Back</option></select>
+        <div class="angle-card-content">
+          <div class="logo-placement-container" id="angleBackPlacement">
+            <div class="logo-placement-empty">Enable angle &amp; select a logo</div>
           </div>
-          <div class="angle-control">
+          <div class="quick-position-row" id="angleBackQuickPos"></div>
+          <div class="placement-scale-row">
             <label>Scale</label>
-            <div class="angle-scale-row">
-              <input type="range" id="angleBackScale" min="0.10" max="0.60" step="0.05" value="0.25">
-              <span class="angle-scale-label" id="angleBackScaleLabel">25%</span>
-            </div>
+            <input type="range" id="angleBackScale" min="0.05" max="0.60" step="0.01" value="0.25">
+            <span class="placement-scale-label" id="angleBackScaleLabel">25%</span>
           </div>
-          <div class="angle-custom-coords" id="angleBackCustom">
-            <label>X:</label>
-            <input type="number" id="angleBackCustomX" min="0" max="1" step="0.05" value="0.50">
-            <label>Y:</label>
-            <input type="number" id="angleBackCustomY" min="0" max="1" step="0.05" value="0.30">
+          <button type="button" class="angle-preview-btn" id="angleBackPreviewBtn" disabled>Render Final</button>
+          <div class="angle-preview-area" id="angleBackPreviewArea">
+            <img id="angleBackPreviewImg" alt="Back overlay preview">
+            <div class="angle-preview-details" id="angleBackDetails"></div>
           </div>
-        </div>
-        <button type="button" class="angle-preview-btn" id="angleBackPreviewBtn" disabled>Preview</button>
-        <div class="angle-preview-area" id="angleBackPreviewArea">
-          <img id="angleBackPreviewImg" alt="Back overlay preview">
-          <div class="angle-preview-details" id="angleBackDetails"></div>
         </div>
       </div>
       <!-- Side card -->
@@ -2081,29 +2009,21 @@
           <span class="angle-label">Side</span>
           <span class="no-image-badge" id="angleSideNoImage" style="display:none;">No image available</span>
         </div>
-        <div class="angle-controls">
-          <div class="angle-control">
-            <label>Position</label>
-            <select id="angleSidePosition"><option value="center-chest">Center Chest</option></select>
+        <div class="angle-card-content">
+          <div class="logo-placement-container" id="angleSidePlacement">
+            <div class="logo-placement-empty">Enable angle &amp; select a logo</div>
           </div>
-          <div class="angle-control">
+          <div class="quick-position-row" id="angleSideQuickPos"></div>
+          <div class="placement-scale-row">
             <label>Scale</label>
-            <div class="angle-scale-row">
-              <input type="range" id="angleSideScale" min="0.10" max="0.60" step="0.05" value="0.25">
-              <span class="angle-scale-label" id="angleSideScaleLabel">25%</span>
-            </div>
+            <input type="range" id="angleSideScale" min="0.05" max="0.60" step="0.01" value="0.25">
+            <span class="placement-scale-label" id="angleSideScaleLabel">25%</span>
           </div>
-          <div class="angle-custom-coords" id="angleSideCustom">
-            <label>X:</label>
-            <input type="number" id="angleSideCustomX" min="0" max="1" step="0.05" value="0.50">
-            <label>Y:</label>
-            <input type="number" id="angleSideCustomY" min="0" max="1" step="0.05" value="0.33">
+          <button type="button" class="angle-preview-btn" id="angleSidePreviewBtn" disabled>Render Final</button>
+          <div class="angle-preview-area" id="angleSidePreviewArea">
+            <img id="angleSidePreviewImg" alt="Side overlay preview">
+            <div class="angle-preview-details" id="angleSideDetails"></div>
           </div>
-        </div>
-        <button type="button" class="angle-preview-btn" id="angleSidePreviewBtn" disabled>Preview</button>
-        <div class="angle-preview-area" id="angleSidePreviewArea">
-          <img id="angleSidePreviewImg" alt="Side overlay preview">
-          <div class="angle-preview-details" id="angleSideDetails"></div>
         </div>
       </div>
     </div>
@@ -2489,18 +2409,16 @@
   var logoAngleHint = document.getElementById('logoAngleHint');
   var overlayNote = document.getElementById('overlayNote');
 
-  // Per-angle DOM refs
+  // Per-angle DOM refs (Phase 23: updated for visual placement)
   var angleDom = {
     front: {
       card: document.getElementById('angleCardFront'),
       toggle: document.getElementById('angleFrontToggle'),
       noImage: document.getElementById('angleFrontNoImage'),
-      position: document.getElementById('angleFrontPosition'),
+      placementContainer: document.getElementById('angleFrontPlacement'),
+      quickPos: document.getElementById('angleFrontQuickPos'),
       scale: document.getElementById('angleFrontScale'),
       scaleLabel: document.getElementById('angleFrontScaleLabel'),
-      customCoords: document.getElementById('angleFrontCustom'),
-      customX: document.getElementById('angleFrontCustomX'),
-      customY: document.getElementById('angleFrontCustomY'),
       previewBtn: document.getElementById('angleFrontPreviewBtn'),
       previewArea: document.getElementById('angleFrontPreviewArea'),
       previewImg: document.getElementById('angleFrontPreviewImg'),
@@ -2511,12 +2429,10 @@
       card: document.getElementById('angleCardBack'),
       toggle: document.getElementById('angleBackToggle'),
       noImage: document.getElementById('angleBackNoImage'),
-      position: document.getElementById('angleBackPosition'),
+      placementContainer: document.getElementById('angleBackPlacement'),
+      quickPos: document.getElementById('angleBackQuickPos'),
       scale: document.getElementById('angleBackScale'),
       scaleLabel: document.getElementById('angleBackScaleLabel'),
-      customCoords: document.getElementById('angleBackCustom'),
-      customX: document.getElementById('angleBackCustomX'),
-      customY: document.getElementById('angleBackCustomY'),
       previewBtn: document.getElementById('angleBackPreviewBtn'),
       previewArea: document.getElementById('angleBackPreviewArea'),
       previewImg: document.getElementById('angleBackPreviewImg'),
@@ -2527,12 +2443,10 @@
       card: document.getElementById('angleCardSide'),
       toggle: document.getElementById('angleSideToggle'),
       noImage: document.getElementById('angleSideNoImage'),
-      position: document.getElementById('angleSidePosition'),
+      placementContainer: document.getElementById('angleSidePlacement'),
+      quickPos: document.getElementById('angleSideQuickPos'),
       scale: document.getElementById('angleSideScale'),
       scaleLabel: document.getElementById('angleSideScaleLabel'),
-      customCoords: document.getElementById('angleSideCustom'),
-      customX: document.getElementById('angleSideCustomX'),
-      customY: document.getElementById('angleSideCustomY'),
       previewBtn: document.getElementById('angleSidePreviewBtn'),
       previewArea: document.getElementById('angleSidePreviewArea'),
       previewImg: document.getElementById('angleSidePreviewImg'),
@@ -3829,28 +3743,31 @@
         logoSelect.appendChild(opt);
       });
 
-      // Populate position presets for all 3 angle cards
+      // Populate quick-position preset buttons for all 3 angle cards (Phase 23)
       var presets = logoData.positionPresets || {};
       var presetNames = Object.keys(presets);
       ANGLE_KEYS.forEach(function(angle) {
-        var sel = angleDom[angle].position;
-        sel.innerHTML = '';
+        var container = angleDom[angle].quickPos;
+        container.innerHTML = '';
         presetNames.forEach(function(name) {
-          var opt = document.createElement('option');
-          opt.value = name;
-          opt.textContent = name.split('-').map(function(w) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quick-pos-btn';
+          btn.textContent = name.split('-').map(function(w) {
             return w.charAt(0).toUpperCase() + w.slice(1);
           }).join(' ');
-          sel.appendChild(opt);
+          btn.addEventListener('click', function() {
+            var preset = presets[name];
+            if (preset) {
+              var currentScale = angleOverlayState[angle].scale;
+              angleOverlayState[angle].customX = preset.x;
+              angleOverlayState[angle].customY = preset.y;
+              angleOverlayState[angle].position = 'custom';
+              LogoPlacementEngine.setFromCoords(angle, preset.x, preset.y, currentScale);
+            }
+          });
+          container.appendChild(btn);
         });
-        // Add Custom option
-        var customOpt = document.createElement('option');
-        customOpt.value = 'custom';
-        customOpt.textContent = 'Custom...';
-        sel.appendChild(customOpt);
-
-        // Set default selection from angleOverlayState
-        sel.value = angleOverlayState[angle].position;
       });
 
     } catch (err) {
@@ -3867,7 +3784,7 @@
 
     logoOverlaySection.classList.add('visible');
 
-    // Reset all angle toggles
+    // Reset all angle toggles and placement engine
     ANGLE_KEYS.forEach(function(angle) {
       angleOverlayState[angle].enabled = false;
       angleDom[angle].toggle.checked = false;
@@ -3880,9 +3797,19 @@
         URL.revokeObjectURL(angleDom[angle].blobUrl);
         angleDom[angle].blobUrl = null;
       }
+      // Clean up placement engine
+      LogoPlacementEngine.remove(angle);
+      // Restore placeholder text in placement container
+      var pc = angleDom[angle].placementContainer;
+      if (pc && !pc.querySelector('.logo-placement-empty')) {
+        var ph = document.createElement('div');
+        ph.className = 'logo-placement-empty';
+        ph.innerHTML = 'Enable angle &amp; select a logo';
+        pc.appendChild(ph);
+      }
     });
 
-    // Check image availability per angle
+    // Check image availability per angle and initialize placement containers
     if (productData && productData.availableColors) {
       ANGLE_KEYS.forEach(function(angle) {
         var field = ANGLE_IMAGE_FIELDS[angle];
@@ -3915,9 +3842,14 @@
           angleOverlayState[angle].scale = entry.defaultScale;
         });
       }
-      // Enable preview buttons for enabled angles
+      // Enable preview buttons for enabled angles and load logo into placement engine
+      var logoUrl = '/api/logo-file/' + encodeURIComponent(logoName);
       ANGLE_KEYS.forEach(function(angle) {
         angleDom[angle].previewBtn.disabled = !angleOverlayState[angle].enabled;
+        // Load logo into placement engine for enabled angles with images
+        if (angleOverlayState[angle].enabled && findAngleImageUrl(angle)) {
+          _initPlacementForAngle(angle, logoUrl);
+        }
       });
       updateAngleHint();
     } else {
@@ -3933,22 +3865,53 @@
           URL.revokeObjectURL(angleDom[angle].blobUrl);
           angleDom[angle].blobUrl = null;
         }
+        // Remove from placement engine
+        LogoPlacementEngine.remove(angle);
+        // Restore placeholder
+        var pc = angleDom[angle].placementContainer;
+        if (pc && !pc.querySelector('.logo-placement-empty')) {
+          var ph = document.createElement('div');
+          ph.className = 'logo-placement-empty';
+          ph.innerHTML = 'Enable angle &amp; select a logo';
+          pc.appendChild(ph);
+        }
       });
       logoAngleHint.classList.remove('visible');
     }
   });
 
-  // Set up per-angle event handlers
+  // Initialize placement engine for a specific angle (loads product image + logo)
+  function _initPlacementForAngle(angle, logoUrl) {
+    var imageUrl = findAngleImageUrl(angle);
+    if (!imageUrl) return;
+    var pc = angleDom[angle].placementContainer;
+    // Remove placeholder
+    var placeholder = pc.querySelector('.logo-placement-empty');
+    if (placeholder) pc.removeChild(placeholder);
+    // Init engine, load images
+    LogoPlacementEngine.init(pc, angle);
+    LogoPlacementEngine.loadProductImage(angle, imageUrl);
+    if (logoUrl) {
+      LogoPlacementEngine.loadLogo(angle, logoUrl);
+    }
+  }
+
+  // Set up per-angle event handlers (Phase 23: updated for visual placement)
   ANGLE_KEYS.forEach(function(angle) {
     var dom = angleDom[angle];
     var state = angleOverlayState[angle];
 
-    // Toggle handler
+    // Toggle handler — enable/disable angle and init placement engine
     dom.toggle.addEventListener('change', function() {
       state.enabled = dom.toggle.checked;
       if (state.enabled) {
         dom.card.classList.remove('disabled');
         dom.previewBtn.disabled = !logoSelect.value;
+        // Initialize placement engine if logo is selected and image available
+        if (logoSelect.value && findAngleImageUrl(angle)) {
+          var logoUrl = '/api/logo-file/' + encodeURIComponent(logoSelect.value);
+          _initPlacementForAngle(angle, logoUrl);
+        }
       } else {
         dom.card.classList.add('disabled');
         dom.previewBtn.disabled = true;
@@ -3957,36 +3920,34 @@
           URL.revokeObjectURL(dom.blobUrl);
           dom.blobUrl = null;
         }
+        // Remove from placement engine
+        LogoPlacementEngine.remove(angle);
+        // Restore placeholder
+        var pc = dom.placementContainer;
+        if (pc && !pc.querySelector('.logo-placement-empty')) {
+          var ph = document.createElement('div');
+          ph.className = 'logo-placement-empty';
+          ph.innerHTML = 'Enable angle &amp; select a logo';
+          pc.appendChild(ph);
+        }
       }
       updateAngleHint();
     });
 
-    // Position change handler
-    dom.position.addEventListener('change', function() {
-      state.position = dom.position.value;
-      if (dom.position.value === 'custom') {
-        dom.customCoords.classList.add('visible');
-      } else {
-        dom.customCoords.classList.remove('visible');
-      }
-    });
-
-    // Scale slider handler
+    // Scale slider handler — bidirectional sync with placement engine
     dom.scale.addEventListener('input', function() {
       var val = parseFloat(dom.scale.value);
       state.scale = val;
       dom.scaleLabel.textContent = Math.round(val * 100) + '%';
+      // Update placement engine (avoid circular loop)
+      if (!LogoPlacementEngine.isSyncing() && LogoPlacementEngine.isInitialized(angle)) {
+        LogoPlacementEngine.setSyncing(true);
+        LogoPlacementEngine.setFromCoords(angle, state.customX, state.customY, val);
+        LogoPlacementEngine.setSyncing(false);
+      }
     });
 
-    // Custom X/Y handlers
-    dom.customX.addEventListener('change', function() {
-      state.customX = parseFloat(dom.customX.value);
-    });
-    dom.customY.addEventListener('change', function() {
-      state.customY = parseFloat(dom.customY.value);
-    });
-
-    // Preview button handler
+    // Preview (Render Final) button handler
     dom.previewBtn.addEventListener('click', function() {
       generateAnglePreview(angle);
     });
@@ -4039,18 +4000,12 @@
     var dom = angleDom[angle];
     var state = angleOverlayState[angle];
 
-    // Determine position
-    var position;
-    if (state.position === 'custom') {
-      position = parseFloat(dom.customX.value) + ',' + parseFloat(dom.customY.value);
-    } else {
-      position = state.position;
-    }
-
-    var scale = parseFloat(dom.scale.value);
+    // Always use custom coords from state (placement engine updates these live)
+    var position = state.customX.toFixed(4) + ',' + state.customY.toFixed(4);
+    var scale = state.scale;
 
     dom.previewBtn.disabled = true;
-    dom.previewBtn.textContent = 'Loading...';
+    dom.previewBtn.textContent = 'Rendering...';
 
     try {
       var res = await fetch('/api/overlay', {
@@ -4068,7 +4023,7 @@
         var errJson = await res.json();
         setStatus('Overlay error (' + angle + '): ' + (errJson.error || 'Unknown error'), 'error');
         dom.previewBtn.disabled = false;
-        dom.previewBtn.textContent = 'Preview';
+        dom.previewBtn.textContent = 'Render Final';
         return;
       }
 
@@ -4085,9 +4040,7 @@
 
       // Show details
       var logoEntry = logoData.logos[logoSelect.value];
-      var posLabel = state.position === 'custom'
-        ? 'Custom (' + dom.customX.value + ', ' + dom.customY.value + ')'
-        : dom.position.options[dom.position.selectedIndex].textContent;
+      var posLabel = 'x:' + state.customX.toFixed(2) + ' y:' + state.customY.toFixed(2);
       dom.details.textContent = (logoEntry.displayName || logoSelect.value) +
         ' | ' + posLabel + ' | ' + Math.round(scale * 100) + '%';
 
@@ -4096,10 +4049,10 @@
     }
 
     dom.previewBtn.disabled = false;
-    dom.previewBtn.textContent = 'Preview';
+    dom.previewBtn.textContent = 'Render Final';
   }
 
-  // Build per-angle logo config for the creation request
+  // Build per-angle logo config for the creation request (Phase 23: always uses custom coords from placement engine)
   function buildLogoAnglesConfig() {
     if (!logoSelect.value) return null;
     var anyEnabled = ANGLE_KEYS.some(function(a) { return angleOverlayState[a].enabled; });
@@ -4109,14 +4062,11 @@
     ANGLE_KEYS.forEach(function(angle) {
       var state = angleOverlayState[angle];
       if (!state.enabled) return;
-      var dom = angleDom[angle];
-      var pos = state.position;
-      if (pos === 'custom') {
-        pos = parseFloat(dom.customX.value) + ',' + parseFloat(dom.customY.value);
-      }
+      // Always send as custom coordinates (placement engine updates these live)
+      var pos = state.customX.toFixed(4) + ',' + state.customY.toFixed(4);
       config.angles[angle] = {
         position: pos,
-        scale: parseFloat(dom.scale.value)
+        scale: state.scale
       };
     });
     return config;
