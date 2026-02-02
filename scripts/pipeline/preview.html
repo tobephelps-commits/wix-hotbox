@@ -2712,6 +2712,311 @@
     color: #999;
     font-size: 14px;
   }
+
+  /* Batch Create Section (Phase 27) */
+  .batch-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .batch-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .batch-section-header:hover {
+    background: #f9f9f9;
+  }
+  .batch-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .batch-toggle-icon {
+    font-size: 12px;
+    color: #999;
+    transition: transform 0.2s;
+  }
+  .batch-section.expanded .batch-toggle-icon {
+    transform: rotate(90deg);
+  }
+  .batch-section-body {
+    display: none;
+    padding: 0 24px 20px;
+  }
+  .batch-section.expanded .batch-section-body {
+    display: block;
+  }
+  .batch-textarea {
+    width: 100%;
+    height: 120px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    background: #fafafa;
+  }
+  .batch-textarea:focus {
+    border-color: #6c63ff;
+    background: #fff;
+  }
+  .batch-textarea::placeholder {
+    color: #aaa;
+  }
+  .batch-style-count {
+    font-size: 12px;
+    color: #888;
+    margin-top: 6px;
+    min-height: 18px;
+  }
+  .batch-settings-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #eee;
+  }
+  @media (max-width: 600px) {
+    .batch-settings-panel {
+      grid-template-columns: 1fr;
+    }
+  }
+  .batch-setting {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .batch-setting label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+  .batch-setting select,
+  .batch-setting input[type="number"],
+  .batch-setting input[type="text"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  .batch-setting select:focus,
+  .batch-setting input:focus {
+    border-color: #6c63ff;
+  }
+  .batch-radio-group {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding-top: 2px;
+  }
+  .batch-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #444;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .batch-custom-sizes {
+    margin-top: 6px;
+    display: none;
+  }
+  .batch-custom-sizes.visible {
+    display: block;
+  }
+  .batch-actions {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .batch-start-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #2ecc71;
+    color: #fff;
+    transition: background 0.15s;
+  }
+  .batch-start-btn:hover {
+    background: #27ae60;
+  }
+  .batch-start-btn:disabled {
+    background: #888;
+    cursor: not-allowed;
+  }
+
+  /* Batch Progress Queue */
+  .batch-progress-container {
+    display: none;
+    margin-top: 16px;
+  }
+  .batch-progress-container.visible {
+    display: block;
+  }
+  .batch-progress-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .batch-item-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #ddd;
+    transition: border-color 0.3s, opacity 0.3s, background 0.3s;
+    animation: batchCardEnter 0.3s ease;
+  }
+  @keyframes batchCardEnter {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .batch-item-card[data-stage="fetching"],
+  .batch-item-card[data-stage="creating"],
+  .batch-item-card[data-stage="media"],
+  .batch-item-card[data-stage="variants"] {
+    border-left-color: #3498db;
+    background: #f0f6ff;
+  }
+  .batch-item-card[data-stage="done"] {
+    border-left-color: #2ecc71;
+    opacity: 0.75;
+  }
+  .batch-item-card[data-stage="error"] {
+    border-left-color: #e74c3c;
+    background: #fff5f5;
+    opacity: 1;
+  }
+  .batch-item-style {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    min-width: 70px;
+  }
+  .batch-item-stage {
+    flex: 1;
+    font-size: 13px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .batch-stage-icon {
+    font-size: 14px;
+  }
+  .batch-stage-icon.spin {
+    display: inline-block;
+    animation: batchSpin 1s linear infinite;
+  }
+  @keyframes batchSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .batch-progress-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .batch-progress-dots .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: background-color 0.3s;
+  }
+  .batch-progress-dots .dot.active {
+    background: #3498db;
+  }
+  .batch-progress-dots .dot.done {
+    background: #2ecc71;
+  }
+  .batch-progress-dots .dot.error {
+    background: #e74c3c;
+  }
+  .batch-item-link {
+    font-size: 12px;
+    color: #6c63ff;
+    text-decoration: none;
+  }
+  .batch-item-link:hover {
+    text-decoration: underline;
+  }
+  .batch-summary-bar {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    align-items: center;
+    gap: 12px;
+  }
+  .batch-summary-bar.visible {
+    display: flex;
+  }
+  .batch-summary-bar.success {
+    background: #eafaf1;
+    color: #27ae60;
+    border: 1px solid #c8ecd8;
+  }
+  .batch-summary-bar.partial {
+    background: #fef9e7;
+    color: #b7950b;
+    border: 1px solid #f9e79f;
+  }
+  .batch-summary-bar.failure {
+    background: #fdedec;
+    color: #c0392b;
+    border: 1px solid #f5c6cb;
+  }
+  .batch-summary-check {
+    font-size: 18px;
+  }
+  .batch-summary-text {
+    flex: 1;
+  }
+  .batch-summary-new {
+    padding: 6px 14px;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .batch-summary-new:hover {
+    background: rgba(0,0,0,0.05);
+  }
 </style>
 </head>
 <body>
@@ -2737,6 +3042,88 @@
   <!-- Initial prompt (shown before first fetch) -->
   <div class="initial-prompt" id="initialPrompt">
     Select a vendor and enter a style number above to preview product data.
+  </div>
+
+  <!-- Batch Create Section (Phase 27) -->
+  <div class="batch-section" id="batchSection">
+    <div class="batch-section-header" id="batchSectionHeader">
+      <div class="batch-section-title">
+        <span class="batch-toggle-icon">&#9654;</span>
+        BATCH CREATE
+      </div>
+      <span style="font-size:12px;color:#999;">Enter multiple styles</span>
+    </div>
+    <div class="batch-section-body">
+      <textarea class="batch-textarea" id="batchTextarea" placeholder="Enter style numbers, one per line:&#10;PC61&#10;PC54&#10;ST350&#10;..."></textarea>
+      <div class="batch-style-count" id="batchStyleCount"></div>
+
+      <div class="batch-settings-panel">
+        <div class="batch-setting">
+          <label for="batchVendorSelect">Vendor</label>
+          <select id="batchVendorSelect">
+            <option value="sanmar">SanMar</option>
+            <option value="ss">S&amp;S Activewear</option>
+          </select>
+        </div>
+        <div class="batch-setting">
+          <label for="batchPresetSelect">Pricing Preset</label>
+          <select id="batchPresetSelect">
+            <option value="standard-tee">Standard T-Shirt (100%)</option>
+            <option value="premium-tee">Premium T-Shirt (120%)</option>
+            <option value="hoodie-fleece">Hoodie / Fleece (80%)</option>
+            <option value="polo-woven">Polo / Woven (90%)</option>
+            <option value="outerwear">Outerwear / Jacket (70%)</option>
+            <option value="headwear">Headwear (100%)</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="batch-setting">
+          <label for="batchMarkupInput">Markup %</label>
+          <input type="number" id="batchMarkupInput" value="100" step="5" min="0" max="500">
+        </div>
+        <div class="batch-setting">
+          <label for="batchRoundingSelect">Rounding</label>
+          <select id="batchRoundingSelect">
+            <option value="nearest-99">Nearest .99</option>
+            <option value="nearest-dollar">Nearest dollar</option>
+            <option value="none">No rounding</option>
+          </select>
+        </div>
+        <div class="batch-setting">
+          <label>Color Strategy</label>
+          <div class="batch-radio-group">
+            <label><input type="radio" name="batchColorStrategy" value="all-in-stock" checked> In-stock only</label>
+            <label><input type="radio" name="batchColorStrategy" value="all"> All colors</label>
+          </div>
+        </div>
+        <div class="batch-setting">
+          <label>Size Strategy</label>
+          <div class="batch-radio-group">
+            <label><input type="radio" name="batchSizeStrategy" value="all" id="batchSizeStrategyAll" checked> All sizes</label>
+            <label><input type="radio" name="batchSizeStrategy" value="custom" id="batchSizeStrategyCustom"> Custom</label>
+          </div>
+          <div class="batch-custom-sizes" id="batchCustomSizesWrap">
+            <input type="text" id="batchCustomSizes" placeholder="S,M,L,XL,2XL" style="width:100%;">
+          </div>
+        </div>
+      </div>
+
+      <div class="batch-actions">
+        <button type="button" class="batch-start-btn" id="batchStartBtn" disabled>Start Batch</button>
+        <span class="batch-style-count" id="batchActionCount" style="margin:0;"></span>
+      </div>
+
+      <!-- Progress queue container -->
+      <div class="batch-progress-container" id="batchProgressContainer">
+        <div class="batch-progress-title">Processing Queue</div>
+        <div id="batchQueueCards"></div>
+        <div class="batch-summary-bar" id="batchSummaryBar">
+          <span class="batch-summary-check"></span>
+          <span class="batch-summary-text"></span>
+          <button type="button" class="batch-summary-new" id="batchNewBtn">New Batch</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Product info section -->
@@ -3549,6 +3936,79 @@
   };
 
   // =========================================================================
+  // Batch Create DOM refs (Phase 27)
+  // =========================================================================
+
+  var batchSection = document.getElementById('batchSection');
+  var batchSectionHeader = document.getElementById('batchSectionHeader');
+  var batchTextarea = document.getElementById('batchTextarea');
+  var batchStyleCount = document.getElementById('batchStyleCount');
+  var batchActionCount = document.getElementById('batchActionCount');
+  var batchVendorSelect = document.getElementById('batchVendorSelect');
+  var batchPresetSelect = document.getElementById('batchPresetSelect');
+  var batchMarkupInput = document.getElementById('batchMarkupInput');
+  var batchRoundingSelect = document.getElementById('batchRoundingSelect');
+  var batchSizeStrategyAll = document.getElementById('batchSizeStrategyAll');
+  var batchSizeStrategyCustom = document.getElementById('batchSizeStrategyCustom');
+  var batchCustomSizesWrap = document.getElementById('batchCustomSizesWrap');
+  var batchCustomSizes = document.getElementById('batchCustomSizes');
+  var batchStartBtn = document.getElementById('batchStartBtn');
+  var batchProgressContainer = document.getElementById('batchProgressContainer');
+  var batchQueueCards = document.getElementById('batchQueueCards');
+  var batchSummaryBar = document.getElementById('batchSummaryBar');
+  var batchNewBtn = document.getElementById('batchNewBtn');
+
+  // =========================================================================
+  // Batch Create — parsing and UI wiring (Phase 27)
+  // =========================================================================
+
+  function parseBatchStyles(text) {
+    return text
+      .split(/[,\n]+/)
+      .map(function(s) { return s.trim().toUpperCase(); })
+      .filter(function(s) { return s.length > 0; });
+  }
+
+  function updateBatchCount() {
+    var styles = parseBatchStyles(batchTextarea.value);
+    var count = styles.length;
+    var msg = count === 0 ? '' : count === 1 ? '1 style entered' : count + ' styles entered';
+    batchStyleCount.textContent = msg;
+    batchActionCount.textContent = count > 0 ? '(' + count + ' style' + (count > 1 ? 's' : '') + ')' : '';
+    batchStartBtn.disabled = count === 0;
+  }
+
+  // Toggle batch section expand/collapse
+  batchSectionHeader.addEventListener('click', function() {
+    batchSection.classList.toggle('expanded');
+  });
+
+  // Textarea input updates count and button state
+  batchTextarea.addEventListener('input', updateBatchCount);
+
+  // Show/hide custom sizes input
+  document.querySelectorAll('input[name="batchSizeStrategy"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      if (batchSizeStrategyCustom.checked) {
+        batchCustomSizesWrap.classList.add('visible');
+      } else {
+        batchCustomSizesWrap.classList.remove('visible');
+      }
+    });
+  });
+
+  /**
+   * Sync batch settings panel from shared state variables.
+   * Called after loadPrefs() so batch form reads same prefs as single-product form.
+   */
+  function syncBatchSettings() {
+    batchVendorSelect.value = currentVendor;
+    batchPresetSelect.value = currentPreset;
+    batchMarkupInput.value = pricingConfig.markupPercent;
+    batchRoundingSelect.value = pricingConfig.rounding;
+  }
+
+  // =========================================================================
   // Preferences Persistence (Phase 27 — recent-choice memory)
   // =========================================================================
 
@@ -3689,6 +4149,9 @@
         prefsRestoredIndicator.classList.remove('visible');
       }, 2000);
     }
+
+    // Sync batch settings panel from restored preferences
+    syncBatchSettings();
   }
 
   // =========================================================================
