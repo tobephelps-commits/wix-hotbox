@@ -172,8 +172,17 @@ function unifiedToProductData(unified: UnifiedProductData): ProductData {
   }
 
   // --- Map UnifiedInventory[] -> SkuInventory[] ---
+  // Build color name → code lookup for inventory matching
+  // (buildProductPreview filters inventory by catalogColor, not display name)
+  const invColorNameToCode = new Map<string, string>();
+  for (const p of unified.products) {
+    if (!invColorNameToCode.has(p.color)) {
+      invColorNameToCode.set(p.color, p.colorCode);
+    }
+  }
+
   const inventory: SkuInventory[] = unified.inventory.map((inv) => ({
-    color: inv.color,
+    color: invColorNameToCode.get(inv.color) ?? inv.color,
     size: inv.size,
     whse: inv.warehouses.map((w) => ({
       whseID: parseInt(w.id) || 0,
@@ -184,9 +193,19 @@ function unifiedToProductData(unified: UnifiedProductData): ProductData {
 
   // --- Map UnifiedMedia[] -> MediaContent[] ---
   // Expand each UnifiedMedia into multiple MediaContent entries
-  // (one per image type) to match the flat SanMar media format
+  // (one per image type) to match the flat SanMar media format.
+  // Build color name → code lookup so images use catalogColor (matches
+  // buildProductPreview which filters by catalogColor, not display name).
+  const colorNameToCode = new Map<string, string>();
+  for (const p of unified.products) {
+    if (!colorNameToCode.has(p.color)) {
+      colorNameToCode.set(p.color, p.colorCode);
+    }
+  }
+
   const images: MediaContent[] = [];
   for (const media of unified.media) {
+    const colorCode = colorNameToCode.get(media.color) ?? media.color;
     const addImage = (url: string | null, classTypeId: number, classTypeName: string) => {
       if (url) {
         images.push({
@@ -195,7 +214,7 @@ function unifiedToProductData(unified: UnifiedProductData): ProductData {
           url,
           mediaType: 'Image',
           classType: { classTypeId, classTypeName } as MediaClassType,
-          color: media.color,
+          color: colorCode,
         });
       }
     };
