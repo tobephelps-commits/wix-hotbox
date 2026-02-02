@@ -57,9 +57,11 @@ import { calculateVariantPrice, calculateRetailPrice } from './pricing-rules.js'
 const CLASS_TYPE_SWATCH = 1004;
 /** Front-view image classTypeId */
 const CLASS_TYPE_FRONT = 1007;
+/** Rear/back-view image classTypeId */
+const CLASS_TYPE_REAR = 1008;
 /** Primary product image classTypeId */
 const CLASS_TYPE_PRIMARY = 1006;
-/** High-resolution image classTypeId */
+/** High-resolution / side-view image classTypeId */
 const CLASS_TYPE_HIGH = 2001;
 
 /** Maximum images per WIX product */
@@ -129,6 +131,20 @@ export function buildProductPreview(
         img.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
     );
 
+    // Find back image for this color (classTypeId 1008 = Rear)
+    const backImage = images.find(
+      (img) =>
+        img.classType.classTypeId === CLASS_TYPE_REAR &&
+        img.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
+    );
+
+    // Find side image for this color (classTypeId 2001 = High)
+    const sideImage = images.find(
+      (img) =>
+        img.classType.classTypeId === CLASS_TYPE_HIGH &&
+        img.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
+    );
+
     // Stock status depends on whether inventory data is available
     if (!inventoryAvailable) {
       // No inventory data -- mark as stock unknown (visible by default)
@@ -137,6 +153,8 @@ export function buildProductPreview(
         displayColor: colorPair.displayColor,
         swatchUrl: swatchImage?.url ?? null,
         frontImageUrl: frontImage?.url ?? null,
+        backImageUrl: backImage?.url ?? null,
+        sideImageUrl: sideImage?.url ?? null,
         inStock: false,
         stockUnknown: true,
       };
@@ -153,6 +171,8 @@ export function buildProductPreview(
       displayColor: colorPair.displayColor,
       swatchUrl: swatchImage?.url ?? null,
       frontImageUrl: frontImage?.url ?? null,
+      backImageUrl: backImage?.url ?? null,
+      sideImageUrl: sideImage?.url ?? null,
       inStock,
     };
   });

@@ -297,6 +297,10 @@ export interface ColorPreview {
   swatchUrl: string | null;
   /** Front product image URL, or null if unavailable */
   frontImageUrl: string | null;
+  /** Back product image URL, or null if unavailable */
+  backImageUrl: string | null;
+  /** Side product image URL, or null if unavailable */
+  sideImageUrl: string | null;
   /** true if any size for this color is in stock */
   inStock: boolean;
   /** true if inventory data was unavailable (distinct from out-of-stock) */
