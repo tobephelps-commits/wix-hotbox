@@ -102,6 +102,8 @@ import {
   listCustomers,
 } from '../customers/store.js';
 import type { CustomerAccount } from '../customers/types.js';
+import { calculateCustomerPricingSummary } from '../customers/pricing.js';
+import type { CustomerPricingSummary } from '../customers/pricing.js';
 
 // Register both vendor adapters to ensure they're available at runtime
 import '../sanmar/adapter.js';
@@ -557,7 +559,19 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
 
   // Customer Account API (Phase 25)
 
-  // Match /api/customers/:id (must come after /api/customers)
+  // Match /api/customers/:id/pricing (must come before /api/customers/:id)
+  const customerPricingMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/pricing\/?$/);
+  if (customerPricingMatch) {
+    return { route: 'customer-pricing', param: customerPricingMatch[1] };
+  }
+
+  // Match /api/customers/:id/logos (must come before /api/customers/:id)
+  const customerLogosMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/logos\/?$/);
+  if (customerLogosMatch) {
+    return { route: 'customer-logos', param: customerLogosMatch[1] };
+  }
+
+  // Match /api/customers/:id (must come after sub-routes)
   const customerByIdMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/?$/);
   if (customerByIdMatch) {
     return { route: 'customer-by-id', param: customerByIdMatch[1] };
@@ -1682,6 +1696,106 @@ function startServer(port: number, initialStyle?: string): void {
           }
 
           // ── Customer Account API (Phase 25) ─────────────────────────
+
+          case 'customer-pricing': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/customers/:id/pricing?wholesaleCost=10&decorationCost=2
+            // or GET /api/customers/:id/pricing?style=STYLE (looks up from cost-history)
+            try {
+              const customer = await getCustomer(param!);
+              if (!customer) {
+                sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                break;
+              }
+
+              const urlObj = new URL(req.url ?? '/', 'http://localhost');
+              const styleParam = urlObj.searchParams.get('style');
+
+              let wholesaleCost: number;
+              let decorationCost: number;
+
+              if (styleParam) {
+                // Look up cost data from cost-history.json
+                const costData = await getProductCost(styleParam);
+                if (!costData) {
+                  sendJson(res, 404, { ok: false, error: `Style "${styleParam}" not found in cost history` });
+                  break;
+                }
+                wholesaleCost = costData.wholesaleCost ?? 0;
+                decorationCost = costData.decorationCost ?? 0;
+              } else {
+                // Use provided query params
+                wholesaleCost = parseFloat(urlObj.searchParams.get('wholesaleCost') ?? '0');
+                decorationCost = parseFloat(urlObj.searchParams.get('decorationCost') ?? '0');
+                if (isNaN(wholesaleCost) || isNaN(decorationCost)) {
+                  sendJson(res, 400, { ok: false, error: 'wholesaleCost and decorationCost must be valid numbers' });
+                  break;
+                }
+              }
+
+              const pricing = calculateCustomerPricingSummary({
+                wholesaleCost,
+                decorationCost,
+                customerMarkupPercent: customer.markupPercent,
+                royaltyPercent: customer.royaltyPercent,
+              });
+
+              sendJson(res, 200, {
+                ok: true,
+                pricing,
+                customer: {
+                  name: customer.name,
+                  markupPercent: customer.markupPercent,
+                  royaltyPercent: customer.royaltyPercent,
+                },
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error calculating customer pricing for ${param}: ${message}`);
+              sendJson(res, 500, { ok: false, error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'customer-logos': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/customers/:id/logos — Resolve customer logo details from registry
+            try {
+              const customer = await getCustomer(param!);
+              if (!customer) {
+                sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                break;
+              }
+
+              const logos: Array<{ key: string; displayName: string; filePath: string }> = [];
+              for (const logoKey of customer.logoKeys) {
+                try {
+                  const entry = getLogoEntry(logoKey);
+                  logos.push({
+                    key: logoKey,
+                    displayName: entry.displayName,
+                    filePath: entry.filePath,
+                  });
+                } catch {
+                  // Logo key not found in registry — skip with warning
+                  console.warn(`[Preview] Customer ${customer.name} has logo key "${logoKey}" not found in registry`);
+                }
+              }
+
+              sendJson(res, 200, { ok: true, logos });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading customer logos for ${param}: ${message}`);
+              sendJson(res, 500, { ok: false, error: 'Internal server error' });
+            }
+            break;
+          }
 
           case 'customers': {
             if (method === 'GET') {
