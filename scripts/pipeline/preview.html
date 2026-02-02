@@ -538,28 +538,7 @@
     color: #999;
     margin-left: 8px;
   }
-  .logo-top-control {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 16px;
-  }
-  .logo-top-control label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-  }
-  .logo-top-control select {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    outline: none;
-    background: #fff;
-    min-width: 220px;
-    max-width: 300px;
-  }
-  .logo-top-control select:focus { border-color: #6c63ff; }
+  /* (logo-top-control removed — per-angle selectors now in each card) */
   .logo-angle-hint {
     margin-bottom: 12px;
     padding: 8px 12px;
@@ -625,6 +604,29 @@
     font-weight: 400;
     margin-left: auto;
   }
+  .angle-logo-select-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .angle-logo-select-row label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+    white-space: nowrap;
+  }
+  .angle-logo-select {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    background: #fff;
+    min-width: 0;
+  }
+  .angle-logo-select:focus { border-color: #6c63ff; }
   .angle-card-content {
     display: flex;
     flex-direction: column;
@@ -2337,14 +2339,8 @@
     <div class="logo-overlay-title">
       LOGO OVERLAY <span class="optional-badge">(Optional)</span>
     </div>
-    <div class="logo-top-control">
-      <label for="logoSelect">Logo</label>
-      <select id="logoSelect">
-        <option value="">None (no overlay)</option>
-      </select>
-    </div>
     <div class="logo-angle-hint" id="logoAngleHint">
-      Enable at least one angle to apply the logo.
+      Select a logo on each angle card to apply overlays.
     </div>
     <div class="angle-overlay-cards" id="angleOverlayCards">
       <!-- Front card -->
@@ -2355,6 +2351,12 @@
           <span class="no-image-badge" id="angleFrontNoImage" style="display:none;">No image available</span>
         </div>
         <div class="angle-card-content">
+          <div class="angle-logo-select-row">
+            <label for="angleFrontLogoSelect">Logo</label>
+            <select id="angleFrontLogoSelect" class="angle-logo-select">
+              <option value="">None</option>
+            </select>
+          </div>
           <div class="logo-placement-container" id="angleFrontPlacement">
             <div class="logo-placement-empty">Enable angle &amp; select a logo</div>
           </div>
@@ -2379,6 +2381,12 @@
           <span class="no-image-badge" id="angleBackNoImage" style="display:none;">No image available</span>
         </div>
         <div class="angle-card-content">
+          <div class="angle-logo-select-row">
+            <label for="angleBackLogoSelect">Logo</label>
+            <select id="angleBackLogoSelect" class="angle-logo-select">
+              <option value="">None</option>
+            </select>
+          </div>
           <div class="logo-placement-container" id="angleBackPlacement">
             <div class="logo-placement-empty">Enable angle &amp; select a logo</div>
           </div>
@@ -2403,6 +2411,12 @@
           <span class="no-image-badge" id="angleSideNoImage" style="display:none;">No image available</span>
         </div>
         <div class="angle-card-content">
+          <div class="angle-logo-select-row">
+            <label for="angleSideLogoSelect">Logo</label>
+            <select id="angleSideLogoSelect" class="angle-logo-select">
+              <option value="">None</option>
+            </select>
+          </div>
           <div class="logo-placement-container" id="angleSidePlacement">
             <div class="logo-placement-empty">Enable angle &amp; select a logo</div>
           </div>
@@ -2742,9 +2756,9 @@
   var logoData = null;      // { logos: Record, positionPresets: Record } from /api/logos
   // Per-angle overlay state (Phase 22)
   var angleOverlayState = {
-    front: { enabled: false, position: 'center-chest', scale: 0.25, customX: 0.5, customY: 0.33 },
-    back:  { enabled: false, position: 'center-back',  scale: 0.25, customX: 0.5, customY: 0.30 },
-    side:  { enabled: false, position: 'center-chest', scale: 0.25, customX: 0.5, customY: 0.33 }
+    front: { enabled: false, logoName: '', position: 'center-chest', scale: 0.25, customX: 0.5, customY: 0.33 },
+    back:  { enabled: false, logoName: '', position: 'center-back',  scale: 0.25, customX: 0.5, customY: 0.30 },
+    side:  { enabled: false, logoName: '', position: 'center-chest', scale: 0.25, customX: 0.5, customY: 0.33 }
   };
   var selectedColors = {};  // { catalogColor: true/false }
   var selectedSizes = {};   // { size: true/false }
@@ -2813,7 +2827,6 @@
 
   // Logo overlay DOM refs (Phase 22 - Per-Angle)
   var logoOverlaySection = document.getElementById('logoOverlaySection');
-  var logoSelect = document.getElementById('logoSelect');
   var logoAngleHint = document.getElementById('logoAngleHint');
   var overlayNote = document.getElementById('overlayNote');
 
@@ -2822,6 +2835,7 @@
     front: {
       card: document.getElementById('angleCardFront'),
       toggle: document.getElementById('angleFrontToggle'),
+      logoSelect: document.getElementById('angleFrontLogoSelect'),
       noImage: document.getElementById('angleFrontNoImage'),
       placementContainer: document.getElementById('angleFrontPlacement'),
       quickPos: document.getElementById('angleFrontQuickPos'),
@@ -2836,6 +2850,7 @@
     back: {
       card: document.getElementById('angleCardBack'),
       toggle: document.getElementById('angleBackToggle'),
+      logoSelect: document.getElementById('angleBackLogoSelect'),
       noImage: document.getElementById('angleBackNoImage'),
       placementContainer: document.getElementById('angleBackPlacement'),
       quickPos: document.getElementById('angleBackQuickPos'),
@@ -2850,6 +2865,7 @@
     side: {
       card: document.getElementById('angleCardSide'),
       toggle: document.getElementById('angleSideToggle'),
+      logoSelect: document.getElementById('angleSideLogoSelect'),
       noImage: document.getElementById('angleSideNoImage'),
       placementContainer: document.getElementById('angleSidePlacement'),
       quickPos: document.getElementById('angleSideQuickPos'),
@@ -4361,25 +4377,30 @@
   // Logo Library Management (Phase 24)
   // =========================================================================
 
-  // Refresh logo selector dropdown(s), preserving current selection
+  // Refresh all per-angle logo selector dropdowns, preserving current selections
   function refreshLogoSelectors() {
     if (!logoData) return;
-    var currentVal = logoSelect.value;
-    logoSelect.innerHTML = '<option value="">None (no overlay)</option>';
     var logoNames = Object.keys(logoData.logos || {});
-    logoNames.forEach(function(name) {
-      var entry = logoData.logos[name];
-      var opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = entry.displayName || name;
-      logoSelect.appendChild(opt);
+    ANGLE_KEYS.forEach(function(angle) {
+      var sel = angleDom[angle].logoSelect;
+      if (!sel) return;
+      var currentVal = sel.value;
+      sel.innerHTML = '<option value="">None</option>';
+      logoNames.forEach(function(name) {
+        var entry = logoData.logos[name];
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = entry.displayName || name;
+        sel.appendChild(opt);
+      });
+      // Preserve selection if still exists
+      if (currentVal && logoData.logos[currentVal]) {
+        sel.value = currentVal;
+      } else {
+        sel.value = '';
+        angleOverlayState[angle].logoName = '';
+      }
     });
-    // Preserve selection if still exists
-    if (currentVal && logoData.logos[currentVal]) {
-      logoSelect.value = currentVal;
-    } else {
-      logoSelect.value = '';
-    }
   }
 
   // Render the logo grid from logoData
@@ -4777,10 +4798,12 @@
 
     logoOverlaySection.classList.add('visible');
 
-    // Reset all angle toggles and placement engine
+    // Reset all angle toggles, per-angle logo selects, and placement engine
     ANGLE_KEYS.forEach(function(angle) {
       angleOverlayState[angle].enabled = false;
+      angleOverlayState[angle].logoName = '';
       angleDom[angle].toggle.checked = false;
+      angleDom[angle].logoSelect.value = '';
       angleDom[angle].card.classList.add('disabled');
       angleDom[angle].card.classList.remove('no-image');
       angleDom[angle].noImage.style.display = 'none';
@@ -4821,57 +4844,61 @@
     updateAngleHint();
   }
 
-  // Logo select change handler
-  logoSelect.addEventListener('change', function() {
-    var logoName = logoSelect.value;
+  // Per-angle logo select change handler (called for each angle's dropdown)
+  function handleAngleLogoChange(angle) {
+    var dom = angleDom[angle];
+    var state = angleOverlayState[angle];
+    var logoName = dom.logoSelect.value;
+    state.logoName = logoName;
+
     if (logoName && logoData && logoData.logos[logoName]) {
-      overlayNote.classList.add('visible');
-      // Update all angle scale sliders from logo default
+      // Update this angle's scale slider from logo default
       var entry = logoData.logos[logoName];
       if (entry.defaultScale) {
-        ANGLE_KEYS.forEach(function(angle) {
-          angleDom[angle].scale.value = entry.defaultScale;
-          angleDom[angle].scaleLabel.textContent = Math.round(entry.defaultScale * 100) + '%';
-          angleOverlayState[angle].scale = entry.defaultScale;
-        });
+        dom.scale.value = entry.defaultScale;
+        dom.scaleLabel.textContent = Math.round(entry.defaultScale * 100) + '%';
+        state.scale = entry.defaultScale;
       }
-      // Enable preview buttons for enabled angles and load logo into placement engine
-      var logoUrl = '/api/logo-file/' + encodeURIComponent(logoName);
-      ANGLE_KEYS.forEach(function(angle) {
-        angleDom[angle].previewBtn.disabled = !angleOverlayState[angle].enabled;
-        // Load logo into placement engine for enabled angles with images
-        if (angleOverlayState[angle].enabled && findAngleImageUrl(angle)) {
-          _initPlacementForAngle(angle, logoUrl);
-        }
-      });
-      updateAngleHint();
+      // Enable preview button if angle is enabled
+      dom.previewBtn.disabled = !state.enabled;
+      // Load logo into placement engine if angle is enabled and has image
+      if (state.enabled && findAngleImageUrl(angle)) {
+        var logoUrl = '/api/logo-file/' + encodeURIComponent(logoName);
+        _initPlacementForAngle(angle, logoUrl);
+      }
     } else {
-      // "None" selected — reset everything
-      overlayNote.classList.remove('visible');
-      ANGLE_KEYS.forEach(function(angle) {
-        angleOverlayState[angle].enabled = false;
-        angleDom[angle].toggle.checked = false;
-        angleDom[angle].card.classList.add('disabled');
-        angleDom[angle].previewBtn.disabled = true;
-        angleDom[angle].previewArea.classList.remove('visible');
-        if (angleDom[angle].blobUrl) {
-          URL.revokeObjectURL(angleDom[angle].blobUrl);
-          angleDom[angle].blobUrl = null;
-        }
-        // Remove from placement engine
-        LogoPlacementEngine.remove(angle);
-        // Restore placeholder
-        var pc = angleDom[angle].placementContainer;
-        if (pc && !pc.querySelector('.logo-placement-empty')) {
-          var ph = document.createElement('div');
-          ph.className = 'logo-placement-empty';
-          ph.innerHTML = 'Enable angle &amp; select a logo';
-          pc.appendChild(ph);
-        }
-      });
-      logoAngleHint.classList.remove('visible');
+      // "None" selected for this angle — clear its placement
+      dom.previewBtn.disabled = true;
+      dom.previewArea.classList.remove('visible');
+      if (dom.blobUrl) {
+        URL.revokeObjectURL(dom.blobUrl);
+        dom.blobUrl = null;
+      }
+      // Remove from placement engine
+      LogoPlacementEngine.remove(angle);
+      // Restore placeholder
+      var pc = dom.placementContainer;
+      if (pc && !pc.querySelector('.logo-placement-empty')) {
+        var ph = document.createElement('div');
+        ph.className = 'logo-placement-empty';
+        ph.innerHTML = 'Enable angle &amp; select a logo';
+        pc.appendChild(ph);
+      }
     }
-  });
+    // Update overlay note and hint visibility
+    updateOverlayNote();
+    updateAngleHint();
+  }
+
+  // Show/hide the overlay note based on whether any angle has a logo selected
+  function updateOverlayNote() {
+    var anyLogo = ANGLE_KEYS.some(function(a) { return !!angleOverlayState[a].logoName; });
+    if (anyLogo) {
+      overlayNote.classList.add('visible');
+    } else {
+      overlayNote.classList.remove('visible');
+    }
+  }
 
   // Initialize placement engine for a specific angle (loads product image + logo)
   function _initPlacementForAngle(angle, logoUrl) {
@@ -4894,15 +4921,20 @@
     var dom = angleDom[angle];
     var state = angleOverlayState[angle];
 
+    // Per-angle logo select change handler
+    dom.logoSelect.addEventListener('change', function() {
+      handleAngleLogoChange(angle);
+    });
+
     // Toggle handler — enable/disable angle and init placement engine
     dom.toggle.addEventListener('change', function() {
       state.enabled = dom.toggle.checked;
       if (state.enabled) {
         dom.card.classList.remove('disabled');
-        dom.previewBtn.disabled = !logoSelect.value;
+        dom.previewBtn.disabled = !state.logoName;
         // Initialize placement engine if logo is selected and image available
-        if (logoSelect.value && findAngleImageUrl(angle)) {
-          var logoUrl = '/api/logo-file/' + encodeURIComponent(logoSelect.value);
+        if (state.logoName && findAngleImageUrl(angle)) {
+          var logoUrl = '/api/logo-file/' + encodeURIComponent(state.logoName);
           _initPlacementForAngle(angle, logoUrl);
         }
       } else {
@@ -4946,17 +4978,18 @@
     });
   });
 
-  // Show/hide hint when logo selected but no angles enabled
+  // Show/hide hint based on per-angle logo/enable state
   function updateAngleHint() {
-    if (!logoSelect.value) {
-      logoAngleHint.classList.remove('visible');
-      return;
-    }
-    var anyEnabled = ANGLE_KEYS.some(function(a) { return angleOverlayState[a].enabled; });
-    if (anyEnabled) {
-      logoAngleHint.classList.remove('visible');
-    } else {
+    // Show hint only if no angle has both a logo and is enabled
+    var anyActive = ANGLE_KEYS.some(function(a) {
+      return angleOverlayState[a].enabled && angleOverlayState[a].logoName;
+    });
+    var anyLogo = ANGLE_KEYS.some(function(a) { return !!angleOverlayState[a].logoName; });
+    if (anyLogo && !anyActive) {
+      logoAngleHint.textContent = 'Enable at least one angle with a logo to apply overlays.';
       logoAngleHint.classList.add('visible');
+    } else {
+      logoAngleHint.classList.remove('visible');
     }
   }
 
@@ -4982,7 +5015,8 @@
 
   // Generate overlay preview for a specific angle
   async function generateAnglePreview(angle) {
-    if (!productData || !logoSelect.value) return;
+    var angleLogo = angleOverlayState[angle].logoName;
+    if (!productData || !angleLogo) return;
 
     var imageUrl = findAngleImageUrl(angle);
     if (!imageUrl) {
@@ -5006,7 +5040,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageUrl: imageUrl,
-          logoName: logoSelect.value,
+          logoName: angleLogo,
           position: position,
           scale: scale
         })
@@ -5032,9 +5066,9 @@
       dom.previewArea.classList.add('visible');
 
       // Show details
-      var logoEntry = logoData.logos[logoSelect.value];
+      var logoEntry = logoData.logos[angleLogo];
       var posLabel = 'x:' + state.customX.toFixed(2) + ' y:' + state.customY.toFixed(2);
-      dom.details.textContent = (logoEntry.displayName || logoSelect.value) +
+      dom.details.textContent = (logoEntry.displayName || angleLogo) +
         ' | ' + posLabel + ' | ' + Math.round(scale * 100) + '%';
 
     } catch (err) {
@@ -5045,19 +5079,21 @@
     dom.previewBtn.textContent = 'Render Final';
   }
 
-  // Build per-angle logo config for the creation request (Phase 23: always uses custom coords from placement engine)
+  // Build per-angle logo config for the creation request (Phase 23: per-angle logo selection)
   function buildLogoAnglesConfig() {
-    if (!logoSelect.value) return null;
-    var anyEnabled = ANGLE_KEYS.some(function(a) { return angleOverlayState[a].enabled; });
-    if (!anyEnabled) return null;
+    var anyActive = ANGLE_KEYS.some(function(a) {
+      return angleOverlayState[a].enabled && angleOverlayState[a].logoName;
+    });
+    if (!anyActive) return null;
 
-    var config = { logoName: logoSelect.value, angles: {} };
+    var config = { angles: {} };
     ANGLE_KEYS.forEach(function(angle) {
       var state = angleOverlayState[angle];
-      if (!state.enabled) return;
+      if (!state.enabled || !state.logoName) return;
       // Always send as custom coordinates (placement engine updates these live)
       var pos = state.customX.toFixed(4) + ',' + state.customY.toFixed(4);
       config.angles[angle] = {
+        logoName: state.logoName,
         position: pos,
         scale: state.scale
       };
