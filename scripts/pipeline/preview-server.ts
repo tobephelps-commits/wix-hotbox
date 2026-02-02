@@ -29,8 +29,8 @@ import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
 import { fetchProductData } from './fetch-product.js';
 import type { ProductData } from './fetch-product.js';
-import { createWixProduct } from './create-product.js';
-import type { CuratedProduct } from './types.js';
+import { createWixProduct, createBatchProduct } from './create-product.js';
+import type { CuratedProduct, BatchCreateRequest, BatchProgress, BatchItemProgress } from './types.js';
 import type { VendorId } from '../vendor/types.js';
 import { listTemplates, getTemplate, saveTemplate, deleteTemplate } from './templates.js';
 import { PRICING_PRESETS } from './pricing-rules.js';
@@ -160,6 +160,9 @@ function vendorDisplayName(vendor: VendorId): string {
  * Cleared when a new style is fetched.
  */
 const productCache = new Map<string, ProductData>();
+
+/** Active batch operations tracked by batchId (Phase 27: Batch Processing) */
+const activeBatches = new Map<string, { aborted: boolean }>();
 
 /** Build cache key from style + vendor */
 function cacheKey(style: string, vendor: VendorId): string {
@@ -359,6 +362,186 @@ async function handleCreateProduct(
   }
 }
 
+/**
+ * POST /api/batch-create
+ *
+ * Accept a BatchCreateRequest and process items sequentially with SSE progress.
+ * Each item goes through fetchProductData -> createWixProduct with real-time
+ * stage updates streamed back to the client via Server-Sent Events.
+ *
+ * Phase 27: Pipeline Automation — Batch Processing
+ */
+async function handleBatchCreate(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+): Promise<void> {
+  try {
+    const body = await readBody(req);
+    const request: BatchCreateRequest = JSON.parse(body);
+
+    // Validate request
+    if (!request.items || request.items.length === 0) {
+      sendJson(res, 200, { ok: false, error: 'No items provided' });
+      return;
+    }
+    if (request.items.length > 50) {
+      sendJson(res, 200, { ok: false, error: 'Maximum 50 items per batch' });
+      return;
+    }
+    if (!request.defaults?.pricingConfig) {
+      sendJson(res, 200, { ok: false, error: 'Missing defaults.pricingConfig' });
+      return;
+    }
+
+    // Set up SSE response
+    const batchId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'X-Batch-Id': batchId,
+    });
+
+    activeBatches.set(batchId, { aborted: false });
+
+    // Handle client disconnect
+    req.on('close', () => {
+      const batch = activeBatches.get(batchId);
+      if (batch) batch.aborted = true;
+    });
+
+    function sendSSE(data: BatchProgress) {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    }
+
+    const totalItems = request.items.length;
+    let completedItems = 0;
+    let failedItems = 0;
+    const results: NonNullable<BatchProgress['summary']>['results'] = [];
+    const startTime = Date.now();
+
+    // Send initial queued events for all items
+    for (let i = 0; i < request.items.length; i++) {
+      sendSSE({
+        type: 'item',
+        batchId,
+        totalItems,
+        completedItems,
+        failedItems,
+        item: {
+          index: i,
+          style: request.items[i].style.toUpperCase(),
+          vendor: request.items[i].vendor || request.defaults.vendor,
+          stage: 'queued',
+          message: 'Waiting in queue...',
+        },
+      });
+    }
+
+    // Process items sequentially (avoid vendor API rate limits)
+    for (let i = 0; i < request.items.length; i++) {
+      const batch = activeBatches.get(batchId);
+      if (batch?.aborted) break;
+
+      const item = request.items[i];
+      const style = item.style.trim().toUpperCase();
+      const vendor: VendorId = item.vendor || request.defaults.vendor;
+
+      try {
+        const result = await createBatchProduct(
+          style,
+          vendor,
+          request.defaults,
+          request.colorStrategy || 'all-in-stock',
+          request.sizeStrategy || 'all',
+          (stage, message) => {
+            sendSSE({
+              type: 'item',
+              batchId,
+              totalItems,
+              completedItems,
+              failedItems,
+              item: { index: i, style, vendor, stage, message },
+            });
+          },
+        );
+
+        completedItems++;
+        results.push({
+          style,
+          vendor,
+          success: true,
+          productUrl: result.productUrl,
+        });
+
+        sendSSE({
+          type: 'item',
+          batchId,
+          totalItems,
+          completedItems,
+          failedItems,
+          item: {
+            index: i,
+            style,
+            vendor,
+            stage: 'done',
+            message: `Created! ${result.variantsCreated} variants, ${result.mediaAdded} images`,
+            result,
+          },
+        });
+      } catch (err) {
+        failedItems++;
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        results.push({ style, vendor, success: false, error: errorMsg });
+
+        sendSSE({
+          type: 'item',
+          batchId,
+          totalItems,
+          completedItems,
+          failedItems,
+          item: {
+            index: i,
+            style,
+            vendor,
+            stage: 'error',
+            message: errorMsg,
+            error: errorMsg,
+          },
+        });
+      }
+    }
+
+    // Send final summary
+    sendSSE({
+      type: 'summary',
+      batchId,
+      totalItems,
+      completedItems,
+      failedItems,
+      summary: {
+        succeeded: completedItems,
+        failed: failedItems,
+        duration: Date.now() - startTime,
+        results,
+      },
+    });
+
+    activeBatches.delete(batchId);
+    res.end();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[Preview] Batch create error: ${message}`);
+    // If headers not sent yet, send JSON error
+    if (!res.headersSent) {
+      sendJson(res, 200, { ok: false, error: message });
+    } else {
+      res.end();
+    }
+  }
+}
+
 // =============================================================================
 // Server
 // =============================================================================
@@ -371,6 +554,11 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const productMatch = urlPath.match(/^\/api\/product\/([A-Za-z0-9._-]+)\/?$/);
   if (productMatch) {
     return { route: 'get-product', param: productMatch[1] };
+  }
+
+  // Match /api/batch-create (Phase 27: Batch Processing)
+  if (urlPath === '/api/batch-create') {
+    return { route: 'batch-create' };
   }
 
   // Match /api/create
@@ -653,6 +841,15 @@ function startServer(port: number, initialStyle?: string): void {
               break;
             }
             await handleCreateProduct(req, res);
+            break;
+          }
+
+          case 'batch-create': {
+            if (method === 'POST') {
+              await handleBatchCreate(req, res);
+            } else {
+              sendJson(res, 200, { ok: false, error: 'Method not allowed' });
+            }
             break;
           }
 
