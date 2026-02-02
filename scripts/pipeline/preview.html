@@ -7137,9 +7137,121 @@
       }
 
       body.appendChild(badges);
+
+      // Pricing Preview (Phase 25-03)
+      var pricingDiv = document.createElement('div');
+      pricingDiv.className = 'customer-pricing-preview';
+      pricingDiv.innerHTML =
+        '<div class="pricing-header">Pricing Preview</div>' +
+        '<div class="pricing-input-row">' +
+          '<label>Wholesale $</label>' +
+          '<input type="number" min="0" step="0.01" value="10.00" class="cust-wholesale-input" data-id="' + cust.id + '">' +
+          '<label>Deco $</label>' +
+          '<input type="number" min="0" step="0.01" value="2.00" class="cust-deco-input" data-id="' + cust.id + '">' +
+        '</div>' +
+        '<div class="customer-pricing-grid" id="custPricingGrid_' + cust.id + '">' +
+          '<div class="customer-pricing-item"><span class="pricing-label">Loading...</span></div>' +
+        '</div>';
+      body.appendChild(pricingDiv);
+
+      // Customer Logos Preview (Phase 25-03)
+      if (cust.logoKeys && cust.logoKeys.length > 0) {
+        var logosDiv = document.createElement('div');
+        logosDiv.className = 'customer-logos-preview';
+        logosDiv.id = 'custLogos_' + cust.id;
+        cust.logoKeys.forEach(function(key) {
+          var thumb = document.createElement('img');
+          thumb.className = 'logo-thumb';
+          thumb.src = '/api/logo-file/' + encodeURIComponent(key) + '?t=' + Date.now();
+          thumb.alt = key;
+          thumb.title = key;
+          thumb.loading = 'lazy';
+          logosDiv.appendChild(thumb);
+        });
+        body.appendChild(logosDiv);
+      }
+
       card.appendChild(body);
 
       customerGrid.appendChild(card);
+    });
+
+    // After rendering, load pricing previews and attach input handlers
+    initCustomerPricingPreviews();
+  }
+
+  // ── Customer Pricing Preview (Phase 25-03) ───────────────────────
+
+  // Fetch pricing for a customer given wholesale and decoration costs
+  async function fetchCustomerPricing(customerId, wholesaleCost, decorationCost) {
+    try {
+      var url = '/api/customers/' + customerId + '/pricing?wholesaleCost=' +
+        encodeURIComponent(wholesaleCost) + '&decorationCost=' + encodeURIComponent(decorationCost);
+      var resp = await fetch(url);
+      if (!resp.ok) return null;
+      var data = await resp.json();
+      return data.ok ? data.pricing : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Render pricing data into the grid for a customer card
+  function renderPricingGrid(customerId, pricing) {
+    var grid = document.getElementById('custPricingGrid_' + customerId);
+    if (!grid) return;
+    if (!pricing) {
+      grid.innerHTML = '<div class="customer-pricing-item"><span class="pricing-label">Unable to load</span></div>';
+      return;
+    }
+    var marginClass = pricing.margin.dollars >= 0 ? 'positive' : 'negative';
+    var netClass = pricing.netAfterRoyalty >= 0 ? 'positive' : 'negative';
+    grid.innerHTML =
+      '<div class="customer-pricing-item">' +
+        '<span class="pricing-label">Retail</span>' +
+        '<span class="pricing-value">$' + pricing.retailPrice.toFixed(2) + '</span>' +
+      '</div>' +
+      '<div class="customer-pricing-item">' +
+        '<span class="pricing-label">Margin</span>' +
+        '<span class="pricing-value ' + marginClass + '">$' + pricing.margin.dollars.toFixed(2) + ' (' + pricing.margin.percent.toFixed(1) + '%)</span>' +
+      '</div>' +
+      '<div class="customer-pricing-item">' +
+        '<span class="pricing-label">Royalty/unit</span>' +
+        '<span class="pricing-value">$' + pricing.royaltyPerUnit.toFixed(2) + '</span>' +
+      '</div>' +
+      '<div class="customer-pricing-item">' +
+        '<span class="pricing-label">Net/unit</span>' +
+        '<span class="pricing-value ' + netClass + '">$' + pricing.netAfterRoyalty.toFixed(2) + '</span>' +
+      '</div>';
+  }
+
+  // Update pricing preview for a single customer card
+  async function updateCustomerPricing(customerId) {
+    var wInput = document.querySelector('.cust-wholesale-input[data-id="' + customerId + '"]');
+    var dInput = document.querySelector('.cust-deco-input[data-id="' + customerId + '"]');
+    if (!wInput || !dInput) return;
+    var w = parseFloat(wInput.value) || 0;
+    var d = parseFloat(dInput.value) || 0;
+    var pricing = await fetchCustomerPricing(customerId, w, d);
+    renderPricingGrid(customerId, pricing);
+  }
+
+  // Initialize pricing previews for all customer cards after rendering
+  function initCustomerPricingPreviews() {
+    customersList.forEach(function(cust) {
+      updateCustomerPricing(cust.id);
+    });
+
+    // Attach debounced input handlers for real-time updates
+    var debounceTimers = {};
+    document.querySelectorAll('.cust-wholesale-input, .cust-deco-input').forEach(function(input) {
+      input.addEventListener('input', function() {
+        var id = input.getAttribute('data-id');
+        if (debounceTimers[id]) clearTimeout(debounceTimers[id]);
+        debounceTimers[id] = setTimeout(function() {
+          updateCustomerPricing(id);
+        }, 300);
+      });
     });
   }
 
@@ -7302,6 +7414,21 @@
     }
   }
 
+  // Client-side number input guards: prevent negative values on input
+  custMarkupInput.addEventListener('input', function() {
+    var v = parseFloat(this.value);
+    if (!isNaN(v) && v < 0) this.value = '0';
+    custMarkupError.style.display = 'none';
+  });
+  custRoyaltyInput.addEventListener('input', function() {
+    var v = parseFloat(this.value);
+    if (!isNaN(v) && v < 0) this.value = '0';
+    custRoyaltyError.style.display = 'none';
+  });
+  // Clear validation errors on typing
+  custNameInput.addEventListener('input', function() { custNameError.style.display = 'none'; });
+  custContactInput.addEventListener('input', function() { custContactError.style.display = 'none'; });
+
   // Event listeners
   addCustomerBtn.addEventListener('click', function() { openCustomerForm(null); });
   addCustomerEmptyBtn.addEventListener('click', function() { openCustomerForm(null); });
@@ -7317,6 +7444,13 @@
     if (e.key === 'Escape' && customerModalOverlay.classList.contains('visible')) {
       customerModalOverlay.classList.remove('visible');
     }
+  });
+
+  // Enter key in form triggers save
+  [custNameInput, custContactInput, custEmailInput, custPhoneInput, custMarkupInput, custRoyaltyInput].forEach(function(el) {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); saveCustomer(); }
+    });
   });
 
   // Initial load
