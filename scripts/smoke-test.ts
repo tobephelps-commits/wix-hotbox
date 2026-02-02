@@ -1,9 +1,9 @@
 /**
- * Smoke Test — v0.2 Integration Validation
+ * Smoke Test — v1.0 Integration Validation
  *
  * Validates that all CLI commands, preview server API endpoints, and
  * barrel module imports work correctly. This is the final integration
- * gate before declaring v0.2 complete.
+ * gate before declaring v1.0 complete.
  *
  * Sections:
  *   1. TypeScript compilation check
@@ -17,7 +17,7 @@
  *
  * Exit code: 0 if all pass, 1 if any fail.
  *
- * Phase 20: Integration Testing & Polish
+ * Phase 30: Integration Testing & Polish
  */
 
 import { execSync, spawn } from 'node:child_process';
@@ -195,6 +195,11 @@ const ENDPOINT_TESTS: EndpointTest[] = [
   { path: '/api/cart/preview', description: 'Cart preview', expectJson: true },
   { path: '/api/cart/history', description: 'Cart history', expectJson: true },
   { path: '/api/printers', description: 'Printer list', expectJson: true },
+  // v1.0 endpoints
+  { path: '/api/customers', description: 'Customer list', expectJson: true },
+  { path: '/api/preferences', description: 'Pipeline preferences', expectJson: true },
+  { path: '/api/orders/summary', description: 'Order status counts', expectJson: true },
+  { path: '/api/orders/errors', description: 'Orders with errors', expectJson: true },
 ];
 
 async function checkPreviewServer(): Promise<void> {
@@ -328,6 +333,8 @@ const MODULE_TESTS: ModuleTest[] = [
   { name: 'monitor/index', path: './monitor/index.js' },
   { name: 'sync/index', path: './sync/index.js' },
   { name: 'orders/index', path: './orders/index.js' },
+  // v1.0: customers has no barrel export — uses multi-file import
+  { name: 'customers (types+store+royalty)', path: '__customers_multi__' },
 ];
 
 async function checkModuleImports(): Promise<void> {
@@ -338,9 +345,21 @@ async function checkModuleImports(): Promise<void> {
     try {
       // Write a temp script that imports the module and prints OK
       const tmpFile = path.join(PROJECT_ROOT, 'scripts', `_smoke_test_import_${mod.name.replace(/\//g, '_')}.ts`);
-      const importPath = mod.path.replace(/\\/g, '/');
-      const scriptContent = `import '${importPath}';\nconsole.log('OK');`;
       const fs = await import('node:fs');
+
+      // Special handling for customers module (no barrel export)
+      let scriptContent: string;
+      if (mod.path === '__customers_multi__') {
+        scriptContent = [
+          `import './customers/types.js';`,
+          `import './customers/store.js';`,
+          `import './customers/royalty.js';`,
+          `console.log('OK');`,
+        ].join('\n');
+      } else {
+        const importPath = mod.path.replace(/\\/g, '/');
+        scriptContent = `import '${importPath}';\nconsole.log('OK');`;
+      }
       fs.writeFileSync(tmpFile, scriptContent);
 
       try {
@@ -428,7 +447,7 @@ function printReport(): void {
 async function main(): Promise<void> {
   console.log(`${C.bold}${C.blue}`);
   console.log('  ╔════════════════════════════════════════╗');
-  console.log('  ║       HotBox v0.2 Smoke Test           ║');
+  console.log('  ║       HotBox v1.0 Smoke Test           ║');
   console.log('  ╚════════════════════════════════════════╝');
   console.log(`${C.reset}`);
 
