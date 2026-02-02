@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 25 of 30 (Customer Account System)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-02 - Completed 25-01-PLAN.md
+Last activity: 2026-02-02 - Completed 25-02-PLAN.md
 
-Progress: ████████░░ 80%
+Progress: ████████░░ 81%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 80 (34 v0.1 + 38 v0.2 + 8 v1.0)
+- Total plans completed: 81 (34 v0.1 + 38 v0.2 + 9 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -67,6 +67,8 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 |-------|----------|-----------|
 | 25 | Single markup % per customer, not tiered | Per CONTEXT.md vision — simple B2B pricing model |
 | 25 | logoKeys reference data/logos.json keys | Bridges logo system (phases 21-24) to customer accounts |
+| 25 | Inline section layout (not tab-based) for customer UI | Matches existing dashboard where all sections are visible simultaneously |
+| 25 | Logo chip picker for customer form | Visual thumbnail selection matching color-card selection pattern |
 
 ### Blockers/Concerns
 
@@ -83,6 +85,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 25-01-PLAN.md (customer account types, store, REST API)
+Stopped at: Completed 25-02-PLAN.md (customer management dashboard UI)
 Resume file: None
-Note: Phase 25 plan 1 of 3 complete. Next: 25-02 (customer management dashboard UI).
+Note: Phase 25 plan 2 of 3 complete. Next: 25-03 (customer-aware pricing and logo integration).

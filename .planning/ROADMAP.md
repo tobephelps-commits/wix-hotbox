@@ -108,7 +108,7 @@ Plans:
 
 Plans:
 - [x] 25-01: Customer account types, store, and REST API -- completed 2026-02-02
-- [ ] 25-02: Customer management dashboard UI
+- [x] 25-02: Customer management dashboard UI -- completed 2026-02-02
 - [ ] 25-03: Customer-aware pricing calculations and logo integration
 
 #### Phase 26: Royalty Calculation & PDF Reporting
@@ -192,7 +192,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 22. Multi-Angle Logo Overlay | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 23. Visual Logo Placement UI | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 24. Logo Upload & Management | v1.0 | 2/2 | Complete | 2026-02-02 |
-| 25. Customer Account System | v1.0 | 1/3 | In progress | - |
+| 25. Customer Account System | v1.0 | 2/3 | In progress | - |
 | 26. Royalty Calculation & PDF Reporting | v1.0 | 0/? | Not started | - |
 | 27. Pipeline Automation | v1.0 | 0/? | Not started | - |
 | 28. Order Management Hardening | v1.0 | 0/? | Not started | - |
