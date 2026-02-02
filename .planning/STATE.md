@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 27 of 30 (Pipeline Automation)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-02 - Completed 27-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-02 - Completed 27-03-PLAN.md
 
-Progress: ████████░░ 87%
+Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 85 (34 v0.1 + 38 v0.2 + 13 v1.0)
+- Total plans completed: 88 (34 v0.1 + 38 v0.2 + 16 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -93,6 +93,8 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 27 | SSE over WebSocket for progress streaming | Simpler protocol, EventSource-native, sufficient for unidirectional batch updates |
 | 27 | 50-item batch limit | Prevents runaway long-running operations |
 | 27 | Skip logo overlays in batch mode | Logo placement requires per-product visual positioning incompatible with automation |
+| 27 | Fetch + ReadableStream for SSE (not EventSource) | POST method required for batch create; EventSource only supports GET |
+| 27 | Vertical card stack for batch progress queue | Better readability than horizontal scroll for multi-item status display |
 
 ### Blockers/Concerns
 
@@ -109,6 +111,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 27-02-PLAN.md (batch processing engine with SSE)
+Stopped at: Completed 27-03-PLAN.md (batch creation UI with live progress queue)
 Resume file: None
-Note: Phase 27 in progress (2/3 plans). Next: 27-03 (batch creation UI).
+Note: Phase 27 complete (3/3 plans). Next: Phase 28 (Order Management Hardening).
