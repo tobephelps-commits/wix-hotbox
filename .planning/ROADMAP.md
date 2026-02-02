@@ -72,10 +72,11 @@ Plans:
 **Goal**: Extend logo overlay engine to composite logos on all 3 angles with per-angle placement configuration
 **Depends on**: Phase 21
 **Research**: Unlikely (extending existing Sharp-based engine)
-**Plans**: 1
+**Plans**: 2
 
 Plans:
 - [x] 22-01: Per-angle overlay types, engine, and CLI integration -- completed 2026-02-02
+- [x] 22-02: Per-angle logo overlay preview UI -- completed 2026-02-02
 
 #### Phase 23: Visual Logo Placement UI
 
@@ -187,7 +188,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 19. Order Management — SanMar Cart Automation | v0.2 | 3/3 | Complete | 2026-02-01 |
 | 20. Integration Testing & Polish | v0.2 | 3/3 | Complete | 2026-02-01 |
 | 21. Multi-Angle Image Support | v1.0 | 1/1 | Complete | 2026-02-02 |
-| 22. Multi-Angle Logo Overlay | v1.0 | 1/1 | Complete | 2026-02-02 |
+| 22. Multi-Angle Logo Overlay | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 23. Visual Logo Placement UI | v1.0 | 0/? | Not started | - |
 | 24. Logo Upload & Management | v1.0 | 0/? | Not started | - |
 | 25. Customer Account System | v1.0 | 0/? | Not started | - |
