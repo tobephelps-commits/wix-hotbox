@@ -140,6 +140,19 @@
     font-weight: 600;
     color: #333;
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .prefs-restored-indicator {
+    font-size: 12px;
+    font-weight: 400;
+    color: #888;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .prefs-restored-indicator.visible {
+    opacity: 1;
   }
   .pricing-controls {
     display: flex;
@@ -2748,7 +2761,7 @@
 
     <!-- Pricing Configuration -->
     <div class="pricing-config">
-      <div class="pricing-config-title">Pricing Configuration</div>
+      <div class="pricing-config-title">Pricing Configuration <span class="prefs-restored-indicator" id="prefsRestoredIndicator"></span></div>
       <div class="pricing-controls">
         <div class="pricing-control">
           <label for="presetSelect">Preset</label>
@@ -3536,6 +3549,149 @@
   };
 
   // =========================================================================
+  // Preferences Persistence (Phase 27 — recent-choice memory)
+  // =========================================================================
+
+  var PREFS_STORAGE_KEY = 'hotbox_pipeline_prefs';
+  var prefsRestoredIndicator = document.getElementById('prefsRestoredIndicator');
+
+  /**
+   * Save current form preferences to localStorage and fire-and-forget to server.
+   * Called after any preference-related field changes.
+   */
+  function savePrefs() {
+    var prefs = {
+      vendor: currentVendor,
+      pricingPreset: currentPreset,
+      markupPercent: pricingConfig.markupPercent,
+      rounding: pricingConfig.rounding,
+      sizeUpcharges: JSON.parse(JSON.stringify(pricingConfig.sizeUpcharges)),
+      angleOverlayState: JSON.parse(JSON.stringify(angleOverlayState)),
+      savedAt: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(prefs));
+    } catch (e) {
+      // Silently ignore — storage full or disabled
+    }
+    // Fire-and-forget to server backup
+    try {
+      fetch('/api/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prefs)
+      }).catch(function() { /* ignore */ });
+    } catch (e) {
+      // Silently ignore
+    }
+  }
+
+  /**
+   * Load saved preferences from localStorage (primary) or server (fallback).
+   * Called once during initialization, before any product is loaded.
+   */
+  async function loadPrefs() {
+    var prefs = null;
+    var source = null;
+
+    // Try localStorage first
+    try {
+      var raw = localStorage.getItem(PREFS_STORAGE_KEY);
+      if (raw) {
+        prefs = JSON.parse(raw);
+        source = 'localStorage';
+      }
+    } catch (e) {
+      // Corrupt data — ignore
+    }
+
+    // Fallback: try server if localStorage had nothing
+    if (!prefs) {
+      try {
+        var res = await fetch('/api/preferences');
+        var json = await res.json();
+        if (json.ok && json.data) {
+          prefs = json.data;
+          source = 'server';
+          // Save to localStorage for next time
+          try {
+            localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(prefs));
+          } catch (e) { /* ignore */ }
+        }
+      } catch (e) {
+        // Server unavailable — ignore
+      }
+    }
+
+    if (!prefs) return; // No saved preferences
+
+    // Apply saved vendor
+    if (prefs.vendor && (prefs.vendor === 'sanmar' || prefs.vendor === 'ss')) {
+      currentVendor = prefs.vendor;
+      vendorSelect.value = prefs.vendor;
+      if (prefs.vendor === 'ss') {
+        styleInput.placeholder = 'e.g. 2000';
+      } else {
+        styleInput.placeholder = 'e.g. PC61';
+      }
+    }
+
+    // Apply saved pricing preset
+    if (prefs.pricingPreset && PRICING_PRESETS[prefs.pricingPreset]) {
+      currentPreset = prefs.pricingPreset;
+      presetSelect.value = prefs.pricingPreset;
+    }
+
+    // Apply saved markup
+    if (typeof prefs.markupPercent === 'number' && prefs.markupPercent >= 0) {
+      pricingConfig.markupPercent = prefs.markupPercent;
+      markupInput.value = prefs.markupPercent;
+    }
+
+    // Apply saved rounding
+    if (prefs.rounding && ['nearest-99', 'nearest-dollar', 'none'].indexOf(prefs.rounding) >= 0) {
+      pricingConfig.rounding = prefs.rounding;
+      roundingSelect.value = prefs.rounding;
+    }
+
+    // Apply saved size upcharges
+    if (prefs.sizeUpcharges && typeof prefs.sizeUpcharges === 'object') {
+      pricingConfig.sizeUpcharges = {};
+      for (var sz in prefs.sizeUpcharges) {
+        if (typeof prefs.sizeUpcharges[sz] === 'number') {
+          pricingConfig.sizeUpcharges[sz] = prefs.sizeUpcharges[sz];
+        }
+      }
+    }
+
+    // Apply saved angle overlay state (but don't trigger overlay previews)
+    if (prefs.angleOverlayState && typeof prefs.angleOverlayState === 'object') {
+      ['front', 'back', 'side'].forEach(function(angle) {
+        if (prefs.angleOverlayState[angle] && typeof prefs.angleOverlayState[angle] === 'object') {
+          var saved = prefs.angleOverlayState[angle];
+          // Restore state values but keep enabled=false until product is loaded
+          if (saved.logoName) angleOverlayState[angle].logoName = saved.logoName;
+          if (typeof saved.position === 'string') angleOverlayState[angle].position = saved.position;
+          if (typeof saved.scale === 'number') angleOverlayState[angle].scale = saved.scale;
+          if (typeof saved.customX === 'number') angleOverlayState[angle].customX = saved.customX;
+          if (typeof saved.customY === 'number') angleOverlayState[angle].customY = saved.customY;
+          // Restore enabled state for per-angle toggles
+          if (typeof saved.enabled === 'boolean') angleOverlayState[angle].enabled = saved.enabled;
+        }
+      });
+    }
+
+    // Show brief "Settings restored" indicator
+    if (prefsRestoredIndicator) {
+      prefsRestoredIndicator.textContent = '\u2713 Settings restored from last session';
+      prefsRestoredIndicator.classList.add('visible');
+      setTimeout(function() {
+        prefsRestoredIndicator.classList.remove('visible');
+      }, 2000);
+    }
+  }
+
+  // =========================================================================
   // Status helpers
   // =========================================================================
 
@@ -3567,6 +3723,8 @@
     } else {
       styleInput.placeholder = 'e.g. PC61';
     }
+    currentVendor = vendorSelect.value;
+    savePrefs();
   });
 
   async function fetchProduct(style) {
@@ -3727,6 +3885,7 @@
     updatePricingDisplay();
     renderUpchargeTable();
     updatePriceSummary();
+    savePrefs();
   });
 
   markupInput.addEventListener('input', function() {
@@ -3734,6 +3893,7 @@
     checkIfCustom();
     updatePricingDisplay();
     updatePriceSummary();
+    savePrefs();
   });
 
   roundingSelect.addEventListener('change', function() {
@@ -3741,6 +3901,7 @@
     checkIfCustom();
     updatePricingDisplay();
     updatePriceSummary();
+    savePrefs();
   });
 
   // =========================================================================
@@ -3814,6 +3975,7 @@
         retailSpan.textContent = '= $' + variantRetail.toFixed(2);
         checkIfCustom();
         updatePriceSummary();
+        savePrefs();
       });
       item.appendChild(upInput);
 
@@ -4835,6 +4997,8 @@
         }
         _syncing = false;
       }
+      // Persist overlay position changes (Phase 27)
+      if (typeof savePrefs === 'function') savePrefs();
     }
 
     function setFromCoords(angle, x, y, scale) {
@@ -5433,6 +5597,7 @@
               angleOverlayState[angle].customY = preset.y;
               angleOverlayState[angle].position = 'custom';
               LogoPlacementEngine.setFromCoords(angle, preset.x, preset.y, currentScale);
+              savePrefs();
             }
           });
           container.appendChild(btn);
@@ -5580,6 +5745,7 @@
     // Per-angle logo select change handler
     dom.logoSelect.addEventListener('change', function() {
       handleAngleLogoChange(angle);
+      savePrefs();
     });
 
     // Toggle handler — enable/disable angle and init placement engine
@@ -5613,6 +5779,7 @@
         }
       }
       updateAngleHint();
+      savePrefs();
     });
 
     // Scale slider handler — bidirectional sync with placement engine
@@ -5626,6 +5793,7 @@
         LogoPlacementEngine.setFromCoords(angle, state.customX, state.customY, val);
         LogoPlacementEngine.setSyncing(false);
       }
+      savePrefs();
     });
 
     // Preview (Render Final) button handler
@@ -7899,10 +8067,14 @@
   loadRoyaltyCustomers();
 
   // =========================================================================
-  // Auto-load style from URL query param
+  // Load saved preferences, then auto-load style from URL query param
   // =========================================================================
 
-  (function autoLoad() {
+  (async function initAndAutoLoad() {
+    // Restore saved preferences from localStorage (primary) or server (fallback)
+    await loadPrefs();
+
+    // URL query params override saved preferences (for deep linking)
     var params = new URLSearchParams(window.location.search);
     var style = params.get('style');
     var vendor = params.get('vendor');
