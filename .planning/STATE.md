@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 28 of 30 (Order Management Hardening)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-02 - Completed 28-02-PLAN.md
+Phase: 29 of 30 (Inventory Sync Reliability)
+Plan: 2 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-02 - Completed 29-02-PLAN.md
 
-Progress: █████████░ 97%
+Progress: █████████░ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 90 (34 v0.1 + 38 v0.2 + 18 v1.0)
+- Total plans completed: 92 (34 v0.1 + 38 v0.2 + 20 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -106,6 +106,15 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 28 | CSS custom properties for timeline dot colors | Allows pseudo-element coloring from JS without inline styles |
 | 28 | Session-only banner dismiss (no persistent state) | Error banner is transient UI; re-shows on next page load if errors persist |
 
+### Phase 29 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 29 | NotificationResult return type for sendSyncNotification | Enables delivery tracking without silently swallowing errors |
+| 29 | Cumulative moving average for tick duration | Lower memory than sliding window, sufficient for operational alerting |
+| 29 | 200ms rate limit between WIX API calls during audit | Prevents rate limit hits during full product mapping validation |
+| 29 | 30-day default retention for alert log pruning | Applied before count cap for dual retention strategy |
+
 ### Blockers/Concerns
 
 None
@@ -121,6 +130,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 28-02-PLAN.md (order dashboard UI hardening)
+Stopped at: Completed 29-02-PLAN.md (sync health timing, notification tracking, mapping audit, alert retention)
 Resume file: None
-Note: Phase 28 complete (2/2 plans). Next: Phase 29 planning.
+Note: Phase 29 in progress (2/3 plans). Next: 29-03-PLAN.md (inventory reliability dashboard UI).
