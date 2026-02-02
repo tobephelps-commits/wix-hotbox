@@ -31,7 +31,29 @@ export function getDefaultConfig(): MonitorConfig {
     lowStockThreshold: 10,
     criticalStockThreshold: 3,
     outOfStockThreshold: 0,
+    snapshotMaxAgeMinutes: 180,
   };
+}
+
+// =============================================================================
+// Snapshot Staleness Detection
+// =============================================================================
+
+/**
+ * Check if a snapshot is stale (older than the configured max age).
+ *
+ * Compares the snapshot timestamp against the current time.
+ * Used by the sync service to skip syncing with stale data.
+ *
+ * @param snapshot - Inventory snapshot to check
+ * @param maxAgeMinutes - Maximum acceptable age in minutes
+ * @returns true if the snapshot is older than maxAgeMinutes
+ */
+export function isSnapshotStale(snapshot: InventorySnapshot, maxAgeMinutes: number): boolean {
+  const snapshotTime = new Date(snapshot.timestamp).getTime();
+  const now = Date.now();
+  const ageMinutes = (now - snapshotTime) / (1000 * 60);
+  return ageMinutes > maxAgeMinutes;
 }
 
 // =============================================================================

@@ -16,6 +16,7 @@
 
 import type {
   MonitorConfig,
+  TrackedProduct,
   InventorySnapshot,
   SkuSnapshot,
   StockAlert,
@@ -31,6 +32,27 @@ import { WAREHOUSES } from '../sanmar/constants.js';
 export type StockLevel = 'out-of-stock' | 'critical' | 'low-stock' | 'normal';
 
 /**
+ * Merge per-product threshold overrides with global config defaults.
+ *
+ * Per-product values take precedence when present; missing fields
+ * fall back to the global MonitorConfig thresholds.
+ *
+ * @param product - TrackedProduct with optional per-product thresholds
+ * @param config - Global monitor configuration (fallback values)
+ * @returns Resolved threshold values to use for classification
+ */
+export function getEffectiveThresholds(
+  product: TrackedProduct,
+  config: MonitorConfig,
+): { lowStockThreshold: number; criticalStockThreshold: number; outOfStockThreshold: number } {
+  return {
+    lowStockThreshold: product.thresholds?.lowStockThreshold ?? config.lowStockThreshold,
+    criticalStockThreshold: product.thresholds?.criticalStockThreshold ?? config.criticalStockThreshold,
+    outOfStockThreshold: product.thresholds?.outOfStockThreshold ?? config.outOfStockThreshold,
+  };
+}
+
+/**
  * Classify a SKU's stock level based on config thresholds.
  *
  * Checks in order:
@@ -41,12 +63,20 @@ export type StockLevel = 'out-of-stock' | 'critical' | 'low-stock' | 'normal';
  *
  * @param totalQty - Total quantity across all warehouses
  * @param config - Monitor configuration with threshold values
+ * @param thresholdOverrides - Optional per-product threshold overrides (takes precedence over config)
  * @returns Stock level classification
  */
-export function classifyStockLevel(totalQty: number, config: MonitorConfig): StockLevel {
-  if (totalQty <= config.outOfStockThreshold) return 'out-of-stock';
-  if (totalQty <= config.criticalStockThreshold) return 'critical';
-  if (totalQty <= config.lowStockThreshold) return 'low-stock';
+export function classifyStockLevel(
+  totalQty: number,
+  config: MonitorConfig,
+  thresholdOverrides?: { lowStockThreshold?: number; criticalStockThreshold?: number; outOfStockThreshold?: number },
+): StockLevel {
+  const low = thresholdOverrides?.lowStockThreshold ?? config.lowStockThreshold;
+  const critical = thresholdOverrides?.criticalStockThreshold ?? config.criticalStockThreshold;
+  const outOf = thresholdOverrides?.outOfStockThreshold ?? config.outOfStockThreshold;
+  if (totalQty <= outOf) return 'out-of-stock';
+  if (totalQty <= critical) return 'critical';
+  if (totalQty <= low) return 'low-stock';
   return 'normal';
 }
 
@@ -131,6 +161,7 @@ function buildWarehouseDetail(sku: SkuSnapshot): AlertWarehouseDetail | undefine
  * @param previous - Previous inventory snapshot (null for first poll)
  * @param config - Monitor configuration with thresholds
  * @param productName - Human-friendly product name for alert messages
+ * @param product - Optional TrackedProduct for per-product threshold overrides
  * @returns Array of StockAlert objects for any detected transitions
  */
 export function detectAlerts(
@@ -138,12 +169,16 @@ export function detectAlerts(
   previous: InventorySnapshot | null,
   config: MonitorConfig,
   productName: string,
+  product?: TrackedProduct,
 ): StockAlert[] {
   const alerts: StockAlert[] = [];
   const now = new Date().toISOString();
 
+  // Resolve per-product threshold overrides (if product provided)
+  const overrides = product?.thresholds;
+
   for (const sku of current.skus) {
-    const currentLevel = classifyStockLevel(sku.totalQty, config);
+    const currentLevel = classifyStockLevel(sku.totalQty, config, overrides);
 
     // Find matching SKU in previous snapshot
     const prevSku = previous
@@ -152,7 +187,7 @@ export function detectAlerts(
 
     if (previous && prevSku) {
       // We have a previous reading -- detect transitions
-      const prevLevel = classifyStockLevel(prevSku.totalQty, config);
+      const prevLevel = classifyStockLevel(prevSku.totalQty, config, overrides);
 
       if (currentLevel === prevLevel) {
         // No level change -- skip

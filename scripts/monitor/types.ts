@@ -51,6 +51,8 @@ export interface MonitorConfig {
   hotIntervalMinutes?: number;
   /** Poll interval for 'slow' priority products, in minutes (default: 120) */
   slowIntervalMinutes?: number;
+  /** Maximum snapshot age in minutes before it's considered stale (default: 180) */
+  snapshotMaxAgeMinutes?: number;
 }
 
 // =============================================================================
@@ -82,6 +84,12 @@ export interface TrackedProduct {
   priority?: PollPriority;
   /** ISO timestamp of last successful poll for this product */
   lastPolledAt?: string;
+  /** Optional per-product threshold overrides (falls back to global config when absent) */
+  thresholds?: {
+    lowStockThreshold?: number;
+    criticalStockThreshold?: number;
+    outOfStockThreshold?: number;
+  };
 }
 
 // =============================================================================

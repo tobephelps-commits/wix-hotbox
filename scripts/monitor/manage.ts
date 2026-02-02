@@ -15,6 +15,8 @@
  *   warehouse <style>                - Show per-warehouse inventory for a style
  *   priority <style>                 - Show current poll priority
  *   priority <style> <tier>          - Set poll priority (hot|normal|slow)
+ *   threshold <style> <key> <value>  - Set per-product threshold override
+ *   threshold <style> reset          - Clear per-product threshold overrides
  *   config                           - Print current monitor config
  *   config set <key> <value>         - Update a config value
  *   help                             - Print usage information
@@ -110,6 +112,9 @@ Commands:
   warehouse [--vendor ss] <style>   Show per-warehouse inventory for a tracked style
   priority <style>                  Show current poll priority for a product
   priority <style> <hot|normal|slow>  Set poll priority for a product
+  threshold <style> <key> <value>   Set per-product threshold override
+                                    Keys: lowStockThreshold, criticalStockThreshold, outOfStockThreshold
+  threshold <style> reset           Clear all per-product threshold overrides
   config                            Print current monitor configuration
   config set <key> <value>          Update a config value (numeric fields only)
   help                              Show this help message
@@ -127,6 +132,8 @@ Examples:
   npx tsx scripts/monitor/manage.ts priority PC61 hot
   npx tsx scripts/monitor/manage.ts alerts
   npx tsx scripts/monitor/manage.ts alerts clear
+  npx tsx scripts/monitor/manage.ts threshold PC61 lowStockThreshold 20
+  npx tsx scripts/monitor/manage.ts threshold PC61 reset
   npx tsx scripts/monitor/manage.ts config
   npx tsx scripts/monitor/manage.ts config set lowStockThreshold 20
   npx tsx scripts/monitor/manage.ts start
@@ -205,6 +212,17 @@ async function handleList(): Promise<void> {
     const name = p.name.length > 33 ? p.name.slice(0, 30) + '...' : p.name.padEnd(33);
     const added = p.addedAt.slice(0, 10);
     console.log(`${style} | ${vendor} | ${name} | ${added}`);
+
+    // Show per-product thresholds if they exist
+    if (p.thresholds) {
+      const parts: string[] = [];
+      if (p.thresholds.lowStockThreshold !== undefined) parts.push(`low=${p.thresholds.lowStockThreshold}`);
+      if (p.thresholds.criticalStockThreshold !== undefined) parts.push(`critical=${p.thresholds.criticalStockThreshold}`);
+      if (p.thresholds.outOfStockThreshold !== undefined) parts.push(`oos=${p.thresholds.outOfStockThreshold}`);
+      if (parts.length > 0) {
+        console.log(`          |         | \u2514\u2500 Thresholds: ${parts.join(', ')}`);
+      }
+    }
   }
 
   console.log('');
@@ -263,6 +281,7 @@ const NUMERIC_CONFIG_KEYS: (keyof MonitorConfig)[] = [
   'lowStockThreshold',
   'criticalStockThreshold',
   'outOfStockThreshold',
+  'snapshotMaxAgeMinutes',
 ];
 
 async function handleConfig(args: string[]): Promise<void> {
@@ -480,6 +499,91 @@ function getIntervalForDisplay(priority: PollPriority, config: MonitorConfig): n
 }
 
 // =============================================================================
+// Per-Product Threshold Management
+// =============================================================================
+
+/** Valid per-product threshold keys */
+const VALID_THRESHOLD_KEYS = ['lowStockThreshold', 'criticalStockThreshold', 'outOfStockThreshold'] as const;
+type ThresholdKey = (typeof VALID_THRESHOLD_KEYS)[number];
+
+async function handleThreshold(args: string[]): Promise<void> {
+  const style = args[0];
+  if (!style) {
+    console.error('Error: Style number is required.');
+    console.error('Usage: npx tsx scripts/monitor/manage.ts threshold <style> <key> <value>');
+    console.error('       npx tsx scripts/monitor/manage.ts threshold <style> reset');
+    process.exit(1);
+  }
+
+  const styleUpper = style.toUpperCase();
+  const config = await loadConfig();
+  const products = await loadTrackedProducts(config);
+  const product = products.find((p) => p.style === styleUpper);
+
+  if (!product) {
+    console.error(`Error: Style ${styleUpper} is not tracked. Add it first.`);
+    process.exit(1);
+  }
+
+  const keyOrReset = args[1];
+
+  if (!keyOrReset) {
+    // Show current thresholds
+    if (product.thresholds) {
+      console.log(`${styleUpper} (${product.name}) per-product thresholds:`);
+      if (product.thresholds.lowStockThreshold !== undefined)
+        console.log(`  lowStockThreshold: ${product.thresholds.lowStockThreshold}`);
+      if (product.thresholds.criticalStockThreshold !== undefined)
+        console.log(`  criticalStockThreshold: ${product.thresholds.criticalStockThreshold}`);
+      if (product.thresholds.outOfStockThreshold !== undefined)
+        console.log(`  outOfStockThreshold: ${product.thresholds.outOfStockThreshold}`);
+    } else {
+      console.log(`${styleUpper} (${product.name}): No per-product thresholds (using global config).`);
+    }
+    return;
+  }
+
+  // Reset per-product thresholds
+  if (keyOrReset.toLowerCase() === 'reset') {
+    delete product.thresholds;
+    await saveTrackedProducts(products, config);
+    console.log(`[Monitor] Cleared per-product thresholds for ${styleUpper}. Now using global config.`);
+    return;
+  }
+
+  // Set a specific threshold key
+  const key = keyOrReset as ThresholdKey;
+  if (!VALID_THRESHOLD_KEYS.includes(key)) {
+    console.error(`Error: Invalid threshold key "${keyOrReset}".`);
+    console.error(`Valid keys: ${VALID_THRESHOLD_KEYS.join(', ')}`);
+    console.error('Or use "reset" to clear all per-product overrides.');
+    process.exit(1);
+  }
+
+  const value = args[2];
+  if (!value) {
+    console.error('Error: Threshold value is required.');
+    console.error(`Usage: npx tsx scripts/monitor/manage.ts threshold ${style} ${key} <value>`);
+    process.exit(1);
+  }
+
+  const numValue = Number(value);
+  if (isNaN(numValue) || numValue < 0) {
+    console.error(`Error: Value must be a non-negative number, got "${value}".`);
+    process.exit(1);
+  }
+
+  // Initialize thresholds object if absent
+  if (!product.thresholds) {
+    product.thresholds = {};
+  }
+  product.thresholds[key] = numValue;
+
+  await saveTrackedProducts(products, config);
+  console.log(`[Monitor] Set ${styleUpper} ${key} = ${numValue}`);
+}
+
+// =============================================================================
 // CLI Entry Point
 // =============================================================================
 
@@ -513,6 +617,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
         break;
       case 'priority':
         await handlePriority(args);
+        break;
+      case 'threshold':
+        await handleThreshold(args);
         break;
       case 'config':
         await handleConfig(args);
