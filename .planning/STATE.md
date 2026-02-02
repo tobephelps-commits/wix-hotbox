@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 26 of 30 (Royalty Calculation & PDF Reporting)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-02 - Completed 26-03-PLAN.md
+Phase: 27 of 30 (Pipeline Automation)
+Plan: 2 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-02 - Completed 27-02-PLAN.md
 
-Progress: ████████░░ 85%
+Progress: ████████░░ 87%
 
 ## Performance Metrics
 
@@ -82,6 +82,15 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 26 | Static import replaces dynamic import after Plan 02 | Module now exists; cleaner code, better type checking |
 | 26 | Actionable empty state for royalty dropdown when no customers exist | Better UX than silent empty dropdown; directs user to create customer first |
 
+### Phase 27 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 27 | Sequential batch processing (not parallel) | Vendor APIs (SanMar SOAP, S&S REST) have rate limits; concurrent requests cause failures |
+| 27 | SSE over WebSocket for progress streaming | Simpler protocol, EventSource-native, sufficient for unidirectional batch updates |
+| 27 | 50-item batch limit | Prevents runaway long-running operations |
+| 27 | Skip logo overlays in batch mode | Logo placement requires per-product visual positioning incompatible with automation |
+
 ### Blockers/Concerns
 
 None
@@ -97,6 +106,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 26-03-PLAN.md (royalty reporting dashboard UI)
+Stopped at: Completed 27-02-PLAN.md (batch processing engine with SSE)
 Resume file: None
-Note: Phase 26 complete (3/3 plans). Next: Phase 27 (Pipeline Automation).
+Note: Phase 27 in progress (2/3 plans). Next: 27-03 (batch creation UI).
