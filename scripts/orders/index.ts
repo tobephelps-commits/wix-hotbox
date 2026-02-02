@@ -22,6 +22,7 @@ export type {
   OrderAddress,
   OrderCustomer,
   Order,
+  OrderError,
 } from './types.js';
 
 export {
@@ -41,6 +42,10 @@ export {
   updateOrderStatus,
   listOrders,
   upsertWixOrder,
+  addOrderError,
+  resolveOrderError,
+  getOrdersWithErrors,
+  getOrderSummary,
 } from './order-store.js';
 
 export type { OrderStore } from './order-store.js';
@@ -49,7 +54,7 @@ export type { OrderStore } from './order-store.js';
 // WIX Order Sync
 // =============================================================================
 
-export { syncWixOrders, autoSync, resetAndResync } from './wix-order-sync.js';
+export { syncWixOrders, syncWithRetry, autoSync, resetAndResync } from './wix-order-sync.js';
 export type { SyncResult } from './wix-order-sync.js';
 
 // =============================================================================

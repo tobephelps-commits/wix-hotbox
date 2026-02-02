@@ -74,14 +74,18 @@ import {
   addOrder,
   updateOrderStatus,
   syncWixOrders,
+  syncWithRetry,
   resetAndResync,
   generateInvoice,
   generateShippingLabel,
   printInvoice,
   printShippingLabel,
   listPrinters,
+  getOrdersWithErrors,
+  getOrderSummary,
+  resolveOrderError,
 } from '../orders/index.js';
-import type { OrderStatus, OrderSource, OrderCustomer, OrderLineItem, OrderAddress } from '../orders/index.js';
+import type { OrderStatus, OrderSource, OrderCustomer, OrderLineItem, OrderAddress, OrderError } from '../orders/index.js';
 
 // SanMar Cart Automation (Phase 19)
 import {
@@ -727,6 +731,22 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const orderStatusMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/status\/?$/);
   if (orderStatusMatch) {
     return { route: 'order-status', param: orderStatusMatch[1] };
+  }
+
+  // Match /api/orders/summary (must come before /api/orders/:id)
+  if (urlPath === '/api/orders/summary') {
+    return { route: 'orders-summary' };
+  }
+
+  // Match /api/orders/errors (must come before /api/orders/:id)
+  if (urlPath === '/api/orders/errors') {
+    return { route: 'orders-errors' };
+  }
+
+  // Match /api/orders/:id/resolve-error
+  const orderResolveErrorMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/resolve-error\/?$/);
+  if (orderResolveErrorMatch) {
+    return { route: 'order-resolve-error', param: orderResolveErrorMatch[1] };
   }
 
   // Match /api/orders/sync (must come before /api/orders/:id)
@@ -1746,6 +1766,81 @@ function startServer(port: number, initialStyle?: string): void {
             break;
           }
 
+          case 'orders-summary': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/summary — Order status counts and error summary
+            try {
+              const statusCounts = await getOrderSummary();
+              const errorOrders = await getOrdersWithErrors();
+              const store = await loadOrderStore();
+              sendJson(res, 200, {
+                statusCounts,
+                errorCount: errorOrders.length,
+                errorOrderIds: errorOrders.map((o) => o.id),
+                lastSync: store.lastSync,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error getting order summary: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'orders-errors': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/errors — Orders with unresolved errors
+            try {
+              const orders = await getOrdersWithErrors();
+              sendJson(res, 200, { orders, count: orders.length });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error getting orders with errors: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'order-resolve-error': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed. Use POST.' });
+              break;
+            }
+            // POST /api/orders/:id/resolve-error — Resolve an error on an order
+            try {
+              const body = await readBody(req);
+              const payload = JSON.parse(body);
+
+              if (!payload.operation) {
+                sendJson(res, 400, { error: 'Missing required field: operation' });
+                break;
+              }
+
+              const order = await resolveOrderError(
+                param!,
+                payload.operation as OrderError['operation'],
+              );
+              sendJson(res, 200, { order });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              if (message.includes('not found')) {
+                sendJson(res, 404, { error: message });
+              } else if (message.includes('No unresolved') || message.includes('No errors')) {
+                sendJson(res, 400, { error: message });
+              } else {
+                console.error(`[Preview] Error resolving order error: ${message}`);
+                sendJson(res, 500, { error: 'Internal server error' });
+              }
+            }
+            break;
+          }
+
           case 'orders-sync': {
             if (method !== 'POST') {
               sendJson(res, 405, { error: 'Method not allowed' });
@@ -1773,7 +1868,7 @@ function startServer(port: number, initialStyle?: string): void {
               }
               const result = reset
                 ? await resetAndResync()
-                : await syncWixOrders(days);
+                : await syncWithRetry();
               sendJson(res, 200, { result });
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);

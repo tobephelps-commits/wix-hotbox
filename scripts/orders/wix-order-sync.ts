@@ -28,6 +28,8 @@ export interface SyncResult {
   totalWixOrders: number;
   /** Error messages (sync continues despite individual errors) */
   errors: string[];
+  /** Number of retry attempts used (0 if first attempt succeeded) */
+  retriesUsed: number;
 }
 
 // =============================================================================
@@ -119,13 +121,14 @@ async function buildCollectionMap(): Promise<CollectionLookup> {
  * @param days - Number of days to look back (default 30)
  * @returns Sync result with counts and any errors
  */
-export async function syncWixOrders(days?: number): Promise<SyncResult> {
+export async function syncWixOrders(days?: number, signal?: AbortSignal): Promise<SyncResult> {
   const lookbackDays = days ?? 30;
   const result: SyncResult = {
     newOrders: 0,
     updatedOrders: 0,
     totalWixOrders: 0,
     errors: [],
+    retriesUsed: 0,
   };
 
   // Fetch WIX orders
@@ -153,6 +156,13 @@ export async function syncWixOrders(days?: number): Promise<SyncResult> {
 
   // Process each order
   for (const wixOrder of wixOrders) {
+    // Check for cancellation via AbortSignal
+    if (signal?.aborted) {
+      result.errors.push('Sync cancelled by user');
+      console.log('[ORDER SYNC] Cancelled by user — stopping order processing.');
+      return result;
+    }
+
     try {
       const mapped = mapWixOrderToOrder(wixOrder);
 
@@ -220,13 +230,55 @@ export async function syncWixOrders(days?: number): Promise<SyncResult> {
 }
 
 /**
+ * Sync WIX orders with automatic retry and exponential backoff.
+ *
+ * Wraps syncWixOrders() and retries on WIX API fetch failures (the
+ * getRecentOrders call). Per-order errors are NOT retried — only the
+ * initial API fetch.
+ *
+ * @param maxRetries - Maximum number of retry attempts (default 3)
+ * @param baseDelayMs - Base delay in milliseconds for exponential backoff (default 2000)
+ * @returns Sync result with retriesUsed count
+ */
+export async function syncWithRetry(
+  maxRetries = 3,
+  baseDelayMs = 2000,
+): Promise<SyncResult> {
+  let lastResult: SyncResult | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const result = await syncWixOrders(60);
+
+    // Check if the WIX API fetch itself failed (indicated by error containing "Failed to fetch WIX orders")
+    const apiFetchFailed = result.errors.some((e) => e.startsWith('Failed to fetch WIX orders'));
+
+    if (!apiFetchFailed || attempt === maxRetries) {
+      result.retriesUsed = attempt;
+      return result;
+    }
+
+    // Exponential backoff: baseDelayMs * 2^attempt (2s, 4s, 8s for default)
+    const delay = baseDelayMs * Math.pow(2, attempt);
+    console.log(`[ORDER SYNC] Retry ${attempt + 1}/${maxRetries} after ${delay}ms...`);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    lastResult = result;
+  }
+
+  // Should not reach here, but return last result if it does
+  return lastResult!;
+}
+
+/**
  * Convenience: sync all unfulfilled orders + last 60 days.
+ *
+ * Uses syncWithRetry for automatic recovery from transient WIX API failures.
  *
  * @returns Sync result
  */
 export async function autoSync(): Promise<SyncResult> {
   console.log('[ORDER SYNC] Running auto-sync (unfulfilled + last 60 days)...');
-  return syncWixOrders(60);
+  return syncWithRetry();
 }
 
 /**
