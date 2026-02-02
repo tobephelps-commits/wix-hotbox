@@ -1752,6 +1752,113 @@
   .sync-dot.fresh { background: #2ecc71; }
   .sync-dot.stale { background: #f5a623; }
   .sync-dot.never { background: #999; }
+
+  /* Error Alert Banner (Phase 28) */
+  .error-alert-banner {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #856404;
+  }
+  .error-alert-banner .eab-text { flex: 1; }
+  .error-alert-banner .eab-link {
+    color: #6c63ff;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 6px;
+  }
+  .error-alert-banner .eab-dismiss {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #856404;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    margin-left: 10px;
+    opacity: 0.6;
+  }
+  .error-alert-banner .eab-dismiss:hover { opacity: 1; }
+
+  /* Per-order Error Section (Phase 28) */
+  .order-errors-section {
+    padding: 12px;
+    background: #fff5f5;
+    border-left: 3px solid #e74c3c;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .order-errors-section h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #c0392b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .error-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #fce4e4;
+    font-size: 13px;
+  }
+  .error-entry:last-child { border-bottom: none; }
+  .error-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .error-badge.eb-sync { background: #dbeafe; color: #1e40af; }
+  .error-badge.eb-print { background: #ffedd5; color: #9a3412; }
+  .error-badge.eb-cart-fill { background: #ede9fe; color: #5b21b6; }
+  .error-badge.eb-unknown { background: #f3f4f6; color: #374151; }
+  .error-entry .error-msg { flex: 1; color: #555; }
+  .error-entry .error-time { font-size: 11px; color: #999; white-space: nowrap; }
+  .error-entry .error-retries { font-size: 11px; color: #999; white-space: nowrap; }
+  .error-entry .btn-resolve-error {
+    padding: 3px 10px;
+    font-size: 11px;
+    background: #fff;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .error-entry .btn-resolve-error:hover { background: #e74c3c; color: #fff; }
+
+  /* Enhanced Timeline (Phase 28) */
+  .timeline-entry.tl-current::before {
+    width: 12px;
+    height: 12px;
+    left: -22px;
+    top: 3px;
+    animation: tl-pulse 2s infinite;
+  }
+  .timeline-duration {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 2px;
+    font-style: italic;
+  }
+  @keyframes tl-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(108, 99, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0); }
+  }
   .order-source-badge {
     display: inline-block;
     padding: 1px 6px;
@@ -1875,7 +1982,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #6c63ff;
+    background: var(--tl-dot-color, #6c63ff);
     border: 2px solid #fff;
   }
   .timeline-entry .tl-status {
@@ -7527,6 +7634,34 @@
       syncHtml = '<span class="sync-dot ' + dotClass + '"></span><span style="color:' + textColor + '">Last synced: ' + relTime + suffix + '</span>';
     }
     syncHealth.innerHTML = syncHtml;
+
+    // Error alert banner
+    var bannerEl = document.getElementById('errorAlertBanner');
+    if (data.errorCount > 0 && !bannerEl._dismissed) {
+      bannerEl.innerHTML = '<div class="error-alert-banner">' +
+        '<span class="eab-text">' + data.errorCount + ' order' + (data.errorCount === 1 ? '' : 's') + ' ha' + (data.errorCount === 1 ? 's' : 've') + ' unresolved errors ' +
+        '<span class="eab-link" id="viewErrorsLink">View errors</span></span>' +
+        '<button class="eab-dismiss" id="dismissErrorBanner" title="Dismiss">&times;</button>' +
+        '</div>';
+      var viewLink = document.getElementById('viewErrorsLink');
+      if (viewLink) {
+        viewLink.addEventListener('click', function() {
+          document.querySelectorAll('#orderFilters [data-filter]').forEach(function(p) { p.classList.remove('active'); });
+          _orderStatusFilter = 'errored';
+          renderOrderList(_ordersCache);
+        });
+      }
+      var dismissBtn = document.getElementById('dismissErrorBanner');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', function() {
+          bannerEl._dismissed = true;
+          bannerEl.innerHTML = '';
+        });
+      }
+    } else if (data.errorCount === 0) {
+      bannerEl.innerHTML = '';
+      bannerEl._dismissed = false;
+    }
   }
 
   async function loadOrders() {
@@ -7728,14 +7863,55 @@
       html += '</div>';
     }
 
-    // Status timeline
+    // Per-order error section (Phase 28)
+    var unresolvedErrors = (order.errors || []).filter(function(e) { return !e.resolved; });
+    if (unresolvedErrors.length > 0) {
+      html += '<div class="order-errors-section" id="orderErrorsSection">';
+      html += '<h4>Unresolved Errors (' + unresolvedErrors.length + ')</h4>';
+      unresolvedErrors.forEach(function(err) {
+        var op = err.operation || 'unknown';
+        var badgeClass = op === 'sync' ? 'eb-sync' : op === 'print' ? 'eb-print' : op === 'cart-fill' ? 'eb-cart-fill' : 'eb-unknown';
+        html += '<div class="error-entry">';
+        html += '<span class="error-badge ' + badgeClass + '">' + escHtml(op) + '</span>';
+        html += '<span class="error-msg">' + escHtml(err.message || 'Unknown error') + '</span>';
+        html += '<span class="error-time">' + formatRelativeTime(err.timestamp) + '</span>';
+        if (err.retryCount > 0) html += '<span class="error-retries">' + err.retryCount + ' retries</span>';
+        html += '<button class="btn-resolve-error" data-order-id="' + order.id + '" data-operation="' + escHtml(op) + '">Mark Resolved</button>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // Enhanced status timeline (Phase 28)
+    var TIMELINE_DOT_COLORS = {
+      'new': '#4a90d9', 'on-hold': '#4a90d9',
+      'ordered': '#6c63ff', 'received': '#6c63ff', 'in-production': '#6c63ff',
+      'packed': '#2ecc71', 'shipped': '#2ecc71',
+      'delivered': '#27ae60',
+      'cancelled': '#e74c3c'
+    };
+
     if (order.statusHistory && order.statusHistory.length > 0) {
       html += '<div class="order-status-timeline">';
-      order.statusHistory.slice().reverse().forEach(function(h) {
-        html += '<div class="timeline-entry">';
+      var reversedHistory = order.statusHistory.slice().reverse();
+      reversedHistory.forEach(function(h, idx) {
+        var isCurrent = (idx === 0);
+        var dotColor = TIMELINE_DOT_COLORS[h.status] || '#6c63ff';
+        var entryClass = isCurrent ? ' tl-current' : '';
+        html += '<div class="timeline-entry' + entryClass + '" style="--tl-dot-color:' + dotColor + '">';
         html += '<div class="tl-status">' + escHtml(ORDER_STATUS_LABELS[h.status] || h.status) + '</div>';
-        html += '<div class="tl-time">' + new Date(h.timestamp).toLocaleString() + '</div>';
+        var absTime = new Date(h.timestamp).toLocaleString();
+        var relTime = formatRelativeTime(h.timestamp);
+        html += '<div class="tl-time">' + absTime + ' (' + relTime + ')</div>';
         if (h.note) html += '<div class="tl-note">' + escHtml(h.note) + '</div>';
+        // Duration to next entry (previous in chronological order)
+        if (idx < reversedHistory.length - 1) {
+          var nextEntry = reversedHistory[idx + 1];
+          var durationMs = new Date(h.timestamp).getTime() - new Date(nextEntry.timestamp).getTime();
+          if (durationMs > 0) {
+            html += '<div class="timeline-duration">\u2192 ' + formatDuration(durationMs) + '</div>';
+          }
+        }
         html += '</div>';
       });
       html += '</div>';
@@ -7825,6 +8001,38 @@
           showToast('Error: ' + (err.message || String(err)), 'error');
         }
         btn.disabled = false;
+      });
+    });
+
+    // Attach resolve-error handlers (Phase 28)
+    orderDetailContent.querySelectorAll('.btn-resolve-error').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        var oid = btn.dataset.orderId;
+        var operation = btn.dataset.operation;
+        btn.disabled = true;
+        btn.textContent = 'Resolving...';
+        try {
+          var res = await fetch('/api/orders/' + encodeURIComponent(oid) + '/resolve-error', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ operation: operation })
+          });
+          var json = await res.json();
+          if (res.ok) {
+            showToast('Error resolved', 'success');
+            // Re-render the order detail
+            renderOrderDetail(json.order || json);
+            loadOrders(); // refresh list + summary
+          } else {
+            showToast('Error: ' + (json.error || 'Unknown'), 'error');
+            btn.disabled = false;
+            btn.textContent = 'Mark Resolved';
+          }
+        } catch (err) {
+          showToast('Error: ' + (err.message || String(err)), 'error');
+          btn.disabled = false;
+          btn.textContent = 'Mark Resolved';
+        }
       });
     });
 
