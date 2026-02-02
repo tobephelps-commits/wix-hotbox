@@ -16,8 +16,9 @@
 import type { PricingConfig } from './pricing-rules.js';
 export type { PricingConfig } from './pricing-rules.js';
 
-// Import VendorId for vendor tracking on pipeline types
+// Import VendorId for vendor tracking on pipeline types, and re-export for other pipeline modules
 import type { VendorId } from '../vendor/types.js';
+export type { VendorId } from '../vendor/types.js';
 
 // =============================================================================
 // Template Types
@@ -642,4 +643,94 @@ export interface WixCoupon {
   };
   /** Number of times this coupon has been used */
   numberOfUsages: number;
+}
+
+// =============================================================================
+// Batch Creation Types
+// =============================================================================
+
+/**
+ * A single item in a batch creation request.
+ *
+ * Phase 27: Pipeline Automation — Batch Processing
+ */
+export interface BatchItem {
+  style: string;
+  vendor?: VendorId; // defaults to batch-level default
+}
+
+/**
+ * Request body for POST /api/batch-create.
+ *
+ * Phase 27: Pipeline Automation — Batch Processing
+ */
+export interface BatchCreateRequest {
+  /** Style numbers to process */
+  items: BatchItem[];
+  /** Default settings applied to all items (unless overridden) */
+  defaults: {
+    vendor: VendorId;
+    pricingConfig: PricingConfig;
+    collections?: string[];
+    decorationCost?: number;
+    decorationType?: string;
+    logoAngles?: AngleOverlayConfig;
+  };
+  /** Color selection strategy for batch mode */
+  colorStrategy: 'all-in-stock' | 'all';
+  /** Size selection strategy for batch mode */
+  sizeStrategy: 'all' | string[]; // 'all' or explicit list
+}
+
+/**
+ * Progress event for a single batch item.
+ *
+ * Phase 27: Pipeline Automation — Batch Processing
+ */
+export interface BatchItemProgress {
+  index: number;
+  style: string;
+  vendor: VendorId;
+  stage: 'queued' | 'fetching' | 'creating' | 'media' | 'variants' | 'done' | 'error';
+  message: string;
+  /** Present when stage is 'done' — matches CreationResult shape from create-product.ts */
+  result?: {
+    productId: string;
+    productUrl: string;
+    variantsCreated: number;
+    mediaAdded: number;
+    status: 'draft';
+    warnings: string[];
+    collectionsAssigned: string[];
+  };
+  /** Present when stage is 'error' */
+  error?: string;
+}
+
+/**
+ * Overall batch progress event (sent via SSE).
+ *
+ * Phase 27: Pipeline Automation — Batch Processing
+ */
+export interface BatchProgress {
+  type: 'item' | 'summary';
+  batchId: string;
+  totalItems: number;
+  completedItems: number;
+  failedItems: number;
+  /** Present for type='item' */
+  item?: BatchItemProgress;
+  /** Present for type='summary' (final event) */
+  summary?: {
+    succeeded: number;
+    failed: number;
+    duration: number; // ms
+    results: Array<{
+      style: string;
+      vendor: VendorId;
+      success: boolean;
+      productUrl?: string;
+      error?: string;
+    }>;
+  };
 }

@@ -18,7 +18,7 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-import type { CuratedProduct, ProductTemplate, LogoOverlayConfig, AngleOverlayConfig } from './types.js';
+import type { CuratedProduct, ProductTemplate, LogoOverlayConfig, AngleOverlayConfig, BatchCreateRequest, BatchItemProgress } from './types.js';
 import type { ProductData } from './fetch-product.js';
 import { fetchProductData } from './fetch-product.js';
 import { parseVendorFlag } from '../vendor/index.js';
@@ -213,6 +213,77 @@ export async function createWixProduct(
     warnings,
     collectionsAssigned,
   };
+}
+
+// =============================================================================
+// Batch Product Creation
+// =============================================================================
+
+/**
+ * Create a single product as part of a batch operation.
+ *
+ * Wraps fetchProductData + createWixProduct with progress callbacks so the
+ * caller (SSE endpoint) can relay stage transitions to the client in real time.
+ *
+ * Colors are selected based on the batch colorStrategy, sizes by sizeStrategy.
+ * Logo overlays are NOT applied in batch mode (they require per-product visual
+ * placement which is incompatible with batch automation).
+ *
+ * Phase 27: Pipeline Automation — Batch Processing
+ *
+ * @param style - Vendor style number
+ * @param vendor - Which vendor to fetch from
+ * @param defaults - Shared batch defaults (pricing, collections, etc.)
+ * @param colorStrategy - 'all-in-stock' or 'all'
+ * @param sizeStrategy - 'all' or explicit list of sizes
+ * @param onProgress - Callback for stage transitions
+ * @returns CreationResult with product ID, URL, and counts
+ */
+export async function createBatchProduct(
+  style: string,
+  vendor: VendorId,
+  defaults: BatchCreateRequest['defaults'],
+  colorStrategy: BatchCreateRequest['colorStrategy'],
+  sizeStrategy: BatchCreateRequest['sizeStrategy'],
+  onProgress: (stage: BatchItemProgress['stage'], message: string) => void,
+): Promise<CreationResult> {
+  // 1. Fetch product data
+  onProgress('fetching', `Fetching ${style} from ${vendor}...`);
+  const productData = await fetchProductData(style, vendor);
+
+  // 2. Build CuratedProduct from defaults + fetched data
+  const preview = productData.preview;
+
+  // Color selection based on strategy
+  const selectedColors = preview.availableColors
+    .filter(c => colorStrategy === 'all' || c.inStock !== false)
+    .map(c => ({ catalogColor: c.catalogColor, displayColor: c.displayColor }));
+
+  // Size selection based on strategy
+  const selectedSizes = Array.isArray(sizeStrategy)
+    ? preview.availableSizes.filter(s => sizeStrategy.includes(s))
+    : preview.availableSizes;
+
+  const curated: CuratedProduct = {
+    style: preview.style,
+    brandName: preview.brandName,
+    vendor,
+    productTitle: preview.productTitle,
+    description: preview.description,
+    selectedColors,
+    selectedSizes,
+    pricingConfig: defaults.pricingConfig,
+    wholesaleCost: preview.pricing.wholesalePrice,
+    collections: defaults.collections,
+    decorationCost: defaults.decorationCost,
+    decorationType: defaults.decorationType,
+  };
+
+  // 3. Create WIX product
+  onProgress('creating', `Creating WIX draft for ${style}...`);
+  const result = await createWixProduct(curated, productData);
+
+  return result;
 }
 
 // =============================================================================
