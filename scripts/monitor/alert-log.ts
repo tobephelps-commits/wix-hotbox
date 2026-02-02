@@ -20,6 +20,9 @@ const MAX_ALERT_LOG_SIZE = 1000;
 /** Default number of recent alerts to return */
 const DEFAULT_RECENT_COUNT = 50;
 
+/** Default number of days to retain alerts before time-based pruning */
+const DEFAULT_ALERT_RETENTION_DAYS = 30;
+
 // =============================================================================
 // Alert Log Path
 // =============================================================================
@@ -72,7 +75,11 @@ export async function appendAlerts(
   const existing = await loadAlertLog(config);
   let combined = [...existing, ...alerts];
 
-  // Cap at MAX_ALERT_LOG_SIZE, keep most recent
+  // Remove alerts older than 30 days first (time-based retention)
+  const cutoff = Date.now() - (DEFAULT_ALERT_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  combined = combined.filter((a) => new Date(a.timestamp).getTime() > cutoff);
+
+  // Then apply entry cap, keep most recent
   if (combined.length > MAX_ALERT_LOG_SIZE) {
     combined = combined.slice(combined.length - MAX_ALERT_LOG_SIZE);
   }
@@ -131,4 +138,50 @@ export async function clearAlertLog(config: MonitorConfig): Promise<void> {
     // File didn't exist -- nothing to clear
     console.log('[Monitor] Alert log already empty.');
   }
+}
+
+// =============================================================================
+// Time-Based Alert Pruning
+// =============================================================================
+
+/**
+ * Prune alerts older than a retention period.
+ *
+ * Loads all alerts, removes those older than retentionDays (default 30),
+ * and saves the remaining alerts. Can be called standalone (e.g., from CLI)
+ * or as a maintenance task.
+ *
+ * @param config - Monitor configuration (provides dataDir)
+ * @param retentionDays - Days to retain alerts (default: 30)
+ * @returns Number of alerts pruned
+ */
+export async function pruneAlertLog(
+  config: MonitorConfig,
+  retentionDays: number = DEFAULT_ALERT_RETENTION_DAYS,
+): Promise<number> {
+  const alerts = await loadAlertLog(config);
+
+  if (alerts.length === 0) {
+    console.log('[Monitor] Alert log is empty, nothing to prune.');
+    return 0;
+  }
+
+  const cutoff = Date.now() - (retentionDays * 24 * 60 * 60 * 1000);
+  const remaining = alerts.filter((a) => new Date(a.timestamp).getTime() > cutoff);
+  const pruned = alerts.length - remaining.length;
+
+  if (pruned === 0) {
+    console.log(`[Monitor] No alerts older than ${retentionDays} days.`);
+    return 0;
+  }
+
+  await mkdir(config.dataDir, { recursive: true });
+  const filePath = getAlertLogPath(config);
+  await writeFile(filePath, JSON.stringify(remaining, null, 2), 'utf-8');
+
+  console.log(
+    `[Monitor] Pruned ${pruned} alerts older than ${retentionDays} days (${remaining.length} remaining)`,
+  );
+
+  return pruned;
 }

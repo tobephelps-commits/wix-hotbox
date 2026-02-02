@@ -12,7 +12,8 @@
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { ProductMapping, SyncConfig } from './types.js';
+import type { ProductMapping, SyncConfig, MappingAuditResult } from './types.js';
+import { getProduct } from '../pipeline/wix-api.js';
 
 // =============================================================================
 // Default Configuration
@@ -149,4 +150,98 @@ export async function findMapping(
 ): Promise<ProductMapping | null> {
   const mappings = await loadProductMap(config);
   return mappings.find((m) => m.style === style) ?? null;
+}
+
+// =============================================================================
+// Mapping Freshness Audit
+// =============================================================================
+
+/**
+ * Audit all product mappings against the WIX API.
+ *
+ * Checks each mapping by fetching the product from WIX. Products that
+ * return 404 are flagged as orphaned (deleted from WIX but still mapped).
+ * Other errors are recorded separately.
+ *
+ * Rate-limited: 200ms delay between WIX API calls to avoid rate limits.
+ *
+ * @param config - Sync configuration (provides dataDir)
+ * @returns Audit result with healthy/orphaned/error counts
+ */
+export async function auditProductMappings(config: SyncConfig): Promise<MappingAuditResult> {
+  const mappings = await loadProductMap(config);
+  const total = mappings.length;
+
+  const result: MappingAuditResult = {
+    total,
+    healthy: 0,
+    orphaned: [],
+    errors: [],
+  };
+
+  if (total === 0) {
+    console.log('[Audit] No product mappings to audit.');
+    return result;
+  }
+
+  console.log(`[Audit] Auditing ${total} product mapping(s)...`);
+
+  for (let i = 0; i < mappings.length; i++) {
+    const mapping = mappings[i];
+    console.log(`[Audit] Checking ${i + 1}/${total}: ${mapping.style}...`);
+
+    try {
+      await getProduct(mapping.wixProductId);
+      result.healthy++;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+
+      if (message.includes('404')) {
+        result.orphaned.push(mapping);
+      } else {
+        result.errors.push({ mapping, error: message });
+      }
+    }
+
+    // Rate limit: 200ms between WIX API calls
+    if (i < mappings.length - 1) {
+      await new Promise((r) => setTimeout(r, 200));
+    }
+  }
+
+  console.log(
+    `[Audit] ${result.healthy} healthy, ${result.orphaned.length} orphaned, ${result.errors.length} errors`,
+  );
+
+  return result;
+}
+
+/**
+ * Remove orphaned mappings identified by a prior audit.
+ *
+ * Loads the current product map, filters out any mappings whose
+ * style+wixProductId match an orphaned entry, and saves the result.
+ *
+ * @param audit - Audit result containing orphaned mappings to remove
+ * @param config - Sync configuration (provides dataDir)
+ * @returns Number of mappings removed
+ */
+export async function removeOrphanedMappings(
+  audit: MappingAuditResult,
+  config: SyncConfig,
+): Promise<number> {
+  if (audit.orphaned.length === 0) {
+    console.log('[Audit] No orphaned mappings to remove.');
+    return 0;
+  }
+
+  const mappings = await loadProductMap(config);
+  const orphanedIds = new Set(audit.orphaned.map((m) => m.wixProductId));
+  const filtered = mappings.filter((m) => !orphanedIds.has(m.wixProductId));
+  const count = mappings.length - filtered.length;
+
+  await saveProductMap(filtered, config);
+  console.log(`[Audit] Removed ${count} orphaned mapping(s).`);
+
+  return count;
 }

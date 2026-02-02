@@ -62,8 +62,31 @@ export interface SyncResult {
   variantsRestored: number;
   /** Number of variants with no visibility change */
   variantsUnchanged: number;
+  /** Number of variants with unparseable SKUs */
+  parseErrors: number;
   /** Any errors encountered during sync */
   errors: string[];
+}
+
+// =============================================================================
+// Mapping Audit
+// =============================================================================
+
+/**
+ * Result of a product mapping freshness audit.
+ *
+ * Checks all product mappings against the WIX API to detect
+ * orphaned mappings (WIX product deleted) and other fetch errors.
+ */
+export interface MappingAuditResult {
+  /** Total mappings checked */
+  total: number;
+  /** Mappings where WIX product still exists */
+  healthy: number;
+  /** Mappings where WIX product was not found (404) */
+  orphaned: ProductMapping[];
+  /** Mappings where fetch produced a non-404 error */
+  errors: { mapping: ProductMapping; error: string }[];
 }
 
 // =============================================================================
