@@ -62,10 +62,10 @@ None
 **Goal**: Extend product pipeline to fetch and store back and left-side product images from vendors
 **Depends on**: Previous milestone complete
 **Research**: Unlikely (extending existing vendor API clients)
-**Plans**: TBD
+**Plans**: 1
 
 Plans:
-- [ ] 21-01: TBD (run /gsd:plan-phase 21 to break down)
+- [x] 21-01: Multi-angle image pipeline and preview UI -- completed 2026-02-02
 
 #### Phase 22: Multi-Angle Logo Overlay
 
@@ -186,7 +186,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 18. Order Management — Invoice & Label Printing | v0.2 | 6/6 | Complete | 2026-02-01 |
 | 19. Order Management — SanMar Cart Automation | v0.2 | 3/3 | Complete | 2026-02-01 |
 | 20. Integration Testing & Polish | v0.2 | 3/3 | Complete | 2026-02-01 |
-| 21. Multi-Angle Image Support | v1.0 | 0/? | Not started | - |
+| 21. Multi-Angle Image Support | v1.0 | 1/1 | Complete | 2026-02-02 |
 | 22. Multi-Angle Logo Overlay | v1.0 | 0/? | Not started | - |
 | 23. Visual Logo Placement UI | v1.0 | 0/? | Not started | - |
 | 24. Logo Upload & Management | v1.0 | 0/? | Not started | - |
