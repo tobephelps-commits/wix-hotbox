@@ -18,7 +18,7 @@
 import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import type { Order, OrderStatus, OrderSource } from './types.js';
+import type { Order, OrderStatus, OrderSource, OrderError } from './types.js';
 import { ORDER_STATUS_TRANSITIONS } from './types.js';
 
 // =============================================================================
@@ -76,6 +76,7 @@ export async function loadOrders(): Promise<OrderStore> {
       if (o.total == null) o.total = 0;
       if (o.subtotal == null) o.subtotal = 0;
       if (!o.statusHistory) o.statusHistory = [];
+      if (!o.errors) o.errors = [];
     }
 
     return store;
@@ -365,4 +366,142 @@ export async function updateOrderStatus(
 
   await saveOrders(store);
   return order;
+}
+
+// =============================================================================
+// Error Tracking
+// =============================================================================
+
+/**
+ * Add a tracked error to an order.
+ *
+ * Initializes the errors array if not present, appends the error with
+ * retryCount: 0 and resolved: false.
+ *
+ * @param id - Order UUID
+ * @param error - Error details (without retryCount and resolved)
+ * @returns The updated order
+ * @throws Error if order not found
+ */
+export async function addOrderError(
+  id: string,
+  error: Omit<OrderError, 'retryCount' | 'resolved'>,
+): Promise<Order> {
+  const store = await loadOrders();
+  const order = store.orders.find((o) => o.id === id);
+
+  if (!order) {
+    throw new Error(`Order not found: ${id}`);
+  }
+
+  if (!order.errors) order.errors = [];
+
+  order.errors.push({
+    ...error,
+    retryCount: 0,
+    resolved: false,
+  });
+
+  order.updatedAt = new Date().toISOString();
+  await saveOrders(store);
+  return order;
+}
+
+/**
+ * Resolve the most recent unresolved error of a given operation on an order.
+ *
+ * @param id - Order UUID
+ * @param operation - The error operation type to resolve
+ * @returns The updated order
+ * @throws Error if order not found or no matching unresolved error
+ */
+export async function resolveOrderError(
+  id: string,
+  operation: OrderError['operation'],
+): Promise<Order> {
+  const store = await loadOrders();
+  const order = store.orders.find((o) => o.id === id);
+
+  if (!order) {
+    throw new Error(`Order not found: ${id}`);
+  }
+
+  if (!order.errors || order.errors.length === 0) {
+    throw new Error(`No errors found on order: ${id}`);
+  }
+
+  // Find the most recent unresolved error matching the operation
+  const unresolvedErrors = order.errors
+    .map((err, idx) => ({ err, idx }))
+    .filter((e) => e.err.operation === operation && !e.err.resolved);
+
+  if (unresolvedErrors.length === 0) {
+    throw new Error(`No unresolved '${operation}' error found on order: ${id}`);
+  }
+
+  // Most recent = last in array (appended in chronological order)
+  const target = unresolvedErrors[unresolvedErrors.length - 1];
+  order.errors[target.idx].resolved = true;
+
+  // Clear lastSyncError if resolving a sync error
+  if (operation === 'sync') {
+    order.lastSyncError = undefined;
+  }
+
+  order.updatedAt = new Date().toISOString();
+  await saveOrders(store);
+  return order;
+}
+
+/**
+ * Get all orders that have at least one unresolved error.
+ *
+ * @returns Orders with unresolved errors, sorted by most recent error timestamp descending
+ */
+export async function getOrdersWithErrors(): Promise<Order[]> {
+  const store = await loadOrders();
+
+  const ordersWithErrors = store.orders.filter((o) =>
+    o.errors && o.errors.some((e) => !e.resolved),
+  );
+
+  // Sort by most recent error timestamp descending
+  ordersWithErrors.sort((a, b) => {
+    const aLatest = (a.errors ?? [])
+      .filter((e) => !e.resolved)
+      .reduce((max, e) => (e.timestamp > max ? e.timestamp : max), '');
+    const bLatest = (b.errors ?? [])
+      .filter((e) => !e.resolved)
+      .reduce((max, e) => (e.timestamp > max ? e.timestamp : max), '');
+    return bLatest.localeCompare(aLatest);
+  });
+
+  return ordersWithErrors;
+}
+
+/**
+ * Get a summary of order counts grouped by status.
+ *
+ * Includes an extra `errored` key counting orders with unresolved errors
+ * (this is not a status, just a cross-cutting count).
+ *
+ * @returns Record of status → count, plus errored count
+ */
+export async function getOrderSummary(): Promise<Record<string, number>> {
+  const store = await loadOrders();
+
+  const counts: Record<string, number> = {};
+
+  // Initialize all statuses to 0
+  for (const order of store.orders) {
+    counts[order.status] = (counts[order.status] || 0) + 1;
+  }
+
+  // Count orders with unresolved errors
+  const erroredCount = store.orders.filter((o) =>
+    o.errors && o.errors.some((e) => !e.resolved),
+  ).length;
+  counts['errored'] = erroredCount;
+
+  return counts;
 }

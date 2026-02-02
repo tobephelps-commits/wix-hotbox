@@ -23,6 +23,7 @@
  */
 export type OrderStatus =
   | 'new'
+  | 'on-hold'
   | 'ordered'
   | 'received'
   | 'in-production'
@@ -113,6 +114,29 @@ export interface OrderCustomer {
 }
 
 // =============================================================================
+// Order Error Tracking
+// =============================================================================
+
+/**
+ * Tracked error for a specific operation on an order.
+ *
+ * Enables per-order failure visibility so the dashboard can surface
+ * exactly what needs attention vs what's fine.
+ */
+export interface OrderError {
+  /** What operation failed */
+  operation: 'sync' | 'cart-fill' | 'print-invoice' | 'print-label' | 'status-update';
+  /** Error message */
+  message: string;
+  /** ISO-8601 timestamp of failure */
+  timestamp: string;
+  /** Number of retry attempts so far */
+  retryCount: number;
+  /** Whether this error has been resolved */
+  resolved: boolean;
+}
+
+// =============================================================================
 // Order
 // =============================================================================
 
@@ -165,6 +189,10 @@ export interface Order {
     timestamp: string;
     note?: string;
   }>;
+  /** Tracked errors for this order (empty array if none) */
+  errors?: OrderError[];
+  /** Last WIX sync error message (quick indicator) */
+  lastSyncError?: string;
 }
 
 // =============================================================================
@@ -180,12 +208,13 @@ export interface Order {
  * Any non-terminal status can also transition to 'cancelled'.
  */
 export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  'new': ['ordered', 'cancelled'],
-  'ordered': ['received', 'cancelled'],
-  'received': ['in-production', 'cancelled'],
-  'in-production': ['packed', 'cancelled'],
-  'packed': ['shipped', 'cancelled'],
-  'shipped': ['delivered', 'cancelled'],
+  'new': ['ordered', 'on-hold', 'cancelled'],
+  'on-hold': ['new', 'ordered', 'cancelled'],
+  'ordered': ['received', 'on-hold', 'cancelled'],
+  'received': ['in-production', 'on-hold', 'cancelled'],
+  'in-production': ['packed', 'on-hold', 'cancelled'],
+  'packed': ['shipped', 'on-hold', 'cancelled'],
+  'shipped': ['delivered', 'on-hold', 'cancelled'],
   'delivered': [],
   'cancelled': [],
 };
@@ -195,6 +224,7 @@ export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
  */
 export const ORDER_STATUSES: OrderStatus[] = [
   'new',
+  'on-hold',
   'ordered',
   'received',
   'in-production',
