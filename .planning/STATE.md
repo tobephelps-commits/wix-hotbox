@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 27 of 30 (Pipeline Automation)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-02 - Completed 27-03-PLAN.md
+Phase: 28 of 30 (Order Management Hardening)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-02 - Completed 28-01-PLAN.md
 
 Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 88 (34 v0.1 + 38 v0.2 + 16 v1.0)
+- Total plans completed: 89 (34 v0.1 + 38 v0.2 + 17 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -96,6 +96,14 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 27 | Fetch + ReadableStream for SSE (not EventSource) | POST method required for batch create; EventSource only supports GET |
 | 27 | Vertical card stack for batch progress queue | Better readability than horizontal scroll for multi-item status display |
 
+### Phase 28 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 28 | on-hold transitions bidirectional (new <-> on-hold, ordered <-> on-hold) | Allows pausing and resuming orders from the same lifecycle point |
+| 28 | Only WIX API fetch retried, not per-order errors | Per-order errors are data issues, not transient; retry would re-process all orders |
+| 28 | errored as cross-cutting count, not a real status | Orders with errors still need their actual lifecycle status for workflow progression |
+
 ### Blockers/Concerns
 
 None
@@ -111,6 +119,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 27-03-PLAN.md (batch creation UI with live progress queue)
+Stopped at: Completed 28-01-PLAN.md (error tracking, retry logic, summary/error endpoints)
 Resume file: None
-Note: Phase 27 complete (3/3 plans). Next: Phase 28 (Order Management Hardening).
+Note: Phase 28 in progress (1/2 plans). Next: 28-02-PLAN.md.
