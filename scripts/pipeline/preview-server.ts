@@ -105,6 +105,10 @@ import type { CustomerAccount } from '../customers/types.js';
 import { calculateCustomerPricingSummary } from '../customers/pricing.js';
 import type { CustomerPricingSummary } from '../customers/pricing.js';
 
+// Royalty Calculation (Phase 26)
+import { generateRoyaltyReport } from '../customers/royalty.js';
+import { loadOrders as loadOrderStore } from '../orders/order-store.js';
+
 // Register both vendor adapters to ensure they're available at runtime
 import '../sanmar/adapter.js';
 import '../ss-activewear/adapter.js';
@@ -569,6 +573,18 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const customerLogosMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/logos\/?$/);
   if (customerLogosMatch) {
     return { route: 'customer-logos', param: customerLogosMatch[1] };
+  }
+
+  // Match /api/customers/:id/royalty/pdf (must come before /royalty and /api/customers/:id)
+  const customerRoyaltyPdfMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/royalty\/pdf\/?$/);
+  if (customerRoyaltyPdfMatch) {
+    return { route: 'customer-royalty-pdf', param: customerRoyaltyPdfMatch[1] };
+  }
+
+  // Match /api/customers/:id/royalty (must come before /api/customers/:id)
+  const customerRoyaltyMatch = urlPath.match(/^\/api\/customers\/([A-Za-z0-9._-]+)\/royalty\/?$/);
+  if (customerRoyaltyMatch) {
+    return { route: 'customer-royalty', param: customerRoyaltyMatch[1] };
   }
 
   // Match /api/customers/:id (must come after sub-routes)
@@ -1792,6 +1808,104 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error loading customer logos for ${param}: ${message}`);
+              sendJson(res, 500, { ok: false, error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // ── Royalty Calculation API (Phase 26) ─────────────────────
+
+          case 'customer-royalty': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/customers/:id/royalty?start=YYYY-MM-DD&end=YYYY-MM-DD
+            try {
+              const customer = await getCustomer(param!);
+              if (!customer) {
+                sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                break;
+              }
+
+              const urlObj = new URL(req.url ?? '/', 'http://localhost');
+              const startParam = urlObj.searchParams.get('start');
+              const endParam = urlObj.searchParams.get('end');
+
+              if (!startParam || !endParam) {
+                sendJson(res, 400, { ok: false, error: 'start and end query parameters required (YYYY-MM-DD)' });
+                break;
+              }
+
+              // Convert YYYY-MM-DD to full ISO-8601 range
+              const periodStart = `${startParam}T00:00:00.000Z`;
+              const periodEnd = `${endParam}T23:59:59.999Z`;
+
+              const orderStore = await loadOrderStore();
+              const royaltyReport = generateRoyaltyReport({
+                customer,
+                orders: orderStore.orders,
+                periodStart,
+                periodEnd,
+              });
+
+              sendJson(res, 200, { ok: true, data: royaltyReport });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error generating royalty report for ${param}: ${message}`);
+              sendJson(res, 500, { ok: false, error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'customer-royalty-pdf': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/customers/:id/royalty/pdf?start=YYYY-MM-DD&end=YYYY-MM-DD
+            try {
+              const customer = await getCustomer(param!);
+              if (!customer) {
+                sendJson(res, 404, { ok: false, error: 'Customer not found' });
+                break;
+              }
+
+              const urlObj = new URL(req.url ?? '/', 'http://localhost');
+              const startParam = urlObj.searchParams.get('start');
+              const endParam = urlObj.searchParams.get('end');
+
+              if (!startParam || !endParam) {
+                sendJson(res, 400, { ok: false, error: 'start and end query parameters required (YYYY-MM-DD)' });
+                break;
+              }
+
+              // Convert YYYY-MM-DD to full ISO-8601 range
+              const periodStart = `${startParam}T00:00:00.000Z`;
+              const periodEnd = `${endParam}T23:59:59.999Z`;
+
+              const orderStore = await loadOrderStore();
+              const royaltyReport = generateRoyaltyReport({
+                customer,
+                orders: orderStore.orders,
+                periodStart,
+                periodEnd,
+              });
+
+              // Dynamic import for PDF generator (Plan 02 creates this module)
+              try {
+                const { generateRoyaltyStatement } = await import('../customers/royalty-statement.js');
+                const pdfBuffer = await generateRoyaltyStatement(royaltyReport, customer);
+                const safeName = customer.name.replace(/[^A-Za-z0-9_-]/g, '-');
+                sendBuffer(res, 200, 'application/pdf', pdfBuffer, {
+                  'Content-Disposition': `inline; filename="ROYALTY-${safeName}-${startParam}-to-${endParam}.pdf"`,
+                });
+              } catch {
+                sendJson(res, 501, { ok: false, error: 'PDF generation not yet available' });
+              }
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error generating royalty PDF for ${param}: ${message}`);
               sendJson(res, 500, { ok: false, error: 'Internal server error' });
             }
             break;
