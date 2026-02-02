@@ -1,6 +1,6 @@
 # HotBox Pipeline Operations Guide
 
-Complete operational runbook for the HotBox Clothing product pipeline. Covers every command, common workflows, troubleshooting, and configuration. Supports SanMar and S&S Activewear vendors, multi-collection routing, template presets, logo overlays, order management with invoicing/labels, and SanMar cart automation.
+Complete operational runbook for the HotBox Clothing product pipeline. Covers every command, common workflows, troubleshooting, and configuration. Supports SanMar and S&S Activewear vendors, multi-collection routing, template presets, logo overlays with visual drag-and-drop placement, logo upload and management, customer accounts with royalty tracking, batch product creation, order management with error handling, inventory reliability tools, invoicing/labels, and SanMar cart automation.
 
 ---
 
@@ -23,6 +23,7 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run create-product -- PC61 --collection "Big Barn Crossfit"` | Route product to a specific collection |
 | `npm run create-product -- PC61 --logo bb --logo-position left-chest` | Apply logo overlay to product images |
 | `npm run overlay-test` | Run logo overlay compositing test |
+| `npm run smoke-test` | Run end-to-end smoke test across all subsystems |
 
 ### Pricing & Promotions
 
@@ -47,6 +48,7 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run monitor -- config` | Show current monitor configuration |
 | `npm run monitor -- config set lowStockThreshold 20` | Update a config value |
 | `npm run monitor -- remove PC61` | Stop tracking a style |
+| `npm run monitor -- threshold PC61 low 15 critical 5` | Set per-product stock thresholds |
 
 ### Stock Sync to WIX
 
@@ -90,6 +92,7 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run build` | Compile TypeScript |
 | `npm run typecheck` | Type-check without emitting |
 | `npm run verify:site-fixes` | Run WIX site fix verification script |
+| `npm run smoke-test` | Run end-to-end smoke test across all subsystems |
 
 ---
 
@@ -430,6 +433,143 @@ How to apply brand logos to product images:
 
 6. **Templates can include logo overlay settings.** A template with `logoOverlay` configured automatically applies the logo to all products created with that template.
 
+### Multi-Angle Product Images
+
+Products automatically fetch front, back, and left-side images from vendor APIs when available:
+
+1. **Automatic multi-angle fetch:** When a product is fetched from SanMar or S&S Activewear, the pipeline requests front, back, and left-side images. Not all vendors provide all angles for every style -- front is always available, back and left may not be.
+
+2. **Preview all angles:** In the preview server (`npm run preview`), angle cards display all available images. Each angle card shows the product from that perspective with the angle label (Front, Back, Left).
+
+3. **Logo overlay per angle:** Each angle supports independent logo overlay placement. Select a different logo or position for each angle as needed.
+
+4. **WIX draft includes all angles:** When creating a WIX product draft, all available angle images are uploaded to the product media gallery.
+
+### Logo Overlay Placement
+
+Visual drag-and-drop interface for positioning logos on product images:
+
+1. **Start the preview server:**
+   ```bash
+   npm run preview
+   ```
+
+2. **Fetch a product** -- angle cards appear showing front, back, and left images.
+
+3. **Select a logo** from the logo picker dropdown for each angle card.
+
+4. **Drag and drop** the logo to position it on the product image.
+
+5. **Use alignment guides** for centering -- crosshair guides snap to the horizontal and vertical center of the image.
+
+6. **Use keyboard arrow keys** for fine-tuning (1px nudge per keypress).
+
+7. **Click "Apply Overlays"** to composite logos onto product images using Sharp with multiply blend mode (screen-print effect).
+
+8. **Logo placement coordinates** are saved with the product creation, stored per-angle per-product.
+
+### Logo Upload & Management
+
+Manage the logo library for brand overlays:
+
+1. **Open the preview server** and navigate to the Logos section.
+
+2. **Drag and drop a PNG file** onto the upload zone (or click to browse).
+
+3. **Image is validated and processed** -- Sharp handles resize and format checks.
+
+4. **Logo appears in the library grid** with a thumbnail preview.
+
+5. **Click to edit metadata** (name, default position).
+
+6. **CLI alternative:** Add a logo file to `media/logos/` and register it in `data/logos.json`:
+   ```bash
+   # Place the file
+   cp my-logo.png media/logos/my-logo.png
+   # Then edit data/logos.json to add the entry
+   ```
+
+### Customer Accounts & Royalties
+
+Multi-customer branded accounts with configurable markup and royalty tracking:
+
+1. **Open the preview server** and navigate to the Customers section.
+
+2. **Click "Add Customer"** to create a new account.
+
+3. **Set customer details:** name, markup percentage, and royalty rate.
+
+4. **Assign logo(s)** from the logo library using the chip picker interface.
+
+5. **Customer pricing auto-calculates:**
+   - Wholesale + markup% = retail price
+   - Retail price x royalty% = royalty per unit
+
+6. **View royalty reports:** Select a customer and date range to see order-based royalty calculations.
+
+7. **Download royalty statement PDF** -- branded, per-customer statement generated with PDFKit.
+
+8. **CLI:** Customer data is stored in `data/customers/customers.json`.
+
+### Batch Product Creation
+
+Create multiple products at once with live progress tracking:
+
+1. **Open the preview server** and navigate to the Batch Create section.
+
+2. **Enter multiple style numbers** (comma or newline separated, up to 50).
+
+3. **Select vendor, pricing preset, and other settings** -- pre-filled from saved preferences.
+
+4. **Click "Start Batch"** to begin creation.
+
+5. **Live progress queue** shows each product's status: queued -> fetching -> creating -> done/error.
+
+6. **Products are processed sequentially** -- respects vendor API rate limits (SanMar SOAP, S&S REST 60 req/min).
+
+7. **Summary bar** shows success/fail counts when the batch is complete.
+
+8. **Note:** Logo overlays are skipped in batch mode. Logo placement requires per-product visual positioning that is incompatible with automated batch processing.
+
+### Order Error Handling
+
+Order management improvements for tracking and resolving fulfillment errors:
+
+1. **Status summary cards** on the orders dashboard show order counts per status. Click a card to filter.
+
+2. **Sync health indicator** shows last WIX sync time with color-coded freshness (green = recent, amber = stale).
+
+3. **Error alert banner** appears when orders have unresolved errors.
+
+4. **Click "View errors"** to see affected orders with operation type, error message, and retry count.
+
+5. **Click "Mark Resolved"** to clear resolved errors from the list.
+
+6. **Automatic retry with exponential backoff** (2s, 4s, 8s) for transient WIX API failures during sync.
+
+7. **On-hold status** supports pausing and resuming fulfillment. Orders can transition: new <-> on-hold and ordered <-> on-hold.
+
+### Inventory Reliability Tools
+
+Enhanced inventory monitoring with health metrics and audit controls:
+
+1. **Dashboard health cards** show sync timing (Avg Tick, Max Tick), notification delivery status, and uptime. Cards are hidden when the sync daemon is not running.
+
+2. **Alert feed supports filtering** by alert type (out-of-stock, critical, low-stock, back-in-stock) and by product.
+
+3. **Per-product threshold overrides:** Products can have custom stock thresholds (shown as "Custom" badge with hover tooltip showing override values).
+   ```bash
+   npm run monitor -- threshold PC61 low 15 critical 5
+   ```
+
+4. **Stale inventory detection:** Snapshots older than `snapshotMaxAgeMinutes` (default: 180 min) trigger an amber warning with age display.
+
+5. **"Run Audit" button** validates all product mappings against the WIX API (rate-limited to 200ms between calls).
+
+6. **Audit results** show orphaned mappings (WIX product was deleted but mapping still exists) with one-click removal.
+
+7. **Alert log retention:** Alerts are pruned by age (30-day default) and count cap (1000 entries), with server-side filtering via query parameters for accurate results.
+
 ### Order Management
 
 Complete order workflow from WIX sync to fulfillment:
@@ -456,7 +596,7 @@ Complete order workflow from WIX sync to fulfillment:
    ```
    new → ordered → received → in-production → packed → shipped → delivered
    ```
-   Status transitions are managed through the CLI or the preview server order dashboard. The "cancelled" status is also available.
+   Status transitions are managed through the CLI or the preview server order dashboard. The "cancelled" and "on-hold" statuses are also available. On-hold can be entered from "new" or "ordered" and returned to the same status.
 
 5. **Generate and print invoices:**
    ```bash
@@ -477,7 +617,7 @@ Complete order workflow from WIX sync to fulfillment:
    Printing uses platform-native commands (PowerShell on Windows, lp on macOS/Linux). Configure preferred printers with `INVOICE_PRINTER` and `LABEL_PRINTER` env vars.
 
 8. **Use the order dashboard:**
-   Start the preview server (`npm run preview`) and navigate to the Orders tab. The dashboard provides filter pills, status updates, sync button, and invoice/label generation.
+   Start the preview server (`npm run preview`) and navigate to the Orders tab. The dashboard provides status summary cards, filter pills, status updates, sync button, error alert banner, and invoice/label generation.
 
 ### SanMar Cart Fill
 
@@ -561,6 +701,12 @@ How to manage profitability, sales, and coupons:
 | `Playwright browser not found` | Playwright browsers not installed | Run `npx playwright install chromium` |
 | `Template 'X' not found` | Template name doesn't match | Check names with `--list-templates`; names are case-insensitive |
 | `Logo 'X' not found in registry` | Logo key not in data/logos.json | Register the logo in data/logos.json first |
+| `No back/left images available` | Vendor doesn't provide all angles for this style | Normal -- only front image is guaranteed; overlay those angles manually |
+| `Logo file too large` | Upload exceeds size limit | Resize image before upload; Sharp handles most formats |
+| `Customer not found` | Customer ID doesn't match any account | Check customer list in dashboard or `data/customers/customers.json` |
+| `Batch limit exceeded (max 50)` | Too many style numbers entered | Split into batches of 50 or fewer |
+| `Stale inventory snapshot` | Snapshot older than `snapshotMaxAgeMinutes` | Sync daemon may be stopped; run `npm run sync:start` |
+| `Orphaned product mapping` | WIX product was deleted but mapping still exists | Run "Audit" in dashboard and click "Remove Orphans" |
 
 ### Diagnostic Commands
 
@@ -589,18 +735,23 @@ npm run sync -- config
 npm run sync -- notify-test
 ```
 
+**Run end-to-end smoke test:**
+```bash
+npm run smoke-test
+```
+
 ---
 
 ## Architecture Overview
 
-The pipeline has 7 modules that work together:
+The pipeline has 8 modules that work together:
 
 ### `scripts/sanmar/` -- SanMar API Client
 SOAP-based client for querying SanMar data. Talks to 4 SanMar endpoints:
 - **Product Info** (getProductByStyle) -- product details, colors, sizes, descriptions
 - **Pricing** (getStylePricing) -- wholesale and retail pricing per style
 - **Inventory** (getStyleInventory via PromoStandards) -- per-SKU stock quantities by warehouse
-- **Media** (getProductImages via PromoStandards) -- product photos, swatch images, front/back views
+- **Media** (getProductImages via PromoStandards) -- product photos, swatch images, front/back/left views
 
 ### `scripts/ss-activewear/` -- S&S Activewear API Client
 REST-based client for querying S&S Activewear catalog. Rate-limited to 60 req/min (sliding window, shared singleton).
@@ -624,37 +775,45 @@ Transforms vendor data into WIX draft products:
 - **mapper.ts** -- Maps vendor data to WIX V1 product schema
 - **create-product.ts** -- Orchestrates WIX product creation (create -> media -> variants -> verify)
 - **wix-api.ts** -- WIX REST API client for products, media, and variants
-- **preview-server.ts** -- Local web server for visual product curation and order dashboard
+- **preview-server.ts** -- Local web server for visual product curation, logo management, customer accounts, batch creation, order dashboard, and inventory reliability dashboard
 - **preview.html** -- Self-contained curation UI (no build tools, no CDN, pure vanilla JS)
 - **pricing-rules.ts** -- Pure-function pricing engine with category presets and size upcharges
 - **validate-pipeline.ts** -- Read-only health check across all subsystems
-- **overlay.ts** -- Sharp-based logo overlay compositing engine
+- **overlay.ts** -- Sharp-based logo overlay compositing engine with multi-angle support
 - **margin-report.ts** -- Cost tracking and margin calculation CLI
 - **sale-pricing.ts** -- Sale/promo pricing engine with WIX price updates
 - **wix-coupons.ts** -- WIX Coupons V2 API integration for coupon management
 - **template system** -- Save/load product creation presets (pricing, collections, overlays)
 - **collection routing** -- Multi-collection product assignment during creation
 
+### `scripts/customers/` -- Customer Account System
+Customer accounts with B2B pricing and royalty tracking:
+- **types.ts** -- CustomerAccount type with markup, royalty rates, logo assignments
+- **store.ts** -- JSON-backed CRUD store (`data/customers/customers.json`)
+- **royalty.ts** -- Pure-function royalty calculation engine
+- **royalty-statement.ts** -- PDFKit branded royalty statement generator
+- **pricing.ts** -- Customer-aware pricing (wholesale + markup + royalty)
+
 ### `scripts/monitor/` -- Inventory Monitoring
 Polls vendor inventory at configurable intervals and detects stock changes:
 - **poller.ts** -- Poll engine with priority-based tiers (hot/normal/slow), batch queries, and daemon resilience
 - **alerts.ts** -- Alert generation for stock level transitions with warehouse-aware detail
-- **alert-log.ts** -- Persistent alert history (capped at 1000 entries with FIFO trimming)
-- **store.ts** -- File-based storage for config, tracked products, and inventory snapshots with per-warehouse breakdown
-- **manage.ts** -- CLI for all monitor operations including warehouse inventory and priority management
+- **alert-log.ts** -- Persistent alert history (capped at 1000 entries with FIFO trimming, 30-day age retention)
+- **store.ts** -- File-based storage for config, tracked products, and inventory snapshots with per-warehouse breakdown and per-product threshold overrides
+- **manage.ts** -- CLI for all monitor operations including warehouse inventory, priority management, and per-product thresholds
 
 ### `scripts/sync/` -- Stock Sync to WIX
 Updates WIX product variant visibility based on vendor inventory:
-- **stock-sync.ts** -- Core sync logic: poll inventory, compare to thresholds, update WIX variant visibility
-- **sync-poller.ts** -- Continuous sync loop combining monitor polling with WIX updates
-- **product-map.ts** -- Manages style:vendor composite -> WIX product ID mappings
-- **notifications.ts** -- SMTP email delivery via Nodemailer with warehouse-enriched stock change alerts
+- **stock-sync.ts** -- Core sync logic: poll inventory, compare to thresholds, update WIX variant visibility with case-insensitive SKU matching
+- **sync-poller.ts** -- Continuous sync loop combining monitor polling with WIX updates, with health timing (avg/max tick) and snapshot staleness detection
+- **product-map.ts** -- Manages style:vendor composite -> WIX product ID mappings with audit and orphan detection
+- **notifications.ts** -- SMTP email delivery via Nodemailer with warehouse-enriched stock change alerts and delivery tracking
 - **manage.ts** -- CLI for all sync operations
 
 ### `scripts/orders/` -- Order Management
 Complete order lifecycle from WIX sync to fulfillment:
-- **wix-orders.ts** -- WIX eCommerce V1 Orders API client
-- **order-store.ts** -- Local order store with JSON persistence (order numbers start at 1001)
+- **wix-orders.ts** -- WIX eCommerce V1 Orders API client with automatic retry and exponential backoff
+- **order-store.ts** -- Local order store with JSON persistence (order numbers start at 1001), error tracking per order
 - **invoice-generator.ts** -- Branded invoice PDF generation with PDFKit
 - **invoice-template.ts** -- Reusable layout helpers for invoice design
 - **label-generator.ts** -- Shipping label PDF generation
@@ -662,7 +821,7 @@ Complete order lifecycle from WIX sync to fulfillment:
 - **cart-consolidation.ts** -- Consolidation engine that groups order items by vendor style/color/size
 - **cart-automation.ts** -- SanMar.com Playwright browser automation for cart filling
 - **cart-cli.ts** -- CLI for cart preview and fill operations
-- **manage.ts** -- CLI for order listing, manual creation, WIX sync, and status updates
+- **manage.ts** -- CLI for order listing, manual creation, WIX sync, and status updates (including on-hold)
 - **index.ts** -- Barrel export as single import surface for preview server
 
 ---
@@ -674,9 +833,9 @@ Runtime data is stored in the `data/` directory (gitignored -- never committed, 
 | Path | Purpose |
 |------|---------|
 | `data/monitor/config.json` | Monitor configuration (poll interval, stock thresholds) |
-| `data/monitor/tracked.json` | List of styles being tracked for inventory (keyed by style:vendor) |
+| `data/monitor/tracked.json` | List of styles being tracked for inventory (keyed by style:vendor), with optional per-product threshold overrides |
 | `data/monitor/snapshots/` | Latest inventory snapshot per tracked style (one file per style, with per-warehouse breakdown) |
-| `data/monitor/alerts.json` | Alert history log (capped at 1000 entries, FIFO trimmed) |
+| `data/monitor/alerts.json` | Alert history log (capped at 1000 entries, 30-day age retention, FIFO trimmed) |
 | `data/sync/product-map.json` | Style:vendor composite -> WIX product ID mappings |
 | `data/collections.json` | WIX collection name-to-ID cache (regenerated via `--list-collections`) |
 | `data/templates.json` | Saved product creation templates (pricing, collections, overlay settings) |
@@ -687,9 +846,11 @@ Runtime data is stored in the `data/` directory (gitignored -- never committed, 
 | `data/invoices/` | Generated invoice PDF files |
 | `data/labels/` | Generated shipping label PDF files |
 | `data/cart-fills/` | Cart automation result logs |
+| `data/customers/customers.json` | Customer accounts with markup/royalty config and logo assignments |
+| `data/pipeline-preferences.json` | Pipeline UI preferences (localStorage server backup) |
 | `.env` | Credentials and configuration (never commit this file) |
 
-**Note:** The `data/` directory is created automatically on first use. If you delete it, all monitor tracking, sync mappings, orders, and templates are lost. The pipeline will recreate the directory structure on next run but you'll need to re-add tracked products, re-scan for mappings, re-create templates, and re-sync orders.
+**Note:** The `data/` directory is created automatically on first use. If you delete it, all monitor tracking, sync mappings, orders, customers, and templates are lost. The pipeline will recreate the directory structure on next run but you'll need to re-add tracked products, re-scan for mappings, re-create templates, re-add customers, and re-sync orders.
 
 ---
 
@@ -729,8 +890,15 @@ These behaviors are worth knowing for day-to-day operation:
 - **Invoices and labels are PDFs.** Generated locally in `data/invoices/` and `data/labels/`. Print via configured printers or download from the dashboard.
 - **Logo overlays use multiply blend mode.** Creates a screen-print effect where the logo appears as if printed on the garment fabric.
 - **Warehouse inventory is tracked per-location.** Multi-warehouse breakdown is available in snapshots, alerts, and email notifications.
+- **Multi-angle images.** Products automatically fetch front, back, and left-side images from vendors when available.
+- **Visual logo placement.** Drag-and-drop interface with alignment guides. Coordinates are per-angle, per-product.
+- **Customer markup.** Each customer has a single markup %. Royalty calculated on retail price, not wholesale.
+- **Batch creation is sequential.** Respects vendor API rate limits. Up to 50 items per batch.
+- **Preferences persist.** Form settings (vendor, preset, markup) save to localStorage and server backup.
+- **Order errors are tracked.** Unresolved errors show in dashboard. Mark resolved when fixed.
+- **Per-product thresholds.** Override global stock thresholds for specific products via CLI or API.
 
 ---
 
-*Last updated: 2026-02-01*
-*Pipeline version: 2.0.0*
+*Last updated: 2026-02-02*
+*Pipeline version: 3.0.0*
