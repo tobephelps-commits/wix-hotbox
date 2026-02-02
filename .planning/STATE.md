@@ -86,6 +86,9 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 
 | Phase | Decision | Rationale |
 |-------|----------|-----------|
+| 27 | localStorage primary + server file fallback for preferences | Fast local reads with resilience to browser resets |
+| 27 | angleOverlayState restored but overlay previews wait for product load | Prevents visual errors from stale image references |
+| 27 | URL query params override saved preferences | Preserves deep-linking functionality |
 | 27 | Sequential batch processing (not parallel) | Vendor APIs (SanMar SOAP, S&S REST) have rate limits; concurrent requests cause failures |
 | 27 | SSE over WebSocket for progress streaming | Simpler protocol, EventSource-native, sufficient for unidirectional batch updates |
 | 27 | 50-item batch limit | Prevents runaway long-running operations |
