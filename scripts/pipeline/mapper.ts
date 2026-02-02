@@ -281,13 +281,19 @@ export function buildCreateProductPayload(
 /**
  * Build WIX media items from curated product and images grouped by color.
  *
- * For each selected color, assigns the front image to that Color choice.
- * Also adds general product images (primary/high-res) without choice assignment.
+ * For each selected color, assigns front, back, and side images to that Color choice.
+ * Also adds general product images (primary/high-res) without choice assignment
+ * to fill remaining slots.
  * Uses SanMar CDN URLs directly (WIX V1 accepts external URLs).
  *
- * Priority order:
- * 1. One front image per selected color (assigned to Color choice)
- * 2. General product images (primary, high-res) without choice assignment
+ * Priority order per color:
+ * 1. Front image (classTypeId 1007) -> assigned to Color choice
+ * 2. Back image (classTypeId 1008) -> assigned to Color choice
+ * 3. Side image (classTypeId 2001) -> assigned to Color choice
+ *
+ * After per-color angle images, fill remaining slots with general images
+ * (primary 1006, high-res 2001 without color assignment) that haven't already
+ * been added.
  *
  * Limited to 15 total images (WIX media limit per product).
  *
@@ -300,39 +306,53 @@ export function buildMediaPayload(
   imagesByColor: Map<string, MediaContent[]>,
 ): WixMediaItem[] {
   const mediaItems: WixMediaItem[] = [];
+  const addedUrls = new Set<string>();
 
-  // Step 1: Add one front image per selected color, assigned to Color choice
+  // Step 1: Add front, back, and side images per selected color, assigned to Color choice
   for (const color of curated.selectedColors) {
     if (mediaItems.length >= WIX_MEDIA_LIMIT) break;
 
     const colorImages = imagesByColor.get(color.catalogColor) ?? [];
+    const choiceAssignment = {
+      option: 'Color',
+      choice: color.displayColor, // ALWAYS use displayColor for WIX
+    };
 
-    // Find the front image for this color
+    // Front image
     const frontImage = colorImages.find(
       (img) => img.classType.classTypeId === CLASS_TYPE_FRONT,
     );
+    if (frontImage && !addedUrls.has(frontImage.url) && mediaItems.length < WIX_MEDIA_LIMIT) {
+      mediaItems.push({ url: frontImage.url, choice: choiceAssignment });
+      addedUrls.add(frontImage.url);
+    }
 
-    if (frontImage) {
-      mediaItems.push({
-        url: frontImage.url,
-        choice: {
-          option: 'Color',
-          choice: color.displayColor, // ALWAYS use displayColor for WIX
-        },
-      });
+    // Back image (classTypeId 1008)
+    const backImage = colorImages.find(
+      (img) => img.classType.classTypeId === CLASS_TYPE_REAR,
+    );
+    if (backImage && !addedUrls.has(backImage.url) && mediaItems.length < WIX_MEDIA_LIMIT) {
+      mediaItems.push({ url: backImage.url, choice: choiceAssignment });
+      addedUrls.add(backImage.url);
+    }
+
+    // Side image (classTypeId 2001)
+    const sideImage = colorImages.find(
+      (img) => img.classType.classTypeId === CLASS_TYPE_HIGH,
+    );
+    if (sideImage && !addedUrls.has(sideImage.url) && mediaItems.length < WIX_MEDIA_LIMIT) {
+      mediaItems.push({ url: sideImage.url, choice: choiceAssignment });
+      addedUrls.add(sideImage.url);
     }
   }
 
-  // Step 2: Add general product images (primary, high-res) without choice assignment
-  // Collect all unique general images across all selected colors
-  const addedUrls = new Set(mediaItems.map((item) => item.url));
-
+  // Step 2: Fill remaining slots with general product images (primary, high-res)
+  // without choice assignment -- only images not already added
   for (const color of curated.selectedColors) {
     if (mediaItems.length >= WIX_MEDIA_LIMIT) break;
 
     const colorImages = imagesByColor.get(color.catalogColor) ?? [];
 
-    // Add primary images
     for (const img of colorImages) {
       if (mediaItems.length >= WIX_MEDIA_LIMIT) break;
       if (addedUrls.has(img.url)) continue;
