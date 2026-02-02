@@ -116,10 +116,12 @@ Plans:
 **Goal**: Period-based royalty calculation with branded PDF statement generation per customer
 **Depends on**: Phase 25
 **Research**: Unlikely (PDFKit already in codebase from v0.2 invoice generation)
-**Plans**: TBD
+**Plans**: 3
 
 Plans:
-- [ ] 26-01: TBD
+- [ ] 26-01: Royalty calculation engine and API endpoints
+- [ ] 26-02: Royalty statement PDF generator
+- [ ] 26-03: Royalty reporting dashboard UI
 
 #### Phase 27: Pipeline Automation
 
