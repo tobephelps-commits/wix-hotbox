@@ -787,6 +787,13 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
     return { route: 'customers' };
   }
 
+  // Pipeline Preferences API (Phase 27)
+
+  // Match /api/preferences
+  if (urlPath === '/api/preferences') {
+    return { route: 'preferences' };
+  }
+
   // Match / (root)
   if (urlPath === '/' || urlPath === '/index.html') {
     return { route: 'serve-html' };
@@ -2280,6 +2287,52 @@ function startServer(port: number, initialStyle?: string): void {
                 const message = err instanceof Error ? err.message : String(err);
                 console.error(`[Preview] Error deleting customer ${param}: ${message}`);
                 sendJson(res, 500, { ok: false, error: 'Internal server error' });
+              }
+            } else {
+              sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          // ── Pipeline Preferences API (Phase 27) ──────────────────────
+
+          case 'preferences': {
+            const PREFS_PATH = path.join(process.cwd(), 'data', 'pipeline-preferences.json');
+
+            if (method === 'GET') {
+              // GET /api/preferences — Read saved preferences
+              try {
+                if (fs.existsSync(PREFS_PATH)) {
+                  const raw = fs.readFileSync(PREFS_PATH, 'utf-8');
+                  const data = JSON.parse(raw);
+                  sendJson(res, 200, { ok: true, data });
+                } else {
+                  sendJson(res, 200, { ok: true, data: null });
+                }
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error reading preferences: ${message}`);
+                sendJson(res, 200, { ok: true, data: null });
+              }
+            } else if (method === 'PUT') {
+              // PUT /api/preferences — Save preferences to disk
+              try {
+                const body = await readBody(req);
+                const data = JSON.parse(body);
+
+                // Ensure data directory exists
+                const dataDir = path.join(process.cwd(), 'data');
+                if (!fs.existsSync(dataDir)) {
+                  fs.mkdirSync(dataDir, { recursive: true });
+                }
+
+                fs.writeFileSync(PREFS_PATH, JSON.stringify(data, null, 2), 'utf-8');
+                console.log('[Preview] Pipeline preferences saved');
+                sendJson(res, 200, { ok: true });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error saving preferences: ${message}`);
+                sendJson(res, 500, { ok: false, error: 'Failed to save preferences' });
               }
             } else {
               sendJson(res, 405, { ok: false, error: 'Method not allowed' });
