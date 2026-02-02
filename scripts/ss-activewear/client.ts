@@ -49,8 +49,9 @@ export async function ssGet<T>(
   // Wait for rate limit slot
   await ssRateLimiter.acquire();
 
-  // Build URL
-  const url = new URL(path, SS_API_BASE_URL + '/');
+  // Build URL — concatenate base + path to preserve /v2 prefix
+  // (new URL with absolute path would drop the /v2 segment)
+  const url = new URL(SS_API_BASE_URL + path);
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       url.searchParams.set(key, value);

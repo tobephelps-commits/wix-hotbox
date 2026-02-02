@@ -13,7 +13,7 @@
 
 import { ssGetWithRetry } from '../client.js';
 import { SS_IMAGE_BASE_URL } from '../constants.js';
-import type { SSProduct } from '../types/index.js';
+import type { SSProduct, SSStyle } from '../types/index.js';
 
 // =============================================================================
 // Product Queries
@@ -23,10 +23,23 @@ import type { SSProduct } from '../types/index.js';
  * Get all product SKUs for a given style/part number.
  * Returns one SSProduct per SKU (style + color + size combination).
  *
- * @param style - S&S style/part number (e.g., "2000" for Gildan Ultra Cotton)
+ * S&S API's /products/?style= filters by internal styleID, but users enter
+ * catalog style numbers (styleName). This function resolves styleName → styleID
+ * via the /styles/?search= endpoint before querying products.
+ *
+ * @param style - S&S catalog style number (e.g., "8512", "2000")
  * @returns Array of product SKUs, or empty array if style not found
  */
 export async function getSSProductsByStyle(style: string): Promise<SSProduct[]> {
+  // Resolve user-entered styleName to internal styleID via search endpoint
+  const styles = await ssGetWithRetry<SSStyle[]>(`/styles/`, { search: style });
+  const exactMatch = styles.find(s => String(s.styleName) === style);
+
+  if (exactMatch) {
+    return ssGetWithRetry<SSProduct[]>(`/products/`, { style: String(exactMatch.styleID) });
+  }
+
+  // Fallback: treat input as styleID directly (backward compat)
   return ssGetWithRetry<SSProduct[]>(`/products/`, { style });
 }
 

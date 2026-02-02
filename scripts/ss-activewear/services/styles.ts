@@ -22,11 +22,21 @@ import type { SSStyle } from '../types/index.js';
  * Get style metadata for a given style/part number.
  * Returns title, description, categories, and brand info.
  *
- * @param style - S&S style/part number (e.g., "2000")
+ * Uses /styles/?search= which matches catalog style numbers (styleName),
+ * then filters for exact match. Falls back to path-based /styles/{id}
+ * for direct styleID lookups.
+ *
+ * @param style - S&S catalog style number (e.g., "8512", "2000")
  * @returns Array of matching styles, or empty array if not found
  */
 export async function getSSStyleInfo(style: string): Promise<SSStyle[]> {
-  return ssGetWithRetry<SSStyle[]>(`/styles/`, { style });
+  // Search matches against catalog styleName
+  const results = await ssGetWithRetry<SSStyle[]>(`/styles/`, { search: style });
+  const exactMatch = results.find(s => String(s.styleName) === style);
+  if (exactMatch) return [exactMatch];
+
+  // Fallback: treat input as styleID (path-based lookup)
+  return ssGetWithRetry<SSStyle[]>(`/styles/${encodeURIComponent(style)}`);
 }
 
 /**
