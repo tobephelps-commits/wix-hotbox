@@ -70,3 +70,9 @@ export interface CustomerStore {
   /** ISO-8601 timestamp of last update */
   lastUpdated: string;
 }
+
+// =============================================================================
+// Royalty Types (re-exported from royalty.ts for convenience)
+// =============================================================================
+
+export type { RoyaltyLineItem, RoyaltyReport } from './royalty.js';
