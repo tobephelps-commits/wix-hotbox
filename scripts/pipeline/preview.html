@@ -4009,6 +4009,262 @@
   }
 
   // =========================================================================
+  // Batch Create — SSE stream and progress queue (Phase 27)
+  // =========================================================================
+
+  var batchAbortController = null;
+
+  /**
+   * Get the batch preset's size upcharges. Reads from PRICING_PRESETS matching batchPresetSelect value.
+   */
+  function getBatchSizeUpcharges() {
+    var presetKey = batchPresetSelect.value;
+    var preset = PRICING_PRESETS[presetKey];
+    if (preset && preset.sizeUpcharges) {
+      return JSON.parse(JSON.stringify(preset.sizeUpcharges));
+    }
+    return {};
+  }
+
+  /**
+   * Build BatchCreateRequest from current batch form settings.
+   */
+  function buildBatchRequest(styles) {
+    var colorStrategy = document.querySelector('input[name="batchColorStrategy"]:checked').value;
+    var sizeStrategy = batchSizeStrategyAll.checked ? 'all' : batchCustomSizes.value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+    return {
+      items: styles.map(function(s) { return { style: s }; }),
+      defaults: {
+        vendor: batchVendorSelect.value || currentVendor,
+        pricingConfig: {
+          markupPercent: parseFloat(batchMarkupInput.value) || pricingConfig.markupPercent,
+          rounding: batchRoundingSelect.value || pricingConfig.rounding,
+          sizeUpcharges: getBatchSizeUpcharges()
+        },
+        collections: [],
+        decorationCost: 0
+      },
+      colorStrategy: colorStrategy,
+      sizeStrategy: sizeStrategy
+    };
+  }
+
+  /**
+   * Map stage to dot index (0-3).
+   */
+  function stageToDotIndex(stage) {
+    switch (stage) {
+      case 'queued': return 0;
+      case 'fetching': return 1;
+      case 'creating': case 'media': case 'variants': return 2;
+      case 'done': return 3;
+      case 'error': return -1;
+      default: return 0;
+    }
+  }
+
+  /**
+   * Get stage display text and icon.
+   */
+  function stageDisplay(stage, message) {
+    switch (stage) {
+      case 'queued':   return { icon: '\u25CB', iconClass: '', text: 'Queued' };
+      case 'fetching': return { icon: '\u27F3', iconClass: 'spin', text: message || 'Fetching from vendor...' };
+      case 'creating': return { icon: '\u27F3', iconClass: 'spin', text: message || 'Creating WIX draft...' };
+      case 'media':    return { icon: '\u27F3', iconClass: 'spin', text: message || 'Adding images...' };
+      case 'variants': return { icon: '\u27F3', iconClass: 'spin', text: message || 'Updating variants...' };
+      case 'done':     return { icon: '\u2713', iconClass: '', text: message || 'Done' };
+      case 'error':    return { icon: '\u2717', iconClass: '', text: message || 'Error' };
+      default:         return { icon: '\u25CB', iconClass: '', text: message || stage };
+    }
+  }
+
+  /**
+   * Create or update a batch progress card for an item event.
+   */
+  function handleBatchItemEvent(item) {
+    var cardId = 'batch-card-' + item.index;
+    var card = document.getElementById(cardId);
+
+    if (!card) {
+      // Create new card
+      card = document.createElement('div');
+      card.id = cardId;
+      card.className = 'batch-item-card';
+      card.setAttribute('data-index', item.index);
+      card.innerHTML =
+        '<div class="batch-item-style"></div>' +
+        '<div class="batch-item-stage"><span class="batch-stage-icon"></span> <span class="stage-text"></span></div>' +
+        '<div class="batch-progress-dots">' +
+          '<span class="dot"></span>' +
+          '<span class="dot"></span>' +
+          '<span class="dot"></span>' +
+          '<span class="dot"></span>' +
+        '</div>' +
+        '<span class="batch-item-link-wrap"></span>';
+      batchQueueCards.appendChild(card);
+    }
+
+    // Update stage
+    card.setAttribute('data-stage', item.stage);
+    card.querySelector('.batch-item-style').textContent = item.style;
+
+    var display = stageDisplay(item.stage, item.message);
+    var iconEl = card.querySelector('.batch-stage-icon');
+    iconEl.textContent = display.icon;
+    iconEl.className = 'batch-stage-icon' + (display.iconClass ? ' ' + display.iconClass : '');
+    card.querySelector('.stage-text').textContent = display.text;
+
+    // Update dots
+    var dots = card.querySelectorAll('.batch-progress-dots .dot');
+    var activeIdx = stageToDotIndex(item.stage);
+
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = 'dot';
+      if (item.stage === 'error') {
+        if (i <= Math.max(activeIdx, 1)) dots[i].className = 'dot error';
+      } else if (item.stage === 'done') {
+        dots[i].className = 'dot done';
+      } else if (i <= activeIdx) {
+        dots[i].className = 'dot active';
+      }
+    }
+
+    // If done, add link
+    var linkWrap = card.querySelector('.batch-item-link-wrap');
+    if (item.stage === 'done' && item.result) {
+      var info = item.result.variantsCreated + ' variants, ' + item.result.mediaAdded + ' images';
+      linkWrap.innerHTML = '<a class="batch-item-link" href="' + item.result.productUrl + '" target="_blank">' + info + ' \u2197</a>';
+    } else if (item.stage === 'error') {
+      linkWrap.innerHTML = '<span style="font-size:12px;color:#e74c3c;">' + (item.error || 'Failed') + '</span>';
+    }
+  }
+
+  /**
+   * Handle a batch summary event — show summary bar.
+   */
+  function handleBatchSummary(event) {
+    var summary = event.summary;
+    if (!summary) return;
+
+    var succeeded = summary.succeeded;
+    var failed = summary.failed;
+    var duration = (summary.duration / 1000).toFixed(1);
+    var total = succeeded + failed;
+
+    var checkEl = batchSummaryBar.querySelector('.batch-summary-check');
+    var textEl = batchSummaryBar.querySelector('.batch-summary-text');
+
+    batchSummaryBar.className = 'batch-summary-bar visible';
+    if (failed === 0) {
+      batchSummaryBar.classList.add('success');
+      checkEl.textContent = '\u2713';
+      textEl.textContent = 'Batch complete: ' + succeeded + ' created \u2014 ' + duration + 's';
+    } else if (succeeded === 0) {
+      batchSummaryBar.classList.add('failure');
+      checkEl.textContent = '\u2717';
+      textEl.textContent = 'Batch failed: ' + failed + ' of ' + total + ' failed \u2014 ' + duration + 's';
+    } else {
+      batchSummaryBar.classList.add('partial');
+      checkEl.textContent = '\u26A0';
+      textEl.textContent = 'Batch complete: ' + succeeded + ' created, ' + failed + ' failed \u2014 ' + duration + 's';
+    }
+
+    batchStartBtn.disabled = false;
+  }
+
+  /**
+   * Route incoming SSE event to appropriate handler.
+   */
+  function handleBatchEvent(event) {
+    if (event.type === 'item' && event.item) {
+      handleBatchItemEvent(event.item);
+    } else if (event.type === 'summary') {
+      handleBatchSummary(event);
+    }
+  }
+
+  /**
+   * Start batch processing — POST to /api/batch-create and read SSE stream.
+   */
+  async function startBatch(request) {
+    batchStartBtn.disabled = true;
+    batchProgressContainer.classList.add('visible');
+    batchQueueCards.innerHTML = '';
+    batchSummaryBar.className = 'batch-summary-bar';
+
+    // Abort any prior batch
+    if (batchAbortController) {
+      batchAbortController.abort();
+    }
+    batchAbortController = new AbortController();
+
+    try {
+      var res = await fetch('/api/batch-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+        signal: batchAbortController.signal
+      });
+
+      if (!res.ok) {
+        var errText = await res.text();
+        setStatus('Batch error: ' + res.status + ' ' + errText, 'error');
+        batchStartBtn.disabled = false;
+        return;
+      }
+
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+
+      while (true) {
+        var chunk = await reader.read();
+        if (chunk.done) break;
+
+        buffer += decoder.decode(chunk.value, { stream: true });
+        var lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep incomplete line in buffer
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (line.startsWith('data: ')) {
+            try {
+              var json = JSON.parse(line.slice(6));
+              handleBatchEvent(json);
+            } catch (parseErr) {
+              // Skip malformed SSE lines
+            }
+          }
+        }
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        setStatus('Batch error: ' + (err.message || err), 'error');
+      }
+    }
+
+    batchStartBtn.disabled = false;
+  }
+
+  // Start Batch button click handler
+  batchStartBtn.addEventListener('click', function() {
+    var styles = parseBatchStyles(batchTextarea.value);
+    if (styles.length === 0) return;
+    var request = buildBatchRequest(styles);
+    startBatch(request);
+  });
+
+  // New Batch button — reset progress queue
+  batchNewBtn.addEventListener('click', function() {
+    batchQueueCards.innerHTML = '';
+    batchSummaryBar.className = 'batch-summary-bar';
+    batchProgressContainer.classList.remove('visible');
+    batchStartBtn.disabled = parseBatchStyles(batchTextarea.value).length === 0;
+  });
+
+  // =========================================================================
   // Preferences Persistence (Phase 27 — recent-choice memory)
   // =========================================================================
 
