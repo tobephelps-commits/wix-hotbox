@@ -40,6 +40,9 @@ import {
   getLogoEntry,
   getPositionPreset,
   listLogos,
+  updateLogo,
+  removeLogo,
+  processLogoUpload,
 } from './overlay.js';
 import {
   getAllProductCosts,
@@ -162,6 +165,34 @@ function readBody(req: http.IncomingMessage): Promise<string> {
 }
 
 /**
+ * Read the full request body as a raw Buffer.
+ * Used for binary file uploads (logo upload).
+ *
+ * @param req - Incoming HTTP request
+ * @param maxBytes - Maximum body size in bytes (default 10MB)
+ * @throws Error if body exceeds maxBytes
+ *
+ * Phase 24: Logo Upload & Management
+ */
+function readRawBody(req: http.IncomingMessage, maxBytes = 10 * 1024 * 1024): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    let size = 0;
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length;
+      if (size > maxBytes) {
+        req.destroy();
+        reject(new Error('File too large (max 10MB)'));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
+/**
  * Send a JSON response with CORS headers.
  */
 function sendJson(
@@ -173,8 +204,8 @@ function sendJson(
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Logo-Key, X-Logo-Display-Name',
   });
   res.end(body);
 }
@@ -207,8 +238,8 @@ function sendBuffer(
     'Content-Type': contentType,
     'Content-Length': buffer.length,
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Logo-Key, X-Logo-Display-Name',
     ...(extraHeaders ?? {}),
   });
   res.end(buffer);
@@ -343,6 +374,17 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/presets
   if (urlPath === '/api/presets') {
     return { route: 'presets' };
+  }
+
+  // Match /api/logos/upload (Phase 24 - must come before /api/logos)
+  if (urlPath === '/api/logos/upload') {
+    return { route: 'logos-upload' };
+  }
+
+  // Match /api/logos/:name for PUT/DELETE (Phase 24 - must come before /api/logos)
+  const logosManageMatch = urlPath.match(/^\/api\/logos\/([A-Za-z0-9_-]+)\/?$/);
+  if (logosManageMatch) {
+    return { route: 'logos-manage', param: logosManageMatch[1] };
   }
 
   // Match /api/logos
@@ -523,8 +565,8 @@ function startServer(port: number, initialStyle?: string): void {
       if (method === 'OPTIONS') {
         res.writeHead(204, {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, X-Logo-Key, X-Logo-Display-Name',
         });
         res.end();
         return;
@@ -654,6 +696,82 @@ function startServer(port: number, initialStyle?: string): void {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error loading logo registry: ${message}`);
               sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          // ── Logo Upload & Management API (Phase 24) ─────────────────
+
+          case 'logos-upload': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // POST /api/logos/upload — Upload a new logo file
+            // Uses raw binary body with metadata in custom headers
+            try {
+              const logoKey = req.headers['x-logo-key'] as string | undefined;
+              const logoDisplayName = req.headers['x-logo-display-name'] as string | undefined;
+
+              if (!logoKey || !logoDisplayName) {
+                sendJson(res, 200, {
+                  ok: false,
+                  error: 'Missing required headers: X-Logo-Key and X-Logo-Display-Name',
+                });
+                break;
+              }
+
+              const fileBuffer = await readRawBody(req);
+              if (fileBuffer.length === 0) {
+                sendJson(res, 200, { ok: false, error: 'Empty request body — no file data received' });
+                break;
+              }
+
+              const originalFilename = logoDisplayName;
+              const entry = await processLogoUpload(fileBuffer, originalFilename, logoKey, logoDisplayName);
+              console.log(`[Preview] Logo uploaded: key="${logoKey}" file="media/logos/${logoKey}.png"`);
+              sendJson(res, 200, { ok: true, logo: { key: logoKey, entry } });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error uploading logo: ${message}`);
+              sendJson(res, 200, { ok: false, error: message });
+            }
+            break;
+          }
+
+          case 'logos-manage': {
+            // PUT /api/logos/:name — Update logo metadata
+            // DELETE /api/logos/:name — Remove a logo
+            if (method === 'PUT') {
+              try {
+                const body = await readBody(req);
+                const payload = JSON.parse(body);
+                const updates: Record<string, unknown> = {};
+                if (payload.displayName !== undefined) updates.displayName = payload.displayName;
+                if (payload.defaultScale !== undefined) updates.defaultScale = payload.defaultScale;
+                if (payload.defaultOpacity !== undefined) updates.defaultOpacity = payload.defaultOpacity;
+                if (payload.defaultBlendMode !== undefined) updates.defaultBlendMode = payload.defaultBlendMode;
+
+                const updated = updateLogo(param!, updates as any);
+                console.log(`[Preview] Logo updated: key="${param}"`);
+                sendJson(res, 200, { ok: true, logo: { key: param, entry: updated } });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error updating logo ${param}: ${message}`);
+                sendJson(res, 200, { ok: false, error: message });
+              }
+            } else if (method === 'DELETE') {
+              try {
+                removeLogo(param!, true);
+                console.log(`[Preview] Logo deleted: key="${param}"`);
+                sendJson(res, 200, { ok: true });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                console.error(`[Preview] Error deleting logo ${param}: ${message}`);
+                sendJson(res, 200, { ok: false, error: message });
+              }
+            } else {
+              sendJson(res, 405, { error: 'Method not allowed. Use PUT or DELETE.' });
             }
             break;
           }
