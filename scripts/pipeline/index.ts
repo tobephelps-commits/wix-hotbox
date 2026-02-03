@@ -15,6 +15,8 @@ export type {
   WixInfoSection,
   WixMediaItem,
   WixVariantUpdate,
+  WixInventoryVariant,
+  WixInventoryUpdate,
   CuratedProduct,
   CuratedColor,
   ProductPreview,
@@ -55,6 +57,8 @@ export {
   listAllProducts,
   listCollections,
   getCollectionByName,
+  getInventory,
+  updateInventory,
 } from './wix-api.js';
 
 export type {
@@ -65,6 +69,8 @@ export type {
   WixVariantStock,
   WixProductPageUrl,
   WixCollection,
+  WixInventoryItem,
+  WixInventoryItemVariant,
 } from './wix-api.js';
 
 // Template system

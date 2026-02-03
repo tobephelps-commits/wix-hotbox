@@ -646,6 +646,37 @@ export interface WixCoupon {
 }
 
 // =============================================================================
+// WIX Inventory API Types
+// =============================================================================
+
+/**
+ * Inventory variant for WIX Inventory API.
+ *
+ * Phase 31: Stock Visibility — Inventory tracking instead of visibility toggle.
+ */
+export interface WixInventoryVariant {
+  /** WIX variant ID (from updateProductVariants response) */
+  variantId: string;
+  /** Whether this variant is in stock */
+  inStock: boolean;
+  /** Quantity on hand (optional for inStock=false) */
+  quantity?: number;
+}
+
+/**
+ * Update inventory request for WIX Inventory API.
+ *
+ * Phase 31: Stock Visibility — Uses WIX Inventory V2 API to set
+ * trackQuantity and per-variant quantities instead of hiding variants.
+ */
+export interface WixInventoryUpdate {
+  /** Enable inventory tracking for this product */
+  trackQuantity: boolean;
+  /** Per-variant inventory updates */
+  variants: WixInventoryVariant[];
+}
+
+// =============================================================================
 // Batch Creation Types
 // =============================================================================
 

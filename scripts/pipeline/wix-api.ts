@@ -19,6 +19,7 @@ import type {
   WixCreateProductRequest,
   WixMediaItem,
   WixVariantUpdate,
+  WixInventoryUpdate,
 } from './types.js';
 
 // =============================================================================
@@ -30,6 +31,9 @@ const WIX_SITE_ID = 'c744cbdb-46f8-4c66-ac76-eb31bd0d52c1';
 
 /** WIX Stores V1 API base URL */
 const WIX_API_BASE = 'https://www.wixapis.com/stores/v1';
+
+/** WIX Inventory V2 API base URL */
+const WIX_INVENTORY_API_BASE = 'https://www.wixapis.com/stores/v2/inventoryItems';
 
 // =============================================================================
 // WIX API Response Types (WIX-specific, defined here)
@@ -85,6 +89,21 @@ export interface WixCollection {
   id: string;
   name: string;
   [key: string]: unknown;
+}
+
+/** WIX inventory item variant returned from Inventory API */
+export interface WixInventoryItemVariant {
+  variantId: string;
+  inStock: boolean;
+  quantity: number;
+}
+
+/** WIX inventory item returned from Inventory API */
+export interface WixInventoryItem {
+  id: string;
+  productId: string;
+  trackQuantity: boolean;
+  variants: WixInventoryItemVariant[];
 }
 
 // =============================================================================
@@ -549,6 +568,76 @@ export async function getCollectionByName(name: string): Promise<WixCollection> 
   }
 
   return match;
+}
+
+// =============================================================================
+// Inventory V2 API Functions (Phase 31: Stock Visibility)
+// =============================================================================
+
+/**
+ * Get inventory for a product.
+ *
+ * GET /stores/v2/inventoryItems/product/{productId}?includeVariants=true
+ *
+ * @param productId - The WIX product ID
+ * @returns Inventory item with variant quantities
+ */
+export async function getInventory(
+  productId: string,
+): Promise<WixInventoryItem> {
+  const endpoint = `${WIX_INVENTORY_API_BASE}/product/${productId}?includeVariants=true`;
+
+  console.log(`[WIX API] Fetching inventory for product ${productId}...`);
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    await handleErrorResponse(response, endpoint, `productId=${productId}`);
+  }
+
+  const data = await response.json() as { inventoryItem: WixInventoryItem };
+  return data.inventoryItem;
+}
+
+/**
+ * Update inventory for a product.
+ *
+ * PATCH /stores/v2/inventoryItems/product/{productId}
+ *
+ * Updates trackQuantity flag and per-variant inStock/quantity values.
+ * This is the Phase 31 approach: variants remain visible but show
+ * "Out of Stock" when quantity is 0.
+ *
+ * @param productId - The WIX product ID
+ * @param update - Inventory update with trackQuantity and variant quantities
+ */
+export async function updateInventory(
+  productId: string,
+  update: WixInventoryUpdate,
+): Promise<void> {
+  const endpoint = `${WIX_INVENTORY_API_BASE}/product/${productId}`;
+
+  console.log(`[WIX API] Updating inventory for product ${productId} (${update.variants.length} variants)...`);
+
+  const response = await fetch(endpoint, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify({
+      inventoryItem: {
+        trackQuantity: update.trackQuantity,
+        variants: update.variants,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    await handleErrorResponse(response, endpoint, `productId=${productId}`);
+  }
+
+  console.log(`[WIX API] Inventory updated for product ${productId}`);
 }
 
 // =============================================================================
