@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 31 of 36 (Stock Visibility)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 31-01-PLAN.md
+Last activity: 2026-02-03 - Completed 31-02-PLAN.md
 
-Progress: █░░░░░░░░░ 10%
+Progress: ██░░░░░░░░ 20%
 
 ## Performance Metrics
 
@@ -164,9 +164,11 @@ None
 | 31 | Use WIX Inventory V2 API for stock visibility | Native inventory tracking shows "Out of Stock" instead of hiding variants |
 | 31 | Keep all variants visible (visible: true) | Customers can see all color/size options, improving UX |
 | 31 | Rename hidden/restored to outOfStock/restocked | More accurate terminology for inventory-based approach |
+| 31 | Capture variant IDs from updateProductVariants response | Need IDs to map SKU -> variantId for inventory API |
+| 31 | Inventory update non-blocking on failure | Product creation should succeed even if inventory API fails |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 31-01-PLAN.md
+Stopped at: Completed 31-02-PLAN.md
 Resume file: None
