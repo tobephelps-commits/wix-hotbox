@@ -63,7 +63,7 @@ const CLASS_TYPE_FRONT = 1007;
 const CLASS_TYPE_REAR = 1008;
 /** Primary product image classTypeId */
 const CLASS_TYPE_PRIMARY = 1006;
-/** High-resolution image classTypeId (NOT a side view — typically another front/lifestyle shot) */
+/** High-resolution image classTypeId (NOT a side view — see adapter.ts and 33-RESEARCH.md) */
 const CLASS_TYPE_HIGH = 2001;
 
 /** Maximum images per WIX product */
@@ -140,12 +140,11 @@ export function buildProductPreview(
         img.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
     );
 
-    // Find side image for this color (classTypeId 2001 = High)
-    const sideImage = images.find(
-      (img) =>
-        img.classType.classTypeId === CLASS_TYPE_HIGH &&
-        img.color.toLowerCase() === colorPair.catalogColor.toLowerCase(),
-    );
+    // SanMar does NOT provide true side-view images. CLASS_TYPE_HIGH (2001) is a
+    // high-resolution front/lifestyle shot, not a side profile suitable for sleeve
+    // logo placement. Set sideImage to null explicitly to prevent incorrect overlay.
+    // See: 33-RESEARCH.md and SanMar adapter.ts lines 146-152 for details.
+    const sideImage = null;
 
     // Stock status depends on whether inventory data is available
     if (!inventoryAvailable) {
@@ -156,7 +155,7 @@ export function buildProductPreview(
         swatchUrl: swatchImage?.url ?? null,
         frontImageUrl: frontImage?.url ?? null,
         backImageUrl: backImage?.url ?? null,
-        sideImageUrl: sideImage?.url ?? null,
+        sideImageUrl: null, // SanMar doesn't provide side images
         inStock: false,
         stockUnknown: true,
       };
@@ -174,7 +173,7 @@ export function buildProductPreview(
       swatchUrl: swatchImage?.url ?? null,
       frontImageUrl: frontImage?.url ?? null,
       backImageUrl: backImage?.url ?? null,
-      sideImageUrl: sideImage?.url ?? null,
+      sideImageUrl: null, // SanMar doesn't provide side images
       inStock,
     };
   });
