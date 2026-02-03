@@ -294,6 +294,23 @@ This improves UX by showing customers the full range of available options while 
 - Product creation enables `trackQuantity: true` and sets initial quantities
 - Variant `visible` field remains `true` for all variants
 
+### Variant Image Switching (Phase 32)
+
+The product pipeline assigns color-specific images to variants via the WIX API's `choice` field. To enable variant image switching in the storefront:
+
+**WIX Editor Configuration Required:**
+1. Open WIX Editor > Navigate to Product Page
+2. Click Product Gallery widget > Settings
+3. Enable "Link gallery images to product options"
+4. Save and publish
+
+See `.planning/phases/32-variant-image-switching/VARIANT-IMAGE-SWITCHING.md` for detailed guide.
+
+**How It Works:**
+- Pipeline assigns front/back/side images to each color via API
+- WIX stores the image-to-color linking in product data
+- Editor setting tells the storefront gallery to switch images on variant selection
+
 ### Syncing Stock to WIX
 
 How to keep WIX product inventory quantities in sync with vendor inventory:
