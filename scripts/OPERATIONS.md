@@ -65,6 +65,7 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run sync -- unlink PC61` | Remove a product mapping |
 | `npm run sync -- notify-test` | Send a test email to verify SMTP config |
 | `npm run sync -- config` | Show current sync and notification config |
+| `npx tsx scripts/pipeline/enable-inventory.ts <STYLE>` | Enable inventory tracking for legacy products |
 
 ### Order Management
 
@@ -278,9 +279,24 @@ How to track SanMar stock levels and get alerts when stock changes:
    npm run monitor -- remove PC61
    ```
 
+### Stock Visibility Behavior (Phase 31)
+
+**Previous behavior:** Out-of-stock variants were hidden (visible: false). Customers couldn't see that certain color/size combinations existed.
+
+**Current behavior:** All variants remain visible. WIX Inventory API tracks stock quantities:
+- In-stock variants: Show normally with "Add to Cart"
+- Out-of-stock variants: Show "Out of Stock" message when selected (or "item is no longer available" when attempting to add to cart)
+
+This improves UX by showing customers the full range of available options while clearly indicating which are unavailable.
+
+**Technical change:**
+- Stock sync uses `updateInventory()` instead of `updateProductVariants()` for stock changes
+- Product creation enables `trackQuantity: true` and sets initial quantities
+- Variant `visible` field remains `true` for all variants
+
 ### Syncing Stock to WIX
 
-How to keep WIX product variant visibility in sync with SanMar inventory:
+How to keep WIX product inventory quantities in sync with vendor inventory:
 
 1. **Auto-discover WIX products matching tracked styles:**
    ```bash
@@ -303,7 +319,7 @@ How to keep WIX product variant visibility in sync with SanMar inventory:
    ```bash
    npm run sync:run
    ```
-   This polls SanMar inventory, updates WIX variant visibility based on stock, and sends email notification (if configured).
+   This polls SanMar inventory, updates WIX inventory quantities based on stock, and sends email notification (if configured).
 
 5. **Start continuous sync loop:**
    ```bash
@@ -315,6 +331,35 @@ How to keep WIX product variant visibility in sync with SanMar inventory:
    ```bash
    npm run sync -- unlink PC61
    ```
+
+### Enabling Inventory for Legacy Products
+
+Products created before Phase 31 (or outside the pipeline) don't have WIX Inventory tracking enabled. Use the `enable-inventory.ts` utility to retroactively enable it:
+
+1. **Enable inventory for a specific product:**
+   ```bash
+   npx tsx scripts/pipeline/enable-inventory.ts SXU005
+   ```
+
+2. **Specify vendor if needed:**
+   ```bash
+   npx tsx scripts/pipeline/enable-inventory.ts PC61 --vendor sanmar
+   npx tsx scripts/pipeline/enable-inventory.ts 2000 --vendor ss
+   ```
+
+3. **Use product ID directly (if name search doesn't find it):**
+   ```bash
+   npx tsx scripts/pipeline/enable-inventory.ts --product-id <WIX_PRODUCT_ID> SXU005
+   ```
+
+The utility:
+- Finds the WIX product by style number (searches by name)
+- Fetches vendor inventory for that style
+- Enables `trackQuantity=true` on the WIX product
+- Sets correct per-variant inventory quantities
+- Uses both SKU-based and choice-based matching strategies
+
+**When to use:** Run this for any product that shows "Add to Cart" for out-of-stock variants instead of "Out of Stock" or "item is no longer available."
 
 ### Setting Up Email Notifications
 
@@ -880,7 +925,7 @@ These behaviors are worth knowing for day-to-day operation:
 - **Products are always created as invisible drafts.** You must publish them manually in the WIX Dashboard after review.
 - **Pricing, inventory, and media are optional.** If any vendor APIs fail, the product is still created -- you just get a warning about what's missing.
 - **First inventory poll skips low-stock alerts.** Only critical (near zero) and out-of-stock alerts fire on the initial poll. This prevents a flood of alerts when you first start monitoring.
-- **Stock sync updates variant visibility, not the entire product.** When a variant goes out of stock, it's hidden (visible: false). When it comes back in stock, it's shown again. Existing price, SKU, and weight are preserved.
+- **Stock sync updates inventory quantities, not variant visibility.** When a variant goes out of stock, WIX shows "Out of Stock" on the storefront (the variant remains visible). When it comes back in stock, the quantity is updated. Existing price, SKU, and weight are preserved.
 - **Email is skipped when nothing changed.** If a sync cycle finds no stock changes, no email is sent.
 - **The validation script is completely read-only.** It never creates, modifies, or deletes any WIX data.
 - **Style numbers are case-insensitive.** `pc61`, `PC61`, and `Pc61` all work the same way.
@@ -901,5 +946,5 @@ These behaviors are worth knowing for day-to-day operation:
 
 ---
 
-*Last updated: 2026-02-02*
-*Pipeline version: 3.0.0*
+*Last updated: 2026-02-03*
+*Pipeline version: 3.0.1*
