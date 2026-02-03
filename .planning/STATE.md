@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 31 of 36 (Stock Visibility)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-03 - Milestone v1.1 created
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 31-01-PLAN.md
 
-Progress: ░░░░░░░░░░ 0%
+Progress: █░░░░░░░░░ 10%
 
 ## Performance Metrics
 
@@ -157,8 +157,16 @@ None
 |-------|----------|-----------|
 | 30 | Multi-file import strategy for customers module test | No barrel export exists; sentinel path triggers custom script generation |
 
+### Phase 31 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 31 | Use WIX Inventory V2 API for stock visibility | Native inventory tracking shows "Out of Stock" instead of hiding variants |
+| 31 | Keep all variants visible (visible: true) | Customers can see all color/size options, improving UX |
+| 31 | Rename hidden/restored to outOfStock/restocked | More accurate terminology for inventory-based approach |
+
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Milestone v1.1 initialization
+Stopped at: Completed 31-01-PLAN.md
 Resume file: None

@@ -35,7 +35,7 @@ None
 **Plans**: 3
 
 Plans:
-- [ ] 31-01: WIX Inventory API service + stock sync refactor
+- [x] 31-01: WIX Inventory API service + stock sync refactor
 - [ ] 31-02: Product creation inventory integration
 - [ ] 31-03: Verification + documentation (has checkpoint)
 
@@ -175,7 +175,7 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 28. Order Management Hardening | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 29. Inventory Sync Reliability | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 30. Integration Testing & Polish | v1.0 | 3/3 | Complete | 2026-02-02 |
-| 31. Stock Visibility | v1.1 | 0/? | Not started | - |
+| 31. Stock Visibility | v1.1 | 1/3 | In progress | - |
 | 32. Variant Image Switching | v1.1 | 0/? | Not started | - |
 | 33. Side-View Image Investigation & Fix | v1.1 | 0/? | Not started | - |
 | 34. Operations Dashboard Foundation | v1.1 | 0/? | Not started | - |
