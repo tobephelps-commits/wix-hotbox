@@ -41,6 +41,8 @@ import type {
   WixCreateProductRequest,
   WixMediaItem,
   WixVariantUpdate,
+  WixInventoryVariant,
+  WixInventoryUpdate,
   ProductPreview,
   ColorPreview,
   PricingPreview,
@@ -417,17 +419,15 @@ export function buildVariantUpdates(
           sku.size.toLowerCase() === size.toLowerCase(),
       );
 
-      // Determine if in stock (has any inventory)
-      const isVariantInStock = matchingInventory
-        ? getTotalQuantity(matchingInventory) > 0
-        : false;
-
       // Get weight from matching product (default to 0 if not found)
       const weight = matchingProduct?.productBasicInfo.pieceWeight ?? 0;
 
       // Build SKU: "{style}-{catalogColor}-{size}" format
       const sku = `${curated.style}-${color.catalogColor}-${size}`;
 
+      // Phase 31: All variants are always visible
+      // Stock visibility is handled via WIX Inventory API (trackQuantity + quantity)
+      // instead of hiding out-of-stock variants
       variants.push({
         choices: {
           Color: color.displayColor, // ALWAYS displayColor for WIX-facing data
@@ -437,10 +437,63 @@ export function buildVariantUpdates(
         cost: wholesaleCost,
         weight,
         sku,
-        visible: isVariantInStock,
+        visible: true,
       });
     }
   }
 
   return variants;
+}
+
+// =============================================================================
+// 5. buildInventoryUpdate
+// =============================================================================
+
+/**
+ * Build a WIX Inventory API update payload from curated product and inventory.
+ *
+ * Creates the WixInventoryUpdate structure for the Inventory V2 API, setting
+ * trackQuantity to true and providing per-variant inStock/quantity values.
+ *
+ * Phase 31: Stock Visibility — This approach keeps all variants visible in the
+ * storefront, but displays "Out of Stock" when a variant's quantity is 0.
+ *
+ * @param curated - The curated product with selections
+ * @param inventory - SKU inventory from vendor
+ * @param variantIds - Map of SKU -> WIX variantId (from updateProductVariants response)
+ * @returns WixInventoryUpdate payload for the Inventory V2 API
+ */
+export function buildInventoryUpdate(
+  curated: CuratedProduct,
+  inventory: SkuInventory[],
+  variantIds: Map<string, string>,
+): WixInventoryUpdate {
+  const variants: WixInventoryVariant[] = [];
+
+  for (const color of curated.selectedColors) {
+    for (const size of curated.selectedSizes) {
+      const sku = `${curated.style}-${color.catalogColor}-${size}`;
+      const variantId = variantIds.get(sku);
+      if (!variantId) continue;
+
+      const matchingInventory = inventory.find(
+        (inv) =>
+          inv.color.toLowerCase() === color.catalogColor.toLowerCase() &&
+          inv.size.toLowerCase() === size.toLowerCase(),
+      );
+
+      const qty = matchingInventory ? getTotalQuantity(matchingInventory) : 0;
+
+      variants.push({
+        variantId,
+        inStock: qty > 0,
+        quantity: qty,
+      });
+    }
+  }
+
+  return {
+    trackQuantity: true,
+    variants,
+  };
 }

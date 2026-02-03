@@ -36,6 +36,7 @@ export {
   buildCreateProductPayload,
   buildMediaPayload,
   buildVariantUpdates,
+  buildInventoryUpdate,
 } from './mapper.js';
 
 // Data fetcher
