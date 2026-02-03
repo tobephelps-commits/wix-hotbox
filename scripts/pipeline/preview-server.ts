@@ -364,6 +364,7 @@ async function handleCreateProduct(
       `[Preview] Creating WIX draft for ${curated.style} (${curated.pricingConfig.markupPercent}% markup, ${curated.pricingConfig.rounding} rounding)...`,
     );
     const result = await createWixProduct(curated, productData);
+    console.log('[Preview Server] Product created with inventory tracking enabled');
 
     sendJson(res, 200, { ok: true, result });
   } catch (err) {
