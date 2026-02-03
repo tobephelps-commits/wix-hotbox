@@ -40,15 +40,16 @@ Plans:
 - [x] 31-02: Product creation inventory integration
 - [x] 31-03: Verification + documentation (has checkpoint)
 
-#### Phase 32: Variant Image Switching
+#### Phase 32: Variant Image Switching ✓
 
 **Goal**: Display color-specific product images when customer selects a color variant
 **Depends on**: Phase 31
-**Research**: Unlikely (WIX storefront image display - internal patterns)
-**Plans**: TBD
+**Research**: No (WIX storefront image display - internal patterns)
+**Plans**: 1
+**Completed**: 2026-02-03
 
 Plans:
-- [ ] 32-01: TBD
+- [x] 32-01: Verify API linking + WIX Editor configuration guide (has checkpoint)
 
 #### Phase 33: Side-View Image Investigation & Fix
 
@@ -177,7 +178,7 @@ Phases execute in numeric order: 31 → 32 → 33 → 34 → 35 → 36
 | 29. Inventory Sync Reliability | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 30. Integration Testing & Polish | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 31. Stock Visibility | v1.1 | 3/3 | Complete | 2026-02-03 |
-| 32. Variant Image Switching | v1.1 | 0/? | Not started | - |
+| 32. Variant Image Switching | v1.1 | 1/1 | Complete | 2026-02-03 |
 | 33. Side-View Image Investigation & Fix | v1.1 | 0/? | Not started | - |
 | 34. Operations Dashboard Foundation | v1.1 | 0/? | Not started | - |
 | 35. Product Pipeline Wizard | v1.1 | 0/? | Not started | - |
