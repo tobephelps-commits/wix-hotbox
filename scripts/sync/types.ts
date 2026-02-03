@@ -46,21 +46,24 @@ export interface ProductMapping {
 /**
  * Result of a sync operation for one product.
  *
- * Tracks how many variants were hidden (out of stock),
- * restored (back in stock), or unchanged during the sync.
+ * Tracks how many variants had their inventory updated:
+ * out-of-stock (quantity set to 0), restocked (quantity > 0),
+ * or unchanged during the sync.
+ *
+ * Phase 31: Changed from visibility-based to inventory-based sync.
  */
 export interface SyncResult {
-  /** SanMar style number */
+  /** Vendor style number */
   style: string;
   /** Product name for display */
   productName: string;
   /** WIX product ID that was synced */
   wixProductId: string;
-  /** Number of variants set to visible: false (out of stock) */
-  variantsHidden: number;
-  /** Number of variants set to visible: true (restocked) */
-  variantsRestored: number;
-  /** Number of variants with no visibility change */
+  /** Number of variants set to out-of-stock (quantity 0) */
+  variantsOutOfStock: number;
+  /** Number of variants restocked (quantity > 0) */
+  variantsRestocked: number;
+  /** Number of variants with no inventory change */
   variantsUnchanged: number;
   /** Number of variants with unparseable SKUs */
   parseErrors: number;

@@ -20,10 +20,10 @@
  * Phase 9: Automated Stock Sync
  */
 
-import { getProduct, updateProductVariants } from '../pipeline/wix-api.js';
-import type { WixVariantUpdate } from '../pipeline/types.js';
+import { getProduct, updateInventory } from '../pipeline/wix-api.js';
+import type { WixInventoryVariant } from '../pipeline/types.js';
 import type { MonitorConfig, InventorySnapshot, SkuSnapshot } from '../monitor/types.js';
-import { classifyStockLevel } from '../monitor/alerts.js';
+// Note: classifyStockLevel is no longer used — Phase 31 updates quantities directly
 import { isSnapshotStale } from '../monitor/store.js';
 import { findMapping } from './product-map.js';
 import type { SyncConfig, SyncResult } from './types.js';
@@ -111,8 +111,8 @@ export async function syncProductStock(
     style,
     productName: mapping.productName,
     wixProductId: mapping.wixProductId,
-    variantsHidden: 0,
-    variantsRestored: 0,
+    variantsOutOfStock: 0,
+    variantsRestocked: 0,
     variantsUnchanged: 0,
     parseErrors: 0,
     errors: [],
@@ -146,8 +146,9 @@ export async function syncProductStock(
       snapshotMap.set(`${sku.color.toLowerCase()}|${sku.size}`, sku);
     }
 
-    // Determine updates needed
-    const updates: WixVariantUpdate[] = [];
+    // Phase 31: Build inventory updates instead of visibility toggles
+    // Compare quantity and inStock status, update via Inventory API
+    const inventoryUpdate: WixInventoryVariant[] = [];
 
     for (const variant of product.variants) {
       // Parse SKU to extract catalogColor and size
@@ -162,49 +163,43 @@ export async function syncProductStock(
 
       // Find matching snapshot SKU (case-insensitive color match)
       const snapshotSku = snapshotMap.get(`${parsed.catalogColor.toLowerCase()}|${parsed.size}`);
-      if (!snapshotSku) {
-        // No inventory data for this color/size -- leave unchanged
-        result.variantsUnchanged++;
-        continue;
-      }
+      const newQty = snapshotSku?.totalQty ?? 0;
 
-      // Classify stock level and determine desired visibility
-      const stockLevel = classifyStockLevel(snapshotSku.totalQty, config);
-      const desiredVisible = stockLevel !== 'out-of-stock';
-      const currentVisible = variant.variant.visible;
+      // WIX returns stock.quantity for current level
+      const currentQty = variant.stock?.quantity ?? 0;
+      const currentInStock = variant.stock?.inStock ?? false;
+      const newInStock = newQty > 0;
 
-      if (desiredVisible === currentVisible) {
-        // No change needed
-        result.variantsUnchanged++;
-        continue;
-      }
+      // Only update if quantity or inStock status changed
+      if (currentQty !== newQty || currentInStock !== newInStock) {
+        inventoryUpdate.push({
+          variantId: variant.id,
+          inStock: newInStock,
+          quantity: newQty,
+        });
 
-      // Build variant update -- carry over all existing data, change only visibility
-      updates.push({
-        choices: variant.choices,
-        price: variant.variant.priceData.price,
-        cost: variant.variant.priceData.price, // WIX V1 cost field
-        weight: variant.variant.weight,
-        sku: variant.variant.sku,
-        visible: desiredVisible,
-      });
-
-      if (desiredVisible) {
-        result.variantsRestored++;
+        if (newInStock && !currentInStock) {
+          result.variantsRestocked++;
+        } else if (!newInStock && currentInStock) {
+          result.variantsOutOfStock++;
+        }
       } else {
-        result.variantsHidden++;
+        result.variantsUnchanged++;
       }
     }
 
-    // Send batch update if there are changes
-    if (updates.length > 0) {
+    // Send inventory update if changes detected
+    if (inventoryUpdate.length > 0) {
       console.log(
-        `[Sync] ${style}: Updating ${updates.length} variant(s) ` +
-        `(${result.variantsHidden} hidden, ${result.variantsRestored} restored)`,
+        `[Sync] ${style}: Updating ${inventoryUpdate.length} variant(s) ` +
+        `(${result.variantsOutOfStock} out-of-stock, ${result.variantsRestocked} restocked)`,
       );
-      await updateProductVariants(mapping.wixProductId, updates);
+      await updateInventory(mapping.wixProductId, {
+        trackQuantity: true,
+        variants: inventoryUpdate,
+      });
     } else {
-      console.log(`[Sync] ${style}: No visibility changes needed.`);
+      console.log(`[Sync] ${style}: No inventory changes needed.`);
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -288,8 +283,8 @@ export function buildSyncSummary(results: SyncResult[]): string {
 
   for (const r of results) {
     const parts: string[] = [];
-    parts.push(`${r.variantsHidden} hidden`);
-    parts.push(`${r.variantsRestored} restored`);
+    parts.push(`${r.variantsOutOfStock} out-of-stock`);
+    parts.push(`${r.variantsRestocked} restocked`);
     parts.push(`${r.variantsUnchanged} unchanged`);
 
     let line = `  ${r.style} ${r.productName}: ${parts.join(', ')}`;
@@ -303,14 +298,14 @@ export function buildSyncSummary(results: SyncResult[]): string {
   }
 
   // Totals
-  const totalHidden = results.reduce((sum, r) => sum + r.variantsHidden, 0);
-  const totalRestored = results.reduce((sum, r) => sum + r.variantsRestored, 0);
+  const totalOutOfStock = results.reduce((sum, r) => sum + r.variantsOutOfStock, 0);
+  const totalRestocked = results.reduce((sum, r) => sum + r.variantsRestocked, 0);
   const totalUnchanged = results.reduce((sum, r) => sum + r.variantsUnchanged, 0);
   const totalErrors = results.reduce((sum, r) => sum + r.errors.length, 0);
 
   lines.push('');
   lines.push(
-    `  Total: ${totalHidden} hidden, ${totalRestored} restored, ` +
+    `  Total: ${totalOutOfStock} out-of-stock, ${totalRestocked} restocked, ` +
     `${totalUnchanged} unchanged` +
     (totalErrors > 0 ? `, ${totalErrors} error(s)` : ''),
   );

@@ -151,7 +151,7 @@ export async function buildSyncEmailBody(
   // Check if there's anything to report
   const hasAlerts = alerts.length > 0;
   const hasChanges = results.some(
-    (r) => r.variantsHidden > 0 || r.variantsRestored > 0,
+    (r) => r.variantsOutOfStock > 0 || r.variantsRestocked > 0,
   );
 
   if (!hasAlerts && !hasChanges) {
@@ -221,11 +221,11 @@ export async function buildSyncEmailBody(
 
     for (const r of results) {
       const parts: string[] = [];
-      if (r.variantsHidden > 0) {
-        parts.push(`${r.variantsHidden} variant(s) hidden (out of stock at SanMar)`);
+      if (r.variantsOutOfStock > 0) {
+        parts.push(`${r.variantsOutOfStock} variant(s) out-of-stock`);
       }
-      if (r.variantsRestored > 0) {
-        parts.push(`${r.variantsRestored} variant(s) restored (back in stock)`);
+      if (r.variantsRestocked > 0) {
+        parts.push(`${r.variantsRestocked} variant(s) restocked`);
       }
       if (r.variantsUnchanged > 0) {
         parts.push(`${r.variantsUnchanged} variant(s) unchanged`);
@@ -263,20 +263,20 @@ export async function buildSyncEmailBody(
   }
 
   // Summary totals
-  const totalHidden = results.reduce((sum, r) => sum + r.variantsHidden, 0);
-  const totalRestored = results.reduce((sum, r) => sum + r.variantsRestored, 0);
-  const totalChanges = totalHidden + totalRestored;
+  const totalOutOfStock = results.reduce((sum, r) => sum + r.variantsOutOfStock, 0);
+  const totalRestocked = results.reduce((sum, r) => sum + r.variantsRestocked, 0);
+  const totalChanges = totalOutOfStock + totalRestocked;
 
   lines.push('SUMMARY');
   lines.push('-------');
   lines.push(`Products checked: ${results.length}`);
   if (totalChanges > 0) {
     lines.push(
-      `WIX updates made: ${results.filter((r) => r.variantsHidden > 0 || r.variantsRestored > 0).length} product(s), ${totalChanges} variant change(s)`,
+      `WIX updates made: ${results.filter((r) => r.variantsOutOfStock > 0 || r.variantsRestocked > 0).length} product(s), ${totalChanges} variant change(s)`,
     );
   }
   const noChangeCount = results.filter(
-    (r) => r.variantsHidden === 0 && r.variantsRestored === 0,
+    (r) => r.variantsOutOfStock === 0 && r.variantsRestocked === 0,
   ).length;
   if (noChangeCount > 0) {
     lines.push(`No action needed: ${noChangeCount} product(s) (no changes)`);
@@ -371,7 +371,7 @@ export async function notifySyncResults(
 
   // Build subject line
   const totalChanges = results.reduce(
-    (sum, r) => sum + r.variantsHidden + r.variantsRestored,
+    (sum, r) => sum + r.variantsOutOfStock + r.variantsRestocked,
     0,
   );
   const alertCount = alerts.length;
