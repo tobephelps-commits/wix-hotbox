@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Position
 
-Phase: 32 of 36 (Variant Image Switching) - PLANNED
-Plan: 0 of 1 in current phase
-Status: Plan created, ready for execution
-Last activity: 2026-02-03 - Phase 32 planned
+Phase: 32 of 36 (Variant Image Switching) - IN PROGRESS
+Plan: 1 of 1 in current phase (paused at checkpoint)
+Status: Tasks 1-3 complete, awaiting human verification (Task 4)
+Last activity: 2026-02-03 - Plan 32-01 paused at checkpoint
 
 Progress: ███░░░░░░░ 30%
 
@@ -167,8 +167,16 @@ None
 | 31 | Capture variant IDs from updateProductVariants response | Need IDs to map SKU -> variantId for inventory API |
 | 31 | Inventory update non-blocking on failure | Product creation should succeed even if inventory API fails |
 
+### Phase 32 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 32 | Verification-only for API layer (no code changes) | buildMediaPayload() already correctly assigns images to color choices |
+| 32 | Editor configuration is required (not API-automatable) | WIX Product Gallery widget setting cannot be changed via REST API |
+
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Phase 32 planned (32-01-PLAN.md ready)
+Stopped at: Plan 32-01 Task 4 (checkpoint: human-verify)
 Resume file: .planning/phases/32-variant-image-switching/32-01-PLAN.md
+Checkpoint: Enable Editor setting and verify images switch on live storefront
