@@ -13,6 +13,7 @@ None
 - ✅ **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
 - ✅ **v0.2 Multi-Brand Operations** -- Phases 11-20 (shipped 2026-02-01)
 - ✅ **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (shipped 2026-02-02)
+- 🚧 **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (in progress)
 
 ## Completed Milestones
 
@@ -21,6 +22,71 @@ None
 - [v1.0 Visual Branding & Business Operations](milestones/v1.0-ROADMAP.md) (Phases 21-30) -- SHIPPED 2026-02-02
 
 ## Phases
+
+### 🚧 v1.1 Storefront Polish & Operations Dashboard (In Progress)
+
+**Milestone Goal:** Enhance customer-facing storefront with stock visibility and variant image switching, plus build operational tooling for easier store management including daemon controls, pipeline wizard, and product migration.
+
+#### Phase 31: Stock Visibility
+
+**Goal**: Grey out and strikethrough unavailable color/size combinations in storefront UI
+**Depends on**: v1.0 complete
+**Research**: Unlikely (WIX variant inventory sync - internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 31-01: TBD (run /gsd:plan-phase 31 to break down)
+
+#### Phase 32: Variant Image Switching
+
+**Goal**: Display color-specific product images when customer selects a color variant
+**Depends on**: Phase 31
+**Research**: Unlikely (WIX storefront image display - internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 32-01: TBD
+
+#### Phase 33: Side-View Image Investigation & Fix
+
+**Goal**: Debug root cause of incorrect side angle images from vendor API, fix for sleeve logo placement
+**Depends on**: Phase 32
+**Research**: Likely (debugging vendor API response data and angle selection logic)
+**Research topics**: Vendor API angle field values, image URL patterns, current angle selection implementation
+**Plans**: TBD
+
+Plans:
+- [ ] 33-01: TBD
+
+#### Phase 34: Operations Dashboard Foundation
+
+**Goal**: Build daemon control panel and store health overview dashboard
+**Depends on**: Phase 33
+**Research**: Unlikely (internal dashboard - established patterns from existing admin pages)
+**Plans**: TBD
+
+Plans:
+- [ ] 34-01: TBD
+
+#### Phase 35: Product Pipeline Wizard
+
+**Goal**: Step-by-step guided product creation with previews at each stage
+**Depends on**: Phase 34
+**Research**: Unlikely (UI wrapper for existing pipeline functionality)
+**Plans**: TBD
+
+Plans:
+- [ ] 35-01: TBD
+
+#### Phase 36: Product Migration Tooling
+
+**Goal**: Batch re-import existing products through pipeline, register for inventory tracking
+**Depends on**: Phase 35
+**Research**: Unlikely (batch usage of existing pipeline with tracking registration)
+**Plans**: TBD
+
+Plans:
+- [ ] 36-01: TBD
 
 <details>
 <summary>✅ v0.1 MVP (Phases 1-10) -- SHIPPED 2026-01-31</summary>
@@ -107,3 +173,9 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 28. Order Management Hardening | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 29. Inventory Sync Reliability | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 30. Integration Testing & Polish | v1.0 | 3/3 | Complete | 2026-02-02 |
+| 31. Stock Visibility | v1.1 | 0/? | Not started | - |
+| 32. Variant Image Switching | v1.1 | 0/? | Not started | - |
+| 33. Side-View Image Investigation & Fix | v1.1 | 0/? | Not started | - |
+| 34. Operations Dashboard Foundation | v1.1 | 0/? | Not started | - |
+| 35. Product Pipeline Wizard | v1.1 | 0/? | Not started | - |
+| 36. Product Migration Tooling | v1.1 | 0/? | Not started | - |
