@@ -27,15 +27,18 @@ import {
   buildCreateProductPayload,
   buildMediaPayload,
   buildVariantUpdates,
+  buildInventoryUpdate,
 } from './mapper.js';
 import {
   createProduct,
   addProductMedia,
   updateProductVariants,
+  updateInventory,
   getProduct,
   addProductToCollection,
   getCollectionByName,
 } from './wix-api.js';
+import type { WixVariant } from './wix-api.js';
 import { calculateRetailPrice, calculateFullMargin, calculateTotalCost, getPresetConfig, PRICING_PRESETS } from './pricing-rules.js';
 import { getTemplate, saveTemplate, listTemplates } from './templates.js';
 import { recordProductCost } from './cost-tracker.js';
@@ -128,6 +131,7 @@ export async function createWixProduct(
 
   // Step 3: Update variant pricing, SKU, weight, visibility (OPTIONAL -- continue on failure)
   let variantCount = curated.selectedColors.length * curated.selectedSizes.length;
+  let updatedVariants: WixVariant[] = [];
   try {
     const variantUpdates = buildVariantUpdates(
       curated,
@@ -135,7 +139,7 @@ export async function createWixProduct(
       productData.pricing,
       productData.inventory,
     );
-    await updateProductVariants(productId, variantUpdates);
+    updatedVariants = await updateProductVariants(productId, variantUpdates);
     variantCount = variantUpdates.length;
     console.log(
       `  \u2713 Variants updated: ${variantUpdates.length} variants (${curated.selectedColors.length} colors \u00d7 ${curated.selectedSizes.length} sizes)`,
@@ -145,6 +149,27 @@ export async function createWixProduct(
     const warning = `Variant update failed for ${productId}: ${msg}. Product exists as draft but variants need manual configuration.`;
     warnings.push(warning);
     console.error(`  \u2717 ${warning}`);
+  }
+
+  // Step 3b: Set initial inventory quantities (OPTIONAL -- continue on failure)
+  if (updatedVariants.length > 0) {
+    try {
+      // Build SKU -> variantId map for inventory update
+      const variantIdMap = new Map<string, string>();
+      for (const v of updatedVariants) {
+        variantIdMap.set(v.variant.sku, v.id);
+      }
+
+      console.log(`[Pipeline] Setting inventory levels for ${updatedVariants.length} variants...`);
+      const inventoryPayload = buildInventoryUpdate(curated, productData.inventory, variantIdMap);
+      await updateInventory(productId, inventoryPayload);
+      console.log('[Pipeline] Inventory levels set.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const warning = `Inventory update failed for ${productId}: ${msg}. Product created but inventory tracking needs manual configuration.`;
+      warnings.push(warning);
+      console.warn(`  \u2717 ${warning}`);
+    }
   }
 
   // Step 4: Verify creation (OPTIONAL -- product was already created)
