@@ -24,6 +24,7 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run create-product -- PC61 --logo bb --logo-position left-chest` | Apply logo overlay to product images |
 | `npm run overlay-test` | Run logo overlay compositing test |
 | `npm run smoke-test` | Run end-to-end smoke test across all subsystems |
+| `npm run demo` | Run SanMar API demo/debug script |
 
 ### Pricing & Promotions
 
