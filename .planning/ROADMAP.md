@@ -12,12 +12,13 @@ None
 
 - ✅ **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
 - ✅ **v0.2 Multi-Brand Operations** -- Phases 11-20 (shipped 2026-02-01)
-- 🚧 **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (in progress)
+- ✅ **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (shipped 2026-02-02)
 
 ## Completed Milestones
 
 - [v0.1 MVP](milestones/v0.1-ROADMAP.md) (Phases 1-10) -- SHIPPED 2026-01-31
 - [v0.2 Multi-Brand Operations](milestones/v0.2-ROADMAP.md) (Phases 11-20) -- SHIPPED 2026-02-01
+- v1.0 Visual Branding & Business Operations (Phases 21-30) -- SHIPPED 2026-02-02
 
 ## Phases
 
@@ -53,7 +54,7 @@ None
 
 </details>
 
-### 🚧 v1.0 Visual Branding & Business Operations (In Progress)
+### ✅ v1.0 Visual Branding & Business Operations (SHIPPED 2026-02-02)
 
 **Milestone Goal:** Multi-angle branded product imagery with visual placement tools, customer royalty tracking with PDF reporting, and pipeline/operations hardening.
 
@@ -167,8 +168,8 @@ Plans:
 
 Plans:
 - [x] 30-01: Update smoke test for v1.0 coverage (new endpoints, customer module) -- completed 2026-02-02
-- [ ] 30-02: Update OPERATIONS.md for v1.0 features
-- [ ] 30-03: Final smoke test verification and v1.0 milestone close-out
+- [x] 30-02: Update OPERATIONS.md for v1.0 features -- completed 2026-02-02
+- [x] 30-03: Final smoke test verification and v1.0 milestone close-out -- completed 2026-02-02
 
 ## Progress
 
@@ -206,4 +207,4 @@ Phases execute in numeric order: 21 → 22 → 23 → 24 → 25 → 26 → 27 �
 | 27. Pipeline Automation | v1.0 | 3/3 | Complete | 2026-02-02 |
 | 28. Order Management Hardening | v1.0 | 2/2 | Complete | 2026-02-02 |
 | 29. Inventory Sync Reliability | v1.0 | 3/3 | Complete | 2026-02-02 |
-| 30. Integration Testing & Polish | v1.0 | 1/3 | In progress | - |
+| 30. Integration Testing & Polish | v1.0 | 3/3 | Complete | 2026-02-02 |

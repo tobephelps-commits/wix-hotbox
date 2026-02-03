@@ -2,27 +2,28 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-01)
+See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** v1.0 Visual Branding & Business Operations
+**Current focus:** v1.0 Visual Branding & Business Operations -- SHIPPED
 
 ## Current Position
 
 Phase: 30 of 30 (Integration Testing & Polish)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-02 - Completed 30-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-02 - Completed 30-03-PLAN.md
 
-Progress: █████████░ 99%
+Progress: ██████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 95 (34 v0.1 + 38 v0.2 + 23 v1.0)
+- Total plans completed: 96 (34 v0.1 + 38 v0.2 + 24 v1.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
+- v1.0: 24 plans across 1 day (2026-02-02)
 
 **By Phase (v0.1):**
 
@@ -53,6 +54,21 @@ Progress: █████████░ 99%
 | 18. Order Management | 6/6 | 6 sessions | 1 session |
 | 19. Cart Automation | 3/3 | 3 sessions | 1 session |
 | 20. Testing & Polish | 3/3 | 3 sessions | 1 session |
+
+**By Phase (v1.0):**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 21. Multi-Angle Images | 1/1 | 1 session | 1 session |
+| 22. Multi-Angle Logo Overlay | 2/2 | 2 sessions | 1 session |
+| 23. Visual Logo Placement UI | 2/2 | 2 sessions | 1 session |
+| 24. Logo Upload & Management | 2/2 | 2 sessions | 1 session |
+| 25. Customer Account System | 3/3 | 3 sessions | 1 session |
+| 26. Royalty Calculation & PDF | 3/3 | 3 sessions | 1 session |
+| 27. Pipeline Automation | 3/3 | 3 sessions | 1 session |
+| 28. Order Mgmt Hardening | 2/2 | 2 sessions | 1 session |
+| 29. Inventory Sync Reliability | 3/3 | 3 sessions | 1 session |
+| 30. Integration Testing & Polish | 3/3 | 3 sessions | 1 session |
 
 ## Accumulated Context
 
@@ -132,6 +148,7 @@ None
 - Milestone v0.2 created: multi-brand operations, 10 phases (Phase 11-20)
 - Milestone v0.2 shipped: 2026-02-01, 38 plans, 4 days
 - Milestone v1.0 created: visual branding & business operations, 10 phases (Phase 21-30)
+- Milestone v1.0 shipped: 2026-02-02, 24 plans, 1 day
 
 ### Phase 30 Decisions
 
@@ -142,6 +159,6 @@ None
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 30-02-PLAN.md (OPERATIONS.md v1.0 update)
+Stopped at: Completed 30-03-PLAN.md (v1.0 milestone close-out)
 Resume file: None
-Note: Phase 30 in progress (2/3 plans). Next: 30-03 (final verification & milestone close).
+Note: v1.0 milestone complete. All 30 phases shipped. 96 plans total across v0.1, v0.2, v1.0.

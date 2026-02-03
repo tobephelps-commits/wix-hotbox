@@ -35,6 +35,16 @@ Effortless product creation — enter a style number from any supported vendor a
 - ✓ Invoice and shipping label PDF generation with printing — v0.2 (PDFKit, cross-platform print)
 - ✓ SanMar cart automation for order fulfillment — v0.2 (Playwright browser automation)
 - ✓ Operational documentation and smoke test validation — v0.2 (29/29 checks, OPERATIONS.md runbook)
+- ✓ Multi-angle product images (front, back, left) from vendor APIs — v1.0
+- ✓ Visual logo placement with drag-and-drop WYSIWYG editor — v1.0
+- ✓ Logo upload and management facility — v1.0
+- ✓ Customer account system with B2B markup pricing — v1.0
+- ✓ Royalty calculation and branded PDF statement generation — v1.0
+- ✓ Batch product creation with live SSE progress streaming — v1.0
+- ✓ Pipeline preferences persistence (localStorage + server backup) — v1.0
+- ✓ Order management hardening (error tracking, retry, on-hold status) — v1.0
+- ✓ Inventory sync reliability (per-product thresholds, staleness detection, mapping audit) — v1.0
+- ✓ End-to-end v1.0 integration testing and operational documentation — v1.0 (34/34 checks, OPERATIONS.md v3.0)
 
 ### Active
 
@@ -53,10 +63,10 @@ Effortless product creation — enter a style number from any supported vendor a
 
 ## Context
 
-Shipped v0.2 with ~29,000 LOC TypeScript/HTML across 85 code files.
+Shipped v1.0 with ~36,000 LOC TypeScript/HTML across 90 source files.
 Tech stack: Node.js 18+, TypeScript (ESM/NodeNext), SOAP (SanMar API), REST (WIX V1 API, S&S Activewear API), Nodemailer (SMTP), Sharp (image compositing), PDFKit (PDF generation), Playwright (browser automation, site verification).
-System modules: pipeline (product creation, preview server), sanmar (API client, SOAP), vendors (adapter abstraction), monitor (inventory alerts), sync (stock polling, WIX sync), orders (lifecycle, invoices, labels, cart automation), pricing (cost tracking, margins, sales/promos).
-Preview server (localhost:3456) is single-pane-of-glass for product curation, order management, inventory monitoring, profitability analysis, and promotion management.
+System modules (8): pipeline (product creation, preview server), sanmar (API client, SOAP), ss-activewear (REST client), vendor (adapter abstraction), monitor (inventory alerts), sync (stock polling, WIX sync), orders (lifecycle, invoices, labels, cart automation), customers (accounts, royalties, pricing).
+Preview server (localhost:3456) is single-pane-of-glass for product curation, order management, inventory monitoring, profitability analysis, promotion management, customer accounts, royalty reporting, batch operations, and logo placement.
 Store has 105 products across 10 collections. 30 WIX Editor manual fixes pending for store owner.
 
 ## Constraints
@@ -89,4 +99,4 @@ Store has 105 products across 10 collections. 30 WIX Editor manual fixes pending
 | All UI in single preview.html | Consistent pattern, single-file deployment | ⚠️ Revisit — file growing large; may need splitting for maintainability |
 
 ---
-*Last updated: 2026-02-01 after v0.2 milestone*
+*Last updated: 2026-02-02 after v1.0 milestone*
