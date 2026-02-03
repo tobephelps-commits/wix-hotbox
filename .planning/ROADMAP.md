@@ -29,13 +29,15 @@ None
 
 #### Phase 31: Stock Visibility
 
-**Goal**: Grey out and strikethrough unavailable color/size combinations in storefront UI
+**Goal**: Show "Out of Stock" for unavailable color/size combinations instead of hiding them
 **Depends on**: v1.0 complete
-**Research**: Unlikely (WIX variant inventory sync - internal patterns)
-**Plans**: TBD
+**Research**: No (WIX Inventory API integration - internal patterns)
+**Plans**: 3
 
 Plans:
-- [ ] 31-01: TBD (run /gsd:plan-phase 31 to break down)
+- [ ] 31-01: WIX Inventory API service + stock sync refactor
+- [ ] 31-02: Product creation inventory integration
+- [ ] 31-03: Verification + documentation (has checkpoint)
 
 #### Phase 32: Variant Image Switching
 
