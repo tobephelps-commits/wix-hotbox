@@ -5,26 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Planning next milestone
+**Current focus:** Dashboard redesign - tabbed navigation
 
 ## Current Position
 
 Phase: 37 of 42 (Dashboard Redesign - Tabbed Navigation)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-04 - Milestone v1.2 created
+Plan: 02 complete (pending human verification)
+Status: Checkpoint - awaiting human verification
+Last activity: 2026-02-04 - Plan 37-02 complete (sections moved to tabs)
 
-Progress: ░░░░░░░░░░ 0% (v1.2)
+Progress: ██░░░░░░░░ 8% (v1.2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 105 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1)
+- Total plans completed: 107 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 2 v1.2)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
 - v1.0: 24 plans across 1 day (2026-02-02)
 - v1.1: 9 plans (2026-02-03 to 2026-02-04)
+- v1.2: 2 plans (2026-02-04)
 
 **By Phase (v0.1):**
 
@@ -219,11 +220,23 @@ None
 | 36 | Vendor detection via text + SKU heuristics | Standard naming conventions allow reliable vendor identification |
 | 36 | Style+vendor composite key for tracking lookup | Same style number can exist on different vendors |
 
+### Phase 37 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 37 | 200px sidebar width | Sufficient for icon + label without wasting screen space |
+| 37 | Dark theme matching header (#1a1a2e) | Consistent visual design with existing header |
+| 37 | Left border accent for active state | Clear visual indicator without being intrusive |
+| 37 | localStorage for tab persistence | Fast local reads, survives session |
+| 37 | Responsive collapse at 768px | Mobile-friendly without complete redesign |
+| 37 | .tab-panel-extra wrapper divs for floating content | Content outside main tab panels needs visibility control |
+| 37 | CSS margin-left for sidebar offset on extra panels | Extra panels at document level need layout alignment |
+
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Milestone v1.2 initialization
-Resume file: None
+Stopped at: Plan 37-02 complete (pending human verification)
+Resume file: .planning/phases/37-dashboard-tabbed-navigation/37-02-SUMMARY.md
 
 ## Milestones Shipped
 
