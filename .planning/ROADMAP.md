@@ -71,10 +71,10 @@ Plans:
 **Goal**: Multi-select operations for status changes, batch production sheets, cart fills
 **Depends on**: Phase 40
 **Research**: Unlikely (internal patterns)
-**Plans**: TBD
 
 Plans:
-- [ ] 41-01: TBD
+- [ ] 41-01: Backend bulk operations API (status updates, batch production sheets)
+- [ ] 41-02: UI multi-select and bulk action toolbar
 
 #### Phase 42: Integration & Polish
 
