@@ -11599,11 +11599,11 @@ async function wizardFetchProduct() {
     const preview = document.getElementById('wizardProductPreview');
     preview.classList.add('visible');
 
-    document.getElementById('wizardProductName').textContent = productPreview.productName;
-    document.getElementById('wizardWholesale').textContent = `$${productPreview.wholesaleCost.toFixed(2)}`;
-    document.getElementById('wizardRetail').textContent = `$${productPreview.suggestedRetail.toFixed(2)}`;
-    document.getElementById('wizardColorCount').textContent = productPreview.colors.length;
-    document.getElementById('wizardSizeCount').textContent = productPreview.sizes.length;
+    document.getElementById('wizardProductName').textContent = `${productPreview.brandName} ${productPreview.productTitle}`;
+    document.getElementById('wizardWholesale').textContent = `$${productPreview.pricing.wholesalePrice.toFixed(2)}`;
+    document.getElementById('wizardRetail').textContent = `$${productPreview.pricing.suggestedRetail.toFixed(2)}`;
+    document.getElementById('wizardColorCount').textContent = productPreview.availableColors.length;
+    document.getElementById('wizardSizeCount').textContent = productPreview.availableSizes.length;
 
     // Initialize step 2 with product data
     initWizardStep2Content(productPreview);
@@ -11634,15 +11634,15 @@ function initWizardStep2() {
 }
 
 function initWizardStep2Content(preview) {
-  // Build color grid
+  // Build color grid (using ProductPreview structure: availableColors with displayColor, catalogColor, inStock)
   const colorGrid = document.getElementById('wizardColorGrid');
-  colorGrid.innerHTML = preview.colors.map(color => `
-    <div class="wizard-color-card" data-color="${color.displayName}" data-catalog="${color.catalogName}">
-      <img class="wizard-color-swatch" src="${color.swatchUrl || ''}" alt="${color.displayName}"
+  colorGrid.innerHTML = preview.availableColors.map(color => `
+    <div class="wizard-color-card" data-color="${color.displayColor}" data-catalog="${color.catalogColor}">
+      <img class="wizard-color-swatch" src="${color.swatchUrl || ''}" alt="${color.displayColor}"
            onerror="this.style.background='#30363d'">
-      <div class="wizard-color-name">${color.displayName}</div>
-      <div class="wizard-color-stock ${color.stockStatus === 'in-stock' ? 'in-stock' : 'out-of-stock'}">
-        ${color.stockStatus === 'in-stock' ? '&#9679; In Stock' : '&#9675; Low/OOS'}
+      <div class="wizard-color-name">${color.displayColor}</div>
+      <div class="wizard-color-stock ${color.inStock ? 'in-stock' : 'out-of-stock'}">
+        ${color.inStock ? '&#9679; In Stock' : '&#9675; Low/OOS'}
       </div>
     </div>
   `).join('');
@@ -11655,9 +11655,9 @@ function initWizardStep2Content(preview) {
     });
   });
 
-  // Build size grid
+  // Build size grid (using ProductPreview structure: availableSizes)
   const sizeGrid = document.getElementById('wizardSizeGrid');
-  sizeGrid.innerHTML = preview.sizes.map(size => `
+  sizeGrid.innerHTML = preview.availableSizes.map(size => `
     <button type="button" class="wizard-size-btn" data-size="${size}">${size}</button>
   `).join('');
 
