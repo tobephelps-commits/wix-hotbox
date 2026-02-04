@@ -79,8 +79,8 @@ import {
 import type { MappingAuditResult } from '../sync/types.js';
 
 // WIX Product List API (Phase 36: Product Migration Tooling)
-import { listAllProducts } from './wix-api.js';
-import type { WixProduct } from './wix-api.js';
+import { listAllProducts, listCollections, queryProducts } from './wix-api.js';
+import type { WixProduct, WixCollection } from './wix-api.js';
 
 // Order Management (Phase 18)
 import {
@@ -2714,9 +2714,36 @@ function startServer(port: number, initialStyle?: string): void {
               const urlObj = new URL(req.url ?? '/', 'http://localhost');
               const filterParam = urlObj.searchParams.get('filter') ?? 'all';
 
-              // Load WIX products
-              console.log('[Preview] Fetching WIX products...');
-              const wixProducts = await listAllProducts();
+              // Load WIX products and collections in parallel
+              console.log('[Preview] Fetching WIX products and collections...');
+              const [wixProducts, collections] = await Promise.all([
+                listAllProducts(),
+                listCollections(),
+              ]);
+
+              // Build productId -> collection names map
+              // Query products for each collection (except "All Products")
+              const productCollectionMap = new Map<string, string[]>();
+              const collectionsToQuery = collections.filter(
+                (c) => c.name !== 'All Products'
+              );
+
+              console.log(`[Preview] Mapping ${collectionsToQuery.length} collections to products...`);
+              for (const collection of collectionsToQuery) {
+                try {
+                  // Query products in this collection using collectionIds filter
+                  const collectionProducts = await queryProducts({
+                    collectionIds: { $hasSome: [collection.id] },
+                  });
+                  for (const product of collectionProducts) {
+                    const existing = productCollectionMap.get(product.id) ?? [];
+                    existing.push(collection.name);
+                    productCollectionMap.set(product.id, existing);
+                  }
+                } catch (err) {
+                  console.warn(`[Preview] Failed to query collection ${collection.name}: ${err}`);
+                }
+              }
 
               // Load tracked products for comparison
               const monitorConfig = await loadConfig();
@@ -2729,7 +2756,7 @@ function startServer(port: number, initialStyle?: string): void {
                 trackedSet.add(`${tp.style.toUpperCase()}:${vendor}`);
               }
 
-              // Transform WIX products with tracking status
+              // Transform WIX products with tracking status and collections
               const transformedProducts = wixProducts.map((product) => {
                 // Extract style from first variant SKU
                 const variants = product.variants ?? [];
@@ -2748,6 +2775,9 @@ function startServer(port: number, initialStyle?: string): void {
                   tracked = trackedSet.has(`${style}:${vendor}`);
                 }
 
+                // Get collections for this product
+                const productCollections = productCollectionMap.get(product.id) ?? [];
+
                 return {
                   wixId: product.id,
                   name: product.name,
@@ -2756,6 +2786,7 @@ function startServer(port: number, initialStyle?: string): void {
                   tracked,
                   variantCount: variants.length,
                   visible: product.visible,
+                  collections: productCollections,
                 };
               });
 

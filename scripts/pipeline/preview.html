@@ -4271,6 +4271,28 @@
   }
   .migration-card-meta .meta-label { color: #6e7681; }
   .migration-card-meta .meta-value { color: #c9d1d9; }
+  .migration-card-collections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .migration-collection-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    background: rgba(136, 146, 157, 0.15);
+    border: 1px solid rgba(136, 146, 157, 0.3);
+    border-radius: 4px;
+    font-size: 11px;
+    color: #8b949e;
+  }
+  .migration-collection-tag.no-collection {
+    color: #6e7681;
+    font-style: italic;
+    background: transparent;
+    border-color: rgba(110, 118, 129, 0.3);
+  }
   .migration-card-actions {
     display: flex;
     gap: 8px;
@@ -11045,6 +11067,17 @@
     var styleDisplay = product.style || 'Unknown';
     var variantDisplay = product.variantCount || 0;
 
+    // Build collections display
+    var collections = product.collections || [];
+    var collectionsHtml;
+    if (collections.length > 0) {
+      collectionsHtml = collections.map(function(c) {
+        return '<span class="migration-collection-tag">' + escapeHtml(c) + '</span>';
+      }).join('');
+    } else {
+      collectionsHtml = '<span class="migration-collection-tag no-collection">No collection</span>';
+    }
+
     var actionHtml;
     if (product.tracked) {
       actionHtml = '<div class="migration-tracked-indicator">&#10003; Tracked</div>';
@@ -11071,6 +11104,7 @@
         '<span><span class="meta-label">Style:</span> <span class="meta-value">' + escapeHtml(styleDisplay) + '</span></span>' +
         '<span><span class="meta-label">Variants:</span> <span class="meta-value">' + variantDisplay + '</span></span>' +
       '</div>' +
+      '<div class="migration-card-collections">' + collectionsHtml + '</div>' +
       '<div class="migration-card-actions">' + actionHtml + '</div>' +
     '</div>';
   }
