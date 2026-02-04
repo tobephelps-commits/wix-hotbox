@@ -5,27 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Production sheet generator
+**Current focus:** Order status dashboard enhancements
 
 ## Current Position
 
-Phase: 39 of 42 (S&S Cart Automation) - COMPLETE
-Plan: 03 complete
-Status: Phase 39 complete - S&S cart automation delivered
-Last activity: 2026-02-04 - Phase 39 complete, ready for phase 40
+Phase: 40 of 42 (Order Status Dashboard) - IN PROGRESS
+Plan: 02 complete
+Status: Pipeline visualization dashboard UI delivered
+Last activity: 2026-02-04 - Plan 40-02 complete, ready for plan 40-03
 
-Progress: ██████▓░░░ 67% (v1.2)
+Progress: ██████▓░░░ 70% (v1.2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 112 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 7 v1.2)
+- Total plans completed: 114 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 9 v1.2)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
 - v1.0: 24 plans across 1 day (2026-02-02)
 - v1.1: 9 plans (2026-02-03 to 2026-02-04)
-- v1.2: 7 plans (2026-02-04)
+- v1.2: 9 plans (2026-02-04)
 
 **By Phase (v0.1):**
 
@@ -90,6 +90,7 @@ Progress: ██████▓░░░ 67% (v1.2)
 | 37. Dashboard Tabbed Navigation | 2/2 | 2 sessions | 1 session |
 | 38. Production Sheets | 2/2 | 2 sessions | 1 session |
 | 39. S&S Cart Automation | 3/3 | 3 sessions | 1 session |
+| 40. Order Status Dashboard | 2/? | 2 sessions | 1 session |
 
 ## Accumulated Context
 
@@ -256,11 +257,19 @@ None
 | 39 | Multi-strategy selectors for color/size | Fallback patterns handle site variations (swatches, dropdowns, buttons) |
 | 39 | Browser handoff at cart page | Manual checkout required for payment; automation ends at cart |
 
+### Phase 40 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 40 | Aging thresholds: new=48h, in-production=72h, packed=24h | Operational visibility for orders that need attention |
+| 40 | Active statuses for stage metrics: new through shipped | Excludes terminal states (delivered, cancelled) from aggregation |
+| 40 | hoursInStatus rounded to nearest integer | Cleaner display, sufficient precision for dashboard |
+
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Phase 39 complete
-Resume file: .planning/phases/39-ss-cart-automation/39-03-SUMMARY.md
+Stopped at: Phase 40, Plan 02 complete
+Resume file: .planning/phases/40-order-status-dashboard/40-02-SUMMARY.md
 
 ## Milestones Shipped
 
