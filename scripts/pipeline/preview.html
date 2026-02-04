@@ -11578,15 +11578,18 @@ async function wizardFetchProduct() {
   fetchBtn.textContent = 'Fetching...';
 
   try {
+    console.log('[Wizard] Fetching product:', style, 'vendor:', vendor);
     const resp = await fetch(`/api/product/${encodeURIComponent(style)}?vendor=${vendor}`);
     if (!resp.ok) throw new Error(`Failed to fetch: ${resp.status}`);
 
     const json = await resp.json();
+    console.log('[Wizard] API response:', json);
 
     // API returns { ok, data, error }
     if (!json.ok) throw new Error(json.error || 'Unknown error');
 
     const productPreview = json.data;
+    console.log('[Wizard] productPreview:', productPreview);
 
     // Store in wizard state
     setWizardStepValid(1, true, {
@@ -11750,7 +11753,7 @@ function updateWizardPricingPreview() {
   const step1Data = getWizardStepData(1);
   if (!step1Data.productData) return;
 
-  const wholesale = step1Data.productData.preview.wholesaleCost;
+  const wholesale = step1Data.productData.preview.pricing.wholesalePrice;
   const markupPercent = parseInt(document.getElementById('wizardMarkupInput').value) || 100;
   const rounding = document.getElementById('wizardRoundingSelect').value;
 
@@ -11900,7 +11903,7 @@ function updateWizardReview() {
   document.getElementById('wizardReviewRounding').textContent = pricing?.rounding || '--';
 
   if (step1.productData) {
-    const wholesale = step1.productData.preview.wholesaleCost;
+    const wholesale = step1.productData.preview.pricing.wholesalePrice;
     let retail = wholesale * (1 + (pricing?.markupPercent || 100) / 100);
     if (pricing?.rounding === 'nearest-99') retail = Math.ceil(retail) - 0.01;
     else if (pricing?.rounding === 'nearest-dollar') retail = Math.ceil(retail);
