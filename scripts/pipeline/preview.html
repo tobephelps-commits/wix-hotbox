@@ -4101,6 +4101,205 @@
     color: #c9d1d9;
     font-size: 14px;
   }
+
+  /* Product Migration (Phase 36) */
+  .migration-section {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #30363d;
+  }
+  .migration-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: #c9d1d9;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .migration-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .migration-search {
+    padding: 8px 12px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-size: 13px;
+    width: 180px;
+    outline: none;
+  }
+  .migration-search:focus { border-color: #58a6ff; }
+  .migration-search::placeholder { color: #6e7681; }
+  .migration-section select {
+    padding: 8px 12px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+  .migration-section select:focus { border-color: #58a6ff; }
+  .migration-section .btn-outline {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .migration-section .btn-outline:hover {
+    background: #21262d;
+    color: #c9d1d9;
+  }
+  .migration-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #8b949e;
+    flex-wrap: wrap;
+  }
+  .migration-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .migration-stats .stat-value {
+    font-weight: 600;
+    color: #c9d1d9;
+  }
+  .migration-stats .stat-value.tracked { color: #3fb950; }
+  .migration-stats .stat-value.untracked { color: #f0883e; }
+  .migration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .migration-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: #8b949e;
+    font-size: 14px;
+  }
+  .migration-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: #6e7681;
+    font-size: 14px;
+  }
+  .migration-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 16px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .migration-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: #484f58;
+  }
+  .migration-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .migration-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #c9d1d9;
+    line-height: 1.3;
+    flex: 1;
+    word-break: break-word;
+  }
+  .migration-card-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .migration-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .migration-badge.vendor-sanmar {
+    background: rgba(88, 166, 255, 0.15);
+    color: #58a6ff;
+  }
+  .migration-badge.vendor-ss {
+    background: rgba(240, 136, 62, 0.15);
+    color: #f0883e;
+  }
+  .migration-badge.vendor-unknown {
+    background: rgba(139, 148, 158, 0.15);
+    color: #8b949e;
+  }
+  .migration-badge.status-tracked {
+    background: rgba(63, 185, 80, 0.15);
+    color: #3fb950;
+  }
+  .migration-badge.status-untracked {
+    background: rgba(240, 136, 62, 0.15);
+    color: #f0883e;
+  }
+  .migration-card-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #8b949e;
+    margin-bottom: 12px;
+  }
+  .migration-card-meta .meta-label { color: #6e7681; }
+  .migration-card-meta .meta-value { color: #c9d1d9; }
+  .migration-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .migration-btn-migrate {
+    flex: 1;
+    padding: 8px 14px;
+    background: #238636;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .migration-btn-migrate:hover { background: #2ea043; }
+  .migration-tracked-indicator {
+    flex: 1;
+    padding: 8px 14px;
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    border-radius: 6px;
+    color: #3fb950;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -4536,6 +4735,29 @@
         <div class="card-value" id="opsErrorCount">--</div>
         <div class="card-sub" id="opsErrorDetail">Loading...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Product Migration (Phase 36) -->
+  <div class="migration-section" id="migrationSection">
+    <div class="section-header">
+      <span>&#128260; PRODUCT MIGRATION</span>
+      <div class="migration-controls">
+        <input type="text" id="migrationSearch" placeholder="Search style or name..." class="migration-search">
+        <select id="migrationFilter">
+          <option value="all">All Products</option>
+          <option value="untracked" selected>Untracked Only</option>
+          <option value="tracked">Tracked Only</option>
+        </select>
+        <button class="btn btn-sm btn-outline" onclick="loadMigrationProducts()">&#128260; Refresh</button>
+      </div>
+    </div>
+    <div class="migration-stats" id="migrationStats">
+      <!-- Populated by JS: X total, Y untracked, Z tracked -->
+    </div>
+    <div class="migration-grid" id="migrationGrid">
+      <!-- Product cards populated by JS -->
+      <div class="migration-loading">Loading WIX products...</div>
     </div>
   </div>
 
@@ -10762,6 +10984,177 @@
   // Load operations health on page load and refresh periodically
   loadOperationsHealth();
   setInterval(loadOperationsHealth, 30000); // Refresh every 30 seconds
+
+  // =========================================================================
+  // Product Migration (Phase 36)
+  // =========================================================================
+
+  var migrationSearchInput = document.getElementById('migrationSearch');
+  var migrationFilterSelect = document.getElementById('migrationFilter');
+  var migrationStatsEl = document.getElementById('migrationStats');
+  var migrationGridEl = document.getElementById('migrationGrid');
+  var migrationProductsCache = [];
+
+  async function loadMigrationProducts() {
+    var filter = migrationFilterSelect.value;
+    migrationGridEl.innerHTML = '<div class="migration-loading">Loading WIX products...</div>';
+    migrationStatsEl.innerHTML = '';
+
+    try {
+      var res = await fetch('/api/wix/products?filter=' + filter);
+      var data = await res.json();
+
+      // Cache products for client-side search filtering
+      migrationProductsCache = data.products || [];
+
+      // Render stats
+      migrationStatsEl.innerHTML =
+        '<span class="stat-item"><span class="stat-label">Total:</span> <span class="stat-value">' + data.total + '</span></span>' +
+        '<span class="stat-item"><span class="stat-label">Tracked:</span> <span class="stat-value tracked">' + data.tracked + '</span></span>' +
+        '<span class="stat-item"><span class="stat-label">Untracked:</span> <span class="stat-value untracked">' + data.untracked + '</span></span>';
+
+      // Render product cards
+      renderMigrationCards(migrationProductsCache);
+
+    } catch (err) {
+      console.error('Failed to load migration products:', err);
+      migrationGridEl.innerHTML = '<div class="migration-empty">Failed to load products. Check console for details.</div>';
+    }
+  }
+
+  function renderMigrationCards(products) {
+    if (products.length === 0) {
+      migrationGridEl.innerHTML = '<div class="migration-empty">No products found matching the current filter.</div>';
+      return;
+    }
+
+    var html = products.map(function(product) {
+      return renderMigrationCard(product);
+    }).join('');
+
+    migrationGridEl.innerHTML = html;
+  }
+
+  function renderMigrationCard(product) {
+    var vendorClass = 'vendor-' + (product.vendor || 'unknown');
+    var vendorLabel = product.vendor === 'sanmar' ? 'SanMar' :
+                      product.vendor === 'ss' ? 'S&S' : 'Unknown';
+    var statusClass = product.tracked ? 'status-tracked' : 'status-untracked';
+    var statusLabel = product.tracked ? 'Tracked' : 'Untracked';
+
+    var styleDisplay = product.style || 'Unknown';
+    var variantDisplay = product.variantCount || 0;
+
+    var actionHtml;
+    if (product.tracked) {
+      actionHtml = '<div class="migration-tracked-indicator">&#10003; Tracked</div>';
+    } else {
+      // Use onclick to pass parameters; escape values properly
+      var vendorParam = product.vendor || 'sanmar';
+      var styleParam = product.style || '';
+      var wixIdParam = product.wixId || '';
+      actionHtml = '<button class="migration-btn-migrate" onclick="migrateProduct(\'' +
+        escapeHtml(wixIdParam) + '\', \'' +
+        escapeHtml(styleParam) + '\', \'' +
+        escapeHtml(vendorParam) + '\')">&#10024; Migrate</button>';
+    }
+
+    return '<div class="migration-card">' +
+      '<div class="migration-card-header">' +
+        '<div class="migration-card-name">' + escapeHtml(product.name) + '</div>' +
+        '<div class="migration-card-badges">' +
+          '<span class="migration-badge ' + vendorClass + '">' + vendorLabel + '</span>' +
+          '<span class="migration-badge ' + statusClass + '">' + statusLabel + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="migration-card-meta">' +
+        '<span><span class="meta-label">Style:</span> <span class="meta-value">' + escapeHtml(styleDisplay) + '</span></span>' +
+        '<span><span class="meta-label">Variants:</span> <span class="meta-value">' + variantDisplay + '</span></span>' +
+      '</div>' +
+      '<div class="migration-card-actions">' + actionHtml + '</div>' +
+    '</div>';
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function migrateProduct(wixId, style, vendor) {
+    // If style is unknown, prompt user
+    if (!style || style === 'Unknown' || style === 'null') {
+      var manualStyle = prompt('Style number could not be detected. Please enter the style number manually:');
+      if (!manualStyle || manualStyle.trim() === '') {
+        alert('Style number is required to migrate a product.');
+        return;
+      }
+      style = manualStyle.trim().toUpperCase();
+    }
+
+    // If vendor is unknown, default to sanmar with warning
+    if (!vendor || vendor === 'unknown') {
+      vendor = 'sanmar';
+      alert('Vendor could not be detected. Defaulting to SanMar. You can change this in the wizard.');
+    }
+
+    // Open the wizard section
+    document.getElementById('wizardSection').style.display = 'block';
+
+    // Pre-fill wizard vendor select and style input
+    var wizardVendorSelect = document.getElementById('wizardVendorSelect');
+    var wizardStyleInput = document.getElementById('wizardStyleInput');
+
+    if (wizardVendorSelect) {
+      wizardVendorSelect.value = vendor;
+    }
+    if (wizardStyleInput) {
+      wizardStyleInput.value = style.toUpperCase();
+    }
+
+    // Scroll to wizard
+    document.getElementById('wizardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Reset wizard state for new product
+    if (typeof openWizard === 'function') {
+      openWizard();
+    }
+
+    // Optionally auto-fetch the product after a brief delay
+    setTimeout(function() {
+      var fetchBtn = document.getElementById('wizardFetchBtn');
+      if (fetchBtn) {
+        fetchBtn.click();
+      }
+    }, 300);
+  }
+
+  // Search filter - client-side filtering
+  migrationSearchInput.addEventListener('input', function() {
+    var searchTerm = this.value.toLowerCase().trim();
+    if (searchTerm === '') {
+      renderMigrationCards(migrationProductsCache);
+      return;
+    }
+
+    var filtered = migrationProductsCache.filter(function(product) {
+      var nameMatch = product.name && product.name.toLowerCase().indexOf(searchTerm) !== -1;
+      var styleMatch = product.style && product.style.toLowerCase().indexOf(searchTerm) !== -1;
+      return nameMatch || styleMatch;
+    });
+
+    renderMigrationCards(filtered);
+  });
+
+  // Filter dropdown change - triggers fresh API call
+  migrationFilterSelect.addEventListener('change', function() {
+    migrationSearchInput.value = ''; // Clear search when filter changes
+    loadMigrationProducts();
+  });
+
+  // Load migration products on page load
+  loadMigrationProducts();
 
   // =========================================================================
   // Load saved preferences, then auto-load style from URL query param
