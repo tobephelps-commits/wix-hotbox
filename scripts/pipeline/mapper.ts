@@ -282,7 +282,7 @@ export function buildCreateProductPayload(
 /**
  * Build WIX media items from curated product and images grouped by color.
  *
- * For each selected color, assigns front, back, and side images to that Color choice.
+ * For each selected color, assigns front and back images to that Color choice.
  * Also adds general product images (primary/high-res) without choice assignment
  * to fill remaining slots.
  * Uses SanMar CDN URLs directly (WIX V1 accepts external URLs).
@@ -290,7 +290,11 @@ export function buildCreateProductPayload(
  * Priority order per color:
  * 1. Front image (classTypeId 1007) -> assigned to Color choice
  * 2. Back image (classTypeId 1008) -> assigned to Color choice
- * 3. Side image (classTypeId 2001) -> assigned to Color choice
+ *
+ * Note: SanMar does NOT provide true side-view images. CLASS_TYPE_HIGH (2001)
+ * is a high-resolution front/lifestyle shot, not a side profile. These images
+ * are added as general product images in Step 2 (without choice assignment)
+ * rather than as color-specific "side" images. See 33-RESEARCH.md.
  *
  * After per-color angle images, fill remaining slots with general images
  * (primary 1006, high-res 2001 without color assignment) that haven't already
@@ -337,14 +341,10 @@ export function buildMediaPayload(
       addedUrls.add(backImage.url);
     }
 
-    // Side image (classTypeId 2001)
-    const sideImage = colorImages.find(
-      (img) => img.classType.classTypeId === CLASS_TYPE_HIGH,
-    );
-    if (sideImage && !addedUrls.has(sideImage.url) && mediaItems.length < WIX_MEDIA_LIMIT) {
-      mediaItems.push({ url: sideImage.url, choice: choiceAssignment });
-      addedUrls.add(sideImage.url);
-    }
+    // Note: SanMar does NOT provide true side-view images. CLASS_TYPE_HIGH (2001)
+    // images are added as general product images in Step 2 below (without choice
+    // assignment) rather than as color-specific "side" images here.
+    // See: 33-RESEARCH.md for investigation details.
   }
 
   // Step 2: Fill remaining slots with general product images (primary, high-res)
