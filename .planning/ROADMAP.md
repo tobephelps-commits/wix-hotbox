@@ -37,7 +37,8 @@ None
 **Plans**: TBD
 
 Plans:
-- [ ] 37-01: TBD (run /gsd:plan-phase 37 to break down)
+- [ ] 37-01: Sidebar navigation shell (CSS, HTML, tab switching JS)
+- [ ] 37-02: Move sections into tabs with visual verification
 
 #### Phase 38: Production Sheet Generator
 
