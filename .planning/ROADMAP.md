@@ -38,15 +38,14 @@ Plans:
 - [x] 37-01: Sidebar navigation shell (CSS, HTML, tab switching JS)
 - [x] 37-02: Move sections into tabs with visual verification
 
-#### Phase 38: Production Sheet Generator
+#### ✅ Phase 38: Production Sheet Generator (Complete)
 
 **Goal**: PDF document per order with garment specs, logo placement details, and quantities
-**Depends on**: Phase 37
-**Research**: Unlikely (PDF generation exists, internal logo data)
-**Plans**: TBD
+**Completed**: 2026-02-04
 
 Plans:
-- [ ] 38-01: TBD
+- [x] 38-01: Production sheet PDF generator module and API endpoint
+- [x] 38-02: Dashboard UI integration with visual verification
 
 #### Phase 39: S&S Activewear Cart Automation
 
@@ -195,7 +194,7 @@ Phases execute in numeric order: 37 → 38 → 39 → 40 → 41 → 42
 | 35. Product Pipeline Wizard | v1.1 | 3/3 | Complete | 2026-02-04 |
 | 36. Product Migration Tooling | v1.1 | 2/2 | Complete | 2026-02-04 |
 | 37. Dashboard Redesign - Tabbed Navigation | v1.2 | 2/2 | Complete | 2026-02-04 |
-| 38. Production Sheet Generator | v1.2 | 0/? | Not started | - |
+| 38. Production Sheet Generator | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 39. S&S Activewear Cart Automation | v1.2 | 0/? | Not started | - |
 | 40. Order Status Dashboard | v1.2 | 0/? | Not started | - |
 | 41. Bulk Order Actions | v1.2 | 0/? | Not started | - |
