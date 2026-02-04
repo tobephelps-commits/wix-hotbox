@@ -11581,27 +11581,32 @@ async function wizardFetchProduct() {
     const resp = await fetch(`/api/product/${encodeURIComponent(style)}?vendor=${vendor}`);
     if (!resp.ok) throw new Error(`Failed to fetch: ${resp.status}`);
 
-    const data = await resp.json();
+    const json = await resp.json();
+
+    // API returns { ok, data, error }
+    if (!json.ok) throw new Error(json.error || 'Unknown error');
+
+    const productPreview = json.data;
 
     // Store in wizard state
     setWizardStepValid(1, true, {
       vendor,
       style,
-      productData: data
+      productData: { preview: productPreview }
     });
 
     // Update preview
     const preview = document.getElementById('wizardProductPreview');
     preview.classList.add('visible');
 
-    document.getElementById('wizardProductName').textContent = data.preview.productName;
-    document.getElementById('wizardWholesale').textContent = `$${data.preview.wholesaleCost.toFixed(2)}`;
-    document.getElementById('wizardRetail').textContent = `$${data.preview.suggestedRetail.toFixed(2)}`;
-    document.getElementById('wizardColorCount').textContent = data.preview.colors.length;
-    document.getElementById('wizardSizeCount').textContent = data.preview.sizes.length;
+    document.getElementById('wizardProductName').textContent = productPreview.productName;
+    document.getElementById('wizardWholesale').textContent = `$${productPreview.wholesaleCost.toFixed(2)}`;
+    document.getElementById('wizardRetail').textContent = `$${productPreview.suggestedRetail.toFixed(2)}`;
+    document.getElementById('wizardColorCount').textContent = productPreview.colors.length;
+    document.getElementById('wizardSizeCount').textContent = productPreview.sizes.length;
 
     // Initialize step 2 with product data
-    initWizardStep2Content(data.preview);
+    initWizardStep2Content(productPreview);
 
     // Initialize step 3 preview
     updateWizardPricingPreview();
