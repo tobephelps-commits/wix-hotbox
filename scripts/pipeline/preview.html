@@ -11116,7 +11116,8 @@
     return div.innerHTML;
   }
 
-  function migrateProduct(wixId, style, vendor) {
+  // Expose to global scope for inline onclick handlers
+  window.migrateProduct = function migrateProduct(wixId, style, vendor) {
     // If style is unknown, prompt user
     if (!style || style === 'Unknown' || style === 'null') {
       var manualStyle = prompt('Style number could not be detected. Please enter the style number manually:');
