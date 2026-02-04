@@ -3918,6 +3918,189 @@
     color: #c9d1d9;
     font-size: 12px;
   }
+
+  /* Wizard Step 4: Logo */
+  .wizard-logo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 14px;
+    background: #0d1117;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+  }
+
+  .wizard-logo-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .wizard-logo-toggle label {
+    color: #c9d1d9;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .wizard-logo-toggle .hint {
+    color: #8b949e;
+    font-size: 12px;
+    margin-left: auto;
+  }
+
+  .wizard-logo-config {
+    display: none;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .wizard-logo-config.visible { display: block; }
+
+  .wizard-logo-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .wizard-logo-option {
+    width: 100px;
+    padding: 12px;
+    background: #0d1117;
+    border: 2px solid #30363d;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .wizard-logo-option:hover { border-color: #58a6ff; }
+  .wizard-logo-option.selected { border-color: #3fb950; background: rgba(63, 185, 80, 0.1); }
+
+  .wizard-logo-option img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: #fff;
+  }
+
+  .wizard-logo-option-name {
+    font-size: 11px;
+    color: #8b949e;
+    margin-top: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wizard-logo-position-hint {
+    color: #8b949e;
+    font-size: 13px;
+    padding: 12px;
+    background: #0d1117;
+    border-radius: 6px;
+    border: 1px dashed #30363d;
+  }
+
+  /* Wizard Step 5: Review */
+  .wizard-review-section {
+    margin-bottom: 20px;
+  }
+
+  .wizard-review-section h4 {
+    font-size: 14px;
+    color: #58a6ff;
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #30363d;
+  }
+
+  .wizard-review-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .wizard-review-label {
+    color: #8b949e;
+  }
+
+  .wizard-review-value {
+    color: #c9d1d9;
+  }
+
+  .wizard-review-variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .wizard-review-color-chip {
+    padding: 4px 10px;
+    background: #21262d;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #c9d1d9;
+  }
+
+  .wizard-review-size-chip {
+    padding: 4px 8px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #8b949e;
+  }
+
+  .wizard-review-warning {
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid #f85149;
+    border-radius: 6px;
+    padding: 12px;
+    color: #f85149;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .wizard-review-ready {
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid #3fb950;
+    border-radius: 6px;
+    padding: 12px;
+    color: #3fb950;
+    font-size: 13px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wizard-collections-input {
+    margin-top: 16px;
+  }
+
+  .wizard-collections-input label {
+    display: block;
+    font-size: 12px;
+    color: #8b949e;
+    margin-bottom: 8px;
+  }
+
+  .wizard-collections-input input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
@@ -4206,13 +4389,91 @@
       <div class="wizard-panel" data-step="4" id="wizardPanel4">
         <div class="wizard-panel-header">&#127912; Logo Overlay</div>
         <div class="wizard-panel-desc">Optionally add your brand logo to product images.</div>
-        <div id="wizardStep4Content"></div>
+        <div id="wizardStep4Content">
+          <div class="wizard-logo-toggle">
+            <input type="checkbox" id="wizardLogoEnabled">
+            <label for="wizardLogoEnabled">Add logo overlay to product images</label>
+            <span class="hint">Optional - can be done later</span>
+          </div>
+
+          <div class="wizard-logo-config" id="wizardLogoConfig">
+            <h4 style="margin:0 0 16px 0;font-size:14px;color:#c9d1d9;">Select Logo</h4>
+            <div class="wizard-logo-selector" id="wizardLogoSelector">
+              <div style="color:#8b949e;font-size:13px;">Loading logos...</div>
+            </div>
+
+            <div class="wizard-logo-position-hint">
+              <strong>Note:</strong> Logo will be placed at default center position. For precise placement with drag-and-drop,
+              use the full Logo Overlay section after exiting the wizard.
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="wizard-panel" data-step="5" id="wizardPanel5">
         <div class="wizard-panel-header">&#9989; Review &amp; Create</div>
         <div class="wizard-panel-desc">Verify your configuration and create the WIX product draft.</div>
-        <div id="wizardStep5Content"></div>
+        <div id="wizardStep5Content">
+          <div class="wizard-review-section">
+            <h4>&#128230; Product</h4>
+            <div class="wizard-review-grid">
+              <span class="wizard-review-label">Style</span>
+              <span class="wizard-review-value" id="wizardReviewStyle">--</span>
+              <span class="wizard-review-label">Vendor</span>
+              <span class="wizard-review-value" id="wizardReviewVendor">--</span>
+              <span class="wizard-review-label">Name</span>
+              <span class="wizard-review-value" id="wizardReviewName">--</span>
+            </div>
+          </div>
+
+          <div class="wizard-review-section">
+            <h4>&#127912; Variants</h4>
+            <div class="wizard-review-grid">
+              <span class="wizard-review-label">Colors</span>
+              <span class="wizard-review-value" id="wizardReviewColorCount">0</span>
+              <span class="wizard-review-label">Sizes</span>
+              <span class="wizard-review-value" id="wizardReviewSizeCount">0</span>
+              <span class="wizard-review-label">Total Variants</span>
+              <span class="wizard-review-value" id="wizardReviewVariantCount">0</span>
+            </div>
+            <div class="wizard-review-variants" id="wizardReviewColors"></div>
+            <div class="wizard-review-variants" id="wizardReviewSizes" style="margin-top:8px;"></div>
+          </div>
+
+          <div class="wizard-review-section">
+            <h4>&#128176; Pricing</h4>
+            <div class="wizard-review-grid">
+              <span class="wizard-review-label">Markup</span>
+              <span class="wizard-review-value" id="wizardReviewMarkup">--</span>
+              <span class="wizard-review-label">Rounding</span>
+              <span class="wizard-review-value" id="wizardReviewRounding">--</span>
+              <span class="wizard-review-label">Base Price</span>
+              <span class="wizard-review-value" id="wizardReviewBasePrice">--</span>
+            </div>
+          </div>
+
+          <div class="wizard-review-section">
+            <h4>&#127912; Logo</h4>
+            <div class="wizard-review-grid">
+              <span class="wizard-review-label">Logo Overlay</span>
+              <span class="wizard-review-value" id="wizardReviewLogo">No logo</span>
+            </div>
+          </div>
+
+          <div class="wizard-collections-input">
+            <label>Collections (optional, comma-separated)</label>
+            <input type="text" id="wizardCollectionsInput" placeholder="e.g. T-Shirts, New Arrivals">
+          </div>
+
+          <div class="wizard-review-ready" id="wizardReviewReady" style="display:none;">
+            <span>&#9989;</span>
+            <span>Ready to create! Click "Create Product" to generate your WIX draft.</span>
+          </div>
+
+          <div class="wizard-review-warning" id="wizardReviewWarning" style="display:none;">
+            Please complete all required steps before creating.
+          </div>
+        </div>
       </div>
     </div>
 
@@ -10942,12 +11203,130 @@ function updateWizardUpchargeGrid(selectedSizes) {
   });
 }
 
+/* Wizard Step 4: Logo */
+function initWizardStep4() {
+  const toggle = document.getElementById('wizardLogoEnabled');
+  const config = document.getElementById('wizardLogoConfig');
+
+  toggle?.addEventListener('change', () => {
+    config.classList.toggle('visible', toggle.checked);
+    if (!toggle.checked) {
+      // Clear logo selection
+      document.querySelectorAll('.wizard-logo-option').forEach(o => o.classList.remove('selected'));
+      setWizardStepValid(4, true, { logoConfig: null });
+    }
+    loadWizardLogos();
+  });
+}
+
+async function loadWizardLogos() {
+  const selector = document.getElementById('wizardLogoSelector');
+  if (!selector) return;
+
+  try {
+    const resp = await fetch('/api/logos');
+    if (!resp.ok) throw new Error('Failed to load logos');
+
+    const logos = await resp.json();
+    if (!logos.length) {
+      selector.innerHTML = '<div style="color:#8b949e;font-size:13px;">No logos uploaded. Add logos in the Logo Library section.</div>';
+      return;
+    }
+
+    selector.innerHTML = logos.map(logo => `
+      <div class="wizard-logo-option" data-logo="${logo.key}">
+        <img src="/data/logos/${logo.filename}" alt="${logo.key}">
+        <div class="wizard-logo-option-name">${logo.key}</div>
+      </div>
+    `).join('');
+
+    selector.querySelectorAll('.wizard-logo-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        selector.querySelectorAll('.wizard-logo-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        setWizardStepValid(4, true, {
+          logoConfig: {
+            logoName: opt.dataset.logo,
+            position: { x: 0.5, y: 0.5 },  // Center default
+            scale: 0.25
+          }
+        });
+      });
+    });
+  } catch (err) {
+    console.error('Failed to load logos:', err);
+    selector.innerHTML = '<div style="color:#f85149;font-size:13px;">Failed to load logos</div>';
+  }
+}
+
+/* Wizard Step 5: Review */
+function initWizardStep5() {
+  // Called when entering step 5
+}
+
+function updateWizardReview() {
+  const step1 = getWizardStepData(1);
+  const step2 = getWizardStepData(2);
+  const step3 = getWizardStepData(3);
+  const step4 = getWizardStepData(4);
+
+  // Product info
+  document.getElementById('wizardReviewStyle').textContent = step1.style || '--';
+  document.getElementById('wizardReviewVendor').textContent = step1.vendor === 'ss' ? 'S&S Activewear' : 'SanMar';
+  document.getElementById('wizardReviewName').textContent = step1.productData?.preview?.productName || '--';
+
+  // Variants
+  const colors = step2.selectedColors || [];
+  const sizes = step2.selectedSizes || [];
+  document.getElementById('wizardReviewColorCount').textContent = colors.length;
+  document.getElementById('wizardReviewSizeCount').textContent = sizes.length;
+  document.getElementById('wizardReviewVariantCount').textContent = colors.length * sizes.length;
+
+  document.getElementById('wizardReviewColors').innerHTML =
+    colors.map(c => `<span class="wizard-review-color-chip">${c.displayName}</span>`).join('');
+  document.getElementById('wizardReviewSizes').innerHTML =
+    sizes.map(s => `<span class="wizard-review-size-chip">${s}</span>`).join('');
+
+  // Pricing
+  const pricing = step3.pricingConfig;
+  document.getElementById('wizardReviewMarkup').textContent = pricing ? `${pricing.markupPercent}%` : '--';
+  document.getElementById('wizardReviewRounding').textContent = pricing?.rounding || '--';
+
+  if (step1.productData) {
+    const wholesale = step1.productData.preview.wholesaleCost;
+    let retail = wholesale * (1 + (pricing?.markupPercent || 100) / 100);
+    if (pricing?.rounding === 'nearest-99') retail = Math.ceil(retail) - 0.01;
+    else if (pricing?.rounding === 'nearest-dollar') retail = Math.ceil(retail);
+    document.getElementById('wizardReviewBasePrice').textContent = `$${retail.toFixed(2)}`;
+  }
+
+  // Logo
+  const logo = step4.logoConfig;
+  document.getElementById('wizardReviewLogo').textContent = logo ? `${logo.logoName} (center)` : 'No logo';
+
+  // Ready state
+  const ready = isWizardReadyToCreate();
+  document.getElementById('wizardReviewReady').style.display = ready ? 'flex' : 'none';
+  document.getElementById('wizardReviewWarning').style.display = ready ? 'none' : 'block';
+}
+
+// Hook into step navigation to update review when entering step 5
+const originalGoToWizardStep = goToWizardStep;
+goToWizardStep = function(stepNum) {
+  originalGoToWizardStep(stepNum);
+  if (stepNum === 5) {
+    updateWizardReview();
+  }
+};
+
 // Initialize wizard on page load
 document.addEventListener('DOMContentLoaded', () => {
   initWizard();
   initWizardStep1();
   initWizardStep2();
   initWizardStep3();
+  initWizardStep4();
+  initWizardStep5();
 });
 
 })();
