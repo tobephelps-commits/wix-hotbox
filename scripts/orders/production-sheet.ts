@@ -436,6 +436,45 @@ export async function saveProductionSheet(order: Order, outputPath?: string): Pr
   return absolutePath;
 }
 
+/**
+ * Generate production sheet PDFs for multiple orders.
+ *
+ * Processes each order independently, collecting paths for successes
+ * and error messages for failures. Continues processing remaining
+ * orders if one fails.
+ *
+ * @param orders - Array of orders to generate production sheets for
+ * @returns Object with paths array for successes and failed array with reasons
+ *
+ * Phase 41: Bulk Order Actions
+ */
+export async function generateBatchProductionSheets(
+  orders: Order[],
+): Promise<{ paths: string[]; failed: { orderNumber: number; reason: string }[] }> {
+  // Handle empty array case
+  if (orders.length === 0) {
+    return { paths: [], failed: [] };
+  }
+
+  const paths: string[] = [];
+  const failed: { orderNumber: number; reason: string }[] = [];
+
+  for (const order of orders) {
+    try {
+      const savedPath = await saveProductionSheet(order);
+      paths.push(savedPath);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      failed.push({
+        orderNumber: order.orderNumber,
+        reason: message,
+      });
+    }
+  }
+
+  return { paths, failed };
+}
+
 // =============================================================================
 // Demo Sample Order
 // =============================================================================
