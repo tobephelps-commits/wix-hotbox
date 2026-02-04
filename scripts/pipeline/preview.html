@@ -9941,6 +9941,7 @@
     html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-invoice" data-order-id="' + order.id + '">Download Invoice</button>';
     html += '<button class="btn btn-sm btn-info print-action-btn" data-action="print-label" data-order-id="' + order.id + '">Print Pickup Label</button>';
     html += '<button class="btn btn-sm btn-outline print-action-btn" data-action="download-label" data-order-id="' + order.id + '">Download Pickup Label</button>';
+    html += '<button class="btn btn-sm btn-secondary print-action-btn" data-action="production-sheet" data-order-id="' + order.id + '">Production Sheet</button>';
     html += '</div>';
     html += '</div>';
 
@@ -10083,6 +10084,9 @@
             } else {
               showToast('Print error: ' + (pr2.message || json2.error || 'Unknown'), 'error');
             }
+          } else if (action === 'production-sheet') {
+            window.open('/api/orders/' + encodeURIComponent(oid) + '/production-sheet', '_blank');
+            showToast('Production sheet opened in new tab', 'success');
           }
         } catch (err) {
           showToast('Error: ' + (err.message || String(err)), 'error');
