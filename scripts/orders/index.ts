@@ -125,3 +125,12 @@ export {
 } from './sanmar-cart-filler.js';
 
 export type { CartFillOptions } from './sanmar-cart-filler.js';
+
+// =============================================================================
+// S&S Activewear Cart Consolidation (Phase 39)
+// =============================================================================
+
+export {
+  getSSOrdersForCartFill,
+  consolidateSSOrders,
+} from './ss-cart-consolidator.js';
