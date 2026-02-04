@@ -35,9 +35,10 @@ const SS_BASE = 'https://www.ssactivewear.com';
 
 /**
  * S&S Activewear sign-in page
- * DISCOVERED: S&S uses /account/signin for the login page
+ * DISCOVERED: S&S uses /myaccount/login for the login page
+ * (User verification: email address field, password field, Login button)
  */
-const SS_SIGNIN = `${SS_BASE}/account/signin`;
+const SS_SIGNIN = `${SS_BASE}/myaccount/login`;
 
 /**
  * S&S Activewear cart page
@@ -106,11 +107,11 @@ function getSSCredentials(): { username: string; password: string } {
  * and waits for successful redirect to an authenticated page.
  *
  * DISCOVERED SELECTORS:
- * - Sign-in URL: /account/signin
- * - Email input: input[type="email"], input[name="email"], #email
+ * - Sign-in URL: /myaccount/login
+ * - Email input: input[type="email"], input[name="email"], #email (labeled "Email Address")
  * - Password input: input[type="password"], input[name="password"], #password
- * - Submit button: button[type="submit"], button with "Sign In" text
- * - Success: redirect away from /signin path
+ * - Submit button: button[type="submit"], button with "Login" text
+ * - Success: redirect away from /login path
  * - Error: .error-message, .alert-danger, [role="alert"]
  *
  * @param page - Playwright page instance
@@ -144,17 +145,17 @@ async function loginToSS(page: Page): Promise<void> {
   await delay(ACTION_DELAY);
 
   // Submit the form - look for a submit button
-  // S&S sign-in: button with text like "Sign In" or type="submit"
+  // S&S login page: button with text "Login" or type="submit"
   const submitButton = page.locator(
-    'button[type="submit"], button:has-text("Sign In"), button:has-text("Log In"), ' +
-    'button:has-text("LOGIN"), input[type="submit"], button.btn-primary'
+    'button[type="submit"], button:has-text("Login"), button:has-text("Log In"), ' +
+    'button:has-text("Sign In"), button:has-text("LOGIN"), input[type="submit"], button.btn-primary'
   );
   await submitButton.first().click();
 
-  // Wait for redirect away from sign-in page (indicates successful login)
+  // Wait for redirect away from login page (indicates successful login)
   // Also check for error messages indicating failed login
   try {
-    await page.waitForURL((url) => !url.pathname.includes('/signin'), { timeout: 15_000 });
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15_000 });
     console.log('[ss-cart] Login successful.');
   } catch {
     // Check if there's a visible error message
