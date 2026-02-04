@@ -94,6 +94,7 @@ import {
   resetAndResync,
   generateInvoice,
   generateShippingLabel,
+  generateProductionSheet,
   printInvoice,
   printShippingLabel,
   listPrinters,
@@ -778,6 +779,12 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const orderLabelMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/label\/?$/);
   if (orderLabelMatch) {
     return { route: 'order-label', param: orderLabelMatch[1] };
+  }
+
+  // Match /api/orders/:id/production-sheet (Phase 38)
+  const orderProductionSheetMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/production-sheet\/?$/);
+  if (orderProductionSheetMatch) {
+    return { route: 'order-production-sheet', param: orderProductionSheetMatch[1] };
   }
 
   // Match /api/orders/:id/print-invoice
@@ -2111,6 +2118,36 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error generating label for ${param}: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'order-production-sheet': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/:id/production-sheet — Generate and return production sheet PDF
+            try {
+              const idParam = param!;
+              const isNumeric = /^\d+$/.test(idParam);
+              const order = isNumeric
+                ? await getOrderByNumber(parseInt(idParam, 10))
+                : await getOrderById(idParam);
+
+              if (!order) {
+                sendJson(res, 404, { error: `Order not found: ${idParam}` });
+                break;
+              }
+
+              const pdfBuffer = await generateProductionSheet(order);
+              sendBuffer(res, 200, 'application/pdf', pdfBuffer, {
+                'Content-Disposition': `inline; filename="PS-${order.orderNumber}.pdf"`,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error generating production sheet for ${param}: ${message}`);
               sendJson(res, 500, { error: message });
             }
             break;
