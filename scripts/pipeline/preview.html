@@ -1933,10 +1933,37 @@
   /* Tab panel containers */
   .tab-panel {
     display: none;
+    padding: 24px;
   }
 
   .tab-panel.active {
     display: block;
+  }
+
+  /* Section spacing within tab panels */
+  .tab-panel > .section,
+  .tab-panel > [id$="Section"],
+  .tab-panel-extra > .section,
+  .tab-panel-extra > [id$="Section"] {
+    margin-bottom: 24px;
+  }
+
+  /* Extra tab panel content (sections outside main tab-panel divs but inside main layout flow) */
+  .tab-panel-extra {
+    display: none;
+    padding: 0 24px 24px 24px;
+    margin-left: 200px; /* Account for sidebar width */
+    background: #f8f9fa;
+  }
+  .tab-panel-extra.active {
+    display: block;
+  }
+
+  /* Responsive: remove sidebar margin when sidebar collapses */
+  @media (max-width: 768px) {
+    .tab-panel-extra {
+      margin-left: 60px; /* Collapsed sidebar width */
+    }
   }
 
   /* Tab placeholder for content being moved */
@@ -4507,7 +4534,52 @@
   </aside>
 
   <main class="main-content">
-    <!-- Operations Dashboard stays outside tabs (global overview) -->
+  <!-- Operations Dashboard (Phase 34) - stays outside tabs, always visible -->
+  <div class="operations-section" id="operationsSection">
+    <div class="section-header">
+      <div class="section-title">
+        &#9881; OPERATIONS
+      </div>
+      <div class="daemon-controls">
+        <button type="button" class="btn-daemon btn-daemon-start" id="daemonStartBtn">
+          &#9654; Start Daemon
+        </button>
+        <button type="button" class="btn-daemon btn-daemon-stop" id="daemonStopBtn" disabled>
+          &#9632; Stop Daemon
+        </button>
+        <span class="daemon-status-text stopped" id="daemonStatusText">Daemon stopped</span>
+      </div>
+    </div>
+    <div class="ops-health-grid" id="opsHealthGrid">
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#128230;</div>
+        <div class="card-label">Orders (New)</div>
+        <div class="card-value" id="opsOrdersNew">--</div>
+        <div class="card-sub" id="opsOrdersTotal">Loading...</div>
+      </div>
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#128202;</div>
+        <div class="card-label">Inventory</div>
+        <div class="card-value" id="opsTrackedProducts">--</div>
+        <div class="card-sub" id="opsRecentAlerts">Loading...</div>
+      </div>
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#9201;</div>
+        <div class="card-label">Sync Daemon</div>
+        <div class="card-value" id="opsDaemonCycles">--</div>
+        <div class="card-sub" id="opsDaemonUptime">Loading...</div>
+      </div>
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#9888;</div>
+        <div class="card-label">Errors</div>
+        <div class="card-value" id="opsErrorCount">--</div>
+        <div class="card-sub" id="opsErrorDetail">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Panels (Phase 37) -->
+  <div class="tab-panel active" id="productsPanel">
 
   <!-- Initial prompt (shown before first fetch) -->
   <div class="initial-prompt" id="initialPrompt">
@@ -4879,69 +4951,224 @@
       </div>
     </div>
   </div>
+  </div><!-- /#productsPanel - contains initial, batch, wizard; more product content can be added -->
 
-  <!-- Operations Dashboard (Phase 34) -->
-  <div class="operations-section" id="operationsSection">
-    <div class="section-header">
-      <div class="section-title">
-        &#9881; OPERATIONS
-      </div>
-      <div class="daemon-controls">
-        <button type="button" class="btn-daemon btn-daemon-start" id="daemonStartBtn">
-          &#9654; Start Daemon
-        </button>
-        <button type="button" class="btn-daemon btn-daemon-stop" id="daemonStopBtn" disabled>
-          &#9632; Stop Daemon
-        </button>
-        <span class="daemon-status-text stopped" id="daemonStatusText">Daemon stopped</span>
-      </div>
-    </div>
-    <div class="ops-health-grid" id="opsHealthGrid">
-      <div class="ops-health-card neutral">
-        <div class="card-icon">&#128230;</div>
-        <div class="card-label">Orders (New)</div>
-        <div class="card-value" id="opsOrdersNew">--</div>
-        <div class="card-sub" id="opsOrdersTotal">Loading...</div>
-      </div>
-      <div class="ops-health-card neutral">
-        <div class="card-icon">&#128202;</div>
-        <div class="card-label">Inventory</div>
-        <div class="card-value" id="opsTrackedProducts">--</div>
-        <div class="card-sub" id="opsRecentAlerts">Loading...</div>
-      </div>
-      <div class="ops-health-card neutral">
-        <div class="card-icon">&#9201;</div>
-        <div class="card-label">Sync Daemon</div>
-        <div class="card-value" id="opsDaemonCycles">--</div>
-        <div class="card-sub" id="opsDaemonUptime">Loading...</div>
-      </div>
-      <div class="ops-health-card neutral">
-        <div class="card-icon">&#9888;</div>
-        <div class="card-label">Errors</div>
-        <div class="card-value" id="opsErrorCount">--</div>
-        <div class="card-sub" id="opsErrorDetail">Loading...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab Panels (Phase 37) -->
-  <div class="tab-panel active" id="productsPanel">
-    <div class="tab-placeholder">Products content will be moved here in Plan 02</div>
-  </div>
+  <!-- Other Tab Panels (Phase 37) -->
 
   <div class="tab-panel" id="ordersPanel">
-    <div class="tab-placeholder">Orders content will be moved here in Plan 02</div>
   </div>
 
   <div class="tab-panel" id="inventoryPanel">
-    <div class="tab-placeholder">Inventory content will be moved here in Plan 02</div>
   </div>
 
   <div class="tab-panel" id="customersPanel">
-    <div class="tab-placeholder">Customers content will be moved here in Plan 02</div>
   </div>
 
-  <!-- Product Migration (Phase 36) -->
+  <!-- Summary bar (outside tabs but inside main-content) -->
+  <div class="summary-bar" id="summaryBar">
+    <div class="summary-text" id="summaryText"></div>
+    <button type="button" class="btn btn-success" id="createBtn" disabled>Create WIX Draft</button>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar" id="statusBar">Ready</div>
+
+  </main><!-- /.main-content -->
+</div><!-- /.app-wrapper -->
+
+<!-- Modals (at document level, outside app-wrapper) -->
+
+<!-- Manual Order Form Modal -->
+<div class="order-modal-overlay" id="orderModalOverlay">
+  <div class="order-modal">
+    <h2>New Manual Order</h2>
+    <div class="order-form-section-title">Customer Information</div>
+    <div class="order-form-grid">
+      <div class="order-form-field">
+        <label>First Name *</label>
+        <input type="text" id="moFirstName" required>
+      </div>
+      <div class="order-form-field">
+        <label>Last Name *</label>
+        <input type="text" id="moLastName" required>
+      </div>
+      <div class="order-form-field">
+        <label>Email</label>
+        <input type="email" id="moEmail">
+      </div>
+      <div class="order-form-field">
+        <label>Phone</label>
+        <input type="tel" id="moPhone">
+      </div>
+    </div>
+
+    <div class="order-form-section-title">Collection / Brand</div>
+    <div class="order-form-grid">
+      <div class="order-form-field">
+        <label>Collection</label>
+        <select id="moCollection">
+          <option value="">-- Select --</option>
+          <option value="Big Barn">Big Barn</option>
+          <option value="Board30">Board30</option>
+          <option value="HotBox">HotBox</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="order-form-section-title">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" id="moHasShipping"> Shipping Address
+      </label>
+    </div>
+    <div class="order-form-grid" id="moShippingFields" style="display:none;">
+      <div class="order-form-field">
+        <label>Address Line 1</label>
+        <input type="text" id="moAddr1">
+      </div>
+      <div class="order-form-field">
+        <label>Address Line 2</label>
+        <input type="text" id="moAddr2">
+      </div>
+      <div class="order-form-field">
+        <label>City</label>
+        <input type="text" id="moCity">
+      </div>
+      <div class="order-form-field">
+        <label>State</label>
+        <input type="text" id="moState" maxlength="2" placeholder="e.g. TX">
+      </div>
+      <div class="order-form-field">
+        <label>ZIP Code</label>
+        <input type="text" id="moZip">
+      </div>
+      <div class="order-form-field">
+        <label>Country</label>
+        <input type="text" id="moCountry" value="US">
+      </div>
+    </div>
+
+    <div class="order-form-section-title">Line Items</div>
+    <div id="moLineItems">
+      <div class="order-line-item-row">
+        <div class="order-form-field"><label>Product Name</label><input type="text" class="mo-li-name"></div>
+        <div class="order-form-field"><label>Qty</label><input type="number" class="mo-li-qty" value="1" min="1"></div>
+        <div class="order-form-field"><label>Unit Price</label><input type="number" class="mo-li-price" step="0.01" min="0"></div>
+        <button type="button" class="btn-remove-line" title="Remove">&times;</button>
+      </div>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline" id="moAddLineBtn" style="margin-bottom:12px;">+ Add Item</button>
+
+    <div class="order-form-grid">
+      <div class="order-form-field">
+        <label>Shipping Cost</label>
+        <input type="number" id="moShippingCost" step="0.01" min="0" value="0">
+      </div>
+      <div class="order-form-field">
+        <label>Tax</label>
+        <input type="number" id="moTax" step="0.01" min="0" value="0">
+      </div>
+      <div class="order-form-field full-width">
+        <label>Notes</label>
+        <textarea id="moNotes" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="order-form-actions">
+      <button type="button" class="btn btn-outline" id="moCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-success" id="moCreateBtn">Create Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Form Modal (Phase 25) -->
+<div class="customer-modal-overlay" id="customerModalOverlay">
+  <div class="customer-modal">
+    <h2 id="customerFormTitle">Add Customer</h2>
+
+    <div class="customer-form-field">
+      <label for="custNameInput">Brand Name *</label>
+      <input type="text" id="custNameInput" placeholder="e.g. Board 30">
+      <div class="field-error" id="custNameError">Brand name is required</div>
+    </div>
+
+    <div class="customer-form-field">
+      <label for="custContactInput">Contact Name *</label>
+      <input type="text" id="custContactInput" placeholder="e.g. John Smith">
+      <div class="field-error" id="custContactError">Contact name is required</div>
+    </div>
+
+    <div class="customer-form-row">
+      <div class="customer-form-field">
+        <label for="custEmailInput">Email</label>
+        <input type="email" id="custEmailInput" placeholder="email@example.com">
+      </div>
+      <div class="customer-form-field">
+        <label for="custPhoneInput">Phone</label>
+        <input type="tel" id="custPhoneInput" placeholder="(555) 123-4567">
+      </div>
+    </div>
+
+    <div class="customer-form-row">
+      <div class="customer-form-field">
+        <label for="custMarkupInput">Markup %</label>
+        <input type="number" id="custMarkupInput" min="0" step="0.1" value="40" placeholder="40">
+        <div class="field-hint">Applied to wholesale cost for this customer's products</div>
+        <div class="field-error" id="custMarkupError">Must be a valid number >= 0</div>
+      </div>
+      <div class="customer-form-field">
+        <label for="custRoyaltyInput">Royalty %</label>
+        <input type="number" id="custRoyaltyInput" min="0" step="0.1" value="0" placeholder="0">
+        <div class="field-hint">Royalty rate on retail sales</div>
+        <div class="field-error" id="custRoyaltyError">Must be a valid number >= 0</div>
+      </div>
+    </div>
+
+    <div class="customer-form-field">
+      <label>Logo Assignment</label>
+      <div class="customer-logo-picker" id="custLogoPicker">
+        <div class="customer-logo-picker-empty">Loading logos...</div>
+      </div>
+    </div>
+
+    <div class="customer-form-field">
+      <label for="custNotesInput">Notes</label>
+      <textarea id="custNotesInput" placeholder="Optional notes about this customer..."></textarea>
+    </div>
+
+    <div class="customer-form-toggle">
+      <input type="checkbox" id="custActiveToggle" checked>
+      <label for="custActiveToggle">Active account</label>
+    </div>
+
+    <div class="customer-modal-actions">
+      <button type="button" class="btn btn-outline" id="custCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-success" id="custSaveBtn">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cart Fill Preview Modal (Phase 19) -->
+<div class="cart-modal-overlay" id="cartModalOverlay">
+  <div class="cart-modal">
+    <h2>Fill SanMar Cart</h2>
+    <div class="cart-summary" id="cartSummary"></div>
+    <div id="cartPreviewContent">
+      <div class="cart-loading-msg">Loading cart preview...</div>
+    </div>
+    <div class="cart-modal-actions" id="cartModalActions">
+      <button type="button" class="btn btn-outline" id="cartCancelBtn">Cancel</button>
+      <button type="button" class="btn-cart-fill" id="cartExecuteBtn" style="padding:8px 20px;font-size:14px;">Fill Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toastEl"></div>
+
+<!-- Additional Products Tab Content (Phase 37-02) -->
+<div class="tab-panel-extra products-extra" data-tab-panel="products">
+
+<!-- Product Migration (Phase 36) -->
   <div class="migration-section" id="migrationSection">
     <div class="section-header">
       <span>&#128260; PRODUCT MIGRATION</span>
@@ -5280,6 +5507,10 @@
     </div>
   </div>
 
+</div><!-- /.products-extra -->
+
+<!-- Inventory Tab Content (Phase 37-02) -->
+<div class="tab-panel-extra inventory-extra" data-tab-panel="inventory">
   <!-- Inventory Dashboard (Phase 16) -->
   <div class="inventory-section" id="inventorySection">
     <div class="section-header">
@@ -5323,7 +5554,10 @@
       </div>
     </div>
   </div>
+</div><!-- /.inventory-extra -->
 
+<!-- Orders Tab Content (Phase 37-02) -->
+<div class="tab-panel-extra orders-extra" data-tab-panel="orders">
   <!-- Order Dashboard (Phase 18) -->
   <div class="orders-section" id="ordersSection">
     <div class="section-header">
@@ -5368,109 +5602,10 @@
       <div id="orderDetailContent"></div>
     </div>
   </div>
+</div><!-- /.orders-extra -->
 
-  <!-- Manual Order Form Modal -->
-  <div class="order-modal-overlay" id="orderModalOverlay">
-    <div class="order-modal">
-      <h2>New Manual Order</h2>
-      <div class="order-form-section-title">Customer Information</div>
-      <div class="order-form-grid">
-        <div class="order-form-field">
-          <label>First Name *</label>
-          <input type="text" id="moFirstName" required>
-        </div>
-        <div class="order-form-field">
-          <label>Last Name *</label>
-          <input type="text" id="moLastName" required>
-        </div>
-        <div class="order-form-field">
-          <label>Email</label>
-          <input type="email" id="moEmail">
-        </div>
-        <div class="order-form-field">
-          <label>Phone</label>
-          <input type="tel" id="moPhone">
-        </div>
-      </div>
-
-      <div class="order-form-section-title">Collection / Brand</div>
-      <div class="order-form-grid">
-        <div class="order-form-field">
-          <label>Collection</label>
-          <select id="moCollection">
-            <option value="">-- Select --</option>
-            <option value="Big Barn">Big Barn</option>
-            <option value="Board30">Board30</option>
-            <option value="HotBox">HotBox</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="order-form-section-title">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-          <input type="checkbox" id="moHasShipping"> Shipping Address
-        </label>
-      </div>
-      <div class="order-form-grid" id="moShippingFields" style="display:none;">
-        <div class="order-form-field">
-          <label>Address Line 1</label>
-          <input type="text" id="moAddr1">
-        </div>
-        <div class="order-form-field">
-          <label>Address Line 2</label>
-          <input type="text" id="moAddr2">
-        </div>
-        <div class="order-form-field">
-          <label>City</label>
-          <input type="text" id="moCity">
-        </div>
-        <div class="order-form-field">
-          <label>State</label>
-          <input type="text" id="moState" maxlength="2" placeholder="e.g. TX">
-        </div>
-        <div class="order-form-field">
-          <label>ZIP Code</label>
-          <input type="text" id="moZip">
-        </div>
-        <div class="order-form-field">
-          <label>Country</label>
-          <input type="text" id="moCountry" value="US">
-        </div>
-      </div>
-
-      <div class="order-form-section-title">Line Items</div>
-      <div id="moLineItems">
-        <div class="order-line-item-row">
-          <div class="order-form-field"><label>Product Name</label><input type="text" class="mo-li-name"></div>
-          <div class="order-form-field"><label>Qty</label><input type="number" class="mo-li-qty" value="1" min="1"></div>
-          <div class="order-form-field"><label>Unit Price</label><input type="number" class="mo-li-price" step="0.01" min="0"></div>
-          <button type="button" class="btn-remove-line" title="Remove">&times;</button>
-        </div>
-      </div>
-      <button type="button" class="btn btn-sm btn-outline" id="moAddLineBtn" style="margin-bottom:12px;">+ Add Item</button>
-
-      <div class="order-form-grid">
-        <div class="order-form-field">
-          <label>Shipping Cost</label>
-          <input type="number" id="moShippingCost" step="0.01" min="0" value="0">
-        </div>
-        <div class="order-form-field">
-          <label>Tax</label>
-          <input type="number" id="moTax" step="0.01" min="0" value="0">
-        </div>
-        <div class="order-form-field full-width">
-          <label>Notes</label>
-          <textarea id="moNotes" rows="2"></textarea>
-        </div>
-      </div>
-
-      <div class="order-form-actions">
-        <button type="button" class="btn btn-outline" id="moCancelBtn">Cancel</button>
-        <button type="button" class="btn btn-success" id="moCreateBtn">Create Order</button>
-      </div>
-    </div>
-  </div>
-
+<!-- Customers Tab Content (Phase 37-02) -->
+<div class="tab-panel-extra customers-extra" data-tab-panel="customers">
   <!-- Customer Management (Phase 25) -->
   <div class="customers-section" id="customersSection">
     <div class="section-header">
@@ -5488,73 +5623,6 @@
         <div class="empty-cta">
           <button type="button" class="btn btn-primary" id="addCustomerEmptyBtn">Add Customer</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Customer Form Modal (Phase 25) -->
-  <div class="customer-modal-overlay" id="customerModalOverlay">
-    <div class="customer-modal">
-      <h2 id="customerFormTitle">Add Customer</h2>
-
-      <div class="customer-form-field">
-        <label for="custNameInput">Brand Name *</label>
-        <input type="text" id="custNameInput" placeholder="e.g. Board 30">
-        <div class="field-error" id="custNameError">Brand name is required</div>
-      </div>
-
-      <div class="customer-form-field">
-        <label for="custContactInput">Contact Name *</label>
-        <input type="text" id="custContactInput" placeholder="e.g. John Smith">
-        <div class="field-error" id="custContactError">Contact name is required</div>
-      </div>
-
-      <div class="customer-form-row">
-        <div class="customer-form-field">
-          <label for="custEmailInput">Email</label>
-          <input type="email" id="custEmailInput" placeholder="email@example.com">
-        </div>
-        <div class="customer-form-field">
-          <label for="custPhoneInput">Phone</label>
-          <input type="tel" id="custPhoneInput" placeholder="(555) 123-4567">
-        </div>
-      </div>
-
-      <div class="customer-form-row">
-        <div class="customer-form-field">
-          <label for="custMarkupInput">Markup %</label>
-          <input type="number" id="custMarkupInput" min="0" step="0.1" value="40" placeholder="40">
-          <div class="field-hint">Applied to wholesale cost for this customer's products</div>
-          <div class="field-error" id="custMarkupError">Must be a valid number >= 0</div>
-        </div>
-        <div class="customer-form-field">
-          <label for="custRoyaltyInput">Royalty %</label>
-          <input type="number" id="custRoyaltyInput" min="0" step="0.1" value="0" placeholder="0">
-          <div class="field-hint">Royalty rate on retail sales</div>
-          <div class="field-error" id="custRoyaltyError">Must be a valid number >= 0</div>
-        </div>
-      </div>
-
-      <div class="customer-form-field">
-        <label>Logo Assignment</label>
-        <div class="customer-logo-picker" id="custLogoPicker">
-          <div class="customer-logo-picker-empty">Loading logos...</div>
-        </div>
-      </div>
-
-      <div class="customer-form-field">
-        <label for="custNotesInput">Notes</label>
-        <textarea id="custNotesInput" placeholder="Optional notes about this customer..."></textarea>
-      </div>
-
-      <div class="customer-form-toggle">
-        <input type="checkbox" id="custActiveToggle" checked>
-        <label for="custActiveToggle">Active account</label>
-      </div>
-
-      <div class="customer-modal-actions">
-        <button type="button" class="btn btn-outline" id="custCancelBtn">Cancel</button>
-        <button type="button" class="btn btn-success" id="custSaveBtn">Save Customer</button>
       </div>
     </div>
   </div>
@@ -5588,36 +5656,7 @@
       <div class="royalty-empty">Select a customer and date range, then click "Generate Report".</div>
     </div>
   </div>
-
-  <!-- Cart Fill Preview Modal (Phase 19) -->
-  <div class="cart-modal-overlay" id="cartModalOverlay">
-    <div class="cart-modal">
-      <h2>Fill SanMar Cart</h2>
-      <div class="cart-summary" id="cartSummary"></div>
-      <div id="cartPreviewContent">
-        <div class="cart-loading-msg">Loading cart preview...</div>
-      </div>
-      <div class="cart-modal-actions" id="cartModalActions">
-        <button type="button" class="btn btn-outline" id="cartCancelBtn">Cancel</button>
-        <button type="button" class="btn-cart-fill" id="cartExecuteBtn" style="padding:8px 20px;font-size:14px;">Fill Cart</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast notification -->
-  <div class="toast" id="toastEl"></div>
-
-  <!-- Summary bar -->
-  <div class="summary-bar" id="summaryBar">
-    <div class="summary-text" id="summaryText"></div>
-    <button type="button" class="btn btn-success" id="createBtn" disabled>Create WIX Draft</button>
-  </div>
-
-  <!-- Status bar -->
-  <div class="status-bar" id="statusBar">Ready</div>
-
-  </main><!-- /.main-content -->
-</div><!-- /.app-wrapper -->
+</div><!-- /.customers-extra -->
 
 <script>
 (function() {
@@ -5681,6 +5720,11 @@
     // Update tab panels
     document.querySelectorAll('.tab-panel').forEach(function(panel) {
       panel.classList.toggle('active', panel.id === tabId + 'Panel');
+    });
+
+    // Update extra tab panel content (sections outside main tab-panel divs)
+    document.querySelectorAll('.tab-panel-extra').forEach(function(extra) {
+      extra.classList.toggle('active', extra.dataset.tabPanel === tabId);
     });
 
     // Save preference
@@ -9056,6 +9100,15 @@
     html += '</tbody></table>';
     inventoryContent.innerHTML = html;
 
+    // Update inventory nav badge with alert count (Phase 37)
+    var alertCount = 0;
+    for (var a = 0; a < products.length; a++) {
+      if (products[a].outOfStockSkus > 0 || products[a].lowStockSkus > 0) {
+        alertCount++;
+      }
+    }
+    updateInventoryNavBadge(alertCount);
+
     // Attach click handlers for expandable rows
     var rows = inventoryContent.querySelectorAll('.inv-row');
     for (var j = 0; j < rows.length; j++) {
@@ -9633,6 +9686,8 @@
       var newCount = _ordersCache.filter(function(o) { return o.status === 'new'; }).length;
       var fillBtn = document.getElementById('fillCartBtn');
       if (fillBtn) fillBtn.disabled = newCount === 0;
+      // Update orders nav badge with new order count (Phase 37)
+      updateOrdersNavBadge(newCount);
       // Load summary cards and sync health
       loadOrderSummary();
     } catch (err) {
