@@ -2725,6 +2725,22 @@
   .btn-cart-fill:hover { background: #d35400; }
   .btn-cart-fill:disabled { background: #bbb; cursor: not-allowed; }
 
+  /* S&S Cart Fill button (Phase 39) */
+  .btn-ss-cart-fill {
+    background: #00897b;
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-left: 8px;
+  }
+  .btn-ss-cart-fill:hover { background: #00796b; }
+  .btn-ss-cart-fill:disabled { background: #bbb; cursor: not-allowed; }
+
   /* Customer Management section (Phase 25) */
   .customers-section {
     background: #fff;
@@ -5162,6 +5178,21 @@
   </div>
 </div>
 
+<!-- S&S Cart Fill Preview Modal (Phase 39) -->
+<div class="cart-modal-overlay" id="ssCartModalOverlay">
+  <div class="cart-modal">
+    <h2>Fill S&amp;S Activewear Cart</h2>
+    <div class="cart-summary" id="ssCartSummary"></div>
+    <div id="ssCartPreviewContent">
+      <div class="cart-loading-msg">Loading cart preview...</div>
+    </div>
+    <div class="cart-modal-actions" id="ssCartModalActions">
+      <button type="button" class="btn btn-outline" id="ssCartCancelBtn">Cancel</button>
+      <button type="button" class="btn-ss-cart-fill" id="ssCartExecuteBtn" style="padding:8px 20px;font-size:14px;">Fill Cart</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast notification -->
 <div class="toast" id="toastEl"></div>
 
@@ -5566,6 +5597,7 @@
       </div>
       <div class="section-actions">
         <button type="button" class="btn-cart-fill" id="fillCartBtn" disabled>Fill SanMar Cart</button>
+        <button type="button" class="btn-ss-cart-fill" id="fillSSCartBtn" disabled>Fill S&amp;S Cart</button>
         <button type="button" class="btn btn-sm btn-primary" id="syncOrdersBtn">Sync WIX Orders</button>
         <button type="button" class="btn btn-sm btn-outline" id="resetSyncBtn" title="Clear all WIX orders and re-import fresh">Reset &amp; Resync</button>
         <button type="button" class="btn btn-sm btn-outline" id="newManualOrderBtn">New Manual Order</button>
@@ -9682,10 +9714,18 @@
       _ordersCache = json.orders || [];
       orderCount.textContent = '(' + _ordersCache.length + ')';
       renderOrderList(_ordersCache);
-      // Enable/disable Fill SanMar Cart button based on new orders
-      var newCount = _ordersCache.filter(function(o) { return o.status === 'new'; }).length;
+      // Enable/disable Fill SanMar Cart button based on new orders with SanMar items
+      var sanmarNewCount = _ordersCache.filter(function(o) {
+        return o.status === 'new' && o.lineItems.some(function(li) { return li.vendor !== 'ss'; });
+      }).length;
       var fillBtn = document.getElementById('fillCartBtn');
-      if (fillBtn) fillBtn.disabled = newCount === 0;
+      if (fillBtn) fillBtn.disabled = sanmarNewCount === 0;
+      // Enable/disable Fill S&S Cart button based on new orders with S&S items (Phase 39)
+      var ssNewCount = _ordersCache.filter(function(o) {
+        return o.status === 'new' && o.lineItems.some(function(li) { return li.vendor === 'ss'; });
+      }).length;
+      var fillSSBtn = document.getElementById('fillSSCartBtn');
+      if (fillSSBtn) fillSSBtn.disabled = ssNewCount === 0;
       // Update orders nav badge with new order count (Phase 37)
       updateOrdersNavBadge(newCount);
       // Load summary cards and sync health
@@ -10453,6 +10493,163 @@
 
       // Append to cartPreviewContent
       cartPreviewContent.insertAdjacentHTML('beforeend', html);
+    } catch (err) {
+      // Silently ignore history load errors
+    }
+  }
+
+  // =========================================================================
+  // S&S Activewear Cart Fill (Phase 39)
+  // =========================================================================
+
+  var fillSSCartBtn = document.getElementById('fillSSCartBtn');
+  var ssCartModalOverlay = document.getElementById('ssCartModalOverlay');
+  var ssCartSummary = document.getElementById('ssCartSummary');
+  var ssCartPreviewContent = document.getElementById('ssCartPreviewContent');
+  var ssCartCancelBtn = document.getElementById('ssCartCancelBtn');
+  var ssCartExecuteBtn = document.getElementById('ssCartExecuteBtn');
+
+  // Open S&S cart preview modal
+  fillSSCartBtn.addEventListener('click', async function() {
+    ssCartModalOverlay.classList.add('visible');
+    ssCartPreviewContent.innerHTML = '<div class="cart-loading-msg">Loading cart preview...</div>';
+    ssCartSummary.textContent = '';
+    ssCartExecuteBtn.disabled = true;
+
+    try {
+      var res = await fetch('/api/ss-cart/preview');
+      var json = await res.json();
+
+      if (!json.items || json.items.length === 0) {
+        ssCartSummary.innerHTML = '<strong>No S&S items to order.</strong> All items may be from other vendors or missing vendor style numbers.';
+        ssCartPreviewContent.innerHTML = '';
+        ssCartExecuteBtn.disabled = true;
+        // Load S&S cart history even if empty cart
+        loadSSCartHistory();
+        return;
+      }
+
+      ssCartSummary.innerHTML = '<strong>' + json.orderCount + ' order' + (json.orderCount === 1 ? '' : 's') +
+        '</strong> &rarr; <strong>' + json.totalItems + ' unique cart item' + (json.totalItems === 1 ? '' : 's') + '</strong>';
+
+      var html = '';
+
+      // Warning for skipped items
+      if (json.skippedCount > 0) {
+        html += '<div class="cart-warning">' + json.skippedCount + ' item' + (json.skippedCount === 1 ? '' : 's') +
+          ' skipped (no vendor style, missing color/size, or non-S&S vendor)</div>';
+      }
+
+      // Cart items table
+      html += '<table class="cart-items-table">';
+      html += '<thead><tr><th>Style</th><th>Color</th><th>Size</th><th>Qty</th><th>Source Orders</th></tr></thead>';
+      html += '<tbody>';
+      for (var i = 0; i < json.items.length; i++) {
+        var item = json.items[i];
+        var sources = item.sourceOrders.map(function(n) { return '#' + n; }).join(', ');
+        html += '<tr>';
+        html += '<td><strong>' + escHtml(item.vendorStyle) + '</strong></td>';
+        html += '<td>' + escHtml(item.color) + '</td>';
+        html += '<td>' + escHtml(item.size) + '</td>';
+        html += '<td>' + item.quantity + '</td>';
+        html += '<td style="color:#888;font-size:12px;">' + escHtml(sources) + '</td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+
+      ssCartPreviewContent.innerHTML = html;
+      ssCartExecuteBtn.disabled = false;
+
+      // Load S&S cart history below the table
+      loadSSCartHistory();
+
+    } catch (err) {
+      ssCartPreviewContent.innerHTML = '<div class="cart-loading-msg" style="color:#e74c3c;">Error loading preview: ' + escHtml(err.message || String(err)) + '</div>';
+    }
+  });
+
+  // Cancel S&S cart modal
+  ssCartCancelBtn.addEventListener('click', function() {
+    ssCartModalOverlay.classList.remove('visible');
+  });
+
+  // Close S&S cart modal on overlay click
+  ssCartModalOverlay.addEventListener('click', function(e) {
+    if (e.target === ssCartModalOverlay) ssCartModalOverlay.classList.remove('visible');
+  });
+
+  // Close S&S cart modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && ssCartModalOverlay.classList.contains('visible')) {
+      ssCartModalOverlay.classList.remove('visible');
+    }
+  });
+
+  // Execute S&S cart fill
+  ssCartExecuteBtn.addEventListener('click', async function() {
+    ssCartExecuteBtn.disabled = true;
+    ssCartExecuteBtn.textContent = 'Filling...';
+    ssCartPreviewContent.innerHTML = '<div class="cart-loading-msg">Filling S&S cart... This may take a few minutes.</div>';
+
+    try {
+      var res = await fetch('/api/ss-cart/fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      var json = await res.json();
+
+      if (json.status === 'empty') {
+        showToast('No S&S orders to process.', 'error');
+      } else if (json.status === 'success') {
+        showToast('S&S cart filled! ' + json.successCount + ' items added. Browser opened at checkout.', 'success');
+      } else if (json.status === 'partial') {
+        showToast('Cart partially filled: ' + json.successCount + ' of ' + (json.successCount + json.failedCount) + ' items added. Check results for errors.', 'error');
+      } else if (json.status === 'failed') {
+        showToast('Cart fill failed. ' + (json.error || 'See console for details.'), 'error');
+      } else if (json.error) {
+        showToast('Cart fill error: ' + json.error, 'error');
+      }
+
+      ssCartModalOverlay.classList.remove('visible');
+      loadOrders(); // Refresh orders (should now show 'ordered' status)
+    } catch (err) {
+      showToast('Cart fill error: ' + (err.message || String(err)), 'error');
+      ssCartModalOverlay.classList.remove('visible');
+    }
+
+    ssCartExecuteBtn.disabled = false;
+    ssCartExecuteBtn.textContent = 'Fill Cart';
+  });
+
+  // Load S&S cart history into the modal
+  async function loadSSCartHistory() {
+    try {
+      var res = await fetch('/api/ss-cart/history');
+      var json = await res.json();
+      var fills = json.fills || [];
+
+      if (fills.length === 0) return; // Don't show section if no history
+
+      var html = '<div class="cart-history-section"><h4>Recent S&S Cart Fills</h4>';
+      // Show last 5 fills
+      var shown = fills.slice(0, 5);
+      for (var i = 0; i < shown.length; i++) {
+        var fill = shown[i];
+        var date = new Date(fill.completedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        var itemCount = fill.itemResults ? fill.itemResults.length : 0;
+        var statusClass = 'ch-status-' + fill.status;
+        var statusLabel = fill.status.charAt(0).toUpperCase() + fill.status.slice(1);
+
+        html += '<div class="cart-history-item">';
+        html += '<span>' + escHtml(date) + ' &mdash; ' + itemCount + ' item' + (itemCount === 1 ? '' : 's') + '</span>';
+        html += '<span class="ch-status ' + statusClass + '">' + statusLabel + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      // Append to ssCartPreviewContent
+      ssCartPreviewContent.insertAdjacentHTML('beforeend', html);
     } catch (err) {
       // Silently ignore history load errors
     }
