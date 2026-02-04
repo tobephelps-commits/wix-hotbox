@@ -13,17 +13,18 @@ None
 - ✅ **v0.1 MVP** -- Phases 1-10 (shipped 2026-01-31)
 - ✅ **v0.2 Multi-Brand Operations** -- Phases 11-20 (shipped 2026-02-01)
 - ✅ **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (shipped 2026-02-02)
-- 🚧 **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (in progress)
+- ✅ **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (shipped 2026-02-04)
 
 ## Completed Milestones
 
 - [v0.1 MVP](milestones/v0.1-ROADMAP.md) (Phases 1-10) -- SHIPPED 2026-01-31
 - [v0.2 Multi-Brand Operations](milestones/v0.2-ROADMAP.md) (Phases 11-20) -- SHIPPED 2026-02-01
 - [v1.0 Visual Branding & Business Operations](milestones/v1.0-ROADMAP.md) (Phases 21-30) -- SHIPPED 2026-02-02
+- [v1.1 Storefront Polish & Operations Dashboard](milestones/v1.1-ROADMAP.md) (Phases 31-36) -- SHIPPED 2026-02-04
 
 ## Phases
 
-### 🚧 v1.1 Storefront Polish & Operations Dashboard (In Progress)
+### ✅ v1.1 Storefront Polish & Operations Dashboard (Shipped 2026-02-04)
 
 **Milestone Goal:** Enhance customer-facing storefront with stock visibility and variant image switching, plus build operational tooling for easier store management including daemon controls, pipeline wizard, and product migration.
 
@@ -87,16 +88,17 @@ Plans:
 - [x] 35-02: Step content panels (product, variants, pricing, logo, review)
 - [x] 35-03: API integration and verification (has checkpoint)
 
-#### Phase 36: Product Migration Tooling
+#### Phase 36: Product Migration Tooling ✓
 
 **Goal**: Browse existing WIX products and migrate untracked ones through the Pipeline Wizard
 **Depends on**: Phase 35
 **Research**: No (UI wrapper feeding into existing wizard)
 **Plans**: 2
+**Completed**: 2026-02-04
 
 Plans:
-- [ ] 36-01: WIX products API endpoint with tracking status
-- [ ] 36-02: Migration UI section with product browser and wizard integration (has checkpoint)
+- [x] 36-01: WIX products API endpoint with tracking status
+- [x] 36-02: Migration UI section with product browser and wizard integration (has checkpoint)
 
 <details>
 <summary>✅ v0.1 MVP (Phases 1-10) -- SHIPPED 2026-01-31</summary>
@@ -188,4 +190,4 @@ Phases execute in numeric order: 31 → 32 → 33 → 34 → 35 → 36
 | 33. Side-View Image Investigation & Fix | v1.1 | 1/1 | Complete | 2026-02-03 |
 | 34. Operations Dashboard Foundation | v1.1 | 2/2 | Complete | 2026-02-04 |
 | 35. Product Pipeline Wizard | v1.1 | 3/3 | Complete | 2026-02-04 |
-| 36. Product Migration Tooling | v1.1 | 0/2 | Planned | - |
+| 36. Product Migration Tooling | v1.1 | 2/2 | Complete | 2026-02-04 |
