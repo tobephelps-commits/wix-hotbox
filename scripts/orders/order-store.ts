@@ -505,3 +505,223 @@ export async function getOrderSummary(): Promise<Record<string, number>> {
 
   return counts;
 }
+
+// =============================================================================
+// Extended Order Summary (Phase 40)
+// =============================================================================
+
+/**
+ * Extended order summary with time-in-stage metrics and attention counts.
+ *
+ * Provides richer data for dashboard visibility including:
+ * - Status counts by order status
+ * - Aging orders that have been in a status too long
+ * - Attention breakdown for actionable items
+ * - Stage metrics with aggregated values per status
+ *
+ * Phase 40: Order Status Dashboard
+ */
+export interface OrderSummaryExtended {
+  statusCounts: Record<OrderStatus, number>;
+  errorCount: number;
+  errorOrderIds: string[];
+  lastSync: string | null;
+
+  /** Orders that have been in their status longer than thresholds */
+  agingOrders: {
+    status: OrderStatus;
+    orderId: string;
+    orderNumber: number;
+    hoursInStatus: number;
+  }[];
+
+  /** Actionable attention breakdown */
+  attention: {
+    /** New orders not yet ordered from vendor */
+    cartFillPending: number;
+    /** Orders in production > 72 hours */
+    stuckInProduction: number;
+    /** Packed orders awaiting shipment > 24 hours */
+    awaitingShipment: number;
+    /** Orders with unresolved errors */
+    unresolvedErrors: number;
+  };
+
+  /** Metrics aggregated by active status */
+  stageMetrics: Record<string, {
+    orderCount: number;
+    totalItems: number;
+    totalValue: number;
+    oldestOrderHours: number | null;
+  }>;
+}
+
+/** Aging thresholds in hours per status */
+const AGING_THRESHOLDS: Partial<Record<OrderStatus, number>> = {
+  'new': 48,
+  'in-production': 72,
+  'packed': 24,
+};
+
+/** Active statuses to include in stage metrics */
+const ACTIVE_STATUSES: OrderStatus[] = [
+  'new',
+  'ordered',
+  'received',
+  'in-production',
+  'packed',
+  'shipped',
+];
+
+/**
+ * Calculate hours since a given ISO timestamp.
+ */
+function hoursSince(isoTimestamp: string): number {
+  const then = new Date(isoTimestamp).getTime();
+  const now = Date.now();
+  return (now - then) / (1000 * 60 * 60);
+}
+
+/**
+ * Get the timestamp when an order entered its current status.
+ * Looks at the most recent statusHistory entry matching the current status.
+ */
+function getStatusEntryTime(order: Order): string {
+  // Find the most recent history entry with the current status
+  const matching = order.statusHistory
+    .filter((h) => h.status === order.status)
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  if (matching.length > 0) {
+    return matching[0].timestamp;
+  }
+
+  // Fallback to updatedAt if no matching history entry
+  return order.updatedAt;
+}
+
+/**
+ * Get an extended order summary with time-in-stage metrics, attention counts, and batch metrics.
+ *
+ * @returns Extended summary data for dashboard display
+ */
+export async function getOrderSummaryExtended(): Promise<OrderSummaryExtended> {
+  const store = await loadOrders();
+  const orders = store.orders;
+  const now = Date.now();
+
+  // Initialize status counts with zeros for all statuses
+  const statusCounts: Record<OrderStatus, number> = {
+    'new': 0,
+    'on-hold': 0,
+    'ordered': 0,
+    'received': 0,
+    'in-production': 0,
+    'packed': 0,
+    'shipped': 0,
+    'delivered': 0,
+    'cancelled': 0,
+  };
+
+  // Collect orders with errors
+  const errorOrders: Order[] = [];
+
+  // Aging orders list
+  const agingOrders: OrderSummaryExtended['agingOrders'] = [];
+
+  // Attention counters
+  const attention = {
+    cartFillPending: 0,
+    stuckInProduction: 0,
+    awaitingShipment: 0,
+    unresolvedErrors: 0,
+  };
+
+  // Stage metrics accumulators
+  const stageMetrics: Record<string, {
+    orderCount: number;
+    totalItems: number;
+    totalValue: number;
+    oldestOrderHours: number | null;
+  }> = {};
+
+  // Initialize stage metrics for active statuses
+  for (const status of ACTIVE_STATUSES) {
+    stageMetrics[status] = {
+      orderCount: 0,
+      totalItems: 0,
+      totalValue: 0,
+      oldestOrderHours: null,
+    };
+  }
+
+  // Process each order
+  for (const order of orders) {
+    // Count by status
+    statusCounts[order.status] = (statusCounts[order.status] || 0) + 1;
+
+    // Track error orders
+    if (order.errors && order.errors.some((e) => !e.resolved)) {
+      errorOrders.push(order);
+      attention.unresolvedErrors++;
+    }
+
+    // Calculate hours in current status
+    const statusEntryTime = getStatusEntryTime(order);
+    const hoursInStatus = hoursSince(statusEntryTime);
+
+    // Check aging thresholds
+    const threshold = AGING_THRESHOLDS[order.status];
+    if (threshold !== undefined && hoursInStatus > threshold) {
+      agingOrders.push({
+        status: order.status,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        hoursInStatus: Math.round(hoursInStatus),
+      });
+    }
+
+    // Attention counts
+    if (order.status === 'new') {
+      attention.cartFillPending++;
+    }
+    if (order.status === 'in-production' && hoursInStatus > 72) {
+      attention.stuckInProduction++;
+    }
+    if (order.status === 'packed' && hoursInStatus > 24) {
+      attention.awaitingShipment++;
+    }
+
+    // Stage metrics for active statuses
+    if (ACTIVE_STATUSES.includes(order.status)) {
+      const metrics = stageMetrics[order.status];
+      metrics.orderCount++;
+      metrics.totalValue += order.total;
+
+      // Sum line item quantities
+      let itemCount = 0;
+      for (const item of order.lineItems) {
+        itemCount += item.quantity;
+      }
+      metrics.totalItems += itemCount;
+
+      // Track oldest order
+      if (metrics.oldestOrderHours === null || hoursInStatus > metrics.oldestOrderHours) {
+        metrics.oldestOrderHours = Math.round(hoursInStatus);
+      }
+    }
+  }
+
+  // Sort aging orders by hours descending (most aged first)
+  agingOrders.sort((a, b) => b.hoursInStatus - a.hoursInStatus);
+
+  return {
+    statusCounts,
+    errorCount: errorOrders.length,
+    errorOrderIds: errorOrders.map((o) => o.id),
+    lastSync: store.lastSync || null,
+    agingOrders,
+    attention,
+    stageMetrics,
+  };
+}

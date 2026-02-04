@@ -46,9 +46,10 @@ export {
   resolveOrderError,
   getOrdersWithErrors,
   getOrderSummary,
+  getOrderSummaryExtended,
 } from './order-store.js';
 
-export type { OrderStore } from './order-store.js';
+export type { OrderStore, OrderSummaryExtended } from './order-store.js';
 
 // =============================================================================
 // WIX Order Sync
