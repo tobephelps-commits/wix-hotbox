@@ -9,21 +9,22 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Position
 
-Phase: 32 of 36 (Variant Image Switching) - COMPLETE
+Phase: 33 of 36 (Side-View Image Investigation & Fix) - COMPLETE
 Plan: 1 of 1 in current phase (complete)
-Status: All tasks complete, human verification passed
-Last activity: 2026-02-03 - Plan 32-01 complete
+Status: All tasks complete, fix verified
+Last activity: 2026-02-03 - Plan 33-01 complete
 
-Progress: ███░░░░░░░ 33%
+Progress: ███░░░░░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 96 (34 v0.1 + 38 v0.2 + 24 v1.0)
+- Total plans completed: 97 (34 v0.1 + 38 v0.2 + 24 v1.0 + 1 v1.1)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
 - v1.0: 24 plans across 1 day (2026-02-02)
+- v1.1: 1 plan (2026-02-03)
 
 **By Phase (v0.1):**
 
@@ -174,8 +175,16 @@ None
 | 32 | Verification-only for API layer (no code changes) | buildMediaPayload() already correctly assigns images to color choices |
 | 32 | Editor configuration is required (not API-automatable) | WIX Product Gallery widget setting cannot be changed via REST API |
 
+### Phase 33 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 33 | Set sideImage to null explicitly for SanMar | CLASS_TYPE_HIGH (2001) is a high-res front/lifestyle shot, not a side view |
+| 33 | Remove side image choice assignment from buildMediaPayload | Prevents duplicate front-looking images in WIX variant switching |
+| 33 | Keep HIGH images as general product images (Step 2) | Still useful as additional product imagery, just not as color-specific side |
+
 ## Session Continuity
 
 Last session: 2026-02-03
-Completed: Plan 32-01 (all 4 tasks, human verification passed)
-Next: Phase 33 or next phase from ROADMAP.md
+Completed: Plan 33-01 (all 3 tasks, fix verified)
+Next: Phase 34 or next phase from ROADMAP.md
