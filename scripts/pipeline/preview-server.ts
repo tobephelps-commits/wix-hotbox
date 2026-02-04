@@ -25,8 +25,11 @@ import 'dotenv/config';
 import * as http from 'node:http';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import os from 'node:os';
+import { rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
+import archiver from 'archiver';
 import { fetchProductData } from './fetch-product.js';
 import type { ProductData } from './fetch-product.js';
 import { createWixProduct, createBatchProduct } from './create-product.js';
@@ -89,12 +92,14 @@ import {
   getOrderByNumber,
   addOrder,
   updateOrderStatus,
+  updateOrderStatusBulk,
   syncWixOrders,
   syncWithRetry,
   resetAndResync,
   generateInvoice,
   generateShippingLabel,
   generateProductionSheet,
+  generateBatchProductionSheets,
   printInvoice,
   printShippingLabel,
   listPrinters,
@@ -823,6 +828,21 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const orderPrintLabelMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/print-label\/?$/);
   if (orderPrintLabelMatch) {
     return { route: 'order-print-label', param: orderPrintLabelMatch[1] };
+  }
+
+  // Match /api/orders/bulk/status (Phase 41: Bulk Order Actions) - must come before /:id/status
+  if (urlPath === '/api/orders/bulk/status') {
+    return { route: 'orders-bulk-status' };
+  }
+
+  // Match /api/orders/bulk/production-sheets (Phase 41: Bulk Order Actions)
+  if (urlPath === '/api/orders/bulk/production-sheets') {
+    return { route: 'orders-bulk-production-sheets' };
+  }
+
+  // Match /api/orders/bulk/production-sheets/zip (Phase 41: Bulk Order Actions)
+  if (urlPath === '/api/orders/bulk/production-sheets/zip') {
+    return { route: 'orders-bulk-production-sheets-zip' };
   }
 
   // Match /api/orders/:id/status
@@ -2235,6 +2255,172 @@ function startServer(port: number, initialStyle?: string): void {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error syncing WIX orders: ${message}`);
               sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          // =====================================================================
+          // Bulk Order Operations (Phase 41: Bulk Order Actions)
+          // =====================================================================
+
+          case 'orders-bulk-status': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed. Use POST.' });
+              break;
+            }
+            // POST /api/orders/bulk/status — Bulk status update
+            // Body: { orderIds: string[], status: OrderStatus, note?: string }
+            try {
+              const body = await readBody(req);
+              const payload = JSON.parse(body);
+
+              if (!payload.orderIds || !Array.isArray(payload.orderIds)) {
+                sendJson(res, 400, { error: 'Missing required field: orderIds (array)' });
+                break;
+              }
+              if (!payload.status) {
+                sendJson(res, 400, { error: 'Missing required field: status' });
+                break;
+              }
+
+              const result = await updateOrderStatusBulk(
+                payload.orderIds,
+                payload.status as OrderStatus,
+                payload.note,
+              );
+              sendJson(res, 200, result);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error in bulk status update: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'orders-bulk-production-sheets': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed. Use POST.' });
+              break;
+            }
+            // POST /api/orders/bulk/production-sheets — Batch production sheet generation
+            // Body: { orderIds: string[] }
+            try {
+              const body = await readBody(req);
+              const payload = JSON.parse(body);
+
+              if (!payload.orderIds || !Array.isArray(payload.orderIds)) {
+                sendJson(res, 400, { error: 'Missing required field: orderIds (array)' });
+                break;
+              }
+
+              // Load orders by ID
+              const orders = [];
+              for (const id of payload.orderIds) {
+                const order = await getOrderById(id);
+                if (order) {
+                  orders.push(order);
+                }
+              }
+
+              const result = await generateBatchProductionSheets(orders);
+              sendJson(res, 200, result);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error in batch production sheets: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
+            }
+            break;
+          }
+
+          case 'orders-bulk-production-sheets-zip': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed. Use POST.' });
+              break;
+            }
+            // POST /api/orders/bulk/production-sheets/zip — Batch production sheets as ZIP download
+            // Body: { orderIds: string[] }
+            try {
+              const body = await readBody(req);
+              const payload = JSON.parse(body);
+
+              if (!payload.orderIds || !Array.isArray(payload.orderIds)) {
+                sendJson(res, 400, { error: 'Missing required field: orderIds (array)' });
+                break;
+              }
+
+              if (payload.orderIds.length === 0) {
+                sendJson(res, 400, { error: 'orderIds array cannot be empty' });
+                break;
+              }
+
+              // Load orders by ID
+              const orders = [];
+              for (const id of payload.orderIds) {
+                const order = await getOrderById(id);
+                if (order) {
+                  orders.push(order);
+                }
+              }
+
+              if (orders.length === 0) {
+                sendJson(res, 404, { error: 'No orders found for provided IDs' });
+                break;
+              }
+
+              // Generate sheets to temp directory
+              const tempDir = path.join(os.tmpdir(), `production-sheets-${Date.now()}`);
+              fs.mkdirSync(tempDir, { recursive: true });
+
+              const generatedPaths: string[] = [];
+              for (const order of orders) {
+                try {
+                  const { saveProductionSheet } = await import('../orders/production-sheet.js');
+                  const pdfPath = path.join(tempDir, `PS-${order.orderNumber}.pdf`);
+                  await saveProductionSheet(order, pdfPath);
+                  generatedPaths.push(pdfPath);
+                } catch (genErr) {
+                  console.error(`[Preview] Error generating production sheet for order ${order.orderNumber}:`, genErr);
+                  // Continue with other orders
+                }
+              }
+
+              if (generatedPaths.length === 0) {
+                await rm(tempDir, { recursive: true, force: true });
+                sendJson(res, 500, { error: 'Failed to generate any production sheets' });
+                break;
+              }
+
+              // Create ZIP with archiver
+              res.setHeader('Content-Type', 'application/zip');
+              res.setHeader('Content-Disposition', `attachment; filename="production-sheets-${Date.now()}.zip"`);
+
+              const archive = archiver('zip', { zlib: { level: 9 } });
+
+              archive.on('error', (archiveErr: Error) => {
+                console.error(`[Preview] Archive error: ${archiveErr.message}`);
+                // Try to clean up temp directory
+                rm(tempDir, { recursive: true, force: true }).catch(() => {});
+              });
+
+              archive.on('end', () => {
+                // Clean up temp files after streaming
+                rm(tempDir, { recursive: true, force: true }).catch(() => {});
+              });
+
+              // Pipe archive to response
+              archive.pipe(res);
+
+              // Add all generated PDFs to archive
+              for (const pdfPath of generatedPaths) {
+                archive.file(pdfPath, { name: path.basename(pdfPath) });
+              }
+
+              // Finalize the archive
+              await archive.finalize();
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error in batch production sheets ZIP: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
             }
             break;
           }

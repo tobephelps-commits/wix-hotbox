@@ -40,6 +40,7 @@ export {
   getOrderByNumber,
   addOrder,
   updateOrderStatus,
+  updateOrderStatusBulk,
   listOrders,
   upsertWixOrder,
   addOrderError,
@@ -83,7 +84,7 @@ export { generateShippingLabel, saveShippingLabel } from './label-generator.js';
 // Production Sheet Generation (Phase 38)
 // =============================================================================
 
-export { generateProductionSheet, saveProductionSheet } from './production-sheet.js';
+export { generateProductionSheet, saveProductionSheet, generateBatchProductionSheets } from './production-sheet.js';
 
 // =============================================================================
 // Print Service
