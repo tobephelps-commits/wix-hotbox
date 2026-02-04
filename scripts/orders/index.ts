@@ -134,3 +134,16 @@ export {
   getSSOrdersForCartFill,
   consolidateSSOrders,
 } from './ss-cart-consolidator.js';
+
+// =============================================================================
+// S&S Activewear Cart Filler (Phase 39 - Browser Automation)
+// =============================================================================
+
+export {
+  fillSSCart,
+  fillSSCartForPendingOrders,
+  saveSSCartFillResult,
+  markSSOrdersAsOrdered,
+} from './ss-cart-filler.js';
+
+export type { SSCartFillOptions } from './ss-cart-filler.js';
