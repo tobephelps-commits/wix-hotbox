@@ -74,15 +74,18 @@ Plans:
 - [x] 34-01: Daemon lifecycle control API + operations health endpoint
 - [x] 34-02: Operations Dashboard UI (has checkpoint)
 
-#### Phase 35: Product Pipeline Wizard
+#### Phase 35: Product Pipeline Wizard ✓
 
 **Goal**: Step-by-step guided product creation with previews at each stage
 **Depends on**: Phase 34
-**Research**: Unlikely (UI wrapper for existing pipeline functionality)
-**Plans**: TBD
+**Research**: No (UI wrapper for existing pipeline functionality)
+**Plans**: 3
+**Completed**: 2026-02-04
 
 Plans:
-- [ ] 35-01: TBD
+- [x] 35-01: Wizard foundation with step navigation UI and state management
+- [x] 35-02: Step content panels (product, variants, pricing, logo, review)
+- [x] 35-03: API integration and verification (has checkpoint)
 
 #### Phase 36: Product Migration Tooling
 
@@ -183,5 +186,5 @@ Phases execute in numeric order: 31 → 32 → 33 → 34 → 35 → 36
 | 32. Variant Image Switching | v1.1 | 1/1 | Complete | 2026-02-03 |
 | 33. Side-View Image Investigation & Fix | v1.1 | 1/1 | Complete | 2026-02-03 |
 | 34. Operations Dashboard Foundation | v1.1 | 2/2 | Complete | 2026-02-04 |
-| 35. Product Pipeline Wizard | v1.1 | 0/? | Not started | - |
+| 35. Product Pipeline Wizard | v1.1 | 3/3 | Complete | 2026-02-04 |
 | 36. Product Migration Tooling | v1.1 | 0/? | Not started | - |
