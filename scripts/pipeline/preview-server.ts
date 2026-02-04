@@ -100,6 +100,7 @@ import {
   listPrinters,
   getOrdersWithErrors,
   getOrderSummary,
+  getOrderSummaryExtended,
   resolveOrderError,
 } from '../orders/index.js';
 import type { OrderStatus, OrderSource, OrderCustomer, OrderLineItem, OrderAddress, OrderError } from '../orders/index.js';
@@ -828,6 +829,11 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   const orderStatusMatch = urlPath.match(/^\/api\/orders\/([A-Za-z0-9._-]+)\/status\/?$/);
   if (orderStatusMatch) {
     return { route: 'order-status', param: orderStatusMatch[1] };
+  }
+
+  // Match /api/orders/summary/extended (must come before /api/orders/summary)
+  if (urlPath === '/api/orders/summary/extended') {
+    return { route: 'orders-summary-extended' };
   }
 
   // Match /api/orders/summary (must come before /api/orders/:id)
@@ -2100,6 +2106,23 @@ function startServer(port: number, initialStyle?: string): void {
                 console.error(`[Preview] Error updating order status: ${message}`);
                 sendJson(res, 500, { error: 'Internal server error' });
               }
+            }
+            break;
+          }
+
+          case 'orders-summary-extended': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/orders/summary/extended — Extended summary with time-in-stage metrics
+            try {
+              const summary = await getOrderSummaryExtended();
+              sendJson(res, 200, summary);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error getting extended order summary: ${message}`);
+              sendJson(res, 500, { error: 'Internal server error' });
             }
             break;
           }
