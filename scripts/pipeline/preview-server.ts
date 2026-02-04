@@ -78,6 +78,10 @@ import {
 } from '../sync/product-map.js';
 import type { MappingAuditResult } from '../sync/types.js';
 
+// WIX Product List API (Phase 36: Product Migration Tooling)
+import { listAllProducts } from './wix-api.js';
+import type { WixProduct } from './wix-api.js';
+
 // Order Management (Phase 18)
 import {
   listOrders,
@@ -163,6 +167,44 @@ function parseVendorParam(reqUrl: string): VendorId {
 function vendorDisplayName(vendor: VendorId): string {
   if (vendor === 'ss') return 'S&S Activewear';
   return 'SanMar';
+}
+
+/**
+ * Detect vendor from WIX product metadata.
+ * Checks product name, description, and SKU patterns.
+ *
+ * Phase 36: Product Migration Tooling
+ */
+function detectVendorFromWixProduct(product: WixProduct): VendorId | 'unknown' {
+  const description = (product.description as string) ?? '';
+  const searchText = `${product.name} ${description}`.toLowerCase();
+
+  // Check for SanMar indicators
+  if (searchText.includes('sanmar') || searchText.includes('san mar')) {
+    return 'sanmar';
+  }
+
+  // Check for S&S Activewear indicators
+  if (searchText.includes('s&s') || searchText.includes('ss activewear') || searchText.includes('s & s')) {
+    return 'ss';
+  }
+
+  // Check SKU patterns (SanMar uses alphanumeric like PC61, S&S uses numeric like 2000)
+  const variants = product.variants ?? [];
+  if (variants.length > 0 && variants[0]?.variant?.sku) {
+    const sku = variants[0].variant.sku;
+    const style = sku.split('-')[0];
+    // S&S styles are typically all numeric
+    if (/^\d+$/.test(style)) {
+      return 'ss';
+    }
+    // SanMar styles have letters
+    if (/[A-Za-z]/.test(style)) {
+      return 'sanmar';
+    }
+  }
+
+  return 'unknown';
 }
 
 // =============================================================================
@@ -852,6 +894,13 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/operations/health
   if (urlPath === '/api/operations/health') {
     return { route: 'operations-health' };
+  }
+
+  // WIX Product List API (Phase 36: Product Migration Tooling)
+
+  // Match /api/wix/products
+  if (urlPath === '/api/wix/products') {
+    return { route: 'wix-products' };
   }
 
   // Match / (root)
@@ -2649,6 +2698,88 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error fetching operations health: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          // WIX Product List API (Phase 36: Product Migration Tooling)
+          case 'wix-products': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              // Parse filter query parameter
+              const urlObj = new URL(req.url ?? '/', 'http://localhost');
+              const filterParam = urlObj.searchParams.get('filter') ?? 'all';
+
+              // Load WIX products
+              console.log('[Preview] Fetching WIX products...');
+              const wixProducts = await listAllProducts();
+
+              // Load tracked products for comparison
+              const monitorConfig = await loadConfig();
+              const trackedProducts = await loadTrackedProducts(monitorConfig);
+
+              // Build a Set of tracked style+vendor composite keys for fast lookup
+              const trackedSet = new Set<string>();
+              for (const tp of trackedProducts) {
+                const vendor = tp.vendor ?? 'sanmar';
+                trackedSet.add(`${tp.style.toUpperCase()}:${vendor}`);
+              }
+
+              // Transform WIX products with tracking status
+              const transformedProducts = wixProducts.map((product) => {
+                // Extract style from first variant SKU
+                const variants = product.variants ?? [];
+                let style: string | null = null;
+                if (variants.length > 0 && variants[0]?.variant?.sku) {
+                  const sku = variants[0].variant.sku;
+                  style = sku.split('-')[0].toUpperCase();
+                }
+
+                // Detect vendor from product metadata
+                const vendor = detectVendorFromWixProduct(product);
+
+                // Check if tracked (style+vendor combo)
+                let tracked = false;
+                if (style && vendor !== 'unknown') {
+                  tracked = trackedSet.has(`${style}:${vendor}`);
+                }
+
+                return {
+                  wixId: product.id,
+                  name: product.name,
+                  style,
+                  vendor,
+                  tracked,
+                  variantCount: variants.length,
+                  visible: product.visible,
+                };
+              });
+
+              // Apply filter
+              let filteredProducts = transformedProducts;
+              if (filterParam === 'untracked') {
+                filteredProducts = transformedProducts.filter((p) => !p.tracked);
+              } else if (filterParam === 'tracked') {
+                filteredProducts = transformedProducts.filter((p) => p.tracked);
+              }
+
+              // Compute counts
+              const trackedCount = transformedProducts.filter((p) => p.tracked).length;
+              const untrackedCount = transformedProducts.filter((p) => !p.tracked).length;
+
+              sendJson(res, 200, {
+                products: filteredProducts,
+                total: transformedProducts.length,
+                tracked: trackedCount,
+                untracked: untrackedCount,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error fetching WIX products: ${message}`);
               sendJson(res, 500, { error: message });
             }
             break;
