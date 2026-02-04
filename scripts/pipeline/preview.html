@@ -4504,6 +4504,145 @@
     font-weight: 500;
     text-align: center;
   }
+
+  /* Pipeline Visualization (Phase 40) */
+  .order-pipeline-container {
+    margin-bottom: 16px;
+  }
+  .order-pipeline {
+    display: flex;
+    gap: 12px;
+    background: rgba(26, 26, 46, 0.5);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .pipeline-stage {
+    flex: 1;
+    min-width: 140px;
+    background: #252542;
+    border-radius: 6px;
+    padding: 12px;
+    border-left: 4px solid #666;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .pipeline-stage:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .pipeline-stage.active {
+    box-shadow: 0 0 0 2px #6c63ff;
+  }
+  .pipeline-stage.dimmed {
+    opacity: 0.5;
+  }
+  .pipeline-stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .pipeline-stage-name {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .pipeline-stage-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .pipeline-stage-metrics {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+  }
+  .pipeline-stage-metrics div {
+    margin-top: 4px;
+  }
+  .attention-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e74c3c;
+    animation: pulse 1.5s infinite;
+  }
+  .attention-badge.warning {
+    background: #f39c12;
+    animation: none;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+  .aging-indicator {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 8px;
+    background: #333;
+    overflow: hidden;
+  }
+  .aging-indicator-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+  .aging-indicator-bar.green { background: #27ae60; }
+  .aging-indicator-bar.yellow { background: #f39c12; }
+  .aging-indicator-bar.red { background: #e74c3c; }
+  .attention-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(26, 26, 46, 0.5);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .attention-bar:empty {
+    display: none;
+  }
+  .attention-bar-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 8px;
+  }
+  .attention-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .attention-chip:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  .attention-chip.blue { background: rgba(74, 144, 217, 0.2); color: #4a90d9; border: 1px solid rgba(74, 144, 217, 0.4); }
+  .attention-chip.orange { background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.4); }
+  .attention-chip.yellow { background: rgba(241, 196, 15, 0.2); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.4); }
+  .attention-chip.red { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.4); }
+  .attention-chip-count {
+    font-weight: 700;
+  }
 </style>
 </head>
 <body>
@@ -5603,6 +5742,12 @@
         <button type="button" class="btn btn-sm btn-outline" id="newManualOrderBtn">New Manual Order</button>
         <button type="button" class="btn btn-sm btn-outline" id="refreshOrdersBtn">Refresh</button>
       </div>
+    </div>
+
+    <!-- Pipeline Visualization (Phase 40) -->
+    <div id="orderPipelineView" class="order-pipeline-container">
+      <div id="attentionBar" class="attention-bar"></div>
+      <div id="pipelineStages" class="order-pipeline"></div>
     </div>
 
     <!-- Order List View -->
@@ -9572,6 +9717,189 @@
 
   var _orderSummaryData = null;
 
+  // Pipeline Visualization (Phase 40)
+  var PIPELINE_STAGES = ['new', 'ordered', 'received', 'in-production', 'packed', 'shipped'];
+  var PIPELINE_STAGE_COLORS = {
+    'new': '#4a90d9',
+    'ordered': '#9b59b6',
+    'received': '#8e44ad',
+    'in-production': '#6c63ff',
+    'packed': '#27ae60',
+    'shipped': '#2ecc71'
+  };
+  var AGING_THRESHOLDS = {
+    'new': 48,
+    'ordered': 72,
+    'received': 48,
+    'in-production': 72,
+    'packed': 24,
+    'shipped': 120
+  };
+  var _pipelineData = null;
+  var _pipelineStatusFilter = null;
+
+  function formatHoursAgo(hours) {
+    if (hours == null || hours < 0) return '';
+    if (hours < 1) return '< 1h';
+    if (hours < 24) return Math.round(hours) + 'h';
+    var days = Math.floor(hours / 24);
+    var remainHours = Math.round(hours % 24);
+    if (remainHours === 0) return days + 'd';
+    return days + 'd ' + remainHours + 'h';
+  }
+
+  function formatCurrency(amount) {
+    if (amount == null) return '$0.00';
+    return '$' + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function loadOrderPipelineData() {
+    try {
+      var res = await fetch('/api/orders/summary/extended');
+      var json = await res.json();
+      _pipelineData = json;
+      renderPipeline(json);
+      renderAttentionBar(json);
+    } catch (err) {
+      console.error('Failed to load pipeline data:', err);
+    }
+  }
+
+  function renderPipeline(data) {
+    var container = document.getElementById('pipelineStages');
+    if (!container || !data) return;
+
+    var html = '';
+    PIPELINE_STAGES.forEach(function(status) {
+      var metrics = data.stageMetrics && data.stageMetrics[status];
+      var orderCount = metrics ? metrics.orderCount : 0;
+      var totalItems = metrics ? metrics.totalItems : 0;
+      var totalValue = metrics ? metrics.totalValue : 0;
+      var oldestHours = metrics ? metrics.oldestOrderHours : null;
+      var color = PIPELINE_STAGE_COLORS[status] || '#999';
+      var threshold = AGING_THRESHOLDS[status] || 72;
+
+      var dimmed = orderCount === 0 ? ' dimmed' : '';
+      var active = _pipelineStatusFilter === status ? ' active' : '';
+
+      // Determine attention badge
+      var attentionBadge = '';
+      if (data.attention) {
+        if (status === 'new' && data.attention.cartFillPending > 0 && oldestHours && oldestHours >= threshold) {
+          attentionBadge = '<span class="attention-badge"></span>';
+        } else if (status === 'in-production' && data.attention.stuckInProduction > 0) {
+          attentionBadge = '<span class="attention-badge"></span>';
+        } else if (status === 'packed' && data.attention.awaitingShipment > 0) {
+          attentionBadge = '<span class="attention-badge warning"></span>';
+        }
+      }
+
+      // Aging indicator
+      var agingHtml = '';
+      if (oldestHours != null && orderCount > 0) {
+        var agingPercent = Math.min(100, (oldestHours / threshold) * 100);
+        var agingClass = 'green';
+        if (oldestHours >= threshold) agingClass = 'red';
+        else if (oldestHours >= threshold / 2) agingClass = 'yellow';
+        agingHtml = '<div class="aging-indicator"><div class="aging-indicator-bar ' + agingClass + '" style="width:' + agingPercent + '%"></div></div>';
+      }
+
+      html += '<div class="pipeline-stage' + dimmed + active + '" data-pipeline-status="' + status + '" style="border-left-color:' + color + '">';
+      html += attentionBadge;
+      html += '<div class="pipeline-stage-header">';
+      html += '<span class="pipeline-stage-name">' + escHtml(ORDER_STATUS_LABELS[status] || status) + '</span>';
+      html += '<span class="pipeline-stage-badge" style="background:' + color + '">' + orderCount + '</span>';
+      html += '</div>';
+      html += '<div class="pipeline-stage-metrics">';
+      html += '<div>' + totalItems + ' item' + (totalItems === 1 ? '' : 's') + '</div>';
+      html += '<div>' + formatCurrency(totalValue) + '</div>';
+      if (oldestHours != null && orderCount > 0) {
+        html += '<div>Oldest: ' + formatHoursAgo(oldestHours) + '</div>';
+      }
+      html += '</div>';
+      html += agingHtml;
+      html += '</div>';
+    });
+
+    container.innerHTML = html;
+
+    // Attach click handlers
+    container.querySelectorAll('.pipeline-stage').forEach(function(stage) {
+      stage.addEventListener('click', function() {
+        var status = stage.dataset.pipelineStatus;
+        handlePipelineStageClick(status);
+      });
+    });
+  }
+
+  function renderAttentionBar(data) {
+    var container = document.getElementById('attentionBar');
+    if (!container || !data || !data.attention) {
+      if (container) container.innerHTML = '';
+      return;
+    }
+
+    var att = data.attention;
+    var chips = [];
+
+    if (att.cartFillPending > 0) {
+      chips.push('<span class="attention-chip blue" data-attention-filter="new"><span class="attention-chip-count">' + att.cartFillPending + '</span> ready to order</span>');
+    }
+    if (att.stuckInProduction > 0) {
+      chips.push('<span class="attention-chip orange" data-attention-filter="in-production"><span class="attention-chip-count">' + att.stuckInProduction + '</span> stuck in production</span>');
+    }
+    if (att.awaitingShipment > 0) {
+      chips.push('<span class="attention-chip yellow" data-attention-filter="packed"><span class="attention-chip-count">' + att.awaitingShipment + '</span> awaiting shipment</span>');
+    }
+    if (att.unresolvedErrors > 0) {
+      chips.push('<span class="attention-chip red" data-attention-filter="errored"><span class="attention-chip-count">' + att.unresolvedErrors + '</span> with errors</span>');
+    }
+
+    if (chips.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = '<span class="attention-bar-label">Needs attention:</span>' + chips.join('');
+
+    // Attach click handlers
+    container.querySelectorAll('.attention-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var filter = chip.dataset.attentionFilter;
+        handlePipelineStageClick(filter);
+      });
+    });
+  }
+
+  function handlePipelineStageClick(status) {
+    // Toggle selection
+    if (_pipelineStatusFilter === status) {
+      _pipelineStatusFilter = null;
+      _orderStatusFilter = 'all';
+    } else {
+      _pipelineStatusFilter = status;
+      _orderStatusFilter = status;
+    }
+
+    // Update pipeline stage active states
+    document.querySelectorAll('.pipeline-stage').forEach(function(stage) {
+      stage.classList.toggle('active', stage.dataset.pipelineStatus === _pipelineStatusFilter);
+    });
+
+    // Deactivate filter pills since we're using pipeline selection
+    document.querySelectorAll('#orderFilters [data-filter]').forEach(function(pill) {
+      pill.classList.remove('active');
+    });
+    if (_pipelineStatusFilter === null) {
+      // Re-activate "All" pill
+      var allPill = document.querySelector('#orderFilters [data-filter="all"]');
+      if (allPill) allPill.classList.add('active');
+    }
+
+    // Re-render order list with filter
+    renderOrderList(_ordersCache);
+  }
+
   function formatRelativeTime(isoString) {
     if (!isoString) return 'Never';
     var now = Date.now();
@@ -9730,6 +10058,8 @@
       updateOrdersNavBadge(newCount);
       // Load summary cards and sync health
       loadOrderSummary();
+      // Load pipeline visualization (Phase 40)
+      loadOrderPipelineData();
     } catch (err) {
       orderListContent.innerHTML = '<div class="orders-empty">Error loading orders: ' + escHtml(err.message || String(err)) + '</div>';
     }
