@@ -53,10 +53,11 @@ Plans:
 **Depends on**: Phase 38
 **Research**: Likely (S&S website structure, Playwright selectors)
 **Research topics**: S&S Activewear website cart flow, element selectors, login requirements
-**Plans**: TBD
 
 Plans:
-- [ ] 39-01: TBD
+- [ ] 39-01: S&S cart consolidator (filter orders to S&S vendor items)
+- [ ] 39-02: S&S browser automation engine (Playwright with selector discovery)
+- [ ] 39-03: CLI and dashboard integration (commands + UI)
 
 #### Phase 40: Order Status Dashboard
 
