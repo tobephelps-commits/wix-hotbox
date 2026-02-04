@@ -10803,6 +10803,9 @@ const wizardState = {
   }
 };
 
+// Store original step 5 content for restoration after create
+let wizardStep5OriginalContent = '';
+
 function initWizard() {
   const startBtn = document.getElementById('wizardStartBtn');
   const closeBtn = document.getElementById('wizardCloseBtn');
@@ -10839,8 +10842,17 @@ function openWizard() {
   wizardState.stepData[4] = { valid: true, logoConfig: null };
   wizardState.stepData[5] = { valid: false };
 
+  // Store original step 5 content for restoration after create
+  if (!wizardStep5OriginalContent) {
+    wizardStep5OriginalContent = document.getElementById('wizardPanel5').innerHTML;
+  } else {
+    // Restore original content if it was replaced by success screen
+    document.getElementById('wizardPanel5').innerHTML = wizardStep5OriginalContent;
+  }
+
   document.getElementById('wizardSection').style.display = 'block';
   document.querySelector('.container').classList.add('wizard-active');
+  document.querySelector('.wizard-nav').style.display = 'flex';
 
   updateWizardUI();
 
@@ -10889,8 +10901,170 @@ function wizardNext() {
 }
 
 async function wizardCreate() {
-  // Implemented in Plan 35-03
-  console.log('Wizard create - to be implemented');
+  const step1 = getWizardStepData(1);
+  const step2 = getWizardStepData(2);
+  const step3 = getWizardStepData(3);
+  const step4 = getWizardStepData(4);
+
+  if (!isWizardReadyToCreate()) {
+    alert('Please complete all required steps before creating.');
+    return;
+  }
+
+  const createBtn = document.getElementById('wizardCreateBtn');
+  createBtn.disabled = true;
+  createBtn.innerHTML = '&#9203; Creating...';
+
+  try {
+    // Build CuratedProduct from wizard state
+    const productData = step1.productData;
+    const preview = productData.preview;
+
+    // Map selected colors to the format expected by create API
+    const selectedColors = step2.selectedColors.map(c => {
+      const fullColor = preview.colors.find(pc =>
+        pc.displayName === c.displayName || pc.catalogName === c.catalogName
+      );
+      return {
+        displayName: c.displayName,
+        catalogName: c.catalogName || fullColor?.catalogName || c.displayName,
+        swatchUrl: fullColor?.swatchUrl || '',
+        stockStatus: fullColor?.stockStatus || 'unknown'
+      };
+    });
+
+    const selectedSizes = step2.selectedSizes;
+
+    // Build pricing config
+    const pricingConfig = step3.pricingConfig || {
+      markupPercent: 100,
+      rounding: 'nearest-99',
+      sizeUpcharges: {}
+    };
+
+    // Build logo config (optional)
+    let logoConfig = null;
+    if (step4.logoConfig) {
+      logoConfig = {
+        logoName: step4.logoConfig.logoName,
+        front: {
+          position: step4.logoConfig.position,
+          scale: step4.logoConfig.scale || 0.25
+        },
+        back: null,
+        side: null
+      };
+    }
+
+    // Get collections
+    const collectionsInput = document.getElementById('wizardCollectionsInput');
+    const collections = collectionsInput?.value
+      ? collectionsInput.value.split(',').map(c => c.trim()).filter(Boolean)
+      : [];
+
+    // Build the curated product payload
+    const curatedProduct = {
+      vendor: step1.vendor,
+      style: step1.style,
+      selectedColors,
+      selectedSizes,
+      pricingConfig,
+      collections,
+      logoConfig  // Will be processed by create endpoint if present
+    };
+
+    // Call the create API
+    const resp = await fetch('/api/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(curatedProduct)
+    });
+
+    if (!resp.ok) {
+      const error = await resp.text();
+      throw new Error(`Create failed: ${error}`);
+    }
+
+    const result = await resp.json();
+
+    // Show success
+    showWizardResult(result);
+
+  } catch (err) {
+    console.error('Wizard create error:', err);
+    alert(`Failed to create product: ${err.message}`);
+  } finally {
+    createBtn.disabled = false;
+    createBtn.innerHTML = '&#10003; Create Product';
+  }
+}
+
+function showWizardResult(result) {
+  // Replace step 5 content with success message
+  const panel = document.getElementById('wizardPanel5');
+  panel.innerHTML = `
+    <div style="text-align:center;padding:40px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;">&#9989;</div>
+      <h3 style="color:#3fb950;margin:0 0 8px 0;">Product Created!</h3>
+      <p style="color:#8b949e;margin:0 0 24px 0;">
+        Your draft product has been created in WIX.
+      </p>
+
+      <div style="background:#0d1117;border-radius:8px;padding:16px;margin-bottom:24px;text-align:left;">
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;font-size:13px;">
+          <span style="color:#8b949e;">Product ID</span>
+          <span style="color:#c9d1d9;font-family:monospace;">${result.productId}</span>
+          <span style="color:#8b949e;">Variants</span>
+          <span style="color:#c9d1d9;">${result.variantsCreated} variants created</span>
+          <span style="color:#8b949e;">Media</span>
+          <span style="color:#c9d1d9;">${result.mediaAdded} images added</span>
+          <span style="color:#8b949e;">Status</span>
+          <span style="color:#f0883e;">Draft (not published)</span>
+        </div>
+        ${result.collectionsAssigned?.length ? `
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid #30363d;">
+          <span style="color:#8b949e;font-size:12px;">Collections:</span>
+          <span style="color:#c9d1d9;font-size:13px;">${result.collectionsAssigned.join(', ')}</span>
+        </div>
+        ` : ''}
+        ${result.warnings?.length ? `
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid #30363d;color:#f0883e;font-size:12px;">
+          <strong>Warnings:</strong> ${result.warnings.join('; ')}
+        </div>
+        ` : ''}
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <a href="${result.productUrl}" target="_blank" rel="noopener"
+           style="padding:10px 20px;background:#238636;color:#fff;border-radius:6px;text-decoration:none;font-weight:500;">
+          View in WIX &#8599;
+        </a>
+        <button type="button" onclick="wizardCreateAnother()"
+           style="padding:10px 20px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;cursor:pointer;font-weight:500;">
+          Create Another
+        </button>
+        <button type="button" onclick="closeWizard()"
+           style="padding:10px 20px;background:transparent;color:#8b949e;border:1px solid #30363d;border-radius:6px;cursor:pointer;">
+          Exit Wizard
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Hide navigation buttons
+  document.querySelector('.wizard-nav').style.display = 'none';
+}
+
+function wizardCreateAnother() {
+  // Restore original step 5 content
+  document.getElementById('wizardPanel5').innerHTML = wizardStep5OriginalContent;
+  document.querySelector('.wizard-nav').style.display = 'flex';
+
+  // Re-init step 5 listeners if needed
+  initWizardStep5();
+
+  // Reset to step 1
+  openWizard();
 }
 
 function updateWizardUI() {
