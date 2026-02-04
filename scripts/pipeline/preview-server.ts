@@ -65,7 +65,12 @@ import {
 } from '../monitor/index.js';
 import { loadLatestSnapshot, isSnapshotStale } from '../monitor/store.js';
 import { getEffectiveThresholds } from '../monitor/alerts.js';
-import { getSyncHealth } from '../sync/sync-poller.js';
+import {
+  getSyncHealth,
+  isDaemonRunning,
+  startDaemon,
+  stopDaemon,
+} from '../sync/sync-poller.js';
 import {
   auditProductMappings,
   removeOrphanedMappings,
@@ -830,6 +835,23 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/preferences
   if (urlPath === '/api/preferences') {
     return { route: 'preferences' };
+  }
+
+  // Daemon Control and Operations Health API (Phase 34)
+
+  // Match /api/daemon/start
+  if (urlPath === '/api/daemon/start') {
+    return { route: 'daemon-start' };
+  }
+
+  // Match /api/daemon/stop
+  if (urlPath === '/api/daemon/stop') {
+    return { route: 'daemon-stop' };
+  }
+
+  // Match /api/operations/health
+  if (urlPath === '/api/operations/health') {
+    return { route: 'operations-health' };
   }
 
   // Match / (root)
@@ -2538,6 +2560,96 @@ function startServer(port: number, initialStyle?: string): void {
               }
             } else {
               sendJson(res, 405, { ok: false, error: 'Method not allowed' });
+            }
+            break;
+          }
+
+          // Daemon Control and Operations Health API (Phase 34)
+
+          case 'daemon-start': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed. Use POST.' });
+              break;
+            }
+            try {
+              const started = await startDaemon();
+              if (started) {
+                sendJson(res, 200, { success: true, message: 'Daemon started' });
+              } else {
+                sendJson(res, 409, { success: false, message: 'Daemon already running' });
+              }
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error starting daemon: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'daemon-stop': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed. Use POST.' });
+              break;
+            }
+            try {
+              const stopped = stopDaemon();
+              if (stopped) {
+                sendJson(res, 200, { success: true, message: 'Daemon stop signal sent' });
+              } else {
+                sendJson(res, 409, { success: false, message: 'Daemon not running' });
+              }
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error stopping daemon: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'operations-health': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            try {
+              // Sync daemon health
+              const syncHealth = getSyncHealth();
+              const daemonRunning = isDaemonRunning();
+
+              // Order summary (reuse existing logic)
+              const orderSummary = await getOrderSummary();
+              const errorOrders = await getOrdersWithErrors();
+              const orderStore = await loadOrderStore();
+
+              // Inventory monitor config
+              const monitorConfig = await loadConfig();
+              const trackedProducts = await loadTrackedProducts(monitorConfig);
+              const recentAlerts = await getRecentAlerts(monitorConfig, 10);
+
+              sendJson(res, 200, {
+                daemon: {
+                  running: daemonRunning,
+                  health: syncHealth,
+                },
+                orders: {
+                  statusCounts: orderSummary,
+                  errorCount: errorOrders.length,
+                  lastSync: orderStore.lastSync,
+                },
+                inventory: {
+                  trackedProductCount: trackedProducts.length,
+                  recentAlertCount: recentAlerts.length,
+                  config: {
+                    pollIntervalMinutes: monitorConfig.pollIntervalMinutes,
+                    lowStockThreshold: monitorConfig.lowStockThreshold,
+                  },
+                },
+                timestamp: new Date().toISOString(),
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error fetching operations health: ${message}`);
+              sendJson(res, 500, { error: message });
             }
             break;
           }
