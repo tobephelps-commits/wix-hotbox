@@ -113,6 +113,14 @@ import {
 } from '../orders/index.js';
 import type { CartFillResult } from '../orders/index.js';
 
+// S&S Activewear Cart Automation (Phase 39)
+import {
+  getSSOrdersForCartFill,
+  consolidateSSOrders,
+  fillSSCartForPendingOrders,
+  saveSSCartFillResult,
+} from '../orders/index.js';
+
 // Customer Account System (Phase 25)
 import {
   loadCustomers,
@@ -765,6 +773,23 @@ function parseRoute(urlPath: string): { route: string; param?: string } {
   // Match /api/cart/history
   if (urlPath === '/api/cart/history') {
     return { route: 'cart-history' };
+  }
+
+  // S&S Activewear Cart Automation API (Phase 39)
+
+  // Match /api/ss-cart/preview
+  if (urlPath === '/api/ss-cart/preview') {
+    return { route: 'ss-cart-preview' };
+  }
+
+  // Match /api/ss-cart/fill
+  if (urlPath === '/api/ss-cart/fill') {
+    return { route: 'ss-cart-fill' };
+  }
+
+  // Match /api/ss-cart/history
+  if (urlPath === '/api/ss-cart/history') {
+    return { route: 'ss-cart-history' };
   }
 
   // Order Management API (Phase 18)
@@ -1814,6 +1839,134 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error reading cart history: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          // ── S&S Activewear Cart Automation API (Phase 39) ──────────────
+
+          case 'ss-cart-preview': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/ss-cart/preview — Preview consolidated S&S cart
+            try {
+              const urlObj = new URL(req.url ?? '/', 'http://localhost');
+              const statusParam = urlObj.searchParams.get('status');
+              const statuses = statusParam
+                ? (statusParam.split(',').map((s) => s.trim()) as OrderStatus[])
+                : (['new'] as OrderStatus[]);
+
+              const orders = await getSSOrdersForCartFill({ statuses });
+              const request = consolidateSSOrders(orders);
+
+              // Count skipped items
+              const totalLineItems = orders.reduce((sum, o) => sum + o.lineItems.length, 0);
+              const skippedCount = totalLineItems - orders.reduce((sum, o) => {
+                return sum + o.lineItems.filter((li) => {
+                  return li.vendor === 'ss' && !!li.vendorStyle && !!li.color && !!li.size;
+                }).length;
+              }, 0);
+
+              sendJson(res, 200, {
+                items: request.items,
+                orderNumbers: request.orderNumbers,
+                orderCount: orders.length,
+                totalItems: request.items.reduce((sum, item) => sum + item.quantity, 0),
+                skippedCount,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error loading S&S cart preview: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'ss-cart-fill': {
+            if (method !== 'POST') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // POST /api/ss-cart/fill — Execute S&S cart fill automation
+            try {
+              let statuses: OrderStatus[] = ['new'];
+              let headless = true;
+
+              const body = await readBody(req);
+              if (body) {
+                try {
+                  const payload = JSON.parse(body);
+                  if (payload.statuses && Array.isArray(payload.statuses)) {
+                    statuses = payload.statuses as OrderStatus[];
+                  }
+                  if (typeof payload.headless === 'boolean') {
+                    headless = payload.headless;
+                  }
+                } catch {
+                  // Empty or invalid body — use defaults
+                }
+              }
+
+              console.log(`[Preview] Starting S&S cart fill (statuses: ${statuses.join(',')}, headless: ${headless})...`);
+
+              const result = await fillSSCartForPendingOrders({ statuses, headless });
+
+              if (!result) {
+                sendJson(res, 200, { status: 'empty', message: 'No S&S orders to process' });
+                break;
+              }
+
+              // Save result
+              await saveSSCartFillResult(result);
+
+              sendJson(res, 200, {
+                status: result.status,
+                successCount: result.itemResults.filter((r) => r.success).length,
+                failedCount: result.itemResults.filter((r) => !r.success).length,
+                checkoutUrl: result.checkoutUrl,
+                error: result.error,
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error during S&S cart fill: ${message}`);
+              sendJson(res, 500, { error: message });
+            }
+            break;
+          }
+
+          case 'ss-cart-history': {
+            if (method !== 'GET') {
+              sendJson(res, 405, { error: 'Method not allowed' });
+              break;
+            }
+            // GET /api/ss-cart/history — List past S&S cart fill results
+            try {
+              const ssCartFillsDir = path.join(process.cwd(), 'data', 'cart-fills', 'ss');
+              let fills: CartFillResult[] = [];
+
+              if (fs.existsSync(ssCartFillsDir)) {
+                const files = fs.readdirSync(ssCartFillsDir)
+                  .filter((f) => f.endsWith('.json'))
+                  .sort()
+                  .reverse(); // Most recent first
+
+                for (const file of files.slice(0, 10)) {
+                  try {
+                    const content = fs.readFileSync(path.join(ssCartFillsDir, file), 'utf-8');
+                    fills.push(JSON.parse(content) as CartFillResult);
+                  } catch {
+                    // Skip malformed files
+                  }
+                }
+              }
+
+              sendJson(res, 200, { fills });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              console.error(`[Preview] Error reading S&S cart history: ${message}`);
               sendJson(res, 500, { error: message });
             }
             break;
