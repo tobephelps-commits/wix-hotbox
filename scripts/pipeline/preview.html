@@ -11837,18 +11837,26 @@ async function loadWizardLogos() {
     const resp = await fetch('/api/logos');
     if (!resp.ok) throw new Error('Failed to load logos');
 
-    const logos = await resp.json();
-    if (!logos.length) {
+    const data = await resp.json();
+    const logosObj = data.logos || {};
+    const logoKeys = Object.keys(logosObj);
+
+    if (logoKeys.length === 0) {
       selector.innerHTML = '<div style="color:#8b949e;font-size:13px;">No logos uploaded. Add logos in the Logo Library section.</div>';
       return;
     }
 
-    selector.innerHTML = logos.map(logo => `
-      <div class="wizard-logo-option" data-logo="${logo.key}">
-        <img src="/data/logos/${logo.filename}" alt="${logo.key}">
-        <div class="wizard-logo-option-name">${logo.key}</div>
-      </div>
-    `).join('');
+    selector.innerHTML = logoKeys.map(key => {
+      const logo = logosObj[key];
+      // filePath is like "media/logos/filename.png", extract for display
+      const filePath = logo.filePath || '';
+      return `
+        <div class="wizard-logo-option" data-logo="${key}">
+          <img src="/${filePath}" alt="${key}" onerror="this.style.background='#30363d'">
+          <div class="wizard-logo-option-name">${logo.displayName || key}</div>
+        </div>
+      `;
+    }).join('');
 
     selector.querySelectorAll('.wizard-logo-option').forEach(opt => {
       opt.addEventListener('click', () => {
