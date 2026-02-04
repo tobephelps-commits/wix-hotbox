@@ -368,6 +368,78 @@ export async function updateOrderStatus(
   return order;
 }
 
+/**
+ * Bulk update order statuses.
+ *
+ * Updates multiple orders to a new status in a single store load/save cycle.
+ * Validates each transition individually, tracking successes and failures
+ * separately (does not fail entire batch on one invalid transition).
+ *
+ * @param ids - Array of order UUIDs to update
+ * @param newStatus - Target status for all orders
+ * @param note - Optional note for the status history entry
+ * @returns Object with updated orders and failed updates with reasons
+ *
+ * Phase 41: Bulk Order Actions
+ */
+export async function updateOrderStatusBulk(
+  ids: string[],
+  newStatus: OrderStatus,
+  note?: string,
+): Promise<{ updated: Order[]; failed: { id: string; reason: string }[] }> {
+  // Handle empty array case
+  if (ids.length === 0) {
+    return { updated: [], failed: [] };
+  }
+
+  const store = await loadOrders();
+  const now = new Date().toISOString();
+
+  const updated: Order[] = [];
+  const failed: { id: string; reason: string }[] = [];
+
+  for (const id of ids) {
+    const order = store.orders.find((o) => o.id === id);
+
+    // Check if order exists
+    if (!order) {
+      failed.push({ id, reason: 'Order not found' });
+      continue;
+    }
+
+    // Validate transition
+    const validTransitions = ORDER_STATUS_TRANSITIONS[order.status];
+    if (!validTransitions.includes(newStatus)) {
+      const validStr = validTransitions.length > 0
+        ? validTransitions.join(', ')
+        : '(terminal state — no transitions allowed)';
+      failed.push({
+        id,
+        reason: `Cannot transition from '${order.status}' to '${newStatus}'. Valid transitions: ${validStr}`,
+      });
+      continue;
+    }
+
+    // Update the order
+    order.status = newStatus;
+    order.updatedAt = now;
+    order.statusHistory.push({
+      status: newStatus,
+      timestamp: now,
+      note: note ?? 'Bulk status update',
+    });
+
+    updated.push(order);
+  }
+
+  // Single save at end for performance
+  if (updated.length > 0) {
+    await saveOrders(store);
+  }
+
+  return { updated, failed };
+}
+
 // =============================================================================
 // Error Tracking
 // =============================================================================
