@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Position
 
-Phase: 36 of 36 (Product Migration Tooling) - PLANNED
-Plan: 0 of 2 in current phase (not started)
-Status: Phase 36 planned, ready for execution
-Last activity: 2026-02-04 - Phase 36 plans created
+Phase: 36 of 36 (Product Migration Tooling) - IN PROGRESS
+Plan: 1 of 2 in current phase (36-01 complete)
+Status: Plan 36-01 complete, ready for 36-02
+Last activity: 2026-02-04 - Plan 36-01 executed
 
-Progress: █████████░ 97%
+Progress: █████████░ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 103 (34 v0.1 + 38 v0.2 + 24 v1.0 + 7 v1.1)
+- Total plans completed: 104 (34 v0.1 + 38 v0.2 + 24 v1.0 + 8 v1.1)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -80,6 +80,7 @@ Progress: █████████░ 97%
 | 33. SanMar Side Image Fix | 1/1 | 1 session | 1 session |
 | 34. Operations Dashboard | 2/2 | 2 sessions | 1 session |
 | 35. Pipeline Wizard | 3/3 | 3 sessions | 1 session |
+| 36. Product Migration | 1/2 | 1 session | 1 session |
 
 ## Accumulated Context
 
@@ -209,8 +210,15 @@ None
 | 35 | Steps 3-4 default valid (pricing/logo optional) | User can proceed with defaults; reduces friction |
 | 35 | Step 5 validity derived from steps 1-2 only | Steps 1-2 are required data; 3-4 have sensible defaults |
 
+### Phase 36 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 36 | Vendor detection via text + SKU heuristics | Standard naming conventions allow reliable vendor identification |
+| 36 | Style+vendor composite key for tracking lookup | Same style number can exist on different vendors |
+
 ## Session Continuity
 
 Last session: 2026-02-04
-Completed: Phase 36 planning (2 plans created)
-Next: Execute Phase 36 plans (36-01 → 36-02)
+Completed: Plan 36-01 (WIX products API endpoint)
+Next: Execute Plan 36-02 (migration UI)
