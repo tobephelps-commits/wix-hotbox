@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Position
 
-Phase: 34 of 36 (Operations Dashboard) - COMPLETE
-Plan: 2 of 2 in current phase (complete)
-Status: Phase 34 complete, ready for Phase 35
-Last activity: 2026-02-04 - Plan 34-02 complete
+Phase: 35 of 36 (Pipeline Wizard) - IN PROGRESS
+Plan: 1 of 3 in current phase (complete)
+Status: Plan 35-01 complete, ready for Plan 35-02
+Last activity: 2026-02-04 - Plan 35-01 complete
 
-Progress: ████████░░ 67%
+Progress: ████████░░ 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 100 (34 v0.1 + 38 v0.2 + 24 v1.0 + 4 v1.1)
+- Total plans completed: 101 (34 v0.1 + 38 v0.2 + 24 v1.0 + 5 v1.1)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -79,6 +79,7 @@ Progress: ████████░░ 67%
 | 32. Color Swatch Media | 1/1 | 1 session | 1 session |
 | 33. SanMar Side Image Fix | 1/1 | 1 session | 1 session |
 | 34. Operations Dashboard | 2/2 | 2 sessions | 1 session |
+| 35. Pipeline Wizard | 1/3 | 1 session | 1 session |
 
 ## Accumulated Context
 
@@ -200,8 +201,16 @@ None
 | 34 | getSyncConfigFromEnv in sync-poller.ts | Needed for programmatic daemon start without CLI |
 | 34 | Operations health endpoint aggregates all subsystems | Single call for dashboard overview card data |
 
+### Phase 35 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 35 | Combined commit for CSS/HTML/JS tasks in same file | Both tasks modify preview.html; atomic split impractical |
+| 35 | Steps 3-4 default valid (pricing/logo optional) | User can proceed with defaults; reduces friction |
+| 35 | Step 5 validity derived from steps 1-2 only | Steps 1-2 are required data; 3-4 have sensible defaults |
+
 ## Session Continuity
 
 Last session: 2026-02-04
-Completed: Plan 34-02 (Operations Dashboard UI with daemon controls)
-Next: Phase 35 from ROADMAP.md
+Completed: Plan 35-01 (Wizard foundation with step navigation UI and state management)
+Next: Plan 35-02 (Step content population)
