@@ -2581,7 +2581,7 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error starting daemon: ${message}`);
-              sendJson(res, 500, { error: message });
+              sendJson(res, 500, { success: false, message: message, error: message });
             }
             break;
           }
@@ -2601,7 +2601,7 @@ function startServer(port: number, initialStyle?: string): void {
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               console.error(`[Preview] Error stopping daemon: ${message}`);
-              sendJson(res, 500, { error: message });
+              sendJson(res, 500, { success: false, message: message, error: message });
             }
             break;
           }

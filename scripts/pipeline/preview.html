@@ -9750,12 +9750,13 @@
         // Refresh health after a moment
         setTimeout(loadOperationsHealth, 1000);
       } else {
-        daemonStatusText.textContent = data.message || 'Failed to start';
+        daemonStatusText.textContent = data.message || data.error || 'Failed to start';
         daemonStartBtn.disabled = false;
       }
     } catch (err) {
       console.error('Failed to start daemon:', err);
-      daemonStatusText.textContent = 'Start failed';
+      var errMsg = err && err.message ? err.message : 'Network error';
+      daemonStatusText.textContent = 'Start failed: ' + errMsg;
       daemonStartBtn.disabled = false;
     }
   }
@@ -9773,12 +9774,13 @@
         // Refresh health after a moment
         setTimeout(loadOperationsHealth, 1000);
       } else {
-        daemonStatusText.textContent = data.message || 'Failed to stop';
+        daemonStatusText.textContent = data.message || data.error || 'Failed to stop';
         daemonStopBtn.disabled = false;
       }
     } catch (err) {
       console.error('Failed to stop daemon:', err);
-      daemonStatusText.textContent = 'Stop failed';
+      var errMsg = err && err.message ? err.message : 'Network error';
+      daemonStatusText.textContent = 'Stop failed: ' + errMsg;
       daemonStopBtn.disabled = false;
     }
   }
