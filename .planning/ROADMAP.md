@@ -14,6 +14,7 @@ None
 - ✅ **v0.2 Multi-Brand Operations** -- Phases 11-20 (shipped 2026-02-01)
 - ✅ **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (shipped 2026-02-02)
 - ✅ **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (shipped 2026-02-04)
+- 🚧 **v1.2 Order Fulfillment & Dashboard Redesign** -- Phases 37-42 (in progress)
 
 ## Completed Milestones
 
@@ -23,6 +24,73 @@ None
 - [v1.1 Storefront Polish & Operations Dashboard](milestones/v1.1-ROADMAP.md) (Phases 31-36) -- SHIPPED 2026-02-04
 
 ## Phases
+
+### 🚧 v1.2 Order Fulfillment & Dashboard Redesign (In Progress)
+
+**Milestone Goal:** Complete order fulfillment workflow with production sheets and S&S cart automation, plus modern tabbed dashboard UX
+
+#### Phase 37: Dashboard Redesign - Tabbed Navigation
+
+**Goal**: Restructure dashboard to Products/Orders/Inventory/Customers tabs
+**Depends on**: Previous milestone complete
+**Research**: Unlikely (internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 37-01: TBD (run /gsd:plan-phase 37 to break down)
+
+#### Phase 38: Production Sheet Generator
+
+**Goal**: PDF document per order with garment specs, logo placement details, and quantities
+**Depends on**: Phase 37
+**Research**: Unlikely (PDF generation exists, internal logo data)
+**Plans**: TBD
+
+Plans:
+- [ ] 38-01: TBD
+
+#### Phase 39: S&S Activewear Cart Automation
+
+**Goal**: Playwright browser automation for S&S carts matching SanMar pattern
+**Depends on**: Phase 38
+**Research**: Likely (S&S website structure, Playwright selectors)
+**Research topics**: S&S Activewear website cart flow, element selectors, login requirements
+**Plans**: TBD
+
+Plans:
+- [ ] 39-01: TBD
+
+#### Phase 40: Order Status Dashboard
+
+**Goal**: Enhanced pipeline visibility within Orders tab showing what needs attention
+**Depends on**: Phase 39
+**Research**: Unlikely (internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 40-01: TBD
+
+#### Phase 41: Bulk Order Actions
+
+**Goal**: Multi-select operations for status changes, batch production sheets, cart fills
+**Depends on**: Phase 40
+**Research**: Unlikely (internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 41-01: TBD
+
+#### Phase 42: Integration & Polish
+
+**Goal**: Cross-feature testing, edge cases, UX refinement
+**Depends on**: Phase 41
+**Research**: Unlikely (testing existing features)
+**Plans**: TBD
+
+Plans:
+- [ ] 42-01: TBD
+
+---
 
 <details>
 <summary>✅ v1.1 Storefront Polish & Operations Dashboard (Phases 31-36) -- SHIPPED 2026-02-04</summary>
@@ -87,7 +155,7 @@ None
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 31 → 32 → 33 → 34 → 35 → 36
+Phases execute in numeric order: 37 → 38 → 39 → 40 → 41 → 42
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|---------------|--------|-----------|
@@ -127,3 +195,9 @@ Phases execute in numeric order: 31 → 32 → 33 → 34 → 35 → 36
 | 34. Operations Dashboard Foundation | v1.1 | 2/2 | Complete | 2026-02-04 |
 | 35. Product Pipeline Wizard | v1.1 | 3/3 | Complete | 2026-02-04 |
 | 36. Product Migration Tooling | v1.1 | 2/2 | Complete | 2026-02-04 |
+| 37. Dashboard Redesign - Tabbed Navigation | v1.2 | 0/? | Not started | - |
+| 38. Production Sheet Generator | v1.2 | 0/? | Not started | - |
+| 39. S&S Activewear Cart Automation | v1.2 | 0/? | Not started | - |
+| 40. Order Status Dashboard | v1.2 | 0/? | Not started | - |
+| 41. Bulk Order Actions | v1.2 | 0/? | Not started | - |
+| 42. Integration & Polish | v1.2 | 0/? | Not started | - |
