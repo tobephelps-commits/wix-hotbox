@@ -4481,8 +4481,33 @@
   </form>
 </div>
 
-<!-- Main content -->
-<div class="container">
+<!-- App wrapper with sidebar navigation (Phase 37) -->
+<div class="app-wrapper">
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-tab="products">
+        <span class="nav-icon">&#128230;</span>
+        <span class="nav-label">Products</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="orders">
+        <span class="nav-icon">&#128203;</span>
+        <span class="nav-label">Orders</span>
+        <span class="nav-badge" id="ordersNavBadge"></span>
+      </a>
+      <a href="#" class="nav-item" data-tab="inventory">
+        <span class="nav-icon">&#128202;</span>
+        <span class="nav-label">Inventory</span>
+        <span class="nav-badge" id="inventoryNavBadge"></span>
+      </a>
+      <a href="#" class="nav-item" data-tab="customers">
+        <span class="nav-icon">&#128101;</span>
+        <span class="nav-label">Customers</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <!-- Operations Dashboard stays outside tabs (global overview) -->
 
   <!-- Initial prompt (shown before first fetch) -->
   <div class="initial-prompt" id="initialPrompt">
@@ -4897,6 +4922,23 @@
         <div class="card-sub" id="opsErrorDetail">Loading...</div>
       </div>
     </div>
+  </div>
+
+  <!-- Tab Panels (Phase 37) -->
+  <div class="tab-panel active" id="productsPanel">
+    <div class="tab-placeholder">Products content will be moved here in Plan 02</div>
+  </div>
+
+  <div class="tab-panel" id="ordersPanel">
+    <div class="tab-placeholder">Orders content will be moved here in Plan 02</div>
+  </div>
+
+  <div class="tab-panel" id="inventoryPanel">
+    <div class="tab-placeholder">Inventory content will be moved here in Plan 02</div>
+  </div>
+
+  <div class="tab-panel" id="customersPanel">
+    <div class="tab-placeholder">Customers content will be moved here in Plan 02</div>
   </div>
 
   <!-- Product Migration (Phase 36) -->
@@ -5574,7 +5616,8 @@
   <!-- Status bar -->
   <div class="status-bar" id="statusBar">Ready</div>
 
-</div>
+  </main><!-- /.main-content -->
+</div><!-- /.app-wrapper -->
 
 <script>
 (function() {
