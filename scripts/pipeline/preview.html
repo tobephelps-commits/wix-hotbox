@@ -5665,6 +5665,79 @@
   }
 
   // =========================================================================
+  // Tab Navigation (Phase 37)
+  // =========================================================================
+
+  /**
+   * Switch to a specific tab by ID.
+   * Updates nav item active state and shows corresponding panel.
+   */
+  function switchTab(tabId) {
+    // Update nav items
+    document.querySelectorAll('.nav-item').forEach(function(item) {
+      item.classList.toggle('active', item.dataset.tab === tabId);
+    });
+
+    // Update tab panels
+    document.querySelectorAll('.tab-panel').forEach(function(panel) {
+      panel.classList.toggle('active', panel.id === tabId + 'Panel');
+    });
+
+    // Save preference
+    localStorage.setItem('activeTab', tabId);
+  }
+
+  /**
+   * Update orders nav badge with count of 'new' status orders.
+   * Called from loadOrders().
+   */
+  function updateOrdersNavBadge(newCount) {
+    var badge = document.getElementById('ordersNavBadge');
+    if (badge) {
+      if (newCount > 0) {
+        badge.textContent = newCount;
+        badge.classList.add('visible');
+      } else {
+        badge.classList.remove('visible');
+      }
+    }
+  }
+
+  /**
+   * Update inventory nav badge with count of products with alerts.
+   * Called from loadInventory().
+   */
+  function updateInventoryNavBadge(alertCount) {
+    var badge = document.getElementById('inventoryNavBadge');
+    if (badge) {
+      if (alertCount > 0) {
+        badge.textContent = alertCount;
+        badge.classList.add('visible');
+      } else {
+        badge.classList.remove('visible');
+      }
+    }
+  }
+
+  /**
+   * Initialize tab navigation click handlers.
+   */
+  function initTabNavigation() {
+    document.querySelectorAll('.nav-item').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        switchTab(item.dataset.tab);
+      });
+    });
+
+    // Restore last active tab on page load
+    var savedTab = localStorage.getItem('activeTab');
+    if (savedTab) {
+      switchTab(savedTab);
+    }
+  }
+
+  // =========================================================================
   // State
   // =========================================================================
 
@@ -12121,6 +12194,7 @@ goToWizardStep = function(stepNum) {
 
 // Initialize wizard on page load
 document.addEventListener('DOMContentLoaded', () => {
+  initTabNavigation();
   initWizard();
   initWizardStep1();
   initWizardStep2();
