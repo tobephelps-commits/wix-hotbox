@@ -10055,6 +10055,7 @@
       var fillSSBtn = document.getElementById('fillSSCartBtn');
       if (fillSSBtn) fillSSBtn.disabled = ssNewCount === 0;
       // Update orders nav badge with new order count (Phase 37)
+      var newCount = _ordersCache.filter(function(o) { return o.status === 'new'; }).length;
       updateOrdersNavBadge(newCount);
       // Load summary cards and sync health
       loadOrderSummary();
