@@ -24,7 +24,9 @@
 
 import type { MonitorConfig, StockAlert } from '../monitor/types.js';
 import { pollOnce, pollDue } from '../monitor/poller.js';
-import type { SyncConfig } from './types.js';
+import { loadConfig as loadMonitorConfig } from '../monitor/store.js';
+import type { SyncConfig, NotificationConfig } from './types.js';
+import { getDefaultSyncConfig } from './product-map.js';
 import { syncAllProducts, buildSyncSummary } from './stock-sync.js';
 import { notifySyncResults } from './notifications.js';
 
@@ -76,6 +78,103 @@ export interface SyncHealth {
 
 /** Module-level health state -- populated when smart sync loop starts */
 let _syncHealth: SyncHealth | null = null;
+
+/** Running sync loop abort controller (null if not running) */
+let _abortController: AbortController | null = null;
+
+/**
+ * Whether daemon is currently running.
+ *
+ * @returns true if daemon loop is active and not aborted
+ */
+export function isDaemonRunning(): boolean {
+  return _abortController !== null && !_abortController.signal.aborted;
+}
+
+// =============================================================================
+// Daemon Lifecycle Control
+// =============================================================================
+
+/**
+ * Build SyncConfig from environment variables.
+ *
+ * Reads SMTP credentials and notification settings from environment.
+ * If SMTP_USER is missing and notifications are requested, notifications
+ * are disabled with a warning.
+ *
+ * Extracted from manage.ts for programmatic daemon control.
+ */
+function getSyncConfigFromEnv(): SyncConfig {
+  const defaults = getDefaultSyncConfig();
+
+  const smtpUser = process.env.SMTP_USER ?? '';
+  const smtpPass = process.env.SMTP_PASS ?? '';
+  const notifyEnabled = (process.env.NOTIFY_ENABLED ?? 'false').toLowerCase() === 'true';
+
+  // If notifications requested but SMTP user missing, warn and disable
+  if (notifyEnabled && !smtpUser) {
+    console.warn(
+      '[Daemon] Warning: NOTIFY_ENABLED=true but SMTP_USER is not set. Notifications disabled.',
+    );
+  }
+
+  const enabled = notifyEnabled && !!smtpUser;
+
+  const notification: NotificationConfig = {
+    enabled,
+    smtp: {
+      host: process.env.SMTP_HOST ?? defaults.notification.smtp.host,
+      port: parseInt(process.env.SMTP_PORT ?? String(defaults.notification.smtp.port), 10),
+      secure: (process.env.SMTP_SECURE ?? 'false').toLowerCase() === 'true',
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    to: process.env.NOTIFY_TO ?? smtpUser,
+    from: process.env.NOTIFY_FROM ?? smtpUser,
+  };
+
+  return {
+    ...defaults,
+    notification,
+  };
+}
+
+/**
+ * Start the sync daemon programmatically.
+ *
+ * Returns immediately after starting the loop (non-blocking).
+ * Use getSyncHealth() to monitor status, stopDaemon() to stop.
+ *
+ * @returns true if started, false if already running
+ */
+export async function startDaemon(): Promise<boolean> {
+  if (isDaemonRunning()) return false;
+
+  _abortController = new AbortController();
+
+  // Load configuration
+  const monitorConfig = await loadMonitorConfig();
+  const syncConfig = getSyncConfigFromEnv();
+
+  // Start loop in background (don't await)
+  startSmartSyncLoop(monitorConfig, syncConfig, _abortController.signal)
+    .catch((err) => console.error('[Daemon] Loop error:', err));
+
+  return true;
+}
+
+/**
+ * Stop the running sync daemon gracefully.
+ *
+ * Signals the loop to exit after current tick completes.
+ *
+ * @returns true if stop signal sent, false if not running
+ */
+export function stopDaemon(): boolean {
+  if (!isDaemonRunning()) return false;
+  _abortController!.abort();
+  return true;
+}
 
 /**
  * Get the current sync daemon health status.
@@ -222,13 +321,16 @@ const TICK_INTERVAL_MS = 60 * 1000;
  * - Error recovery: catches failures, increments counters, never crashes
  * - Escalated logging after 5 consecutive errors
  * - Graceful SIGINT shutdown
+ * - Optional AbortSignal for programmatic control (Phase 34)
  *
  * @param monitorConfig - Monitor configuration with priority intervals
  * @param syncConfig - Sync configuration (data dir, notifications)
+ * @param signal - Optional AbortSignal for programmatic shutdown
  */
 export async function startSmartSyncLoop(
   monitorConfig: MonitorConfig,
   syncConfig: SyncConfig,
+  signal?: AbortSignal,
 ): Promise<void> {
   // Pre-flight WIX check -- vendor credential checks are done by poller.ts per product
   if (!process.env.WIX_API_KEY) {
@@ -263,31 +365,57 @@ export async function startSmartSyncLoop(
     `Hot: ${hotInterval}min | Normal: ${normalInterval}min | Slow: ${slowInterval}min`,
   );
 
-  // Run first tick immediately
-  await executeTick(monitorConfig, syncConfig);
+  // Run first tick immediately (if not already aborted)
+  if (!signal?.aborted) {
+    await executeTick(monitorConfig, syncConfig);
+  }
 
   // Set up tick interval (every 1 minute)
   const interval = setInterval(async () => {
+    // Check abort signal before each tick
+    if (signal?.aborted) {
+      clearInterval(interval);
+      cleanupOnShutdown();
+      return;
+    }
     await executeTick(monitorConfig, syncConfig);
   }, TICK_INTERVAL_MS);
 
-  // Graceful shutdown on SIGINT
+  // Handle abort signal from programmatic control
+  if (signal) {
+    signal.addEventListener('abort', () => {
+      clearInterval(interval);
+      cleanupOnShutdown();
+    }, { once: true });
+  }
+
+  // Graceful shutdown on SIGINT (CLI mode)
   process.on('SIGINT', () => {
     clearInterval(interval);
-    const health = _syncHealth;
-    console.log('\n[Sync] Smart sync stopped.');
-    if (health) {
-      const uptimeMs = Date.now() - new Date(health.startedAt).getTime();
-      const uptimeMin = Math.round(uptimeMs / 60000);
-      console.log(
-        `[Sync] Session: ${health.totalCycles} ticks, ${health.productsPolled} products polled, ` +
-        `${health.totalErrors} errors, uptime ${uptimeMin}min`,
-      );
-    }
+    cleanupOnShutdown();
     process.exit(0);
   });
 
   console.log('[Sync] Running. Press Ctrl+C to stop.');
+}
+
+/**
+ * Cleanup and log session summary on shutdown.
+ */
+function cleanupOnShutdown(): void {
+  const health = _syncHealth;
+  console.log('\n[Sync] Smart sync stopped.');
+  if (health) {
+    const uptimeMs = Date.now() - new Date(health.startedAt).getTime();
+    const uptimeMin = Math.round(uptimeMs / 60000);
+    console.log(
+      `[Sync] Session: ${health.totalCycles} ticks, ${health.productsPolled} products polled, ` +
+      `${health.totalErrors} errors, uptime ${uptimeMin}min`,
+    );
+  }
+  // Clear state on shutdown
+  _syncHealth = null;
+  _abortController = null;
 }
 
 /**
