@@ -9,22 +9,22 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Position
 
-Phase: 33 of 36 (Side-View Image Investigation & Fix) - COMPLETE
-Plan: 1 of 1 in current phase (complete)
-Status: All tasks complete, fix verified
-Last activity: 2026-02-03 - Plan 33-01 complete
+Phase: 34 of 36 (Operations Dashboard) - IN PROGRESS
+Plan: 1 of 2 in current phase (complete)
+Status: Plan 34-01 complete, ready for Plan 34-02
+Last activity: 2026-02-04 - Plan 34-01 complete
 
-Progress: ███░░░░░░░ 50%
+Progress: ████░░░░░░ 56%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 97 (34 v0.1 + 38 v0.2 + 24 v1.0 + 1 v1.1)
+- Total plans completed: 98 (34 v0.1 + 38 v0.2 + 24 v1.0 + 2 v1.1)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
 - v1.0: 24 plans across 1 day (2026-02-02)
-- v1.1: 1 plan (2026-02-03)
+- v1.1: 2 plans (2026-02-03 to 2026-02-04)
 
 **By Phase (v0.1):**
 
@@ -183,8 +183,16 @@ None
 | 33 | Remove side image choice assignment from buildMediaPayload | Prevents duplicate front-looking images in WIX variant switching |
 | 33 | Keep HIGH images as general product images (Step 2) | Still useful as additional product imagery, just not as color-specific side |
 
+### Phase 34 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 34 | AbortSignal for daemon control (not process.exit) | Graceful shutdown allows current tick to complete before exiting |
+| 34 | getSyncConfigFromEnv in sync-poller.ts | Needed for programmatic daemon start without CLI |
+| 34 | Operations health endpoint aggregates all subsystems | Single call for dashboard overview card data |
+
 ## Session Continuity
 
-Last session: 2026-02-03
-Completed: Plan 33-01 (all 3 tasks, fix verified)
-Next: Phase 34 or next phase from ROADMAP.md
+Last session: 2026-02-04
+Completed: Plan 34-01 (2 tasks, daemon control + operations health API)
+Next: Plan 34-02 (if exists) or Phase 35 from ROADMAP.md
