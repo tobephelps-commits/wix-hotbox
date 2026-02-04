@@ -3644,6 +3644,280 @@
   .wizard-active #submitBtn {
     display: none !important;
   }
+
+  /* Wizard Step Content Styles */
+  .wizard-product-search {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .wizard-product-search select,
+  .wizard-product-search input {
+    padding: 10px 14px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-size: 14px;
+  }
+
+  .wizard-product-search input {
+    flex: 1;
+    max-width: 200px;
+  }
+
+  .wizard-product-search button {
+    padding: 10px 20px;
+    background: #238636;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .wizard-product-search button:hover { background: #2ea043; }
+  .wizard-product-search button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .wizard-product-preview {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+    display: none;
+  }
+
+  .wizard-product-preview.visible { display: block; }
+
+  .wizard-product-preview h4 {
+    margin: 0 0 12px 0;
+    color: #c9d1d9;
+    font-size: 16px;
+  }
+
+  .wizard-product-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .wizard-product-meta-item {
+    background: #0d1117;
+    padding: 10px 14px;
+    border-radius: 6px;
+  }
+
+  .wizard-product-meta-label {
+    font-size: 11px;
+    color: #8b949e;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .wizard-product-meta-value {
+    font-size: 14px;
+    color: #c9d1d9;
+    font-weight: 500;
+  }
+
+  /* Wizard variant selection */
+  .wizard-variant-section {
+    margin-bottom: 24px;
+  }
+
+  .wizard-variant-section h4 {
+    color: #c9d1d9;
+    font-size: 14px;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wizard-variant-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .wizard-variant-actions button {
+    padding: 4px 10px;
+    font-size: 11px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #8b949e;
+    cursor: pointer;
+  }
+  .wizard-variant-actions button:hover { color: #c9d1d9; background: #30363d; }
+
+  .wizard-color-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .wizard-color-card {
+    background: #0d1117;
+    border: 2px solid #30363d;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .wizard-color-card:hover { border-color: #58a6ff; }
+  .wizard-color-card.selected { border-color: #3fb950; background: rgba(63, 185, 80, 0.1); }
+
+  .wizard-color-swatch {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    margin: 0 auto 8px;
+    background: #30363d;
+    object-fit: cover;
+  }
+
+  .wizard-color-name {
+    font-size: 11px;
+    color: #c9d1d9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wizard-color-stock {
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  .wizard-color-stock.in-stock { color: #3fb950; }
+  .wizard-color-stock.out-of-stock { color: #f85149; }
+
+  .wizard-size-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .wizard-size-btn {
+    padding: 8px 16px;
+    background: #0d1117;
+    border: 2px solid #30363d;
+    border-radius: 6px;
+    color: #8b949e;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .wizard-size-btn:hover { border-color: #58a6ff; color: #c9d1d9; }
+  .wizard-size-btn.selected { border-color: #3fb950; background: rgba(63, 185, 80, 0.1); color: #3fb950; }
+
+  .wizard-selection-summary {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #8b949e;
+  }
+
+  .wizard-selection-summary strong { color: #c9d1d9; }
+
+  /* Wizard pricing config */
+  .wizard-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .wizard-pricing-field {
+    background: #0d1117;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+  }
+
+  .wizard-pricing-field label {
+    display: block;
+    font-size: 12px;
+    color: #8b949e;
+    margin-bottom: 8px;
+  }
+
+  .wizard-pricing-field select,
+  .wizard-pricing-field input {
+    width: 100%;
+    padding: 8px 12px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #c9d1d9;
+    font-size: 14px;
+  }
+
+  .wizard-pricing-preview {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .wizard-pricing-preview h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #c9d1d9;
+  }
+
+  .wizard-price-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #21262d;
+    font-size: 13px;
+  }
+
+  .wizard-price-row:last-child { border-bottom: none; }
+
+  .wizard-price-label { color: #8b949e; }
+  .wizard-price-value { color: #c9d1d9; font-weight: 500; }
+  .wizard-price-value.profit { color: #3fb950; }
+
+  .wizard-upcharge-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #30363d;
+  }
+
+  .wizard-upcharge-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .wizard-upcharge-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #0d1117;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  .wizard-upcharge-item span { color: #8b949e; }
+  .wizard-upcharge-item input {
+    width: 60px;
+    padding: 4px 8px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #c9d1d9;
+    font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -3796,20 +4070,137 @@
       <div class="wizard-panel active" data-step="1" id="wizardPanel1">
         <div class="wizard-panel-header">&#128269; Select Product</div>
         <div class="wizard-panel-desc">Enter a vendor style number to fetch product data and begin configuration.</div>
-        <!-- Content populated by Plan 02 -->
-        <div id="wizardStep1Content"></div>
+        <div id="wizardStep1Content">
+          <div class="wizard-product-search">
+            <select id="wizardVendorSelect">
+              <option value="sanmar">SanMar</option>
+              <option value="ss">S&amp;S Activewear</option>
+            </select>
+            <input type="text" id="wizardStyleInput" placeholder="Style # (e.g. PC61)">
+            <button type="button" id="wizardFetchBtn">Fetch Product</button>
+          </div>
+
+          <div class="wizard-product-preview" id="wizardProductPreview">
+            <h4 id="wizardProductName">Loading...</h4>
+            <div class="wizard-product-meta">
+              <div class="wizard-product-meta-item">
+                <div class="wizard-product-meta-label">Wholesale</div>
+                <div class="wizard-product-meta-value" id="wizardWholesale">--</div>
+              </div>
+              <div class="wizard-product-meta-item">
+                <div class="wizard-product-meta-label">Suggested Retail</div>
+                <div class="wizard-product-meta-value" id="wizardRetail">--</div>
+              </div>
+              <div class="wizard-product-meta-item">
+                <div class="wizard-product-meta-label">Colors Available</div>
+                <div class="wizard-product-meta-value" id="wizardColorCount">--</div>
+              </div>
+              <div class="wizard-product-meta-item">
+                <div class="wizard-product-meta-label">Sizes Available</div>
+                <div class="wizard-product-meta-value" id="wizardSizeCount">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="wizard-panel" data-step="2" id="wizardPanel2">
         <div class="wizard-panel-header">&#127912; Choose Variants</div>
         <div class="wizard-panel-desc">Select which colors and sizes to offer on your WIX store.</div>
-        <div id="wizardStep2Content"></div>
+        <div id="wizardStep2Content">
+          <div class="wizard-variant-section">
+            <h4>
+              Colors
+              <div class="wizard-variant-actions">
+                <button type="button" id="wizardSelectAllColors">All</button>
+                <button type="button" id="wizardSelectInStockColors">In-Stock</button>
+                <button type="button" id="wizardClearColors">Clear</button>
+              </div>
+            </h4>
+            <div class="wizard-color-grid" id="wizardColorGrid">
+              <div style="color:#8b949e;font-size:13px;">Fetch a product first to see available colors.</div>
+            </div>
+          </div>
+
+          <div class="wizard-variant-section">
+            <h4>
+              Sizes
+              <div class="wizard-variant-actions">
+                <button type="button" id="wizardSelectStandardSizes">S-XL</button>
+                <button type="button" id="wizardSelectExtendedSizes">S-2XL</button>
+                <button type="button" id="wizardSelectAllSizes">All</button>
+                <button type="button" id="wizardClearSizes">Clear</button>
+              </div>
+            </h4>
+            <div class="wizard-size-grid" id="wizardSizeGrid">
+              <div style="color:#8b949e;font-size:13px;">Fetch a product first to see available sizes.</div>
+            </div>
+          </div>
+
+          <div class="wizard-selection-summary" id="wizardSelectionSummary">
+            Select colors and sizes above. <strong>0 variants</strong> will be created.
+          </div>
+        </div>
       </div>
 
       <div class="wizard-panel" data-step="3" id="wizardPanel3">
         <div class="wizard-panel-header">&#128176; Configure Pricing</div>
         <div class="wizard-panel-desc">Set markup, rounding, and size upcharges for retail pricing.</div>
-        <div id="wizardStep3Content"></div>
+        <div id="wizardStep3Content">
+          <div class="wizard-pricing-grid">
+            <div class="wizard-pricing-field">
+              <label>Pricing Preset</label>
+              <select id="wizardPresetSelect">
+                <option value="standard-tee">Standard T-Shirt (100%)</option>
+                <option value="premium-tee">Premium T-Shirt (120%)</option>
+                <option value="hoodie-fleece">Hoodie / Fleece (80%)</option>
+                <option value="polo-woven">Polo / Woven (90%)</option>
+                <option value="outerwear">Outerwear / Jacket (70%)</option>
+                <option value="headwear">Headwear (100%)</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="wizard-pricing-field">
+              <label>Markup %</label>
+              <input type="number" id="wizardMarkupInput" value="100" min="0" max="500" step="5">
+            </div>
+            <div class="wizard-pricing-field">
+              <label>Rounding</label>
+              <select id="wizardRoundingSelect">
+                <option value="nearest-99">Nearest .99</option>
+                <option value="nearest-dollar">Nearest dollar</option>
+                <option value="none">No rounding</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="wizard-pricing-preview">
+            <h4>Price Preview (Base Size)</h4>
+            <div class="wizard-price-row">
+              <span class="wizard-price-label">Wholesale Cost</span>
+              <span class="wizard-price-value" id="wizardPreviewWholesale">$0.00</span>
+            </div>
+            <div class="wizard-price-row">
+              <span class="wizard-price-label">Markup (100%)</span>
+              <span class="wizard-price-value" id="wizardPreviewMarkup">+$0.00</span>
+            </div>
+            <div class="wizard-price-row">
+              <span class="wizard-price-label">Retail Price</span>
+              <span class="wizard-price-value" id="wizardPreviewRetail">$0.00</span>
+            </div>
+            <div class="wizard-price-row">
+              <span class="wizard-price-label">Margin</span>
+              <span class="wizard-price-value profit" id="wizardPreviewMargin">$0.00 (0%)</span>
+            </div>
+
+            <div class="wizard-upcharge-section">
+              <h4 style="margin:0 0 12px 0;font-size:13px;color:#8b949e;">Size Upcharges</h4>
+              <div class="wizard-upcharge-grid" id="wizardUpchargeGrid">
+                <!-- Populated for selected extended sizes -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="wizard-panel" data-step="4" id="wizardPanel4">
@@ -10302,9 +10693,261 @@ function getWizardStepData(stepNum) {
   return wizardState.stepData[stepNum];
 }
 
+/* Wizard Step 1: Product Selection */
+function initWizardStep1() {
+  const fetchBtn = document.getElementById('wizardFetchBtn');
+  const styleInput = document.getElementById('wizardStyleInput');
+
+  fetchBtn?.addEventListener('click', wizardFetchProduct);
+  styleInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') wizardFetchProduct();
+  });
+}
+
+async function wizardFetchProduct() {
+  const vendor = document.getElementById('wizardVendorSelect').value;
+  const style = document.getElementById('wizardStyleInput').value.trim().toUpperCase();
+
+  if (!style) return;
+
+  const fetchBtn = document.getElementById('wizardFetchBtn');
+  fetchBtn.disabled = true;
+  fetchBtn.textContent = 'Fetching...';
+
+  try {
+    const resp = await fetch(`/api/product/${encodeURIComponent(style)}?vendor=${vendor}`);
+    if (!resp.ok) throw new Error(`Failed to fetch: ${resp.status}`);
+
+    const data = await resp.json();
+
+    // Store in wizard state
+    setWizardStepValid(1, true, {
+      vendor,
+      style,
+      productData: data
+    });
+
+    // Update preview
+    const preview = document.getElementById('wizardProductPreview');
+    preview.classList.add('visible');
+
+    document.getElementById('wizardProductName').textContent = data.preview.productName;
+    document.getElementById('wizardWholesale').textContent = `$${data.preview.wholesaleCost.toFixed(2)}`;
+    document.getElementById('wizardRetail').textContent = `$${data.preview.suggestedRetail.toFixed(2)}`;
+    document.getElementById('wizardColorCount').textContent = data.preview.colors.length;
+    document.getElementById('wizardSizeCount').textContent = data.preview.sizes.length;
+
+    // Initialize step 2 with product data
+    initWizardStep2Content(data.preview);
+
+    // Initialize step 3 preview
+    updateWizardPricingPreview();
+
+  } catch (err) {
+    console.error('Wizard fetch error:', err);
+    alert(`Failed to fetch product: ${err.message}`);
+    setWizardStepValid(1, false);
+  } finally {
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = 'Fetch Product';
+  }
+}
+
+/* Wizard Step 2: Variant Selection */
+function initWizardStep2() {
+  document.getElementById('wizardSelectAllColors')?.addEventListener('click', () => wizardSelectColors('all'));
+  document.getElementById('wizardSelectInStockColors')?.addEventListener('click', () => wizardSelectColors('in-stock'));
+  document.getElementById('wizardClearColors')?.addEventListener('click', () => wizardSelectColors('none'));
+
+  document.getElementById('wizardSelectStandardSizes')?.addEventListener('click', () => wizardSelectSizes(['S', 'M', 'L', 'XL']));
+  document.getElementById('wizardSelectExtendedSizes')?.addEventListener('click', () => wizardSelectSizes(['S', 'M', 'L', 'XL', '2XL']));
+  document.getElementById('wizardSelectAllSizes')?.addEventListener('click', () => wizardSelectSizes('all'));
+  document.getElementById('wizardClearSizes')?.addEventListener('click', () => wizardSelectSizes([]));
+}
+
+function initWizardStep2Content(preview) {
+  // Build color grid
+  const colorGrid = document.getElementById('wizardColorGrid');
+  colorGrid.innerHTML = preview.colors.map(color => `
+    <div class="wizard-color-card" data-color="${color.displayName}" data-catalog="${color.catalogName}">
+      <img class="wizard-color-swatch" src="${color.swatchUrl || ''}" alt="${color.displayName}"
+           onerror="this.style.background='#30363d'">
+      <div class="wizard-color-name">${color.displayName}</div>
+      <div class="wizard-color-stock ${color.stockStatus === 'in-stock' ? 'in-stock' : 'out-of-stock'}">
+        ${color.stockStatus === 'in-stock' ? '&#9679; In Stock' : '&#9675; Low/OOS'}
+      </div>
+    </div>
+  `).join('');
+
+  // Add click handlers
+  colorGrid.querySelectorAll('.wizard-color-card').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.toggle('selected');
+      updateWizardVariantSelection();
+    });
+  });
+
+  // Build size grid
+  const sizeGrid = document.getElementById('wizardSizeGrid');
+  sizeGrid.innerHTML = preview.sizes.map(size => `
+    <button type="button" class="wizard-size-btn" data-size="${size}">${size}</button>
+  `).join('');
+
+  // Add click handlers
+  sizeGrid.querySelectorAll('.wizard-size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('selected');
+      updateWizardVariantSelection();
+    });
+  });
+
+  // Reset selections
+  updateWizardVariantSelection();
+}
+
+function wizardSelectColors(mode) {
+  const cards = document.querySelectorAll('.wizard-color-card');
+  cards.forEach(card => {
+    if (mode === 'all') {
+      card.classList.add('selected');
+    } else if (mode === 'in-stock') {
+      const stock = card.querySelector('.wizard-color-stock');
+      card.classList.toggle('selected', stock?.classList.contains('in-stock'));
+    } else {
+      card.classList.remove('selected');
+    }
+  });
+  updateWizardVariantSelection();
+}
+
+function wizardSelectSizes(sizes) {
+  const btns = document.querySelectorAll('.wizard-size-btn');
+  btns.forEach(btn => {
+    const size = btn.dataset.size;
+    if (sizes === 'all') {
+      btn.classList.add('selected');
+    } else if (Array.isArray(sizes)) {
+      btn.classList.toggle('selected', sizes.includes(size));
+    }
+  });
+  updateWizardVariantSelection();
+}
+
+function updateWizardVariantSelection() {
+  const selectedColors = Array.from(document.querySelectorAll('.wizard-color-card.selected'))
+    .map(c => ({ displayName: c.dataset.color, catalogName: c.dataset.catalog }));
+  const selectedSizes = Array.from(document.querySelectorAll('.wizard-size-btn.selected'))
+    .map(b => b.dataset.size);
+
+  const variantCount = selectedColors.length * selectedSizes.length;
+
+  // Update summary
+  document.getElementById('wizardSelectionSummary').innerHTML =
+    `Selected: <strong>${selectedColors.length} colors</strong> &times; <strong>${selectedSizes.length} sizes</strong> = <strong>${variantCount} variants</strong>`;
+
+  // Update state
+  const isValid = selectedColors.length > 0 && selectedSizes.length > 0;
+  setWizardStepValid(2, isValid, { selectedColors, selectedSizes });
+
+  // Update upcharge grid for extended sizes
+  updateWizardUpchargeGrid(selectedSizes);
+}
+
+/* Wizard Step 3: Pricing */
+function initWizardStep3() {
+  document.getElementById('wizardPresetSelect')?.addEventListener('change', wizardPresetChanged);
+  document.getElementById('wizardMarkupInput')?.addEventListener('input', updateWizardPricingPreview);
+  document.getElementById('wizardRoundingSelect')?.addEventListener('change', updateWizardPricingPreview);
+}
+
+function wizardPresetChanged() {
+  const preset = document.getElementById('wizardPresetSelect').value;
+  const markupInput = document.getElementById('wizardMarkupInput');
+
+  const presetMarkups = {
+    'standard-tee': 100,
+    'premium-tee': 120,
+    'hoodie-fleece': 80,
+    'polo-woven': 90,
+    'outerwear': 70,
+    'headwear': 100,
+    'custom': parseInt(markupInput.value) || 100
+  };
+
+  markupInput.value = presetMarkups[preset] || 100;
+  updateWizardPricingPreview();
+}
+
+function updateWizardPricingPreview() {
+  const step1Data = getWizardStepData(1);
+  if (!step1Data.productData) return;
+
+  const wholesale = step1Data.productData.preview.wholesaleCost;
+  const markupPercent = parseInt(document.getElementById('wizardMarkupInput').value) || 100;
+  const rounding = document.getElementById('wizardRoundingSelect').value;
+
+  // Calculate retail price
+  let retail = wholesale * (1 + markupPercent / 100);
+
+  if (rounding === 'nearest-99') {
+    retail = Math.ceil(retail) - 0.01;
+  } else if (rounding === 'nearest-dollar') {
+    retail = Math.ceil(retail);
+  }
+
+  const margin = retail - wholesale;
+  const marginPercent = ((margin / retail) * 100).toFixed(1);
+
+  document.getElementById('wizardPreviewWholesale').textContent = `$${wholesale.toFixed(2)}`;
+  document.getElementById('wizardPreviewMarkup').textContent = `+$${(wholesale * markupPercent / 100).toFixed(2)}`;
+  document.getElementById('wizardPreviewRetail').textContent = `$${retail.toFixed(2)}`;
+  document.getElementById('wizardPreviewMargin').textContent = `$${margin.toFixed(2)} (${marginPercent}%)`;
+
+  // Store pricing config
+  const upcharges = {};
+  document.querySelectorAll('.wizard-upcharge-input').forEach(input => {
+    const val = parseFloat(input.value) || 0;
+    if (val > 0) upcharges[input.dataset.size] = val;
+  });
+
+  setWizardStepValid(3, true, {
+    pricingConfig: {
+      markupPercent,
+      rounding,
+      sizeUpcharges: upcharges
+    }
+  });
+}
+
+function updateWizardUpchargeGrid(selectedSizes) {
+  const extendedSizes = ['2XL', '3XL', '4XL', '5XL', '6XL', 'LT', 'XLT', '2XLT', '3XLT'];
+  const relevantSizes = selectedSizes.filter(s => extendedSizes.includes(s));
+
+  const grid = document.getElementById('wizardUpchargeGrid');
+  if (relevantSizes.length === 0) {
+    grid.innerHTML = '<span style="color:#8b949e;font-size:12px;">No extended sizes selected</span>';
+    return;
+  }
+
+  grid.innerHTML = relevantSizes.map(size => `
+    <div class="wizard-upcharge-item">
+      <span>${size}</span>
+      <input type="number" class="wizard-upcharge-input" data-size="${size}" value="0" min="0" step="0.50" placeholder="+$">
+    </div>
+  `).join('');
+
+  // Add listeners
+  grid.querySelectorAll('.wizard-upcharge-input').forEach(input => {
+    input.addEventListener('input', updateWizardPricingPreview);
+  });
+}
+
 // Initialize wizard on page load
 document.addEventListener('DOMContentLoaded', () => {
   initWizard();
+  initWizardStep1();
+  initWizardStep2();
+  initWizardStep3();
 });
 
 })();
