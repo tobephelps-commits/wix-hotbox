@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-02)
+See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Phase 36 - Product Migration Tooling (final phase of v1.1)
+**Current focus:** Planning next milestone
 
 ## Current Position
 
 Phase: 36 of 36 (Product Migration Tooling) - COMPLETE
-Plan: 2 of 2 in current phase (36-02 complete)
-Status: Phase 36 complete, v1.1 milestone complete
-Last activity: 2026-02-04 - Plan 36-02 executed
+Plan: All plans complete
+Status: v1.1 milestone shipped and archived
+Last activity: 2026-02-04 - v1.1 milestone complete
 
-Progress: ██████████ 100%
+Progress: ██████████ 100% (v1.1)
 
 ## Performance Metrics
 
@@ -220,5 +220,14 @@ None
 ## Session Continuity
 
 Last session: 2026-02-04
-Completed: Plan 36-02 (migration UI) - Phase 36 complete, v1.1 milestone complete
-Next: v1.1 milestone complete - all planned phases delivered
+Completed: v1.1 milestone archived (Phases 31-36, 12 plans, 57 commits)
+Next: Plan next milestone (v1.2) or operational use
+
+## Milestones Shipped
+
+| Version | Name | Phases | Plans | Shipped |
+|---------|------|--------|-------|---------|
+| v0.1 | MVP | 1-10 | 34 | 2026-01-31 |
+| v0.2 | Multi-Brand Operations | 11-20 | 38 | 2026-02-01 |
+| v1.0 | Visual Branding & Business Operations | 21-30 | 24 | 2026-02-02 |
+| v1.1 | Storefront Polish & Operations Dashboard | 31-36 | 12 | 2026-02-04 |

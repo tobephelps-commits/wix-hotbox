@@ -1,5 +1,33 @@
 # Project Milestones: HotBox Clothing Store Enhancement
 
+## v1.1 Storefront Polish & Operations Dashboard (Shipped: 2026-02-04)
+
+**Delivered:** Stock visibility for out-of-stock variants, variant image switching documentation, side-view image fix, Operations Dashboard with daemon controls, step-by-step Pipeline Wizard, and Product Migration tooling for existing WIX products.
+
+**Phases completed:** 31-36 (12 plans total)
+
+**Key accomplishments:**
+
+- Integrated WIX Inventory V2 API to show "Out of Stock" for unavailable color/size combinations instead of hiding them
+- Verified and documented variant image switching with WIX Editor configuration guide
+- Fixed incorrect side-view image assignment in SanMar mapper preventing wrong sleeve logo placements
+- Built Operations Dashboard with daemon Start/Stop controls and real-time health metrics (orders, inventory, daemon status, errors)
+- Created 5-step Product Pipeline Wizard with visual variant selection, live pricing preview, and optional logo configuration
+- Added Product Migration tooling to browse existing WIX products and migrate untracked ones through the wizard
+
+**Stats:**
+
+- 43 files created/modified
+- ~9,140 net new lines of TypeScript/HTML
+- 6 phases, 12 plans
+- 2 days (2026-02-03 to 2026-02-04)
+
+**Git range:** `fc40d39` to `c5835a9` (57 commits)
+
+**What's next:** Store owner uses Pipeline Wizard for new products, Migration tooling for existing products, and Operations Dashboard for monitoring. 30 WIX Editor manual fixes still pending.
+
+---
+
 ## v1.0 Visual Branding & Business Operations (Shipped: 2026-02-02)
 
 **Delivered:** Multi-angle branded product imagery with visual drag-and-drop placement, customer account system with B2B royalty tracking and PDF statements, batch product creation, and pipeline/operations hardening across order management and inventory sync.

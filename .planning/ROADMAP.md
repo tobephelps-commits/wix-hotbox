@@ -24,81 +24,17 @@ None
 
 ## Phases
 
-### ✅ v1.1 Storefront Polish & Operations Dashboard (Shipped 2026-02-04)
+<details>
+<summary>✅ v1.1 Storefront Polish & Operations Dashboard (Phases 31-36) -- SHIPPED 2026-02-04</summary>
 
-**Milestone Goal:** Enhance customer-facing storefront with stock visibility and variant image switching, plus build operational tooling for easier store management including daemon controls, pipeline wizard, and product migration.
+- [x] Phase 31: Stock Visibility (3/3 plans) -- completed 2026-02-03
+- [x] Phase 32: Variant Image Switching (1/1 plans) -- completed 2026-02-03
+- [x] Phase 33: Side-View Image Investigation & Fix (1/1 plans) -- completed 2026-02-03
+- [x] Phase 34: Operations Dashboard Foundation (2/2 plans) -- completed 2026-02-04
+- [x] Phase 35: Product Pipeline Wizard (3/3 plans) -- completed 2026-02-04
+- [x] Phase 36: Product Migration Tooling (2/2 plans) -- completed 2026-02-04
 
-#### Phase 31: Stock Visibility ✓
-
-**Goal**: Show "Out of Stock" for unavailable color/size combinations instead of hiding them
-**Depends on**: v1.0 complete
-**Research**: No (WIX Inventory API integration - internal patterns)
-**Plans**: 3
-**Completed**: 2026-02-03
-
-Plans:
-- [x] 31-01: WIX Inventory API service + stock sync refactor
-- [x] 31-02: Product creation inventory integration
-- [x] 31-03: Verification + documentation (has checkpoint)
-
-#### Phase 32: Variant Image Switching ✓
-
-**Goal**: Display color-specific product images when customer selects a color variant
-**Depends on**: Phase 31
-**Research**: No (WIX storefront image display - internal patterns)
-**Plans**: 1
-**Completed**: 2026-02-03
-
-Plans:
-- [x] 32-01: Verify API linking + WIX Editor configuration guide (has checkpoint)
-
-#### Phase 33: Side-View Image Investigation & Fix ✓
-
-**Goal**: Debug root cause of incorrect side angle images from vendor API, fix for sleeve logo placement
-**Depends on**: Phase 32
-**Research**: Yes (completed - 33-RESEARCH.md)
-**Plans**: 1
-**Completed**: 2026-02-03
-
-Plans:
-- [x] 33-01: Fix incorrect sideImage assignment in mapper.ts
-
-#### Phase 34: Operations Dashboard Foundation ✓
-
-**Goal**: Build daemon control panel and store health overview dashboard
-**Depends on**: Phase 33
-**Research**: No (internal dashboard - established patterns from existing admin pages)
-**Plans**: 2
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 34-01: Daemon lifecycle control API + operations health endpoint
-- [x] 34-02: Operations Dashboard UI (has checkpoint)
-
-#### Phase 35: Product Pipeline Wizard ✓
-
-**Goal**: Step-by-step guided product creation with previews at each stage
-**Depends on**: Phase 34
-**Research**: No (UI wrapper for existing pipeline functionality)
-**Plans**: 3
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 35-01: Wizard foundation with step navigation UI and state management
-- [x] 35-02: Step content panels (product, variants, pricing, logo, review)
-- [x] 35-03: API integration and verification (has checkpoint)
-
-#### Phase 36: Product Migration Tooling ✓
-
-**Goal**: Browse existing WIX products and migrate untracked ones through the Pipeline Wizard
-**Depends on**: Phase 35
-**Research**: No (UI wrapper feeding into existing wizard)
-**Plans**: 2
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 36-01: WIX products API endpoint with tracking status
-- [x] 36-02: Migration UI section with product browser and wizard integration (has checkpoint)
+</details>
 
 <details>
 <summary>✅ v0.1 MVP (Phases 1-10) -- SHIPPED 2026-01-31</summary>
