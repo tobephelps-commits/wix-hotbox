@@ -1733,6 +1733,110 @@
     border-bottom: 1px solid #f0f0f0;
   }
 
+  /* Operations Dashboard (Phase 34) */
+  .operations-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+  .operations-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .operations-section .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ops-health-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .ops-health-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 16px;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .ops-health-card:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+  }
+  .ops-health-card .card-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .ops-health-card .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .ops-health-card .card-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .ops-health-card .card-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+  .ops-health-card.good .card-value { color: #4ade80; }
+  .ops-health-card.warning .card-value { color: #fbbf24; }
+  .ops-health-card.error .card-value { color: #f87171; }
+  .ops-health-card.neutral .card-value { color: #60a5fa; }
+
+  /* Daemon control buttons */
+  .daemon-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .btn-daemon {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-daemon-start {
+    background: #22c55e;
+    color: #fff;
+  }
+  .btn-daemon-start:hover { background: #16a34a; }
+  .btn-daemon-start:disabled { background: #4b5563; cursor: not-allowed; }
+  .btn-daemon-stop {
+    background: #ef4444;
+    color: #fff;
+  }
+  .btn-daemon-stop:hover { background: #dc2626; }
+  .btn-daemon-stop:disabled { background: #4b5563; cursor: not-allowed; }
+  .daemon-status-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    margin-left: 12px;
+  }
+  .daemon-status-text.running { color: #4ade80; }
+  .daemon-status-text.stopped { color: #f87171; }
+
   /* Vendor badge (Phase 17) */
   .vendor-badge {
     display: inline-block;
@@ -3416,6 +3520,50 @@
           <span class="batch-summary-text"></span>
           <button type="button" class="batch-summary-new" id="batchNewBtn">New Batch</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operations Dashboard (Phase 34) -->
+  <div class="operations-section" id="operationsSection">
+    <div class="section-header">
+      <div class="section-title">
+        &#9881; OPERATIONS
+      </div>
+      <div class="daemon-controls">
+        <button type="button" class="btn-daemon btn-daemon-start" id="daemonStartBtn">
+          &#9654; Start Daemon
+        </button>
+        <button type="button" class="btn-daemon btn-daemon-stop" id="daemonStopBtn" disabled>
+          &#9632; Stop Daemon
+        </button>
+        <span class="daemon-status-text stopped" id="daemonStatusText">Daemon stopped</span>
+      </div>
+    </div>
+    <div class="ops-health-grid" id="opsHealthGrid">
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#128230;</div>
+        <div class="card-label">Orders (New)</div>
+        <div class="card-value" id="opsOrdersNew">--</div>
+        <div class="card-sub" id="opsOrdersTotal">Loading...</div>
+      </div>
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#128202;</div>
+        <div class="card-label">Inventory</div>
+        <div class="card-value" id="opsTrackedProducts">--</div>
+        <div class="card-sub" id="opsRecentAlerts">Loading...</div>
+      </div>
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#9201;</div>
+        <div class="card-label">Sync Daemon</div>
+        <div class="card-value" id="opsDaemonCycles">--</div>
+        <div class="card-sub" id="opsDaemonUptime">Loading...</div>
+      </div>
+      <div class="ops-health-card neutral">
+        <div class="card-icon">&#9888;</div>
+        <div class="card-label">Errors</div>
+        <div class="card-value" id="opsErrorCount">--</div>
+        <div class="card-sub" id="opsErrorDetail">Loading...</div>
       </div>
     </div>
   </div>
@@ -9517,6 +9665,130 @@
 
   // Auto-load customers for royalty section
   loadRoyaltyCustomers();
+
+  // =========================================================================
+  // Operations Dashboard (Phase 34)
+  // =========================================================================
+
+  var daemonStartBtn = document.getElementById('daemonStartBtn');
+  var daemonStopBtn = document.getElementById('daemonStopBtn');
+  var daemonStatusText = document.getElementById('daemonStatusText');
+  var opsOrdersNew = document.getElementById('opsOrdersNew');
+  var opsOrdersTotal = document.getElementById('opsOrdersTotal');
+  var opsTrackedProducts = document.getElementById('opsTrackedProducts');
+  var opsRecentAlerts = document.getElementById('opsRecentAlerts');
+  var opsDaemonCycles = document.getElementById('opsDaemonCycles');
+  var opsDaemonUptime = document.getElementById('opsDaemonUptime');
+  var opsErrorCount = document.getElementById('opsErrorCount');
+  var opsErrorDetail = document.getElementById('opsErrorDetail');
+
+  async function loadOperationsHealth() {
+    try {
+      var res = await fetch('/api/operations/health');
+      var data = await res.json();
+
+      // Daemon status and controls
+      var running = data.daemon.running;
+      daemonStartBtn.disabled = running;
+      daemonStopBtn.disabled = !running;
+      daemonStatusText.className = 'daemon-status-text ' + (running ? 'running' : 'stopped');
+      daemonStatusText.textContent = running ? 'Daemon running' : 'Daemon stopped';
+
+      // Orders card
+      var newOrders = data.orders.statusCounts.new || 0;
+      opsOrdersNew.textContent = newOrders;
+      var totalOrders = Object.values(data.orders.statusCounts).reduce(function(a, b) { return a + b; }, 0);
+      opsOrdersTotal.textContent = totalOrders + ' total orders';
+      updateCardState('opsOrdersNew', newOrders > 0 ? 'warning' : 'good');
+
+      // Inventory card
+      opsTrackedProducts.textContent = data.inventory.trackedProductCount;
+      var alertCount = data.inventory.recentAlertCount;
+      opsRecentAlerts.textContent = alertCount + ' recent alerts';
+      updateCardState('opsTrackedProducts', alertCount > 0 ? 'warning' : 'good');
+
+      // Daemon card
+      if (running && data.daemon.health) {
+        var health = data.daemon.health;
+        opsDaemonCycles.textContent = health.totalCycles;
+        opsDaemonUptime.textContent = 'Up ' + formatRelativeTime(new Date(health.startedAt));
+        updateCardState('opsDaemonCycles', health.consecutiveErrors > 0 ? 'warning' : 'good');
+      } else {
+        opsDaemonCycles.textContent = '--';
+        opsDaemonUptime.textContent = 'Not running';
+        updateCardState('opsDaemonCycles', 'neutral');
+      }
+
+      // Errors card
+      var errorCount = data.orders.errorCount;
+      opsErrorCount.textContent = errorCount;
+      opsErrorDetail.textContent = errorCount === 0 ? 'All systems healthy' : 'Order errors detected';
+      updateCardState('opsErrorCount', errorCount > 0 ? 'error' : 'good');
+
+    } catch (err) {
+      console.error('Failed to load operations health:', err);
+      daemonStatusText.textContent = 'Status unknown';
+      daemonStatusText.className = 'daemon-status-text';
+    }
+  }
+
+  function updateCardState(valueId, state) {
+    var card = document.getElementById(valueId).closest('.ops-health-card');
+    card.className = 'ops-health-card ' + state;
+  }
+
+  async function startDaemon() {
+    daemonStartBtn.disabled = true;
+    daemonStatusText.textContent = 'Starting...';
+    try {
+      var res = await fetch('/api/daemon/start', { method: 'POST' });
+      var data = await res.json();
+      if (data.success) {
+        daemonStatusText.textContent = 'Daemon started';
+        daemonStatusText.className = 'daemon-status-text running';
+        daemonStopBtn.disabled = false;
+        // Refresh health after a moment
+        setTimeout(loadOperationsHealth, 1000);
+      } else {
+        daemonStatusText.textContent = data.message || 'Failed to start';
+        daemonStartBtn.disabled = false;
+      }
+    } catch (err) {
+      console.error('Failed to start daemon:', err);
+      daemonStatusText.textContent = 'Start failed';
+      daemonStartBtn.disabled = false;
+    }
+  }
+
+  async function stopDaemon() {
+    daemonStopBtn.disabled = true;
+    daemonStatusText.textContent = 'Stopping...';
+    try {
+      var res = await fetch('/api/daemon/stop', { method: 'POST' });
+      var data = await res.json();
+      if (data.success) {
+        daemonStatusText.textContent = 'Daemon stopped';
+        daemonStatusText.className = 'daemon-status-text stopped';
+        daemonStartBtn.disabled = false;
+        // Refresh health after a moment
+        setTimeout(loadOperationsHealth, 1000);
+      } else {
+        daemonStatusText.textContent = data.message || 'Failed to stop';
+        daemonStopBtn.disabled = false;
+      }
+    } catch (err) {
+      console.error('Failed to stop daemon:', err);
+      daemonStatusText.textContent = 'Stop failed';
+      daemonStopBtn.disabled = false;
+    }
+  }
+
+  daemonStartBtn.addEventListener('click', startDaemon);
+  daemonStopBtn.addEventListener('click', stopDaemon);
+
+  // Load operations health on page load and refresh periodically
+  loadOperationsHealth();
+  setInterval(loadOperationsHealth, 30000); // Refresh every 30 seconds
 
   // =========================================================================
   // Load saved preferences, then auto-load style from URL query param
