@@ -79,8 +79,8 @@ import {
 import type { MappingAuditResult } from '../sync/types.js';
 
 // WIX Product List API (Phase 36: Product Migration Tooling)
-import { listAllProducts, listCollections, queryProducts } from './wix-api.js';
-import type { WixProduct, WixCollection } from './wix-api.js';
+import { listAllProducts, listCollections } from './wix-api.js';
+import type { WixProduct } from './wix-api.js';
 
 // Order Management (Phase 18)
 import {
@@ -2721,27 +2721,12 @@ function startServer(port: number, initialStyle?: string): void {
                 listCollections(),
               ]);
 
-              // Build productId -> collection names map
-              // Query products for each collection (except "All Products")
-              const productCollectionMap = new Map<string, string[]>();
-              const collectionsToQuery = collections.filter(
-                (c) => c.name !== 'All Products'
-              );
-
-              console.log(`[Preview] Mapping ${collectionsToQuery.length} collections to products...`);
-              for (const collection of collectionsToQuery) {
-                try {
-                  // Query products in this collection using collectionIds filter
-                  const collectionProducts = await queryProducts({
-                    collectionIds: { $hasSome: [collection.id] },
-                  });
-                  for (const product of collectionProducts) {
-                    const existing = productCollectionMap.get(product.id) ?? [];
-                    existing.push(collection.name);
-                    productCollectionMap.set(product.id, existing);
-                  }
-                } catch (err) {
-                  console.warn(`[Preview] Failed to query collection ${collection.name}: ${err}`);
+              // Build collectionId -> name map for fast lookup
+              // Exclude "All Products" as it's not a meaningful category
+              const collectionNameMap = new Map<string, string>();
+              for (const collection of collections) {
+                if (collection.name !== 'All Products') {
+                  collectionNameMap.set(collection.id, collection.name);
                 }
               }
 
@@ -2775,8 +2760,11 @@ function startServer(port: number, initialStyle?: string): void {
                   tracked = trackedSet.has(`${style}:${vendor}`);
                 }
 
-                // Get collections for this product
-                const productCollections = productCollectionMap.get(product.id) ?? [];
+                // Get collections for this product from embedded collectionIds
+                const productCollectionIds = (product as { collectionIds?: string[] }).collectionIds ?? [];
+                const productCollections = productCollectionIds
+                  .map((id) => collectionNameMap.get(id))
+                  .filter((name): name is string => name !== undefined);
 
                 return {
                   wixId: product.id,
