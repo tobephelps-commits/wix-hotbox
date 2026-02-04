@@ -3415,6 +3415,235 @@
   .batch-summary-new:hover {
     background: rgba(0,0,0,0.05);
   }
+
+  /* Pipeline Wizard (Phase 35) */
+  .wizard-section {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid #30363d;
+  }
+
+  .wizard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .wizard-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #58a6ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wizard-close-btn {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .wizard-close-btn:hover { background: #21262d; color: #c9d1d9; }
+
+  /* Step indicator bar */
+  .wizard-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #0d1117;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  .wizard-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #8b949e;
+    background: transparent;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    cursor: default;
+    transition: all 0.2s;
+  }
+
+  .wizard-step.active {
+    background: #21262d;
+    border-color: #58a6ff;
+    color: #58a6ff;
+  }
+
+  .wizard-step.completed {
+    color: #3fb950;
+    cursor: pointer;
+  }
+  .wizard-step.completed:hover {
+    background: #21262d;
+  }
+
+  .wizard-step-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #30363d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .wizard-step.active .wizard-step-number {
+    background: #58a6ff;
+    color: #0d1117;
+  }
+
+  .wizard-step.completed .wizard-step-number {
+    background: #238636;
+    color: #fff;
+  }
+
+  .wizard-step-connector {
+    width: 24px;
+    height: 2px;
+    background: #30363d;
+    flex-shrink: 0;
+  }
+
+  .wizard-step.completed + .wizard-step-connector {
+    background: #238636;
+  }
+
+  /* Step content panels */
+  .wizard-content {
+    min-height: 300px;
+  }
+
+  .wizard-panel {
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .wizard-panel.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .wizard-panel-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: #c9d1d9;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wizard-panel-desc {
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Wizard navigation buttons */
+  .wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #30363d;
+  }
+
+  .wizard-nav-left,
+  .wizard-nav-right {
+    display: flex;
+    gap: 12px;
+  }
+
+  .wizard-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .wizard-btn-secondary {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+  }
+  .wizard-btn-secondary:hover:not(:disabled) {
+    background: #21262d;
+    color: #c9d1d9;
+  }
+
+  .wizard-btn-primary {
+    background: #238636;
+    border: 1px solid #238636;
+    color: #fff;
+  }
+  .wizard-btn-primary:hover:not(:disabled) {
+    background: #2ea043;
+  }
+
+  .wizard-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Step validation indicator */
+  .wizard-step-status {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .wizard-step-status.valid {
+    background: rgba(63, 185, 80, 0.15);
+    color: #3fb950;
+  }
+
+  .wizard-step-status.invalid {
+    background: rgba(248, 81, 73, 0.15);
+    color: #f85149;
+  }
+
+  /* Collapse the existing product form when wizard is active */
+  .wizard-active .product-info,
+  .wizard-active .color-grid-section,
+  .wizard-active .size-grid-section,
+  .wizard-active .pricing-config,
+  .wizard-active .logo-overlay-section,
+  .wizard-active .logo-library-section,
+  .wizard-active #submitBtn {
+    display: none !important;
+  }
 </style>
 </head>
 <body>
@@ -3431,6 +3660,7 @@
     <label for="styleInput">Style:</label>
     <input type="text" id="styleInput" placeholder="e.g. PC61" autocomplete="off">
     <button type="submit" class="btn btn-primary" id="fetchBtn">Fetch</button>
+    <button type="button" class="btn btn-secondary" id="wizardStartBtn" style="margin-left:8px;">&#10024; Wizard</button>
   </form>
 </div>
 
@@ -3520,6 +3750,95 @@
           <span class="batch-summary-text"></span>
           <button type="button" class="batch-summary-new" id="batchNewBtn">New Batch</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Pipeline Wizard (Phase 35) -->
+  <div class="wizard-section" id="wizardSection" style="display:none;">
+    <div class="wizard-header">
+      <div class="wizard-title">
+        &#10024; PRODUCT CREATION WIZARD
+      </div>
+      <button type="button" class="wizard-close-btn" id="wizardCloseBtn">Exit Wizard</button>
+    </div>
+
+    <!-- Step indicator bar -->
+    <div class="wizard-steps" id="wizardSteps">
+      <div class="wizard-step active" data-step="1">
+        <span class="wizard-step-number">1</span>
+        <span>Product</span>
+      </div>
+      <div class="wizard-step-connector"></div>
+      <div class="wizard-step" data-step="2">
+        <span class="wizard-step-number">2</span>
+        <span>Variants</span>
+      </div>
+      <div class="wizard-step-connector"></div>
+      <div class="wizard-step" data-step="3">
+        <span class="wizard-step-number">3</span>
+        <span>Pricing</span>
+      </div>
+      <div class="wizard-step-connector"></div>
+      <div class="wizard-step" data-step="4">
+        <span class="wizard-step-number">4</span>
+        <span>Logo</span>
+      </div>
+      <div class="wizard-step-connector"></div>
+      <div class="wizard-step" data-step="5">
+        <span class="wizard-step-number">5</span>
+        <span>Review</span>
+      </div>
+    </div>
+
+    <!-- Step content panels -->
+    <div class="wizard-content" id="wizardContent">
+      <div class="wizard-panel active" data-step="1" id="wizardPanel1">
+        <div class="wizard-panel-header">&#128269; Select Product</div>
+        <div class="wizard-panel-desc">Enter a vendor style number to fetch product data and begin configuration.</div>
+        <!-- Content populated by Plan 02 -->
+        <div id="wizardStep1Content"></div>
+      </div>
+
+      <div class="wizard-panel" data-step="2" id="wizardPanel2">
+        <div class="wizard-panel-header">&#127912; Choose Variants</div>
+        <div class="wizard-panel-desc">Select which colors and sizes to offer on your WIX store.</div>
+        <div id="wizardStep2Content"></div>
+      </div>
+
+      <div class="wizard-panel" data-step="3" id="wizardPanel3">
+        <div class="wizard-panel-header">&#128176; Configure Pricing</div>
+        <div class="wizard-panel-desc">Set markup, rounding, and size upcharges for retail pricing.</div>
+        <div id="wizardStep3Content"></div>
+      </div>
+
+      <div class="wizard-panel" data-step="4" id="wizardPanel4">
+        <div class="wizard-panel-header">&#127912; Logo Overlay</div>
+        <div class="wizard-panel-desc">Optionally add your brand logo to product images.</div>
+        <div id="wizardStep4Content"></div>
+      </div>
+
+      <div class="wizard-panel" data-step="5" id="wizardPanel5">
+        <div class="wizard-panel-header">&#9989; Review &amp; Create</div>
+        <div class="wizard-panel-desc">Verify your configuration and create the WIX product draft.</div>
+        <div id="wizardStep5Content"></div>
+      </div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="wizard-nav">
+      <div class="wizard-nav-left">
+        <button type="button" class="wizard-btn wizard-btn-secondary" id="wizardPrevBtn" disabled>
+          &#8592; Back
+        </button>
+      </div>
+      <div class="wizard-nav-right">
+        <button type="button" class="wizard-btn wizard-btn-primary" id="wizardNextBtn">
+          Next &#8594;
+        </button>
+        <button type="button" class="wizard-btn wizard-btn-primary" id="wizardCreateBtn" style="display:none;">
+          &#10003; Create Product
+        </button>
       </div>
     </div>
   </div>
@@ -9814,6 +10133,179 @@
       fetchProduct(style.toUpperCase());
     }
   })();
+
+/* ========================================
+   Pipeline Wizard (Phase 35)
+   ======================================== */
+
+const wizardState = {
+  active: false,
+  currentStep: 1,
+  totalSteps: 5,
+  stepData: {
+    1: { valid: false, vendor: null, style: null, productData: null },
+    2: { valid: false, selectedColors: [], selectedSizes: [] },
+    3: { valid: true, pricingConfig: null },  // Defaults always valid
+    4: { valid: true, logoConfig: null },      // Optional step, always valid
+    5: { valid: false }  // Becomes valid when step 1-4 are valid
+  }
+};
+
+function initWizard() {
+  const startBtn = document.getElementById('wizardStartBtn');
+  const closeBtn = document.getElementById('wizardCloseBtn');
+  const prevBtn = document.getElementById('wizardPrevBtn');
+  const nextBtn = document.getElementById('wizardNextBtn');
+  const createBtn = document.getElementById('wizardCreateBtn');
+  const stepIndicators = document.querySelectorAll('.wizard-step');
+
+  if (startBtn) startBtn.addEventListener('click', openWizard);
+  if (closeBtn) closeBtn.addEventListener('click', closeWizard);
+  if (prevBtn) prevBtn.addEventListener('click', wizardPrev);
+  if (nextBtn) nextBtn.addEventListener('click', wizardNext);
+  if (createBtn) createBtn.addEventListener('click', wizardCreate);
+
+  // Click on completed steps to navigate
+  stepIndicators.forEach(step => {
+    step.addEventListener('click', () => {
+      const stepNum = parseInt(step.dataset.step);
+      if (step.classList.contains('completed') || step.classList.contains('active')) {
+        goToWizardStep(stepNum);
+      }
+    });
+  });
+}
+
+function openWizard() {
+  wizardState.active = true;
+  wizardState.currentStep = 1;
+
+  // Reset step data
+  wizardState.stepData[1] = { valid: false, vendor: null, style: null, productData: null };
+  wizardState.stepData[2] = { valid: false, selectedColors: [], selectedSizes: [] };
+  wizardState.stepData[3] = { valid: true, pricingConfig: getDefaultPricingConfig() };
+  wizardState.stepData[4] = { valid: true, logoConfig: null };
+  wizardState.stepData[5] = { valid: false };
+
+  document.getElementById('wizardSection').style.display = 'block';
+  document.querySelector('.container').classList.add('wizard-active');
+
+  updateWizardUI();
+
+  // Scroll to wizard
+  document.getElementById('wizardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeWizard() {
+  wizardState.active = false;
+  document.getElementById('wizardSection').style.display = 'none';
+  document.querySelector('.container').classList.remove('wizard-active');
+}
+
+function getDefaultPricingConfig() {
+  return {
+    markupPercent: 100,
+    rounding: 'nearest-99',
+    sizeUpcharges: {}
+  };
+}
+
+function goToWizardStep(stepNum) {
+  if (stepNum < 1 || stepNum > wizardState.totalSteps) return;
+
+  // Can only go forward if current step is valid (or going backward)
+  if (stepNum > wizardState.currentStep && !wizardState.stepData[wizardState.currentStep].valid) {
+    return;
+  }
+
+  wizardState.currentStep = stepNum;
+  updateWizardUI();
+}
+
+function wizardPrev() {
+  if (wizardState.currentStep > 1) {
+    goToWizardStep(wizardState.currentStep - 1);
+  }
+}
+
+function wizardNext() {
+  if (wizardState.currentStep < wizardState.totalSteps) {
+    if (wizardState.stepData[wizardState.currentStep].valid) {
+      goToWizardStep(wizardState.currentStep + 1);
+    }
+  }
+}
+
+async function wizardCreate() {
+  // Implemented in Plan 35-03
+  console.log('Wizard create - to be implemented');
+}
+
+function updateWizardUI() {
+  const currentStep = wizardState.currentStep;
+
+  // Update step indicators
+  document.querySelectorAll('.wizard-step').forEach(el => {
+    const stepNum = parseInt(el.dataset.step);
+    el.classList.remove('active', 'completed');
+
+    if (stepNum === currentStep) {
+      el.classList.add('active');
+    } else if (stepNum < currentStep || wizardState.stepData[stepNum].valid) {
+      el.classList.add('completed');
+    }
+  });
+
+  // Update panels
+  document.querySelectorAll('.wizard-panel').forEach(el => {
+    const stepNum = parseInt(el.dataset.step);
+    el.classList.toggle('active', stepNum === currentStep);
+  });
+
+  // Update navigation buttons
+  const prevBtn = document.getElementById('wizardPrevBtn');
+  const nextBtn = document.getElementById('wizardNextBtn');
+  const createBtn = document.getElementById('wizardCreateBtn');
+
+  prevBtn.disabled = currentStep === 1;
+
+  // Show Create button only on last step
+  if (currentStep === wizardState.totalSteps) {
+    nextBtn.style.display = 'none';
+    createBtn.style.display = 'flex';
+    createBtn.disabled = !isWizardReadyToCreate();
+  } else {
+    nextBtn.style.display = 'flex';
+    createBtn.style.display = 'none';
+    nextBtn.disabled = !wizardState.stepData[currentStep].valid;
+  }
+
+  // Update step 5 validity based on steps 1-4
+  wizardState.stepData[5].valid =
+    wizardState.stepData[1].valid &&
+    wizardState.stepData[2].valid;
+}
+
+function isWizardReadyToCreate() {
+  return wizardState.stepData[1].valid &&
+         wizardState.stepData[2].valid;
+  // Steps 3 and 4 always valid (have defaults)
+}
+
+function setWizardStepValid(stepNum, valid, data = {}) {
+  wizardState.stepData[stepNum].valid = valid;
+  Object.assign(wizardState.stepData[stepNum], data);
+  updateWizardUI();
+}
+
+function getWizardStepData(stepNum) {
+  return wizardState.stepData[stepNum];
+}
+
+// Initialize wizard on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initWizard();
+});
 
 })();
 </script>
