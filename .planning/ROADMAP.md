@@ -57,15 +57,14 @@ Plans:
 - [x] 39-02: S&S browser automation engine (Playwright with selector discovery)
 - [x] 39-03: CLI and dashboard integration (commands + UI)
 
-#### Phase 40: Order Status Dashboard
+#### ✅ Phase 40: Order Status Dashboard (Complete)
 
 **Goal**: Enhanced pipeline visibility within Orders tab showing what needs attention
-**Depends on**: Phase 39
-**Research**: Unlikely (internal patterns)
-**Plans**: TBD
+**Completed**: 2026-02-04
 
 Plans:
-- [ ] 40-01: TBD
+- [x] 40-01: Extended order summary API with time-in-stage metrics
+- [x] 40-02: Pipeline visualization dashboard UI
 
 #### Phase 41: Bulk Order Actions
 
@@ -195,6 +194,6 @@ Phases execute in numeric order: 37 → 38 → 39 → 40 → 41 → 42
 | 37. Dashboard Redesign - Tabbed Navigation | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 38. Production Sheet Generator | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 39. S&S Activewear Cart Automation | v1.2 | 3/3 | Complete | 2026-02-04 |
-| 40. Order Status Dashboard | v1.2 | 0/? | Not started | - |
+| 40. Order Status Dashboard | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 41. Bulk Order Actions | v1.2 | 0/? | Not started | - |
 | 42. Integration & Polish | v1.2 | 0/? | Not started | - |
