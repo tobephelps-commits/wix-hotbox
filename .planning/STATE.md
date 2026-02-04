@@ -5,27 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Dashboard redesign - tabbed navigation
+**Current focus:** Production sheet generator
 
 ## Current Position
 
-Phase: 37 of 42 (Dashboard Redesign - Tabbed Navigation)
-Plan: 02 complete
-Status: Phase 37 complete - ready for Phase 38
-Last activity: 2026-02-04 - Plan 37-02 complete (human verification approved)
+Phase: 38 of 42 (Production Sheet Generator)
+Plan: 02 complete (phase complete)
+Status: Plan 38-02 complete - production sheet accessible from dashboard order detail
+Last activity: 2026-02-04 - Plan 38-02 complete
 
-Progress: ██░░░░░░░░ 17% (v1.2)
+Progress: ██████▓░░░ 67% (v1.2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 107 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 2 v1.2)
+- Total plans completed: 109 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 4 v1.2)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
 - v1.0: 24 plans across 1 day (2026-02-02)
 - v1.1: 9 plans (2026-02-03 to 2026-02-04)
-- v1.2: 2 plans (2026-02-04)
+- v1.2: 4 plans (2026-02-04)
 
 **By Phase (v0.1):**
 
@@ -82,6 +82,13 @@ Progress: ██░░░░░░░░ 17% (v1.2)
 | 34. Operations Dashboard | 2/2 | 2 sessions | 1 session |
 | 35. Pipeline Wizard | 3/3 | 3 sessions | 1 session |
 | 36. Product Migration | 2/2 | 2 sessions | 1 session |
+
+**By Phase (v1.2):**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 37. Dashboard Tabbed Navigation | 2/2 | 2 sessions | 1 session |
+| 38. Production Sheets | 2/2 | 2 sessions | 1 session |
 
 ## Accumulated Context
 
@@ -232,11 +239,19 @@ None
 | 37 | .tab-panel-extra wrapper divs for floating content | Content outside main tab panels needs visibility control |
 | 37 | CSS margin-left for sidebar offset on extra panels | Extra panels at document level need layout alignment |
 
+### Phase 38 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 38 | Group line items by vendorStyle | Consolidated product sections for production clarity |
+| 38 | Sort quantities by color then size | Consistent ordering for easy scanning |
+| 38 | Reuse brand constants from invoice-template.ts | Visual consistency across order documents |
+
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Phase 37 complete
-Resume file: .planning/phases/37-dashboard-tabbed-navigation/37-02-SUMMARY.md
+Stopped at: Plan 38-02 complete (Phase 38 complete)
+Resume file: .planning/phases/38-production-sheets/38-02-SUMMARY.md
 
 ## Milestones Shipped
 
