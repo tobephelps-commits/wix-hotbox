@@ -89,13 +89,14 @@ Plans:
 
 #### Phase 36: Product Migration Tooling
 
-**Goal**: Batch re-import existing products through pipeline, register for inventory tracking
+**Goal**: Browse existing WIX products and migrate untracked ones through the Pipeline Wizard
 **Depends on**: Phase 35
-**Research**: Unlikely (batch usage of existing pipeline with tracking registration)
-**Plans**: TBD
+**Research**: No (UI wrapper feeding into existing wizard)
+**Plans**: 2
 
 Plans:
-- [ ] 36-01: TBD
+- [ ] 36-01: WIX products API endpoint with tracking status
+- [ ] 36-02: Migration UI section with product browser and wizard integration (has checkpoint)
 
 <details>
 <summary>✅ v0.1 MVP (Phases 1-10) -- SHIPPED 2026-01-31</summary>
@@ -187,4 +188,4 @@ Phases execute in numeric order: 31 → 32 → 33 → 34 → 35 → 36
 | 33. Side-View Image Investigation & Fix | v1.1 | 1/1 | Complete | 2026-02-03 |
 | 34. Operations Dashboard Foundation | v1.1 | 2/2 | Complete | 2026-02-04 |
 | 35. Product Pipeline Wizard | v1.1 | 3/3 | Complete | 2026-02-04 |
-| 36. Product Migration Tooling | v1.1 | 0/? | Not started | - |
+| 36. Product Migration Tooling | v1.1 | 0/2 | Planned | - |
