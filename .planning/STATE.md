@@ -5,27 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Bulk order actions
+**Current focus:** Integration & polish
 
 ## Current Position
 
-Phase: 41 of 42 (Bulk Order Actions) - COMPLETE
-Plan: 02 complete
-Status: Bulk order actions phase complete (backend + UI)
-Last activity: 2026-02-04 - Plan 41-02 complete, checkpoint approved
+Phase: 42 of 42 (Integration & Polish) - IN PROGRESS
+Plan: 01 complete
+Status: Smoke test extended with v1.2 coverage, all 38 tests pass
+Last activity: 2026-02-04 - Plan 42-01 complete (smoke test v1.2 coverage)
 
-Progress: ███████▓░░ 80% (v1.2)
+Progress: ████████▓░ 90% (v1.2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 115 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 10 v1.2)
+- Total plans completed: 116 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 11 v1.2)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
 - v1.0: 24 plans across 1 day (2026-02-02)
 - v1.1: 9 plans (2026-02-03 to 2026-02-04)
-- v1.2: 10 plans (2026-02-04)
+- v1.2: 11 plans (2026-02-04)
 
 **By Phase (v0.1):**
 
@@ -92,6 +92,7 @@ Progress: ███████▓░░ 80% (v1.2)
 | 39. S&S Cart Automation | 3/3 | 3 sessions | 1 session |
 | 40. Order Status Dashboard | 2/2 | 2 sessions | 1 session |
 | 41. Bulk Order Actions | 2/2 | 2 sessions | 1 session |
+| 42. Integration & Polish | 1/? | 1 session | 1 session |
 
 ## Accumulated Context
 
@@ -278,11 +279,18 @@ None
 | 41 | Selection preserved across filter changes | Better UX - user can select, filter, select more |
 | 41 | Session storage handoff for cart fill | Existing cart fill modal reused with filter |
 
+### Phase 42 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 42 | Fix tsc error detection to check stdout | TypeScript outputs errors to stdout, not stderr |
+| 42 | Production sheet and bulk endpoints not smoke-testable | Require specific order IDs or POST methods |
+
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Phase 41 complete, ready for Phase 42
-Resume file: .planning/phases/41-bulk-order-actions/41-02-SUMMARY.md
+Stopped at: Phase 42 plan 01 complete, ready for plan 02
+Resume file: .planning/phases/42-integration-polish/42-01-SUMMARY.md
 
 ## Milestones Shipped
 
