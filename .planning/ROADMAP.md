@@ -66,15 +66,14 @@ Plans:
 - [x] 40-01: Extended order summary API with time-in-stage metrics
 - [x] 40-02: Pipeline visualization dashboard UI
 
-#### Phase 41: Bulk Order Actions
+#### ✅ Phase 41: Bulk Order Actions (Complete)
 
 **Goal**: Multi-select operations for status changes, batch production sheets, cart fills
-**Depends on**: Phase 40
-**Research**: Unlikely (internal patterns)
+**Completed**: 2026-02-04
 
 Plans:
-- [ ] 41-01: Backend bulk operations API (status updates, batch production sheets)
-- [ ] 41-02: UI multi-select and bulk action toolbar
+- [x] 41-01: Backend bulk operations API (status updates, batch production sheets)
+- [x] 41-02: UI multi-select and bulk action toolbar
 
 #### Phase 42: Integration & Polish
 
@@ -195,5 +194,5 @@ Phases execute in numeric order: 37 → 38 → 39 → 40 → 41 → 42
 | 38. Production Sheet Generator | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 39. S&S Activewear Cart Automation | v1.2 | 3/3 | Complete | 2026-02-04 |
 | 40. Order Status Dashboard | v1.2 | 2/2 | Complete | 2026-02-04 |
-| 41. Bulk Order Actions | v1.2 | 0/? | Not started | - |
+| 41. Bulk Order Actions | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 42. Integration & Polish | v1.2 | 0/? | Not started | - |
