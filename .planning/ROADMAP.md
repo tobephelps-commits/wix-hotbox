@@ -80,10 +80,10 @@ Plans:
 **Goal**: Cross-feature testing, edge cases, UX refinement
 **Depends on**: Phase 41
 **Research**: Unlikely (testing existing features)
-**Plans**: TBD
 
 Plans:
-- [ ] 42-01: TBD
+- [ ] 42-01: Smoke test updates for v1.2 endpoints and CLI commands
+- [ ] 42-02: OPERATIONS.md documentation + visual verification checkpoint
 
 ---
 
