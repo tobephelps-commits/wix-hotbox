@@ -84,8 +84,11 @@ async function checkTypeScript(): Promise<void> {
     execSync('npx tsc --noEmit', { cwd: PROJECT_ROOT, timeout: 120_000, stdio: 'pipe' });
     record('TypeScript', 'tsc --noEmit', 'PASS', 'Zero errors', Date.now() - start);
   } catch (err: unknown) {
+    // tsc outputs errors to stdout, not stderr
+    const stdout = (err as { stdout?: Buffer })?.stdout?.toString() || '';
     const stderr = (err as { stderr?: Buffer })?.stderr?.toString() || '';
-    const errorCount = (stderr.match(/error TS/g) || []).length;
+    const output = stdout + stderr;
+    const errorCount = (output.match(/error TS/g) || []).length;
     record('TypeScript', 'tsc --noEmit', 'FAIL', `${errorCount} type error(s)`, Date.now() - start);
   }
 }

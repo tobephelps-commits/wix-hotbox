@@ -1953,7 +1953,6 @@ function startServer(port: number, initialStyle?: string): void {
                 successCount: result.itemResults.filter((r) => r.success).length,
                 failedCount: result.itemResults.filter((r) => !r.success).length,
                 checkoutUrl: result.checkoutUrl,
-                error: result.error,
               });
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
