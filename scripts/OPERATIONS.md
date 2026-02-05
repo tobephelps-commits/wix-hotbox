@@ -105,6 +105,19 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run verify:site-fixes` | Run WIX site fix verification script |
 | `npm run smoke-test` | Run end-to-end smoke test across all subsystems |
 
+### Dashboard Navigation
+
+The preview server dashboard is organized into four tabs:
+
+| Tab | Contents |
+|-----|----------|
+| **Products** | Product creation wizard, color/size selection, logo placement, batch operations |
+| **Orders** | Order list, status management, invoices, labels, production sheets, cart automation, bulk actions |
+| **Inventory** | Tracked products, stock alerts, sync health, per-product thresholds |
+| **Customers** | Customer accounts, pricing markup, logo assignments, royalty statements |
+
+The Operations Dashboard (daemon controls, system health) remains visible at all times above the tabs.
+
 ---
 
 ## Setup
