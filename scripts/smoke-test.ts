@@ -130,6 +130,11 @@ const CLI_TESTS: CliTest[] = [
     args: ['tsx', 'scripts/orders/cart-cli.ts', 'help'],
   },
   {
+    name: 'orders/ss-cart-cli.ts help',
+    cmd: 'npx',
+    args: ['tsx', 'scripts/orders/ss-cart-cli.ts', 'help'],
+  },
+  {
     name: 'margin-report.ts --help',
     cmd: 'npx',
     args: ['tsx', 'scripts/pipeline/margin-report.ts', '--help'],
