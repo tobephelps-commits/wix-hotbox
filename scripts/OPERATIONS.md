@@ -87,6 +87,14 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run cart:preview` | Preview SanMar cart items (alias) |
 | `npm run cart:fill` | Execute SanMar cart fill automation |
 
+### S&S Activewear Cart Automation
+
+| Command | What it does |
+|---------|-------------|
+| `npm run ss-cart` | Preview S&S cart items (no action taken) |
+| `npm run ss-cart:preview` | Preview S&S cart items (alias) |
+| `npm run ss-cart:fill` | Execute S&S cart fill automation |
+
 ### Utilities
 
 | Command | What it does |
@@ -708,6 +716,35 @@ How to automate adding order items to the SanMar web shopping cart:
    - Preview is the default command; `--fill` must be explicit to prevent accidental automation
    - Only orders with "new" status are eligible for cart fill
    - S&S Activewear items are excluded (SanMar only)
+   - Items without vendor style, color, or size are skipped with console warnings
+   - After successful cart fill, eligible orders transition from "new" to "ordered"
+
+### S&S Activewear Cart Fill
+
+How to automate adding order items to the S&S Activewear web shopping cart:
+
+1. **Preview cart items (no browser opened):**
+   ```bash
+   npm run ss-cart
+   ```
+   Shows what items would be added to the S&S cart, grouped by vendor style/color/size with consolidated quantities. Only S&S items from orders with "new" status are included.
+
+2. **Execute cart fill automation:**
+   ```bash
+   npm run ss-cart:fill
+   ```
+   Opens a Playwright-controlled Chromium browser, navigates to ssactivewear.com, and adds items to the cart. Uses headless-to-headed browser handoff via Playwright storageState for visible checkout.
+
+3. **Fill from the dashboard UI:**
+   In the preview server Orders tab, use the "Fill S&S Cart" button (teal). The button is disabled when no orders with "new" status exist or no S&S items are found.
+
+4. **Review cart fill results:**
+   Cart fill results are logged to `data/cart-fills/`. Each fill records items attempted, successes, and failures with per-item error isolation.
+
+5. **Key behaviors:**
+   - Preview is the default command; `--fill` must be explicit to prevent accidental automation
+   - Only orders with "new" status are eligible for cart fill
+   - SanMar items are excluded (S&S only)
    - Items without vendor style, color, or size are skipped with console warnings
    - After successful cart fill, eligible orders transition from "new" to "ordered"
 
