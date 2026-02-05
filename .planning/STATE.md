@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 41 of 42 (Bulk Order Actions) - IN PROGRESS
-Plan: 01 complete
-Status: Bulk operations backend infrastructure delivered
-Last activity: 2026-02-04 - Plan 41-01 complete, ready for plan 41-02
+Phase: 41 of 42 (Bulk Order Actions) - COMPLETE
+Plan: 02 complete
+Status: Bulk order actions phase complete (backend + UI)
+Last activity: 2026-02-04 - Plan 41-02 complete, checkpoint approved
 
 Progress: ███████▓░░ 80% (v1.2)
 
@@ -91,7 +91,7 @@ Progress: ███████▓░░ 80% (v1.2)
 | 38. Production Sheets | 2/2 | 2 sessions | 1 session |
 | 39. S&S Cart Automation | 3/3 | 3 sessions | 1 session |
 | 40. Order Status Dashboard | 2/2 | 2 sessions | 1 session |
-| 41. Bulk Order Actions | 1/? | 1 session | 1 session |
+| 41. Bulk Order Actions | 2/2 | 2 sessions | 1 session |
 
 ## Accumulated Context
 
@@ -274,12 +274,15 @@ None
 | 41 | Single store load/save per batch | Performance optimization - avoid repeated file I/O |
 | 41 | Temp directory with cleanup for ZIP | Proper resource management - stream ZIP then delete temp files |
 | 41 | Route bulk endpoints before parameterized routes | Avoid regex pattern matching "bulk" as an order ID |
+| 41 | Sticky toolbar at bottom of orders section | Visible during scroll, doesn't obscure orders |
+| 41 | Selection preserved across filter changes | Better UX - user can select, filter, select more |
+| 41 | Session storage handoff for cart fill | Existing cart fill modal reused with filter |
 
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Phase 41, Plan 01 complete
-Resume file: .planning/phases/41-bulk-order-actions/41-01-SUMMARY.md
+Stopped at: Phase 41 complete, ready for Phase 42
+Resume file: .planning/phases/41-bulk-order-actions/41-02-SUMMARY.md
 
 ## Milestones Shipped
 
