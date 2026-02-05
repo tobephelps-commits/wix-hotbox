@@ -9762,6 +9762,7 @@
   var _orderStatusFilter = 'all';
   var _orderSourceFilter = 'all';
   var _orderRefreshTimer = null;
+  var _selectedOrderIds = new Set(); // Bulk selection state (Phase 41)
 
   // Status filter groups
   var ORDER_FILTER_GROUPS = {
@@ -10236,6 +10237,7 @@
     }
 
     var html = '<table class="orders-table"><thead><tr>' +
+      '<th class="select-col"><input type="checkbox" id="selectAllOrders" class="order-checkbox"></th>' +
       '<th>#</th><th>Status</th><th>Customer</th><th>Items</th><th>Total</th><th>Source</th><th>Updated</th><th>Actions</th>' +
       '</tr></thead><tbody>';
 
@@ -10247,6 +10249,7 @@
       var updated = new Date(o.updatedAt).toLocaleDateString();
 
       html += '<tr class="order-row" data-order-id="' + escHtml(o.id) + '">';
+      html += '<td class="select-col"><input type="checkbox" class="order-checkbox" data-order-id="' + escHtml(o.id) + '"' + (_selectedOrderIds.has(o.id) ? ' checked' : '') + '></td>';
       html += '<td><strong>' + o.orderNumber + '</strong></td>';
       html += '<td>' + statusBadgeHtml(o.status) + '</td>';
       html += '<td>' + custName + custEmail + '</td>';
@@ -10265,6 +10268,7 @@
     orderListContent.querySelectorAll('.order-row').forEach(function(row) {
       row.addEventListener('click', function(e) {
         if (e.target.closest('.view-order-btn')) return;
+        if (e.target.closest('.order-checkbox')) return; // Don't trigger row click on checkbox
         openOrderDetail(row.dataset.orderId);
       });
     });
@@ -10273,7 +10277,259 @@
         openOrderDetail(btn.dataset.orderId);
       });
     });
+
+    // Select-all checkbox handler (Phase 41)
+    var selectAllCb = document.getElementById('selectAllOrders');
+    if (selectAllCb) {
+      selectAllCb.addEventListener('change', function() {
+        toggleAllOrderSelection(selectAllCb.checked);
+      });
+    }
+
+    // Individual checkbox handlers (Phase 41)
+    orderListContent.querySelectorAll('.order-checkbox[data-order-id]').forEach(function(cb) {
+      cb.addEventListener('change', function(e) {
+        e.stopPropagation(); // Don't trigger row click
+        toggleOrderSelection(cb.dataset.orderId, cb.checked);
+      });
+      cb.addEventListener('click', function(e) {
+        e.stopPropagation(); // Don't trigger row click
+      });
+    });
+
+    // Preserve selection state visual (Phase 41)
+    _selectedOrderIds.forEach(function(id) {
+      var row = document.querySelector('.order-row[data-order-id="' + id + '"]');
+      if (row) row.classList.add('selected');
+    });
+    updateBulkToolbar();
   }
+
+  // =========================================================================
+  // Bulk Order Selection (Phase 41)
+  // =========================================================================
+
+  /**
+   * Update the bulk action toolbar visibility and selection count.
+   */
+  function updateBulkToolbar() {
+    var toolbar = document.getElementById('bulkActionToolbar');
+    var countBadge = document.getElementById('bulkSelectionCount');
+    var count = _selectedOrderIds.size;
+
+    if (count > 0) {
+      toolbar.classList.add('visible');
+      countBadge.textContent = count;
+    } else {
+      toolbar.classList.remove('visible');
+    }
+
+    // Update checkbox header state
+    var selectAllCb = document.getElementById('selectAllOrders');
+    if (selectAllCb) {
+      var allRows = document.querySelectorAll('.orders-table tbody .order-checkbox');
+      var checkedCount = document.querySelectorAll('.orders-table tbody .order-checkbox:checked').length;
+      selectAllCb.indeterminate = checkedCount > 0 && checkedCount < allRows.length;
+      selectAllCb.checked = checkedCount > 0 && checkedCount === allRows.length;
+    }
+
+    // Enable/disable bulk status button based on dropdown selection
+    var statusSelect = document.getElementById('bulkStatusSelect');
+    var statusBtn = document.getElementById('bulkStatusBtn');
+    if (statusSelect && statusBtn) {
+      statusBtn.disabled = !statusSelect.value || count === 0;
+    }
+  }
+
+  /**
+   * Toggle selection for a single order.
+   */
+  function toggleOrderSelection(orderId, isSelected) {
+    if (isSelected) {
+      _selectedOrderIds.add(orderId);
+    } else {
+      _selectedOrderIds.delete(orderId);
+    }
+
+    // Update row visual state
+    var row = document.querySelector('.order-row[data-order-id="' + orderId + '"]');
+    if (row) {
+      row.classList.toggle('selected', isSelected);
+    }
+
+    updateBulkToolbar();
+  }
+
+  /**
+   * Select or deselect all visible orders.
+   */
+  function toggleAllOrderSelection(selectAll) {
+    document.querySelectorAll('.orders-table tbody .order-row').forEach(function(row) {
+      var orderId = row.dataset.orderId;
+      var cb = row.querySelector('.order-checkbox');
+      if (cb) {
+        cb.checked = selectAll;
+        if (selectAll) {
+          _selectedOrderIds.add(orderId);
+          row.classList.add('selected');
+        } else {
+          _selectedOrderIds.delete(orderId);
+          row.classList.remove('selected');
+        }
+      }
+    });
+    updateBulkToolbar();
+  }
+
+  /**
+   * Clear all selections.
+   */
+  function clearOrderSelection() {
+    _selectedOrderIds.clear();
+    document.querySelectorAll('.orders-table tbody .order-checkbox').forEach(function(cb) {
+      cb.checked = false;
+    });
+    document.querySelectorAll('.orders-table tbody .order-row').forEach(function(row) {
+      row.classList.remove('selected');
+    });
+    var selectAllCb = document.getElementById('selectAllOrders');
+    if (selectAllCb) selectAllCb.checked = false;
+    updateBulkToolbar();
+  }
+
+  /**
+   * Bulk status update action.
+   */
+  async function bulkUpdateStatus() {
+    var status = document.getElementById('bulkStatusSelect').value;
+    if (!status || _selectedOrderIds.size === 0) return;
+
+    var ids = Array.from(_selectedOrderIds);
+    var statusBtn = document.getElementById('bulkStatusBtn');
+    statusBtn.disabled = true;
+    statusBtn.textContent = 'Updating...';
+
+    try {
+      var res = await fetch('/api/orders/bulk/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderIds: ids, status: status }),
+      });
+      var json = await res.json();
+
+      var successCount = json.updated ? json.updated.length : 0;
+      var failCount = json.failed ? json.failed.length : 0;
+
+      if (successCount > 0) {
+        showToast('Updated ' + successCount + ' order(s) to "' + status + '"' +
+              (failCount > 0 ? '. ' + failCount + ' failed.' : '.'), failCount > 0 ? 'error' : 'success');
+        clearOrderSelection();
+        loadOrders(); // Refresh the order list
+      } else if (failCount > 0) {
+        var reasons = json.failed.map(function(f) { return 'Order ' + f.id + ': ' + f.reason; }).join('\n');
+        showToast('Failed to update orders: ' + reasons, 'error');
+      }
+    } catch (err) {
+      showToast('Error updating orders: ' + (err.message || err), 'error');
+    } finally {
+      statusBtn.disabled = false;
+      statusBtn.textContent = 'Apply Status';
+      document.getElementById('bulkStatusSelect').value = '';
+    }
+  }
+
+  /**
+   * Bulk production sheets action - download as ZIP.
+   */
+  async function bulkGenerateProductionSheets() {
+    if (_selectedOrderIds.size === 0) return;
+
+    var ids = Array.from(_selectedOrderIds);
+    var btn = document.getElementById('bulkProductionSheetsBtn');
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+
+    try {
+      var res = await fetch('/api/orders/bulk/production-sheets/zip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderIds: ids }),
+      });
+
+      if (!res.ok) {
+        var errJson = await res.json();
+        throw new Error(errJson.error || 'Failed to generate production sheets');
+      }
+
+      // Download the ZIP file
+      var blob = await res.blob();
+      var url = window.URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'production-sheets-' + new Date().toISOString().slice(0,10) + '.zip';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+
+      showToast('Downloaded ' + ids.length + ' production sheet(s)', 'success');
+    } catch (err) {
+      showToast('Error generating production sheets: ' + (err.message || err), 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Production Sheets';
+    }
+  }
+
+  /**
+   * Bulk fill SanMar cart - filter selected orders, open cart filler.
+   */
+  function bulkFillSanmarCart() {
+    // This reuses existing cart fill logic but pre-filters to selected orders
+    var ids = Array.from(_selectedOrderIds);
+    if (ids.length === 0) return;
+
+    // Store selection for cart filler to use
+    sessionStorage.setItem('bulkCartOrderIds', JSON.stringify(ids));
+
+    // Trigger the existing cart fill button logic with stored filter
+    var fillBtn = document.getElementById('fillCartBtn');
+    if (fillBtn) {
+      fillBtn.click();
+    }
+  }
+
+  /**
+   * Bulk fill S&S cart - filter selected orders, open cart filler.
+   */
+  function bulkFillSSCart() {
+    var ids = Array.from(_selectedOrderIds);
+    if (ids.length === 0) return;
+
+    sessionStorage.setItem('bulkCartOrderIds', JSON.stringify(ids));
+
+    var fillBtn = document.getElementById('fillSSCartBtn');
+    if (fillBtn) {
+      fillBtn.click();
+    }
+  }
+
+  // Attach bulk action event listeners
+  (function initBulkActions() {
+    var statusSelect = document.getElementById('bulkStatusSelect');
+    var statusBtn = document.getElementById('bulkStatusBtn');
+    var productionSheetsBtn = document.getElementById('bulkProductionSheetsBtn');
+    var fillSanmarBtn = document.getElementById('bulkFillSanmarBtn');
+    var fillSSBtn = document.getElementById('bulkFillSSBtn');
+    var clearBtn = document.getElementById('bulkClearBtn');
+
+    if (statusSelect) statusSelect.addEventListener('change', updateBulkToolbar);
+    if (statusBtn) statusBtn.addEventListener('click', bulkUpdateStatus);
+    if (productionSheetsBtn) productionSheetsBtn.addEventListener('click', bulkGenerateProductionSheets);
+    if (fillSanmarBtn) fillSanmarBtn.addEventListener('click', bulkFillSanmarCart);
+    if (fillSSBtn) fillSSBtn.addEventListener('click', bulkFillSSCart);
+    if (clearBtn) clearBtn.addEventListener('click', clearOrderSelection);
+  })();
 
   // Open order detail
   async function openOrderDetail(orderId) {
