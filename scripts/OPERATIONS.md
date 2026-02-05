@@ -78,6 +78,7 @@ Complete operational runbook for the HotBox Clothing product pipeline. Covers ev
 | `npm run invoice:demo` | Generate demo invoice PDF |
 | `npm run label:demo` | Generate demo shipping label PDF |
 | `npm run print:list` | List system printers |
+| `npm run preview` -> Orders tab | Access production sheets, bulk operations |
 
 ### SanMar Cart Automation
 
@@ -772,6 +773,23 @@ How to manage profitability, sales, and coupons:
 
 4. **Use the preview server dashboard:**
    The Margin and Sales sections in the preview server provide visual margin tracking and sale controls.
+
+### Bulk Order Operations
+
+The dashboard Orders tab supports multi-select operations:
+
+1. **Open Orders tab** in the dashboard (`npm run preview`)
+2. **Select orders** using checkboxes in the order table
+3. **Use the bulk action toolbar** that appears at bottom:
+   - **Apply Status**: Change status for all selected orders
+   - **Production Sheets**: Download ZIP of production sheet PDFs
+   - **Fill SanMar/S&S Cart**: Pre-populate with selected order items
+
+**Production Sheet per Order:**
+Access individual production sheets via the API:
+```bash
+curl http://localhost:3456/api/orders/{id}/production-sheet -o production-sheet.pdf
+```
 
 ---
 
