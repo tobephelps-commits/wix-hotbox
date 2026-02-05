@@ -5885,6 +5885,31 @@
       <div id="orderListContent">
         <div class="orders-empty">Loading orders...</div>
       </div>
+      <!-- Bulk Action Toolbar (Phase 41) -->
+      <div id="bulkActionToolbar" class="bulk-action-toolbar">
+        <div class="bulk-selection-count">
+          <span class="count-badge" id="bulkSelectionCount">0</span>
+          <span>orders selected</span>
+        </div>
+        <div class="bulk-status-dropdown">
+          <label style="color:#8b949e;font-size:13px;">Set status:</label>
+          <select id="bulkStatusSelect">
+            <option value="">Choose...</option>
+            <option value="ordered">Ordered</option>
+            <option value="received">Received</option>
+            <option value="in-production">In Production</option>
+            <option value="packed">Packed</option>
+            <option value="shipped">Shipped</option>
+            <option value="on-hold">On Hold</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button type="button" class="btn-bulk btn-primary" id="bulkStatusBtn" disabled>Apply Status</button>
+        </div>
+        <button type="button" class="btn-bulk" id="bulkProductionSheetsBtn">Production Sheets</button>
+        <button type="button" class="btn-bulk" id="bulkFillSanmarBtn">Fill SanMar Cart</button>
+        <button type="button" class="btn-bulk" id="bulkFillSSBtn">Fill S&S Cart</button>
+        <button type="button" class="btn-clear" id="bulkClearBtn">&#10005; Clear Selection</button>
+      </div>
     </div>
 
     <!-- Order Detail View -->
