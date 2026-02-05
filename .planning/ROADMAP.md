@@ -18,77 +18,28 @@ None
 
 ## Completed Milestones
 
-- [v0.1 MVP](milestones/v0.1-ROADMAP.md) (Phases 1-10) -- SHIPPED 2026-01-31
-- [v0.2 Multi-Brand Operations](milestones/v0.2-ROADMAP.md) (Phases 11-20) -- SHIPPED 2026-02-01
-- [v1.0 Visual Branding & Business Operations](milestones/v1.0-ROADMAP.md) (Phases 21-30) -- SHIPPED 2026-02-02
-- [v1.1 Storefront Polish & Operations Dashboard](milestones/v1.1-ROADMAP.md) (Phases 31-36) -- SHIPPED 2026-02-04
-- [v1.2 Order Fulfillment & Dashboard Redesign](milestones/v1.2-ROADMAP.md) (Phases 37-42) -- SHIPPED 2026-02-04
+- ✅ [v0.1 MVP](milestones/v0.1-ROADMAP.md) (Phases 1-10) — SHIPPED 2026-01-31
+- ✅ [v0.2 Multi-Brand Operations](milestones/v0.2-ROADMAP.md) (Phases 11-20) — SHIPPED 2026-02-01
+- ✅ [v1.0 Visual Branding & Business Operations](milestones/v1.0-ROADMAP.md) (Phases 21-30) — SHIPPED 2026-02-02
+- ✅ [v1.1 Storefront Polish & Operations Dashboard](milestones/v1.1-ROADMAP.md) (Phases 31-36) — SHIPPED 2026-02-04
+- ✅ [v1.2 Order Fulfillment & Dashboard Redesign](milestones/v1.2-ROADMAP.md) (Phases 37-42) — SHIPPED 2026-02-04
 
 ## Phases
 
-### ✅ v1.2 Order Fulfillment & Dashboard Redesign (Shipped 2026-02-04)
+<details>
+<summary>✅ v1.2 Order Fulfillment & Dashboard Redesign (Phases 37-42) — SHIPPED 2026-02-04</summary>
 
-**Milestone Goal:** Complete order fulfillment workflow with production sheets and S&S cart automation, plus modern tabbed dashboard UX
+- [x] Phase 37: Dashboard Redesign - Tabbed Navigation (2/2 plans) — completed 2026-02-04
+- [x] Phase 38: Production Sheet Generator (2/2 plans) — completed 2026-02-04
+- [x] Phase 39: S&S Activewear Cart Automation (3/3 plans) — completed 2026-02-04
+- [x] Phase 40: Order Status Dashboard (2/2 plans) — completed 2026-02-04
+- [x] Phase 41: Bulk Order Actions (2/2 plans) — completed 2026-02-04
+- [x] Phase 42: Integration & Polish (2/2 plans) — completed 2026-02-04
 
-#### ✅ Phase 37: Dashboard Redesign - Tabbed Navigation (Complete)
-
-**Goal**: Restructure dashboard to Products/Orders/Inventory/Customers tabs
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 37-01: Sidebar navigation shell (CSS, HTML, tab switching JS)
-- [x] 37-02: Move sections into tabs with visual verification
-
-#### ✅ Phase 38: Production Sheet Generator (Complete)
-
-**Goal**: PDF document per order with garment specs, logo placement details, and quantities
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 38-01: Production sheet PDF generator module and API endpoint
-- [x] 38-02: Dashboard UI integration with visual verification
-
-#### ✅ Phase 39: S&S Activewear Cart Automation (Complete)
-
-**Goal**: Playwright browser automation for S&S carts matching SanMar pattern
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 39-01: S&S cart consolidator (filter orders to S&S vendor items)
-- [x] 39-02: S&S browser automation engine (Playwright with selector discovery)
-- [x] 39-03: CLI and dashboard integration (commands + UI)
-
-#### ✅ Phase 40: Order Status Dashboard (Complete)
-
-**Goal**: Enhanced pipeline visibility within Orders tab showing what needs attention
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 40-01: Extended order summary API with time-in-stage metrics
-- [x] 40-02: Pipeline visualization dashboard UI
-
-#### ✅ Phase 41: Bulk Order Actions (Complete)
-
-**Goal**: Multi-select operations for status changes, batch production sheets, cart fills
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 41-01: Backend bulk operations API (status updates, batch production sheets)
-- [x] 41-02: UI multi-select and bulk action toolbar
-
-#### ✅ Phase 42: Integration & Polish (Complete)
-
-**Goal**: Cross-feature testing, edge cases, UX refinement
-**Completed**: 2026-02-04
-
-Plans:
-- [x] 42-01: Smoke test updates for v1.2 endpoints and CLI commands
-- [x] 42-02: OPERATIONS.md documentation + visual verification checkpoint
-
----
+</details>
 
 <details>
-<summary>✅ v1.1 Storefront Polish & Operations Dashboard (Phases 31-36) -- SHIPPED 2026-02-04</summary>
+<summary>✅ v1.1 Storefront Polish & Operations Dashboard (Phases 31-36) — SHIPPED 2026-02-04</summary>
 
 - [x] Phase 31: Stock Visibility (3/3 plans) -- completed 2026-02-03
 - [x] Phase 32: Variant Image Switching (1/1 plans) -- completed 2026-02-03

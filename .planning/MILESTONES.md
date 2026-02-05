@@ -1,5 +1,33 @@
 # Project Milestones: HotBox Clothing Store Enhancement
 
+## v1.2 Order Fulfillment & Dashboard Redesign (Shipped: 2026-02-04)
+
+**Delivered:** Modern tabbed dashboard UX with Products/Orders/Inventory/Customers tabs, production sheet PDF generation for garment decoration, S&S Activewear cart automation matching SanMar pattern, order pipeline visualization with aging indicators and attention badges, and bulk order operations with multi-select, batch status updates, and batch production sheet downloads.
+
+**Phases completed:** 37-42 (13 plans total)
+
+**Key accomplishments:**
+
+- Restructured dashboard with sidebar navigation and four dedicated tabs with localStorage persistence
+- Built production sheet PDF generator with per-order garment specs, logo placement details, and quantity breakdowns by color/size
+- Extended cart automation to S&S Activewear vendor with browser automation, CLI commands, and dashboard modal
+- Created order pipeline visualization with kanban-style stages, aging indicators, and actionable attention bar
+- Added bulk order operations with checkbox multi-select, floating action toolbar, batch status updates, and ZIP production sheet downloads
+- Updated OPERATIONS.md runbook with complete v1.2 feature documentation
+
+**Stats:**
+
+- 37 files created/modified
+- ~8,532 net new lines of TypeScript/HTML
+- 6 phases, 13 plans
+- 1 day (2026-02-04)
+
+**Git range:** `fd026a9` to `15d7197` (59 commits)
+
+**What's next:** Store owner uses enhanced dashboard for order fulfillment. Production sheets streamline decoration workflow. S&S cart automation reduces manual ordering time. Bulk operations enable efficient batch processing.
+
+---
+
 ## v1.1 Storefront Polish & Operations Dashboard (Shipped: 2026-02-04)
 
 **Delivered:** Stock visibility for out-of-stock variants, variant image switching documentation, side-view image fix, Operations Dashboard with daemon controls, step-by-step Pipeline Wizard, and Product Migration tooling for existing WIX products.

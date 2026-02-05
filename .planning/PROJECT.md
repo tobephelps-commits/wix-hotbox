@@ -51,6 +51,11 @@ Effortless product creation — enter a style number from any supported vendor a
 - ✓ Operations Dashboard with daemon controls — v1.1 (Start/Stop buttons, health metrics cards)
 - ✓ Step-by-step Product Pipeline Wizard — v1.1 (5-step flow with visual variant selection)
 - ✓ Product Migration tooling for existing WIX products — v1.1 (browser + wizard integration)
+- ✓ Dashboard tabbed navigation — v1.2 (sidebar with Products/Orders/Inventory/Customers tabs, localStorage persistence)
+- ✓ Production sheet PDF generation — v1.2 (per-order garment specs, logo placement, quantity breakdown)
+- ✓ S&S Activewear cart automation — v1.2 (browser automation, CLI, dashboard modal)
+- ✓ Order pipeline visualization — v1.2 (kanban stages, aging indicators, attention badges)
+- ✓ Bulk order operations — v1.2 (multi-select, batch status, batch production sheets, ZIP download)
 
 ### Active
 
@@ -68,10 +73,10 @@ Effortless product creation — enter a style number from any supported vendor a
 
 ## Context
 
-Shipped v1.1 with ~45,000 LOC TypeScript/HTML across 95 source files.
-Tech stack: Node.js 18+, TypeScript (ESM/NodeNext), SOAP (SanMar API), REST (WIX V1 API, WIX Inventory V2 API, S&S Activewear API), Nodemailer (SMTP), Sharp (image compositing), PDFKit (PDF generation), Playwright (browser automation, site verification).
-System modules (8): pipeline (product creation, preview server, wizard), sanmar (API client, SOAP), ss-activewear (REST client), vendor (adapter abstraction), monitor (inventory alerts), sync (stock polling, WIX sync, daemon control), orders (lifecycle, invoices, labels, cart automation), customers (accounts, royalties, pricing).
-Preview server (localhost:3456) features: product creation wizard, migration browser, Operations Dashboard with daemon controls, order management, inventory monitoring, profitability analysis, promotion management, customer accounts, royalty reporting, batch operations, and logo placement.
+Shipped v1.2 with ~53,000 LOC TypeScript/HTML across 100+ source files.
+Tech stack: Node.js 18+, TypeScript (ESM/NodeNext), SOAP (SanMar API), REST (WIX V1 API, WIX Inventory V2 API, S&S Activewear API), Nodemailer (SMTP), Sharp (image compositing), PDFKit (PDF generation), Playwright (browser automation, site verification), Archiver (ZIP generation).
+System modules (8): pipeline (product creation, preview server, wizard), sanmar (API client, SOAP), ss-activewear (REST client), vendor (adapter abstraction), monitor (inventory alerts), sync (stock polling, WIX sync, daemon control), orders (lifecycle, invoices, labels, production sheets, cart automation for both vendors), customers (accounts, royalties, pricing).
+Preview server (localhost:3456) features: tabbed dashboard (Products/Orders/Inventory/Customers), Operations Dashboard with daemon controls, product creation wizard, migration browser, order pipeline visualization with aging indicators, bulk order operations, production sheet generation, dual-vendor cart automation, inventory monitoring, profitability analysis, promotion management, customer accounts, royalty reporting, batch operations, and logo placement.
 Store has 105 products across 10 collections. 30 WIX Editor manual fixes pending for store owner.
 
 ## Constraints
@@ -101,11 +106,18 @@ Store has 105 products across 10 collections. 30 WIX Editor manual fixes pending
 | Playwright browser automation for SanMar cart | Direct API cart not available; browser automation with headed checkout handoff | ✓ Good — preview-before-execute prevents accidental fills |
 | Priority-based inventory polling | Hot/normal/slow tiers balance API load with freshness needs | ✓ Good — single tick-based daemon, configurable priorities |
 | Auth helpers duplicated per module | Avoid modifying wix-api.ts private internals for orders/coupons | ⚠️ Revisit — consider extracting shared auth module if adding more WIX API consumers |
-| All UI in single preview.html | Consistent pattern, single-file deployment | ⚠️ Revisit — file now ~5000+ lines; splitting recommended if adding more features |
+| All UI in single preview.html | Consistent pattern, single-file deployment | ⚠️ Revisit — file now ~7000+ lines; splitting recommended if adding more features |
 | WIX Inventory V2 API for stock visibility | Native inventory tracking shows "Out of Stock" instead of hiding variants | ✓ Good — better customer UX, preserves variant visibility |
 | sideImage null for SanMar products | CLASS_TYPE_HIGH is front/lifestyle shot, not side view | ✓ Good — prevents incorrect sleeve logo placement |
 | AbortSignal for daemon control | Graceful shutdown allows current tick to complete | ✓ Good — no data loss on stop |
 | 5-step wizard flow with validation | Each step validates before advancing | ✓ Good — prevents incomplete product creation |
+| 200px sidebar with dark theme | Matches header design, sufficient for icon + label | ✓ Good — consistent visual design |
+| localStorage for tab persistence | Fast local reads, survives session | ✓ Good — immediate tab restoration on reload |
+| Production sheet line items by vendorStyle | Consolidated product sections for production clarity | ✓ Good — easier scanning for decoration staff |
+| Multi-strategy selectors for S&S cart | Fallback patterns handle site variations | ✓ Good — resilient to S&S.com DOM changes |
+| Aging thresholds per stage | Operational visibility for orders needing attention | ✓ Good — actionable attention bar |
+| Partial failure for bulk operations | One invalid order doesn't block the rest | ✓ Good — better UX for batch processing |
+| Sticky toolbar at bottom | Visible during scroll, doesn't obscure orders | ✓ Good — accessible bulk actions |
 
 ---
-*Last updated: 2026-02-04 after v1.1 milestone*
+*Last updated: 2026-02-04 after v1.2 milestone*
