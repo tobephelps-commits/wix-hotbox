@@ -1,9 +1,9 @@
 /**
- * Smoke Test — v1.0 Integration Validation
+ * Smoke Test — v1.2 Integration Validation
  *
  * Validates that all CLI commands, preview server API endpoints, and
  * barrel module imports work correctly. This is the final integration
- * gate before declaring v1.0 complete.
+ * gate before declaring a version complete.
  *
  * Sections:
  *   1. TypeScript compilation check
@@ -11,13 +11,18 @@
  *   3. Preview server API endpoint validation
  *   4. Module import validation
  *
+ * Versions covered:
+ *   v1.0: Core pipeline, orders, inventory, customers, preferences
+ *   v1.2: Tabbed navigation, production sheets, S&S cart automation,
+ *         order status dashboard, bulk operations
+ *
  * Usage:
  *   npx tsx scripts/smoke-test.ts
  *   npm run smoke-test
  *
  * Exit code: 0 if all pass, 1 if any fail.
  *
- * Phase 30: Integration Testing & Polish
+ * Phase 42: Integration & Polish
  */
 
 import { execSync, spawn } from 'node:child_process';
@@ -200,6 +205,10 @@ const ENDPOINT_TESTS: EndpointTest[] = [
   { path: '/api/preferences', description: 'Pipeline preferences', expectJson: true },
   { path: '/api/orders/summary', description: 'Order status counts', expectJson: true },
   { path: '/api/orders/errors', description: 'Orders with errors', expectJson: true },
+  // v1.2 endpoints
+  { path: '/api/orders/summary/extended', description: 'Extended order summary with aging', expectJson: true },
+  { path: '/api/ss-cart/preview', description: 'S&S cart preview', expectJson: true },
+  { path: '/api/ss-cart/history', description: 'S&S cart fill history', expectJson: true },
 ];
 
 async function checkPreviewServer(): Promise<void> {
@@ -447,7 +456,7 @@ function printReport(): void {
 async function main(): Promise<void> {
   console.log(`${C.bold}${C.blue}`);
   console.log('  ╔════════════════════════════════════════╗');
-  console.log('  ║       HotBox v1.0 Smoke Test           ║');
+  console.log('  ║       HotBox v1.2 Smoke Test           ║');
   console.log('  ╚════════════════════════════════════════╝');
   console.log(`${C.reset}`);
 
