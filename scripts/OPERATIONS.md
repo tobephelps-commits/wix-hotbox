@@ -1031,5 +1031,5 @@ These behaviors are worth knowing for day-to-day operation:
 
 ---
 
-*Last updated: 2026-02-03*
-*Pipeline version: 3.0.1*
+*Last updated: 2026-02-04*
+*Pipeline version: 3.1.0*
