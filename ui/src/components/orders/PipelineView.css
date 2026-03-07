@@ -1,0 +1,326 @@
+/* =============================================================================
+ * PipelineView -- Kanban-style order pipeline visualization
+ * Phase 50: Order Management Advanced (Plan 03)
+ * ============================================================================= */
+
+/* Loading state */
+.pipeline-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Wrapper for attention + kanban */
+.pipeline-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* =============================================================================
+ * Attention Summary Bar
+ * ============================================================================= */
+
+.pipeline-attention {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pipeline-attention::-webkit-scrollbar {
+  display: none;
+}
+
+.pipeline-attention__badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  min-height: 36px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 18px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 0.15s, opacity 0.15s;
+}
+
+.pipeline-attention__badge--blue {
+  background: rgba(93, 173, 226, 0.12);
+  color: #5dade2;
+  border-color: rgba(93, 173, 226, 0.2);
+}
+
+.pipeline-attention__badge--orange {
+  background: rgba(243, 156, 18, 0.12);
+  color: #f39c12;
+  border-color: rgba(243, 156, 18, 0.2);
+}
+
+.pipeline-attention__badge--yellow {
+  background: rgba(240, 185, 11, 0.12);
+  color: #f0b90b;
+  border-color: rgba(240, 185, 11, 0.2);
+}
+
+.pipeline-attention__badge--red {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.pipeline-attention__badge--active {
+  border-color: currentColor;
+}
+
+.pipeline-attention__badge:hover {
+  border-color: currentColor;
+}
+
+.pipeline-attention__badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background: currentColor;
+  color: #0d0d1a;
+}
+
+.pipeline-attention__badge-label {
+  font-size: 0.8rem;
+}
+
+/* =============================================================================
+ * Kanban Container
+ * ============================================================================= */
+
+.pipeline-container {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  flex: 1;
+  min-height: 0;
+}
+
+.pipeline-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pipeline-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pipeline-container::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* =============================================================================
+ * Stage Column
+ * ============================================================================= */
+
+.pipeline-stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+  max-width: 300px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  border-right: 1px solid var(--color-border);
+  height: 100%;
+}
+
+.pipeline-stage:last-child {
+  border-right: none;
+}
+
+.pipeline-stage__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pipeline-stage__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Dot colors matching status badge colors */
+.pipeline-stage__dot--new { background: #5dade2; }
+.pipeline-stage__dot--ordered { background: #a569bd; }
+.pipeline-stage__dot--received { background: #1abc9c; }
+.pipeline-stage__dot--in-production { background: #f0b90b; }
+.pipeline-stage__dot--packed { background: #2ecc71; }
+.pipeline-stage__dot--shipped { background: #00bcd4; }
+
+.pipeline-stage__name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pipeline-stage__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 11px;
+  background: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.pipeline-stage__value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+.pipeline-stage__cards {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pipeline-stage__empty {
+  padding: 20px 10px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* =============================================================================
+ * Order Card
+ * ============================================================================= */
+
+.pipeline-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.12s, background 0.12s;
+  border-left-width: 3px;
+}
+
+.pipeline-card:hover {
+  border-color: var(--color-text-muted);
+  background: #12122a;
+}
+
+.pipeline-card:active {
+  background: #0e0e20;
+}
+
+/* Left border color by status */
+.pipeline-card--new { border-left-color: #5dade2; }
+.pipeline-card--ordered { border-left-color: #a569bd; }
+.pipeline-card--received { border-left-color: #1abc9c; }
+.pipeline-card--in-production { border-left-color: #f0b90b; }
+.pipeline-card--packed { border-left-color: #2ecc71; }
+.pipeline-card--shipped { border-left-color: #00bcd4; }
+
+.pipeline-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.pipeline-card__number {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pipeline-card__customer {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pipeline-card__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.75rem;
+}
+
+.pipeline-card__items {
+  color: var(--color-text-muted);
+}
+
+.pipeline-card__total {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* =============================================================================
+ * Aging Indicator Badge
+ * ============================================================================= */
+
+.pipeline-aging {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pipeline-aging--warning {
+  background: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+}
+
+.pipeline-aging--danger {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}

@@ -3,20 +3,34 @@
  *
  * Master-detail layout: left panel (order list with filters)
  * and right panel (order detail when selected).
+ * Supports list and pipeline (kanban) view modes.
  *
- * Phase 50: Order Management Advanced (Plan 02)
+ * Phase 50: Order Management Advanced (Plan 02, Plan 03)
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import OrderList from './OrderList';
 import OrderDetail from './OrderDetail';
+import PipelineView from './PipelineView';
 import type { OrderStatus } from './types';
 import type { OrderListItem, OrderSummary } from './OrderList';
 import './OrdersTab.css';
 
+type ViewMode = 'list' | 'pipeline';
+
 const PAGE_SIZE = 50;
 
 function OrdersTab() {
+  // View mode persisted in localStorage
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      const saved = localStorage.getItem('orders-view-mode');
+      return saved === 'pipeline' ? 'pipeline' : 'list';
+    } catch {
+      return 'list';
+    }
+  });
+
   const [orders, setOrders] = useState<OrderListItem[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | null>(null);
@@ -26,6 +40,16 @@ function OrdersTab() {
   const [summary, setSummary] = useState<OrderSummary | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [offset, setOffset] = useState(0);
+
+  // Persist view mode
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('orders-view-mode', mode);
+    } catch {
+      // localStorage unavailable
+    }
+  }, []);
 
   // Debounce timer ref for search
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -138,12 +162,42 @@ function OrdersTab() {
   const hasMore = orders.length < totalCount;
 
   return (
-    <div className="orders-layout">
+    <div className={`orders-layout${viewMode === 'pipeline' ? ' orders-layout--pipeline' : ''}`}>
       <div className="orders-layout__list-panel">
-        {/* Header with sync button */}
+        {/* Header with view toggle and sync button */}
         <div className="orders-header">
           <h2 className="orders-header__title">Orders</h2>
           <div className="orders-header__actions">
+            {/* View mode toggle */}
+            <div className="orders-header__view-toggle">
+              <button
+                className={`orders-header__view-btn${viewMode === 'list' ? ' orders-header__view-btn--active' : ''}`}
+                onClick={() => handleViewModeChange('list')}
+                title="List view"
+                aria-label="List view"
+              >
+                {/* List icon (3 horizontal lines) */}
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="3" y1="4" x2="15" y2="4" />
+                  <line x1="3" y1="9" x2="15" y2="9" />
+                  <line x1="3" y1="14" x2="15" y2="14" />
+                </svg>
+              </button>
+              <button
+                className={`orders-header__view-btn${viewMode === 'pipeline' ? ' orders-header__view-btn--active' : ''}`}
+                onClick={() => handleViewModeChange('pipeline')}
+                title="Pipeline view"
+                aria-label="Pipeline view"
+              >
+                {/* Kanban icon (3 vertical columns) */}
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <rect x="2" y="3" width="3.5" height="12" rx="1" />
+                  <rect x="7.25" y="3" width="3.5" height="8" rx="1" />
+                  <rect x="12.5" y="3" width="3.5" height="10" rx="1" />
+                </svg>
+              </button>
+            </div>
+
             <button
               className="orders-header__sync-btn"
               onClick={handleSync}
@@ -155,19 +209,25 @@ function OrdersTab() {
           </div>
         </div>
 
-        <OrderList
-          orders={orders}
-          selectedOrderId={selectedOrderId}
-          summary={summary}
-          statusFilter={statusFilter}
-          search={search}
-          totalCount={totalCount}
-          onSelectOrder={handleSelectOrder}
-          onStatusFilterChange={handleStatusFilterChange}
-          onSearchChange={handleSearchChange}
-          onLoadMore={handleLoadMore}
-          hasMore={hasMore}
-        />
+        {viewMode === 'list' ? (
+          <OrderList
+            orders={orders}
+            selectedOrderId={selectedOrderId}
+            summary={summary}
+            statusFilter={statusFilter}
+            search={search}
+            totalCount={totalCount}
+            onSelectOrder={handleSelectOrder}
+            onStatusFilterChange={handleStatusFilterChange}
+            onSearchChange={handleSearchChange}
+            onLoadMore={handleLoadMore}
+            hasMore={hasMore}
+          />
+        ) : (
+          <PipelineView
+            onOrderSelect={handleSelectOrder}
+          />
+        )}
       </div>
 
       <div className="orders-layout__detail-panel">
