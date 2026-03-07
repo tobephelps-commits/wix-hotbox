@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Config } from './config.js';
+import apiRoutes from './routes/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -23,7 +24,11 @@ export async function buildApp(config: Config) {
     logger: config.nodeEnv === 'production'
       ? true
       : { level: 'info' },
+    requestIdLogLabel: 'reqId',
   });
+
+  // Decorate with app version for routes to use
+  app.decorate('appVersion', getVersion());
 
   // CORS — allow any origin (LAN access from any device)
   await app.register(cors, { origin: true });
@@ -38,16 +43,34 @@ export async function buildApp(config: Config) {
     });
   });
 
-  // Health endpoint
-  const version = getVersion();
-  app.get('/api/health', async () => {
-    return {
-      status: 'ok',
-      version,
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-    };
+  // Custom 404 handler
+  app.setNotFoundHandler((_request, reply) => {
+    reply.status(404).send({
+      error: 'Not Found',
+      statusCode: 404,
+    });
   });
+
+  // Request timing logs in development mode
+  if (config.nodeEnv !== 'production') {
+    app.addHook('onRequest', async (request) => {
+      (request as any).startTime = performance.now();
+    });
+
+    app.addHook('onResponse', async (request, reply) => {
+      const startTime = (request as any).startTime as number | undefined;
+      if (startTime !== undefined) {
+        const duration = (performance.now() - startTime).toFixed(2);
+        request.log.info(
+          { method: request.method, url: request.url, statusCode: reply.statusCode, responseTimeMs: duration },
+          'request completed',
+        );
+      }
+    });
+  }
+
+  // API routes
+  await app.register(apiRoutes, { prefix: '/api' });
 
   return app;
 }
