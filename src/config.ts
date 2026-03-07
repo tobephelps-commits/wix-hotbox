@@ -19,6 +19,12 @@ export interface Config {
   // WIX API credentials
   wixApiKey: string | undefined;
   wixSiteId: string | undefined;
+
+  // Vendor web login credentials (for browser cart automation)
+  sanmarWebUsername: string;
+  sanmarWebPassword: string;
+  ssWebUsername: string;
+  ssWebPassword: string;
 }
 
 export function loadConfig(): Config {
@@ -45,10 +51,18 @@ export function loadConfig(): Config {
   const wixApiKey = process.env.WIX_API_KEY;
   const wixSiteId = process.env.WIX_SITE_ID || 'c744cbdb-46f8-4c66-ac76-eb31bd0d52c1';
 
+  // Vendor web login credentials (for browser cart automation)
+  const sanmarWebUsername = process.env.SANMAR_WEB_USERNAME || '';
+  const sanmarWebPassword = process.env.SANMAR_WEB_PASSWORD || '';
+  const ssWebUsername = process.env.SS_WEB_USERNAME || '';
+  const ssWebPassword = process.env.SS_WEB_PASSWORD || '';
+
   return {
     port, host, nodeEnv, dataDir, logDir,
     sanmarCustomerNumber, sanmarUsername, sanmarPassword,
     ssAccountNumber, ssApiKey,
     wixApiKey, wixSiteId,
+    sanmarWebUsername, sanmarWebPassword,
+    ssWebUsername, ssWebPassword,
   };
 }

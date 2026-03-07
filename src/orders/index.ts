@@ -72,6 +72,21 @@ export type {
   RetryOptions,
 } from './wix-sync.js';
 
+// Cart types and consolidation
+export type {
+  CartItem,
+  CartFillRequest,
+  CartFillResult,
+  CartFillOptions,
+  CartItemResult,
+} from './cart-types.js';
+
+export {
+  getOrdersForCartFill,
+  consolidateOrders,
+  buildCartFillRequest,
+} from './cart-consolidator.js';
+
 // PDF generators
 export { generateProductionSheet } from './production-sheet.js';
 export { generateInvoice } from './invoice-generator.js';
