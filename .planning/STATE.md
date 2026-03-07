@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Planning next milestone
+**Current focus:** v2.0 Pi Appliance — full rewrite as Raspberry Pi 5 production appliance
 
 ## Current Position
 
-Phase: 42 of 42 (Integration & Polish) - COMPLETE
-Plan: 02 complete (final)
-Status: v1.2 milestone archived - ready for next milestone
-Last activity: 2026-02-04 - Milestone v1.2 archived
+Phase: 43 of 56 (Pi OS Setup & Bootstrap)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-07 - Milestone v2.0 created
 
-Progress: ██████████ 100% (v1.2)
+Progress: ░░░░░░░░░░ 0% (v2.0)
 
 ## Performance Metrics
 
@@ -163,7 +163,7 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 
 ### Blockers/Concerns
 
-None
+None (cleared for new milestone)
 
 ### Roadmap Evolution
 
@@ -176,6 +176,8 @@ None
 - Milestone v1.1 created: storefront polish & operations dashboard, 6 phases (Phase 31-36)
 - Milestone v1.1 shipped: 2026-02-04, 12 plans, 2 days
 - Milestone v1.2 created: order fulfillment & dashboard redesign, 6 phases (Phase 37-42)
+- Milestone v1.2 shipped: 2026-02-04, 13 plans, 1 day
+- Milestone v2.0 created: Pi Appliance — full rewrite as Raspberry Pi 5 production appliance, 14 phases (Phase 43-56)
 
 ### Phase 30 Decisions
 
@@ -288,9 +290,9 @@ None
 
 ## Session Continuity
 
-Last session: 2026-02-04
-Stopped at: Phase 42 complete, v1.2 milestone shipped
-Resume file: .planning/phases/42-integration-polish/42-02-SUMMARY.md
+Last session: 2026-03-07
+Stopped at: Milestone v2.0 initialization
+Resume file: None
 
 ## Milestones Shipped
 

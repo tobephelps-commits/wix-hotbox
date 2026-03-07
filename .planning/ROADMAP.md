@@ -15,6 +15,7 @@ None
 - ✅ **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (shipped 2026-02-02)
 - ✅ **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (shipped 2026-02-04)
 - ✅ **v1.2 Order Fulfillment & Dashboard Redesign** -- Phases 37-42 (shipped 2026-02-04)
+- 🚧 **v2.0 Pi Appliance** -- Phases 43-56 (in progress)
 
 ## Completed Milestones
 
@@ -25,6 +26,141 @@ None
 - ✅ [v1.2 Order Fulfillment & Dashboard Redesign](milestones/v1.2-ROADMAP.md) (Phases 37-42) — SHIPPED 2026-02-04
 
 ## Phases
+
+### 🚧 v2.0 Pi Appliance (In Progress)
+
+**Milestone Goal:** Full ground-up rewrite of HotBox as a self-contained Raspberry Pi 5 production appliance with touch-first UI, LAN access, and network printing
+
+#### Phase 43: Pi OS Setup & Bootstrap
+**Goal**: Select and configure optimal OS for Pi 5, headless bootstrap, kiosk mode Chromium, auto-start on boot, systemd services, resilient to power cycles
+**Depends on**: Previous milestone complete
+**Research**: Likely (new hardware platform, kiosk mode config, systemd services)
+**Research topics**: Pi OS Lite vs Desktop, Chromium kiosk setup, systemd service patterns, boot resilience
+**Plans**: TBD
+
+Plans:
+- [ ] 43-01: TBD (run /gsd:plan-phase 43 to break down)
+
+#### Phase 44: Backend Architecture
+**Goal**: Node.js/TypeScript server foundation, API structure, database selection, configuration management
+**Depends on**: Phase 43
+**Research**: Likely (architectural decisions — framework, database, project structure)
+**Research topics**: Express vs Fastify on ARM64, SQLite vs PostgreSQL on Pi, project scaffolding
+**Plans**: TBD
+
+Plans:
+- [ ] 44-01: TBD
+
+#### Phase 45: Touch UI Foundation
+**Goal**: Frontend framework setup, layout shell, sidebar navigation, touch interaction patterns for 15.6" display
+**Depends on**: Phase 44
+**Research**: Likely (frontend framework choice, touch interaction patterns)
+**Research topics**: React vs SvelteKit for touch-first Pi kiosk, touch gesture libraries, on-screen keyboard
+**Plans**: TBD
+
+Plans:
+- [ ] 45-01: TBD
+
+#### Phase 46: Product Pipeline — Vendor APIs
+**Goal**: Port SanMar + S&S Activewear API clients with product data fetching
+**Depends on**: Phase 44
+**Research**: Unlikely (porting existing vendor adapter patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 46-01: TBD
+
+#### Phase 47: Product Pipeline — Creation UI
+**Goal**: Port style lookup, preview, pricing, variant selection, and WIX publish flow with touch-optimized UI
+**Depends on**: Phase 45, Phase 46
+**Research**: Unlikely (porting existing pipeline UI patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 47-01: TBD
+
+#### Phase 48: Logo System
+**Goal**: Port logo upload/management, multi-angle overlay compositing, and visual drag-and-drop placement editor
+**Depends on**: Phase 45, Phase 46
+**Research**: Unlikely (porting existing logo system patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 48-01: TBD
+
+#### Phase 49: Order Management — Core
+**Goal**: Port WIX order sync, lifecycle tracking, and status transitions
+**Depends on**: Phase 44
+**Research**: Unlikely (porting existing order management patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 49-01: TBD
+
+#### Phase 50: Order Management — Advanced
+**Goal**: Port pipeline visualization, bulk operations, and production sheet generation with touch-optimized UI
+**Depends on**: Phase 45, Phase 49
+**Research**: Unlikely (porting existing advanced order management patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 50-01: TBD
+
+#### Phase 51: Inventory Sync
+**Goal**: Port priority-based polling daemon, multi-warehouse stock tracking, per-product thresholds, WIX sync, and email alerts
+**Depends on**: Phase 44, Phase 46
+**Research**: Unlikely (porting existing inventory sync patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 51-01: TBD
+
+#### Phase 52: Cart Automation
+**Goal**: Port SanMar + S&S Activewear browser-based cart filling with Playwright
+**Depends on**: Phase 44, Phase 49
+**Research**: Unlikely (porting existing Playwright cart automation patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 52-01: TBD
+
+#### Phase 53: Customer & Royalty System
+**Goal**: Port B2B customer accounts, markup pricing, royalty calculation, and PDF statement generation
+**Depends on**: Phase 44, Phase 49
+**Research**: Unlikely (porting existing customer/royalty patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 53-01: TBD
+
+#### Phase 54: Network Printing
+**Goal**: LAN printer discovery, PDF print jobs for invoices/labels/production sheets to network printers
+**Depends on**: Phase 50, Phase 53
+**Research**: Likely (LAN printer discovery, print protocols on Pi)
+**Research topics**: CUPS on Pi, IPP protocol, network printer auto-discovery, PDF-to-printer pipelines
+**Plans**: TBD
+
+Plans:
+- [ ] 54-01: TBD
+
+#### Phase 55: LAN Web Access
+**Goal**: Serve touch UI over local network, accessible from laptops/phones on the same LAN
+**Depends on**: Phase 45
+**Research**: Unlikely (standard web server serving to LAN)
+**Plans**: TBD
+
+Plans:
+- [ ] 55-01: TBD
+
+#### Phase 56: Appliance Hardening
+**Goal**: Auto-start services, graceful shutdown, power cycle resilience, health monitoring, log rotation
+**Depends on**: Phase 43, Phase 44
+**Research**: Likely (boot resilience, watchdog, health monitoring on Pi hardware)
+**Research topics**: systemd watchdog, journald log rotation, graceful shutdown hooks, filesystem integrity
+**Plans**: TBD
+
+Plans:
+- [ ] 56-01: TBD
 
 <details>
 <summary>✅ v1.2 Order Fulfillment & Dashboard Redesign (Phases 37-42) — SHIPPED 2026-02-04</summary>
@@ -101,7 +237,7 @@ None
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 37 → 38 → 39 → 40 → 41 → 42
+Phases execute in numeric order: 43 → 44 → 45 → 46 → 47 → 48 → 49 → 50 → 51 → 52 → 53 → 54 → 55 → 56
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|---------------|--------|-----------|
@@ -147,3 +283,17 @@ Phases execute in numeric order: 37 → 38 → 39 → 40 → 41 → 42
 | 40. Order Status Dashboard | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 41. Bulk Order Actions | v1.2 | 2/2 | Complete | 2026-02-04 |
 | 42. Integration & Polish | v1.2 | 2/2 | Complete | 2026-02-04 |
+| 43. Pi OS Setup & Bootstrap | v2.0 | 0/? | Not started | - |
+| 44. Backend Architecture | v2.0 | 0/? | Not started | - |
+| 45. Touch UI Foundation | v2.0 | 0/? | Not started | - |
+| 46. Product Pipeline — Vendor APIs | v2.0 | 0/? | Not started | - |
+| 47. Product Pipeline — Creation UI | v2.0 | 0/? | Not started | - |
+| 48. Logo System | v2.0 | 0/? | Not started | - |
+| 49. Order Management — Core | v2.0 | 0/? | Not started | - |
+| 50. Order Management — Advanced | v2.0 | 0/? | Not started | - |
+| 51. Inventory Sync | v2.0 | 0/? | Not started | - |
+| 52. Cart Automation | v2.0 | 0/? | Not started | - |
+| 53. Customer & Royalty System | v2.0 | 0/? | Not started | - |
+| 54. Network Printing | v2.0 | 0/? | Not started | - |
+| 55. LAN Web Access | v2.0 | 0/? | Not started | - |
+| 56. Appliance Hardening | v2.0 | 0/? | Not started | - |
