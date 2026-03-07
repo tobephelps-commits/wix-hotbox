@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 51 of 56 (Inventory Sync) -- IN PROGRESS
-Plan: 03 complete (Polling engine and monitor API routes)
-Status: Plan 03 complete, ready for plan 04
-Last activity: 2026-03-07 - Plan 03 complete, polling engine ported with vendor adapter routing, monitor REST API with 9 endpoints
+Plan: 04 complete (Stock sync engine, daemon, and sync API routes)
+Status: Plan 04 complete, phase 51 may be complete pending plan count check
+Last activity: 2026-03-07 - Plan 04 complete, WIX stock sync engine, smart daemon with health tracking, 8 sync REST endpoints
 
 Progress: ██░░░░░░░░ 21% (v2.0)
 
@@ -379,11 +379,14 @@ None (cleared for new milestone)
 | 51 | SyncHealth interface in types.ts | Was inline in sync-poller.ts in v1.x; centralized for reuse |
 | 51 | vendor required on ProductMapping | SQLite column has DEFAULT 'sanmar'; TypeScript mirrors DB schema |
 | 51 | sendSyncNotification config-first signature | (config, results, alerts?, auditResult?) -- config is the dependency |
+| 51 | Self-contained WIX API calls in stock-sync.ts | Same pattern as orders/wix-sync.ts; different API endpoints, decoupled from pipeline |
+| 51 | getMonitorConfig() for pollOnce calls | pollOnce expects MonitorConfig, not Config; daemon gets defaults from store |
+| 51 | WixConfig { apiKey, siteId } parameter pattern | Consistent API auth parameter across WIX-calling modules |
 
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 51, plan 03 complete, ready for plan 04
+Stopped at: Phase 51, plan 04 complete
 Resume file: None
 
 ## Milestones Shipped
