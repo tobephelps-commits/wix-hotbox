@@ -53,3 +53,21 @@ export {
 } from './order-service.js';
 
 export type { ExtendedOrderSummary } from './order-service.js';
+
+// WIX sync functions and types
+export {
+  searchWixOrders,
+  getWixOrder,
+  getRecentWixOrders,
+  mapWixStatusToOrderStatus,
+  mapWixOrderToCreateInput,
+  buildCollectionMap,
+  syncWixOrders,
+  syncWithRetry,
+} from './wix-sync.js';
+
+export type {
+  SyncResult,
+  SyncOptions,
+  RetryOptions,
+} from './wix-sync.js';
