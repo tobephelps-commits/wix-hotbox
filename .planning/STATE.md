@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 44 of 56 (Backend Architecture)
-Plan: 02 complete
-Status: Plan 02 shipped
-Last activity: 2026-03-07 - Phase 44 plan 02 complete (SQLite database & migration system)
+Phase: 45 of 56 (Touch UI Foundation)
+Plan: 01 complete
+Status: Plan 01 shipped
+Last activity: 2026-03-07 - Phase 45 plan 01 complete (Vite + React frontend & app layout shell)
 
-Progress: █░░░░░░░░░ 11% (v2.0)
+Progress: ██░░░░░░░░ 14% (v2.0)
 
 ## Performance Metrics
 
@@ -192,6 +192,16 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 44 | Node.js cpSync in postbuild for migration file copy | Cross-platform compatible (Windows + Linux Pi) |
 | 44 | fastify.decorate for db and config with module augmentation | Type-safe access to database and config in all route plugins |
 
+### Phase 45 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 45 | Manual project setup (no create-vite) | Full control over structure, minimal boilerplate |
+| 45 | Separate ui/tsconfig.json from root | Backend uses NodeNext/rootDir:src; frontend needs bundler/jsx |
+| 45 | SPA fallback conditional on dist/public/ existence | Works in both dev (no static) and production (serves index.html) |
+| 45 | 100dvh not 100vh | Correct viewport height on mobile/LAN access |
+| 45 | CSS custom properties for all colors | Single source of truth for theme; easy to adjust |
+
 ### Blockers/Concerns
 
 None (cleared for new milestone)
@@ -322,7 +332,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 44 plan 02 complete
+Stopped at: Phase 45 plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
