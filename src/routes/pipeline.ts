@@ -20,6 +20,7 @@ import { createWixProduct } from '../pipeline/create-product.js';
 import { PRICING_PRESETS, getPresetConfig } from '../pipeline/pricing-rules.js';
 import type { PricingConfig } from '../pipeline/pricing-rules.js';
 import type { CuratedProduct, CuratedColor, ProductTemplate } from '../pipeline/types.js';
+import type { AngleOverlayConfig } from '../logo/types.js';
 import {
   setWixConfig,
   setTemplatesDir,
@@ -131,6 +132,7 @@ export default async function pipelineRoutes(
       collections?: string[];
       decorationCost?: number;
       decorationType?: string;
+      logoConfig?: AngleOverlayConfig;
     };
   }>('/create', async (request, reply) => {
     const {
@@ -143,6 +145,7 @@ export default async function pipelineRoutes(
       collections,
       decorationCost,
       decorationType,
+      logoConfig,
     } = request.body;
 
     // Validate vendor
@@ -196,7 +199,7 @@ export default async function pipelineRoutes(
         ...(decorationCost != null && decorationCost > 0 ? { decorationCost, decorationType } : {}),
       };
 
-      const result = await createWixProduct(curated, rawData);
+      const result = await createWixProduct(curated, rawData, logoConfig ?? undefined);
       return result;
     } catch (err) {
       return reply.status(500).send({

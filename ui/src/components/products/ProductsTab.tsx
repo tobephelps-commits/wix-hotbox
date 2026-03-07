@@ -18,9 +18,11 @@ import type { PreviewData, VendorId } from './StyleLookup';
 import type { PricingConfigValues } from './PricingConfig';
 import type { CreationResult as CreationResultData, SelectedColor } from './CreateFlow';
 import LogoManager from '../logos/LogoManager';
+import LogoStep from './LogoStep';
+import type { AngleOverlayConfig } from './LogoStep';
 import './ProductsTab.css';
 
-type Step = 'lookup' | 'preview' | 'configure' | 'creating' | 'done' | 'manage-logos';
+type Step = 'lookup' | 'preview' | 'logo' | 'configure' | 'creating' | 'done' | 'manage-logos';
 
 function ProductsTab() {
   const [step, setStep] = useState<Step>('lookup');
@@ -32,6 +34,8 @@ function ProductsTab() {
   const [pricingValues, setPricingValues] = useState<PricingConfigValues | null>(null);
   const [creationResult, setCreationResult] = useState<CreationResultData | null>(null);
   const [templateInitialValues, setTemplateInitialValues] = useState<Partial<PricingConfigValues> | undefined>(undefined);
+  const [logoConfig, setLogoConfig] = useState<AngleOverlayConfig | null>(null);
+  const [returnToLogo, setReturnToLogo] = useState(false);
 
   // Ref for getting current pricing values (used by TemplateSelector save)
   const pricingValuesRef = useRef<PricingConfigValues>({
@@ -64,10 +68,20 @@ function ProductsTab() {
     (colors: SelectedColor[], sizes: string[]) => {
       setSelectedColors(colors);
       setSelectedSizes(sizes);
-      setStep('configure');
+      setStep('logo');
     },
     [],
   );
+
+  const handleLogoComplete = useCallback((config: AngleOverlayConfig | null) => {
+    setLogoConfig(config);
+    setStep('configure');
+  }, []);
+
+  const handleLogoManage = useCallback(() => {
+    setReturnToLogo(true);
+    setStep('manage-logos');
+  }, []);
 
   const handlePricingSubmit = useCallback((values: PricingConfigValues) => {
     setPricingValues(values);
@@ -91,6 +105,8 @@ function ProductsTab() {
     setPricingValues(null);
     setCreationResult(null);
     setTemplateInitialValues(undefined);
+    setLogoConfig(null);
+    setReturnToLogo(false);
     setStep('lookup');
   }, []);
 
@@ -125,7 +141,14 @@ function ProductsTab() {
 
       {/* Logo management sub-view */}
       {step === 'manage-logos' && (
-        <LogoManager onClose={() => setStep('lookup')} />
+        <LogoManager onClose={() => {
+          if (returnToLogo) {
+            setReturnToLogo(false);
+            setStep('logo');
+          } else {
+            setStep('lookup');
+          }
+        }} />
       )}
 
       {/* Preview step */}
@@ -151,8 +174,8 @@ function ProductsTab() {
         </>
       )}
 
-      {/* Configure step */}
-      {step === 'configure' && currentPreview && (
+      {/* Logo step */}
+      {step === 'logo' && currentPreview && (
         <>
           <div className="products-tab__header">
             <button
@@ -160,6 +183,30 @@ function ProductsTab() {
               className="products-tab__back-btn"
               onClick={() => setStep('preview')}
               aria-label="Back to preview"
+            >
+              &#8592;
+            </button>
+            <h2 className="products-tab__title">Logo Placement</h2>
+          </div>
+          <LogoStep
+            previewData={currentPreview}
+            selectedColors={selectedColors.map((c) => c.catalogColor)}
+            onComplete={handleLogoComplete}
+            onBack={() => setStep('preview')}
+            onManageLogos={handleLogoManage}
+          />
+        </>
+      )}
+
+      {/* Configure step */}
+      {step === 'configure' && currentPreview && (
+        <>
+          <div className="products-tab__header">
+            <button
+              type="button"
+              className="products-tab__back-btn"
+              onClick={() => setStep('logo')}
+              aria-label="Back to logo placement"
             >
               &#8592;
             </button>
@@ -191,6 +238,7 @@ function ProductsTab() {
             selectedColors={selectedColors}
             selectedSizes={selectedSizes}
             pricingValues={pricingValues}
+            logoConfig={logoConfig}
             onComplete={handleCreationComplete}
             onError={handleCreationError}
           />

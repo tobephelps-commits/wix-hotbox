@@ -21,6 +21,8 @@
 
 import type { CuratedProduct } from './types.js';
 import type { UnifiedProductData } from '../vendors/types.js';
+import type { AngleOverlayConfig } from '../logo/types.js';
+import { overlayProductImagesByAngle } from '../logo/overlay.js';
 import {
   buildCreateProductPayload,
   buildMediaPayload,
@@ -84,6 +86,7 @@ export interface CreationResult {
 export async function createWixProduct(
   curated: CuratedProduct,
   rawData: UnifiedProductData,
+  logoConfig?: AngleOverlayConfig,
 ): Promise<CreationResult> {
   console.log(`\nCreating WIX product for ${curated.style}...`);
   const warnings: string[] = [];
@@ -114,6 +117,43 @@ export async function createWixProduct(
     const warning = `Media upload failed for ${productId}: ${msg}. Product created but images need manual upload.`;
     warnings.push(warning);
     console.warn(`  ${warning}`);
+  }
+
+  // Step 2b: Apply logo overlay if configured (OPTIONAL -- continue on failure)
+  if (logoConfig) {
+    try {
+      console.log(`  Applying logo overlay (${logoConfig.logoName})...`);
+
+      // Process each selected color sequentially to avoid memory pressure
+      for (const color of curated.selectedColors) {
+        const colorMedia = rawData.media.find(
+          (m) => m.color.toLowerCase() === color.displayColor.toLowerCase(),
+        );
+        if (!colorMedia) continue;
+
+        const angleImages: { front?: string; back?: string; side?: string } = {};
+        if (colorMedia.frontImage) angleImages.front = colorMedia.frontImage;
+        if (colorMedia.backImage) angleImages.back = colorMedia.backImage;
+        if (colorMedia.sideImage) angleImages.side = colorMedia.sideImage;
+
+        if (Object.keys(angleImages).length === 0) continue;
+
+        const outputDir = './data/overlays';
+        const overlayPaths = await overlayProductImagesByAngle(angleImages, logoConfig, outputDir);
+
+        const overlayCount = Object.values(overlayPaths).filter(Boolean).length;
+        if (overlayCount > 0) {
+          console.log(`    ${color.displayColor}: ${overlayCount} overlay(s) generated`);
+        }
+      }
+
+      console.log(`  Logo overlay complete.`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const warning = `Logo overlay failed for ${productId}: ${msg}. Product created without logo overlays.`;
+      warnings.push(warning);
+      console.warn(`  ${warning}`);
+    }
   }
 
   // Step 3: Update variant pricing, SKU, weight, visibility (OPTIONAL -- continue on failure)

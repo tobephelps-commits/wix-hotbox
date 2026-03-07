@@ -31,6 +31,13 @@ interface SelectedColor {
   displayColor: string;
 }
 
+interface AngleOverlayConfig {
+  logoName: string;
+  front?: { position: { x: number; y: number }; scale?: number; opacity?: number; blendMode?: string } | null;
+  back?: { position: { x: number; y: number }; scale?: number; opacity?: number; blendMode?: string } | null;
+  side?: { position: { x: number; y: number }; scale?: number; opacity?: number; blendMode?: string } | null;
+}
+
 interface CreateFlowProps {
   vendorId: VendorId;
   style: string;
@@ -38,6 +45,7 @@ interface CreateFlowProps {
   selectedColors: SelectedColor[];
   selectedSizes: string[];
   pricingValues: PricingConfigValues;
+  logoConfig?: AngleOverlayConfig | null;
   onComplete: (result: CreationResult) => void;
   onError: (error: string) => void;
 }
@@ -60,16 +68,19 @@ function CreateFlow({
   selectedColors,
   selectedSizes,
   pricingValues,
+  logoConfig,
   onComplete,
   onError,
 }: CreateFlowProps) {
-  const [steps, setSteps] = useState<Step[]>([
+  const initialSteps: Step[] = [
     { label: 'Creating product...', status: 'active' },
     { label: 'Adding media...', status: 'pending' },
+    ...(logoConfig ? [{ label: 'Applying logo overlay...', status: 'pending' as StepStatus }] : []),
     { label: 'Setting variants...', status: 'pending' },
     { label: 'Setting inventory...', status: 'pending' },
     { label: 'Adding to collections...', status: 'pending' },
-  ]);
+  ];
+  const [steps, setSteps] = useState<Step[]>(initialSteps);
   const [error, setError] = useState<string | null>(null);
 
   const updateStep = useCallback((index: number, status: StepStatus) => {
@@ -95,6 +106,7 @@ function CreateFlow({
         collections: pricingValues.collections.length > 0 ? pricingValues.collections : undefined,
         decorationCost: pricingValues.decorationCost > 0 ? pricingValues.decorationCost : undefined,
         decorationType: pricingValues.decorationType !== 'none' ? pricingValues.decorationType : undefined,
+        logoConfig: logoConfig ?? undefined,
       };
 
       const res = await fetch('/api/pipeline/create', {
@@ -127,7 +139,7 @@ function CreateFlow({
       );
       onError(msg);
     }
-  }, [vendorId, style, selectedColors, selectedSizes, pricingValues, onComplete, onError]);
+  }, [vendorId, style, selectedColors, selectedSizes, pricingValues, logoConfig, onComplete, onError]);
 
   // Simulate step progression with timers
   useEffect(() => {
@@ -154,15 +166,9 @@ function CreateFlow({
 
   const handleRetry = useCallback(() => {
     setError(null);
-    setSteps([
-      { label: 'Creating product...', status: 'active' },
-      { label: 'Adding media...', status: 'pending' },
-      { label: 'Setting variants...', status: 'pending' },
-      { label: 'Setting inventory...', status: 'pending' },
-      { label: 'Adding to collections...', status: 'pending' },
-    ]);
+    setSteps(initialSteps.map((s, i) => ({ ...s, status: i === 0 ? 'active' : 'pending' })));
     runCreation();
-  }, [runCreation]);
+  }, [runCreation]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="create-flow">
