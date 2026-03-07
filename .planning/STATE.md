@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 49 of 56 (Order Management Core) -- IN PROGRESS
-Plan: 02 complete (order service with CRUD, state machine, metrics)
-Status: Ready for plan 03
-Last activity: 2026-03-07 - Plan 02 complete, order service and barrel export
+Plan: 03 complete (WIX orders API client and sync orchestration)
+Status: Ready for plan 04
+Last activity: 2026-03-07 - Plan 03 complete, WIX sync module with fetch/map/sync functions
 
 Progress: ██░░░░░░░░ 18% (v2.0)
 
@@ -359,11 +359,13 @@ None (cleared for new milestone)
 | 49 | order_number as INTEGER UNIQUE (not AUTOINCREMENT) | Allows explicit assignment starting at 1001; auto-increment handled by application layer |
 | 49 | Separate OrderErrorOperation type | Enables strict typing of error operations across the codebase |
 | 49 | AGING_THRESHOLDS as Partial<Record> | Only some statuses have thresholds; Partial avoids requiring entries for all statuses |
+| 49 | Self-contained WIX API calls in wix-sync.ts | Different API base (ecom/v1 vs stores/v1), different auth patterns; avoids coupling to pipeline module |
+| 49 | Config parameter for WIX sync auth | Matches v2.0 pattern where route handlers pass fastify.config; pure functions, no module-level state |
 
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 49 plan 02 complete, ready for plan 03
+Stopped at: Phase 49 plan 03 complete, ready for plan 04
 Resume file: None
 
 ## Milestones Shipped
