@@ -9,6 +9,7 @@ import logoRoutes from './logos.js';
 import orderRoutes from './orders.js';
 import monitorRoutes from './monitor.js';
 import syncRoutes from './sync.js';
+import customerRoutes from './customers.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -82,4 +83,7 @@ export default async function apiRoutes(
 
   // Sync routes (product mappings, daemon control, WIX stock sync)
   await fastify.register(syncRoutes, { prefix: '/sync' });
+
+  // Customer routes (CRUD, pricing, royalty reports, PDF statements)
+  await fastify.register(customerRoutes, { prefix: '/customers' });
 }
