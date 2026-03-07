@@ -137,6 +137,16 @@ chmod +x "$HOTBOX_APP_DIR/pi/kiosk/kiosk.sh" 2>/dev/null || true
 chmod +x "$HOTBOX_APP_DIR/pi/kiosk/touch-calibrate.sh" 2>/dev/null || true
 chmod +x "$HOTBOX_APP_DIR/pi/kiosk/xinitrc" 2>/dev/null || true
 
+# ---------- Touch calibration (auto-detect) ----------
+TOUCH_SCRIPT="$HOTBOX_APP_DIR/pi/kiosk/touch-calibrate.sh"
+if [[ -x "$TOUCH_SCRIPT" ]]; then
+  echo ""
+  echo "[kiosk] Running touch calibration (auto-detect)..."
+  bash "$TOUCH_SCRIPT" || echo "[kiosk] Touch calibration completed with warnings (non-fatal)."
+else
+  echo "[kiosk] Touch calibration script not found, skipping."
+fi
+
 # ---------- Done ----------
 echo ""
 echo "========================================"
