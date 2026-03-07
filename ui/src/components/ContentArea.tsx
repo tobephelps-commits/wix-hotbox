@@ -1,4 +1,5 @@
 import type { TabId } from './Sidebar';
+import ProductsTab from './products/ProductsTab';
 
 const tabInfo: Record<TabId, { label: string; phase: string }> = {
   products: { label: 'Products', phase: 'Phase 47' },
@@ -13,6 +14,10 @@ interface ContentAreaProps {
 }
 
 function ContentArea({ activeTab }: ContentAreaProps) {
+  if (activeTab === 'products') {
+    return <ProductsTab />;
+  }
+
   const info = tabInfo[activeTab];
 
   return (
