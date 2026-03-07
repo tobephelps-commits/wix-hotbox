@@ -2,7 +2,84 @@
   "logos": {
     "test": {
       "displayName": "Test Logo",
-      "filePath": "media/logos/BB.png",
+      "filePath": "logos/BB.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "board-30-logo-black-6x6": {
+      "displayName": "Board 30 Logo Black 6x6",
+      "filePath": "logos/board-30-logo-black-6x6.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "board-30-logo-white-6x6": {
+      "displayName": "Board 30 Logo White 6x6",
+      "filePath": "logos/board-30-logo-white-6x6.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "board30logotypewhite": {
+      "displayName": "Board30logotypewhite",
+      "filePath": "logos/board30logotypewhite.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "board30logotypeblack": {
+      "displayName": "Board30logotypeblack",
+      "filePath": "logos/board30logotypeblack.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "big-barn-3x3-black": {
+      "displayName": "Big Barn 3x3 Black",
+      "filePath": "logos/big-barn-3x3-black.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "large-logo-black": {
+      "displayName": "Large Logo Black",
+      "filePath": "logos/large-logo-black.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "large-logo-white": {
+      "displayName": "Large Logo White",
+      "filePath": "logos/large-logo-white.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "phrase-black": {
+      "displayName": "Phrase Black",
+      "filePath": "logos/phrase-black.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "phrase-white": {
+      "displayName": "Phrase White",
+      "filePath": "logos/phrase-white.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "small-logo-black": {
+      "displayName": "Small Logo Black",
+      "filePath": "logos/small-logo-black.png",
+      "defaultScale": 0.25,
+      "defaultBlendMode": "multiply",
+      "defaultOpacity": 0.88
+    },
+    "small-logo-white": {
+      "displayName": "Small Logo White",
+      "filePath": "logos/small-logo-white.png",
       "defaultScale": 0.25,
       "defaultBlendMode": "multiply",
       "defaultOpacity": 0.88
