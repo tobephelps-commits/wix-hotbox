@@ -1,7 +1,8 @@
 import Fastify, { type FastifyError } from 'fastify';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
 import type Database from 'better-sqlite3';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Config } from './config.js';
@@ -50,14 +51,6 @@ export async function buildApp(config: Config, db: Database.Database) {
     });
   });
 
-  // Custom 404 handler
-  app.setNotFoundHandler((_request, reply) => {
-    reply.status(404).send({
-      error: 'Not Found',
-      statusCode: 404,
-    });
-  });
-
   // Request timing logs in development mode
   if (config.nodeEnv !== 'production') {
     app.addHook('onRequest', async (request) => {
@@ -78,6 +71,29 @@ export async function buildApp(config: Config, db: Database.Database) {
 
   // API routes
   await app.register(apiRoutes, { prefix: '/api' });
+
+  // Static file serving for built frontend (production)
+  const publicDir = join(__dirname, 'public');
+  const hasPublicDir = existsSync(publicDir);
+
+  if (hasPublicDir) {
+    await app.register(fastifyStatic, {
+      root: publicDir,
+      prefix: '/',
+      decorateReply: false,
+    });
+  }
+
+  // 404 handler with SPA fallback when frontend is built
+  app.setNotFoundHandler((_request, reply) => {
+    if (hasPublicDir && _request.method === 'GET' && !_request.url.startsWith('/api')) {
+      return reply.sendFile('index.html', publicDir);
+    }
+    reply.status(404).send({
+      error: 'Not Found',
+      statusCode: 404,
+    });
+  });
 
   return app;
 }

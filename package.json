@@ -4,7 +4,10 @@
   "description": "HotBox Clothing — Pi appliance backend",
   "type": "module",
   "scripts": {
-    "build": "tsc && node -e \"const{cpSync}=require('fs');cpSync('src/db/migrations','dist/db/migrations',{recursive:true})\"",
+    "build": "tsc && node -e \"const{cpSync}=require('fs');cpSync('src/db/migrations','dist/db/migrations',{recursive:true})\" && npm run ui:build",
+    "ui:dev": "cd ui && npx vite",
+    "ui:build": "cd ui && npx vite build",
+    "ui:preview": "cd ui && npx vite preview",
     "dev": "npx tsx watch src/server.ts",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
