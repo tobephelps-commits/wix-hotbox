@@ -15,6 +15,10 @@ export interface Config {
   // S&S Activewear credentials (REST API)
   ssAccountNumber: string | undefined;
   ssApiKey: string | undefined;
+
+  // WIX API credentials
+  wixApiKey: string | undefined;
+  wixSiteId: string | undefined;
 }
 
 export function loadConfig(): Config {
@@ -37,9 +41,14 @@ export function loadConfig(): Config {
   const ssAccountNumber = process.env.SS_ACCOUNT_NUMBER;
   const ssApiKey = process.env.SS_API_KEY;
 
+  // WIX API credentials
+  const wixApiKey = process.env.WIX_API_KEY;
+  const wixSiteId = process.env.WIX_SITE_ID || 'c744cbdb-46f8-4c66-ac76-eb31bd0d52c1';
+
   return {
     port, host, nodeEnv, dataDir, logDir,
     sanmarCustomerNumber, sanmarUsername, sanmarPassword,
     ssAccountNumber, ssApiKey,
+    wixApiKey, wixSiteId,
   };
 }
