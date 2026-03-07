@@ -3,6 +3,7 @@ import type Database from 'better-sqlite3';
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config } from '../config.js';
+import vendorRoutes from './vendors.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -58,6 +59,9 @@ export default async function apiRoutes(
       },
     };
   });
+
+  // Vendor routes
+  await fastify.register(vendorRoutes, { prefix: '/vendors' });
 
   // Future domain routes will be registered here:
   // fastify.register(productRoutes, { prefix: '/products' });
