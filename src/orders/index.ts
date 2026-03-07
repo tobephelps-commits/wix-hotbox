@@ -87,6 +87,10 @@ export {
   buildCartFillRequest,
 } from './cart-consolidator.js';
 
+// Cart fillers (browser automation)
+export { fillSanMarCart, markOrdersAsOrdered } from './sanmar-cart-filler.js';
+export { fillSSCart, markSSOrdersAsOrdered } from './ss-cart-filler.js';
+
 // PDF generators
 export { generateProductionSheet } from './production-sheet.js';
 export { generateInvoice } from './invoice-generator.js';
