@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 47 of 56 (Product Pipeline Creation UI)
-Plan: 01 complete
+Plan: 02 complete
 Status: In progress
-Last activity: 2026-03-07 - Phase 47 plan 01 complete (pipeline business logic port)
+Last activity: 2026-03-07 - Phase 47 plan 02 complete (pipeline orchestration & API routes)
 
 Progress: ██░░░░░░░░ 16% (v2.0)
 
@@ -337,11 +337,14 @@ None (cleared for new milestone)
 | 47 | setTemplatesDir() init pattern for templates.ts | Decouples from file path resolution; route handlers pass config.dataDir |
 | 47 | mapper.ts uses UnifiedProductData exclusively | Vendor-agnostic pipeline; all vendor specifics handled by adapters |
 | 47 | WIX_SITE_ID defaults to production value in config.ts | Backward compatibility; overridable via WIX_SITE_ID env var |
+| 47 | Module-level Map cache with 10-min TTL for rawData | Avoids re-fetching vendor data between preview and create steps |
+| 47 | fetchProductPreview returns preview + rawData | Create step needs rawData; single fetch serves both needs |
+| 47 | createWixProduct accepts UnifiedProductData directly | Eliminates SanMar-specific bridge; vendor-agnostic |
 
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 47 plan 01 complete
+Stopped at: Phase 47 plan 02 complete
 Resume file: None
 
 ## Milestones Shipped
