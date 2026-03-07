@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 44 of 56 (Backend Architecture)
-Plan: 01 complete
-Status: Plan 01 shipped
-Last activity: 2026-03-07 - Phase 44 plan 01 complete (Fastify server scaffold)
+Plan: 02 complete
+Status: Plan 02 shipped
+Last activity: 2026-03-07 - Phase 44 plan 02 complete (SQLite database & migration system)
 
-Progress: █░░░░░░░░░ 9% (v2.0)
+Progress: █░░░░░░░░░ 11% (v2.0)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 120 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 3 v2.0)
+- Total plans completed: 121 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 4 v2.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -187,6 +187,10 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 44 | rootDir changed from . to src in tsconfig | dist/server.js must match systemd ExecStart path |
 | 44 | Fastify decorate pattern for appVersion | Share version string across route plugins without re-reading package.json |
 | 44 | Request timing hooks only in dev mode | Avoid log noise in production; Fastify's built-in logger handles prod |
+| 44 | WAL mode + foreign keys + 5s busy timeout as SQLite defaults | Optimal for Pi appliance concurrent reads and data integrity |
+| 44 | Migration files resolved via existence check (src/ then dist/) | Works in both tsx dev and compiled production without config |
+| 44 | Node.js cpSync in postbuild for migration file copy | Cross-platform compatible (Windows + Linux Pi) |
+| 44 | fastify.decorate for db and config with module augmentation | Type-safe access to database and config in all route plugins |
 
 ### Blockers/Concerns
 
@@ -318,7 +322,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 44 plan 01 complete
+Stopped at: Phase 44 plan 02 complete
 Resume file: None
 
 ## Milestones Shipped
