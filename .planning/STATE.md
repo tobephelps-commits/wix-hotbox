@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 49 of 56 (Order Management Core) -- IN PROGRESS
-Plan: 04 complete (Order API routes and registration)
-Status: Ready for plan 05
-Last activity: 2026-03-07 - Plan 04 complete, 11 REST endpoints at /api/orders/*
+Phase: 50 of 56 (Order Management Advanced) -- IN PROGRESS
+Plan: 01 complete (PDF generators and API routes)
+Status: Ready for plan 02
+Last activity: 2026-03-07 - Plan 01 complete, PDF template + production sheet + invoice generators with 3 API endpoints
 
 Progress: ██░░░░░░░░ 18% (v2.0)
 
@@ -202,6 +202,15 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 45 | 100dvh not 100vh | Correct viewport height on mobile/LAN access |
 | 45 | CSS custom properties for all colors | Single source of truth for theme; easy to adjust |
 
+### Phase 50 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 50 | setDataDir() init pattern for PDF logo path | Matches v2.0 module conventions; decouples from config imports |
+| 50 | Shared drawHeader/drawFooter with title/prefix params | Reuse across production sheets and invoices without duplication |
+| 50 | Bulk endpoint: single=PDF, multiple=ZIP | Optimal UX; avoids ZIP overhead for single document |
+| 50 | X-Failed-Count header for partial bulk failures | Client awareness without breaking response format |
+
 ### Blockers/Concerns
 
 None (cleared for new milestone)
@@ -365,7 +374,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 49 plan 04 complete, ready for plan 05
+Stopped at: Phase 50 plan 01 complete, ready for plan 02
 Resume file: None
 
 ## Milestones Shipped
