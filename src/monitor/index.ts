@@ -50,3 +50,11 @@ export {
   pruneAlerts,
   acknowledgeAlert,
 } from './alert-log.js';
+
+// Poller
+export {
+  unifiedInventoryToSnapshots,
+  pollDue,
+  pollProduct,
+  pollOnce,
+} from './poller.js';
