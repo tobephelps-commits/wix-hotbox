@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 43 of 56 (Pi OS Setup & Bootstrap)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-07 - Milestone v2.0 created
+Plan: 01 complete
+Status: Plan 01 shipped
+Last activity: 2026-03-07 - Phase 43 plan 01 complete
 
-Progress: ░░░░░░░░░░ 0% (v2.0)
+Progress: █░░░░░░░░░ 7% (v2.0)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 117 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2)
+- Total plans completed: 118 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 1 v2.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -161,6 +161,14 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 29 | Server-side alert filtering via query params | Accurate results from full alert log, not client-side truncated set |
 | 29 | Hover tooltip for threshold badges (not click popover) | Read-only display of override values; simpler UX |
 
+### Phase 43 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 43 | Pi OS Lite 64-bit Bookworm (no desktop) | Lighter, fewer attack surfaces, faster boot; ARM64 for Node.js 20+ |
+| 43 | NodeSource repo for Node.js 20 LTS | apt default is outdated; NodeSource provides current LTS |
+| 43 | Safety check before disabling password auth | Only locks down SSH when authorized_keys exists to prevent lockout |
+
 ### Blockers/Concerns
 
 None (cleared for new milestone)
@@ -291,7 +299,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Milestone v2.0 initialization
+Stopped at: Phase 43 plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
