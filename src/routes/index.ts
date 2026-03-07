@@ -4,6 +4,7 @@ import { statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config } from '../config.js';
 import vendorRoutes from './vendors.js';
+import pipelineRoutes from './pipeline.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -62,6 +63,9 @@ export default async function apiRoutes(
 
   // Vendor routes
   await fastify.register(vendorRoutes, { prefix: '/vendors' });
+
+  // Pipeline routes (product preview, creation, presets, templates)
+  await fastify.register(pipelineRoutes, { prefix: '/pipeline' });
 
   // Future domain routes will be registered here:
   // fastify.register(productRoutes, { prefix: '/products' });
