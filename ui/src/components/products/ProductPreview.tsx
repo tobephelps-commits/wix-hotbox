@@ -12,11 +12,16 @@ import ColorCard from './ColorCard';
 import SizeChips from './SizeChips';
 import type { PreviewData, VendorId } from './StyleLookup';
 
+interface SelectedColorData {
+  catalogColor: string;
+  displayColor: string;
+}
+
 interface ProductPreviewProps {
   preview: PreviewData;
   vendorId: VendorId;
   style: string;
-  onContinue: () => void;
+  onContinue: (selectedColors: SelectedColorData[], selectedSizes: string[]) => void;
 }
 
 function ProductPreview({ preview, style, onContinue }: ProductPreviewProps) {
@@ -188,7 +193,12 @@ function ProductPreview({ preview, style, onContinue }: ProductPreviewProps) {
         type="button"
         className="product-preview__continue"
         disabled={!canContinue}
-        onClick={onContinue}
+        onClick={() => {
+          const colors: SelectedColorData[] = preview.availableColors
+            .filter((c) => selectedColors.has(c.catalogColor))
+            .map((c) => ({ catalogColor: c.catalogColor, displayColor: c.displayColor }));
+          onContinue(colors, Array.from(selectedSizes));
+        }}
       >
         {canContinue
           ? `Continue to Pricing (${selectedColors.size} colors, ${selectedSizes.size} sizes)`
