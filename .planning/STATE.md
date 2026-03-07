@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 53 of 56 (Customer & Royalty System) -- IN PROGRESS
-Plan: 02 complete (Pricing, royalty & PDF statement)
-Status: Plan 02 complete, ready for plan 03
-Last activity: 2026-03-07 - Plan 02 complete, pricing functions + royalty engine + PDF statement generator
+Phase: 53 of 56 (Customer & Royalty System) -- COMPLETE
+Plan: 03 complete (Customer API routes)
+Status: Phase 53 complete, ready for phase 54
+Last activity: 2026-03-07 - Plan 03 complete, customer CRUD + pricing + royalty JSON/PDF API routes
 
 Progress: ██░░░░░░░░ 21% (v2.0)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 124 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 7 v2.0)
+- Total plans completed: 125 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 8 v2.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -211,6 +211,15 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 50 | Bulk endpoint: single=PDF, multiple=ZIP | Optimal UX; avoids ZIP overhead for single document |
 | 50 | X-Failed-Count header for partial bulk failures | Client awareness without breaking response format |
 
+### Phase 53 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 53 | Royalty/pdf route registered before royalty route | Prevents Fastify from parsing "pdf" as a date query parameter |
+| 53 | listOrders + getOrder loop for royalty data | generateRoyaltyReport needs OrderWithDetails[] with line items; listOrders returns Order[] only |
+| 53 | Content-Disposition: inline for royalty PDF | Browser preview preferred over download for statement review |
+| 53 | setRoyaltyStatementDataDir at route registration | Matches v2.0 setDataDir init pattern from pdf-template.ts |
+
 ### Blockers/Concerns
 
 None (cleared for new milestone)
@@ -395,7 +404,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 53, plan 02 complete, ready for plan 03
+Stopped at: Phase 53 complete, ready for phase 54
 Resume file: None
 
 ## Milestones Shipped
