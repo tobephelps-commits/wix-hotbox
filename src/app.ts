@@ -1,5 +1,6 @@
 import Fastify, { type FastifyError } from 'fastify';
 import cors from '@fastify/cors';
+import type Database from 'better-sqlite3';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,7 +20,7 @@ function getVersion(): string {
   }
 }
 
-export async function buildApp(config: Config) {
+export async function buildApp(config: Config, db: Database.Database) {
   const app = Fastify({
     logger: config.nodeEnv === 'production'
       ? true
@@ -29,6 +30,12 @@ export async function buildApp(config: Config) {
 
   // Decorate with app version for routes to use
   app.decorate('appVersion', getVersion());
+
+  // Decorate with database instance for routes to use
+  app.decorate('db', db);
+
+  // Decorate with config for routes that need dataDir, etc.
+  app.decorate('config', config);
 
   // CORS — allow any origin (LAN access from any device)
   await app.register(cors, { origin: true });
