@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 48 of 56 (Logo System) -- COMPLETE
-Plan: 03 complete (all plans done)
-Status: Ready for phase 49
-Last activity: 2026-03-07 - Phase 48 complete, logo placement editor and pipeline integration
+Phase: 49 of 56 (Order Management Core) -- IN PROGRESS
+Plan: 02 complete (order service with CRUD, state machine, metrics)
+Status: Ready for plan 03
+Last activity: 2026-03-07 - Plan 02 complete, order service and barrel export
 
 Progress: ██░░░░░░░░ 18% (v2.0)
 
@@ -351,10 +351,19 @@ None (cleared for new milestone)
 | 48 | setDataDir + setUploadDataDir init at route registration | Matches pipeline module init pattern; decouples from config imports |
 | 48 | Raw body parser for image/* at plugin level | Fastify needs explicit content type parser for binary upload bodies |
 
+### Phase 49 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 49 | JSON blobs for addresses (not separate table) | Always loaded with order, rarely queried independently; matches v1.x pattern |
+| 49 | order_number as INTEGER UNIQUE (not AUTOINCREMENT) | Allows explicit assignment starting at 1001; auto-increment handled by application layer |
+| 49 | Separate OrderErrorOperation type | Enables strict typing of error operations across the codebase |
+| 49 | AGING_THRESHOLDS as Partial<Record> | Only some statuses have thresholds; Partial avoids requiring entries for all statuses |
+
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 48 complete, ready for phase 49
+Stopped at: Phase 49 plan 02 complete, ready for plan 03
 Resume file: None
 
 ## Milestones Shipped
