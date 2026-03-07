@@ -110,3 +110,11 @@ export {
   deleteTemplate,
   listTemplates,
 } from './templates.js';
+
+// Fetch product orchestrator
+export { fetchProductPreview } from './fetch-product.js';
+export type { ProductFetchResult } from './fetch-product.js';
+
+// Create product orchestrator
+export { createWixProduct } from './create-product.js';
+export type { CreationResult } from './create-product.js';
