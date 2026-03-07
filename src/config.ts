@@ -6,6 +6,15 @@ export interface Config {
   nodeEnv: string;
   dataDir: string;
   logDir: string;
+
+  // SanMar credentials (SOAP API)
+  sanmarCustomerNumber: string | undefined;
+  sanmarUsername: string | undefined;
+  sanmarPassword: string | undefined;
+
+  // S&S Activewear credentials (REST API)
+  ssAccountNumber: string | undefined;
+  ssApiKey: string | undefined;
 }
 
 export function loadConfig(): Config {
@@ -19,5 +28,18 @@ export function loadConfig(): Config {
   const dataDir = process.env.DATA_DIR || './data';
   const logDir = process.env.LOG_DIR || './logs';
 
-  return { port, host, nodeEnv, dataDir, logDir };
+  // SanMar credentials (SOAP API)
+  const sanmarCustomerNumber = process.env.SANMAR_CUSTOMER_NUMBER;
+  const sanmarUsername = process.env.SANMAR_USERNAME;
+  const sanmarPassword = process.env.SANMAR_PASSWORD;
+
+  // S&S Activewear credentials (REST API)
+  const ssAccountNumber = process.env.SS_ACCOUNT_NUMBER;
+  const ssApiKey = process.env.SS_API_KEY;
+
+  return {
+    port, host, nodeEnv, dataDir, logDir,
+    sanmarCustomerNumber, sanmarUsername, sanmarPassword,
+    ssAccountNumber, ssApiKey,
+  };
 }
