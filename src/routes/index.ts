@@ -7,6 +7,7 @@ import vendorRoutes from './vendors.js';
 import pipelineRoutes from './pipeline.js';
 import logoRoutes from './logos.js';
 import orderRoutes from './orders.js';
+import monitorRoutes from './monitor.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -74,4 +75,7 @@ export default async function apiRoutes(
 
   // Order routes (CRUD, status, sync, summary)
   await fastify.register(orderRoutes, { prefix: '/orders' });
+
+  // Monitor routes (tracked products, snapshots, alerts, polling)
+  await fastify.register(monitorRoutes, { prefix: '/monitor' });
 }
