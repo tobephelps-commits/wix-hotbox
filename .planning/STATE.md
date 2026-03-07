@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 43 of 56 (Pi OS Setup & Bootstrap)
-Plan: 02 complete
-Status: Plan 02 shipped
-Last activity: 2026-03-07 - Phase 43 plan 02 complete (Chromium kiosk mode)
+Plan: 03 complete
+Status: Plan 03 shipped
+Last activity: 2026-03-07 - Phase 43 plan 03 complete (systemd services & boot resilience)
 
 Progress: █░░░░░░░░░ 7% (v2.0)
 
@@ -172,6 +172,13 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 43 | Crash recovery via infinite loop with 3s delay | Ensures kiosk stays running without systemd dependency |
 | 43 | Known-pattern touchscreen detection | Covers common Pi-compatible touchscreen brands |
 | 43 | Coordinate transformation matrices for rotation | Standard xinput approach for touch-to-display mapping |
+| 43 | Server starts first, kiosk waits 3s | Ensures HTTP server is listening before Chromium connects |
+| 43 | Kiosk conditioned on /dev/fb0 | Safe to run headless without display hardware |
+| 43 | tmpfs for /var/log (volatile) | System logs don't survive reboot; app logs persist in app/logs/ |
+| 43 | commit=120 on root partition | Reduces SD write frequency, extending card life |
+| 43 | Swap disabled and masked | SD card swap is a reliability and performance problem |
+| 43 | Watchdog timeout 15s | Quick recovery without false resets |
+| 43 | Journald capped at 50M / 7 days | Prevents journal from filling SD card |
 
 ### Blockers/Concerns
 
@@ -303,7 +310,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 43 plan 02 complete
+Stopped at: Phase 43 plan 03 complete
 Resume file: None
 
 ## Milestones Shipped
