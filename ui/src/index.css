@@ -52,3 +52,29 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+/* Touch interaction foundation */
+button,
+a,
+[role="button"],
+.touchable {
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touchable:active {
+  opacity: 0.7;
+  transition: opacity 50ms;
+}
+
+/* Utility classes */
+.touch-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
