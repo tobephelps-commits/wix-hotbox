@@ -1,10 +1,12 @@
 {
   "name": "hotbox-sanmar",
-  "version": "1.0.0",
-  "description": "SanMar API client for HotBox Clothing store",
+  "version": "2.0.0",
+  "description": "HotBox Clothing — Pi appliance backend",
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "dev": "npx tsx watch src/server.ts",
+    "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "demo": "npx tsx scripts/sanmar/demo.ts",
     "demo:style": "npx tsx scripts/sanmar/demo.ts",
@@ -50,7 +52,10 @@
   "dependencies": {
     "@types/archiver": "^7.0.0",
     "archiver": "^7.0.1",
+    "@fastify/cors": "^11.0.0",
+    "@fastify/static": "^8.0.0",
     "dotenv": "^17.2.3",
+    "fastify": "^5.0.0",
     "nodemailer": "^7.0.13",
     "pdfkit": "^0.17.2",
     "sharp": "^0.34.5",
