@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 43 of 56 (Pi OS Setup & Bootstrap)
-Plan: 03 complete
-Status: Plan 03 shipped
-Last activity: 2026-03-07 - Phase 43 plan 03 complete (systemd services & boot resilience)
+Phase: 44 of 56 (Backend Architecture)
+Plan: 01 complete
+Status: Plan 01 shipped
+Last activity: 2026-03-07 - Phase 44 plan 01 complete (Fastify server scaffold)
 
-Progress: █░░░░░░░░░ 7% (v2.0)
+Progress: █░░░░░░░░░ 9% (v2.0)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 119 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 2 v2.0)
+- Total plans completed: 120 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 3 v2.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -180,6 +180,14 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 43 | Watchdog timeout 15s | Quick recovery without false resets |
 | 43 | Journald capped at 50M / 7 days | Prevents journal from filling SD card |
 
+### Phase 44 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 44 | rootDir changed from . to src in tsconfig | dist/server.js must match systemd ExecStart path |
+| 44 | Fastify decorate pattern for appVersion | Share version string across route plugins without re-reading package.json |
+| 44 | Request timing hooks only in dev mode | Avoid log noise in production; Fastify's built-in logger handles prod |
+
 ### Blockers/Concerns
 
 None (cleared for new milestone)
@@ -310,7 +318,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 43 plan 03 complete
+Stopped at: Phase 44 plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
