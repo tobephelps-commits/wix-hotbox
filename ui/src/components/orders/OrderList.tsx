@@ -1,10 +1,12 @@
 /**
- * OrderList -- Scrollable order list with status filter tabs and search.
+ * OrderList -- Scrollable order list with status filter tabs, search,
+ * and multi-select support.
  *
  * Shows status filter pills with count badges from summary,
  * a search input, and order rows with key details.
+ * Supports checkbox multi-select for bulk operations.
  *
- * Phase 50: Order Management Advanced (Plan 02)
+ * Phase 50: Order Management Advanced (Plan 02, Plan 03)
  */
 
 import type { OrderStatus } from './types';
@@ -82,6 +84,11 @@ interface OrderListProps {
   onSearchChange: (search: string) => void;
   onLoadMore: () => void;
   hasMore: boolean;
+  /** Multi-select support */
+  selectedOrderIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onSelectAll?: () => void;
+  onDeselectAll?: () => void;
 }
 
 function OrderList({
@@ -96,7 +103,16 @@ function OrderList({
   onSearchChange,
   onLoadMore,
   hasMore,
+  selectedOrderIds,
+  onToggleSelect,
+  onSelectAll,
+  onDeselectAll,
 }: OrderListProps) {
+  const selectionMode = selectedOrderIds && selectedOrderIds.size > 0;
+  const allSelected = orders.length > 0 && selectedOrderIds
+    ? orders.every((o) => selectedOrderIds.has(o.id))
+    : false;
+
   return (
     <>
       {/* Search */}
@@ -137,6 +153,21 @@ function OrderList({
         })}
       </div>
 
+      {/* Select All / Deselect All header when in selection mode */}
+      {selectionMode && onSelectAll && onDeselectAll && (
+        <div className="orders-select-bar">
+          <button
+            className="orders-select-bar__btn"
+            onClick={allSelected ? onDeselectAll : onSelectAll}
+          >
+            {allSelected ? 'Deselect All' : 'Select All'}
+          </button>
+          <span className="orders-select-bar__info">
+            {selectedOrderIds!.size} selected
+          </span>
+        </div>
+      )}
+
       {/* Order list */}
       <div className="orders-list">
         {orders.length === 0 ? (
@@ -149,34 +180,56 @@ function OrderList({
             </div>
           </div>
         ) : (
-          orders.map((order) => (
-            <button
-              key={order.id}
-              className={`order-row${selectedOrderId === order.id ? ' order-row--selected' : ''}`}
-              onClick={() => onSelectOrder(order.id)}
-            >
-              <div className="order-row__main">
-                <div className="order-row__top">
-                  <span className="order-row__number">#{order.orderNumber}</span>
-                  <span className={`status-badge status-badge--${order.status}`}>
-                    {STATUS_LABELS[order.status]}
-                  </span>
-                </div>
-                <div className="order-row__bottom">
-                  <span className="order-row__customer">{customerName(order)}</span>
-                  {order.itemCount !== undefined && (
-                    <span className="order-row__items">
-                      {order.itemCount} item{order.itemCount !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
+          orders.map((order) => {
+            const isSelected = selectedOrderIds?.has(order.id) ?? false;
+            return (
+              <div
+                key={order.id}
+                className={`order-row${selectedOrderId === order.id ? ' order-row--selected' : ''}${isSelected ? ' order-row--checked' : ''}`}
+              >
+                {/* Checkbox for multi-select */}
+                {onToggleSelect && (
+                  <label
+                    className="order-row__checkbox"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(order.id)}
+                    />
+                    <span className="order-row__checkmark" />
+                  </label>
+                )}
+
+                <button
+                  className="order-row__body"
+                  onClick={() => onSelectOrder(order.id)}
+                >
+                  <div className="order-row__main">
+                    <div className="order-row__top">
+                      <span className="order-row__number">#{order.orderNumber}</span>
+                      <span className={`status-badge status-badge--${order.status}`}>
+                        {STATUS_LABELS[order.status]}
+                      </span>
+                    </div>
+                    <div className="order-row__bottom">
+                      <span className="order-row__customer">{customerName(order)}</span>
+                      {order.itemCount !== undefined && (
+                        <span className="order-row__items">
+                          {order.itemCount} item{order.itemCount !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="order-row__right">
+                    <span className="order-row__total">{formatCurrency(order.total)}</span>
+                    <span className="order-row__date">{formatDate(order.createdAt)}</span>
+                  </div>
+                </button>
               </div>
-              <div className="order-row__right">
-                <span className="order-row__total">{formatCurrency(order.total)}</span>
-                <span className="order-row__date">{formatDate(order.createdAt)}</span>
-              </div>
-            </button>
-          ))
+            );
+          })
         )}
       </div>
 

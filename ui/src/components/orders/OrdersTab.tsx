@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import OrderList from './OrderList';
 import OrderDetail from './OrderDetail';
 import PipelineView from './PipelineView';
+import BulkToolbar from './BulkToolbar';
 import type { OrderStatus } from './types';
 import type { OrderListItem, OrderSummary } from './OrderList';
 import './OrdersTab.css';
@@ -40,6 +41,28 @@ function OrdersTab() {
   const [summary, setSummary] = useState<OrderSummary | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+
+  // Multi-select handlers
+  const handleToggleSelect = useCallback((id: string) => {
+    setSelectedOrderIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setSelectedOrderIds(new Set(orders.map((o) => o.id)));
+  }, [orders]);
+
+  const handleDeselectAll = useCallback(() => {
+    setSelectedOrderIds(new Set());
+  }, []);
 
   // Persist view mode
   const handleViewModeChange = useCallback((mode: ViewMode) => {
@@ -222,10 +245,23 @@ function OrdersTab() {
             onSearchChange={handleSearchChange}
             onLoadMore={handleLoadMore}
             hasMore={hasMore}
+            selectedOrderIds={selectedOrderIds}
+            onToggleSelect={handleToggleSelect}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
           />
         ) : (
           <PipelineView
             onOrderSelect={handleSelectOrder}
+          />
+        )}
+
+        {/* Bulk operations toolbar (visible when orders selected in list mode) */}
+        {viewMode === 'list' && selectedOrderIds.size > 0 && (
+          <BulkToolbar
+            selectedOrderIds={selectedOrderIds}
+            onDeselectAll={handleDeselectAll}
+            onOrdersUpdated={handleOrderUpdated}
           />
         )}
       </div>
