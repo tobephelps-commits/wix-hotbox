@@ -1,0 +1,31 @@
+[Unit]
+Description=HotBox Application Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hotbox
+Group=hotbox
+WorkingDirectory=/home/hotbox/app
+ExecStart=/usr/bin/node dist/server.js
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=5
+Environment=NODE_ENV=production
+Environment=PORT=3456
+EnvironmentFile=-/home/hotbox/app/.env
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hotbox-server
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/hotbox/app/data /home/hotbox/app/logs /tmp
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

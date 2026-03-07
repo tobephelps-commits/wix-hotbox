@@ -1,0 +1,27 @@
+[Unit]
+Description=HotBox Kiosk Display
+After=hotbox-server.service
+Wants=hotbox-server.service
+ConditionPathExists=/dev/fb0
+
+[Service]
+Type=simple
+User=hotbox
+Group=hotbox
+Environment=DISPLAY=:0
+ExecStartPre=/bin/sleep 3
+ExecStart=/usr/bin/startx /home/hotbox/.xinitrc -- -nocursor
+Restart=always
+RestartSec=10
+StartLimitIntervalSec=120
+StartLimitBurst=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hotbox-kiosk
+
+# TTY allocation for X11
+TTYPath=/dev/tty1
+PAMName=login
+
+[Install]
+WantedBy=graphical.target
