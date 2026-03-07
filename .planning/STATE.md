@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 47 of 56 (Product Pipeline Creation UI)
-Plan: 03 complete
+Phase: 48 of 56 (Logo System)
+Plan: 01 complete
 Status: In progress
-Last activity: 2026-03-07 - Phase 47 plan 03 complete (products tab UI with style lookup & preview)
+Last activity: 2026-03-07 - Phase 48 plan 01 complete, logo backend service and API endpoints
 
-Progress: ██░░░░░░░░ 16% (v2.0)
+Progress: ██░░░░░░░░ 18% (v2.0)
 
 ## Performance Metrics
 
@@ -343,10 +343,18 @@ None (cleared for new milestone)
 | 47 | fetchProductPreview returns preview + rawData | Create step needs rawData; single fetch serves both needs |
 | 47 | createWixProduct accepts UnifiedProductData directly | Eliminates SanMar-specific bridge; vendor-agnostic |
 
+### Phase 48 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 48 | Logo filePaths relative to dataDir (logos/name.png) | v2.0 dataDir architecture; paths resolve via path.resolve(dataDir, filePath) |
+| 48 | setDataDir + setUploadDataDir init at route registration | Matches pipeline module init pattern; decouples from config imports |
+| 48 | Raw body parser for image/* at plugin level | Fastify needs explicit content type parser for binary upload bodies |
+
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 47 plan 03 complete
+Stopped at: Phase 48 plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
