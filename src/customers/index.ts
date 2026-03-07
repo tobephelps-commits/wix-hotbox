@@ -23,3 +23,24 @@ export {
   updateCustomer,
   deleteCustomer,
 } from './store.js';
+
+// Pricing functions
+export {
+  calculateCustomerRetailPrice,
+  calculateCustomerVariantPrice,
+  calculateCustomerMargin,
+  calculateCustomerRoyalty,
+  calculateCustomerPricingSummary,
+} from './pricing.js';
+
+// Royalty calculation
+export {
+  matchOrdersToCustomer,
+  filterOrdersByDateRange,
+  isDiscountedLineItem,
+  calculateRoyaltyForLineItem,
+  generateRoyaltyReport,
+} from './royalty.js';
+
+// Royalty statement PDF
+export { generateRoyaltyStatement, setDataDir as setRoyaltyStatementDataDir } from './royalty-statement.js';
