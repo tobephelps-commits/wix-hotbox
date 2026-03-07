@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 46 of 56 (Product Pipeline & Vendor APIs)
-Plan: 04 complete
+Phase: 47 of 56 (Product Pipeline Creation UI)
+Plan: 01 complete
 Status: In progress
-Last activity: 2026-03-07 - Phase 46 plan 04 complete (vendor adapters and API routes)
+Last activity: 2026-03-07 - Phase 47 plan 01 complete (pipeline business logic port)
 
-Progress: ██░░░░░░░░ 14% (v2.0)
+Progress: ██░░░░░░░░ 16% (v2.0)
 
 ## Performance Metrics
 
@@ -329,10 +329,19 @@ None (cleared for new milestone)
 | 42 | Fix tsc error detection to check stdout | TypeScript outputs errors to stdout, not stderr |
 | 42 | Production sheet and bulk endpoints not smoke-testable | Require specific order IDs or POST methods |
 
+### Phase 47 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 47 | setWixConfig() init pattern for wix-api.ts | Avoids importing fastify into pure API client; route handlers call at registration |
+| 47 | setTemplatesDir() init pattern for templates.ts | Decouples from file path resolution; route handlers pass config.dataDir |
+| 47 | mapper.ts uses UnifiedProductData exclusively | Vendor-agnostic pipeline; all vendor specifics handled by adapters |
+| 47 | WIX_SITE_ID defaults to production value in config.ts | Backward compatibility; overridable via WIX_SITE_ID env var |
+
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 46 plan 04 complete
+Stopped at: Phase 47 plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
