@@ -41,6 +41,32 @@
   color: var(--color-text);
 }
 
+/* Utility button row (below style lookup) */
+.products-tab__utility-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.products-tab__utility-btn {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.products-tab__utility-btn:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
 /* =============================================================================
  * Style Lookup Form
  * ============================================================================= */

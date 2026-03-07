@@ -17,9 +17,10 @@ import CreationResult from './CreationResult';
 import type { PreviewData, VendorId } from './StyleLookup';
 import type { PricingConfigValues } from './PricingConfig';
 import type { CreationResult as CreationResultData, SelectedColor } from './CreateFlow';
+import LogoManager from '../logos/LogoManager';
 import './ProductsTab.css';
 
-type Step = 'lookup' | 'preview' | 'configure' | 'creating' | 'done';
+type Step = 'lookup' | 'preview' | 'configure' | 'creating' | 'done' | 'manage-logos';
 
 function ProductsTab() {
   const [step, setStep] = useState<Step>('lookup');
@@ -110,7 +111,21 @@ function ProductsTab() {
             <h2 className="products-tab__title">Create Product</h2>
           </div>
           <StyleLookup onPreviewReady={handlePreviewReady} />
+          <div className="products-tab__utility-row">
+            <button
+              type="button"
+              className="products-tab__utility-btn"
+              onClick={() => setStep('manage-logos')}
+            >
+              Manage Logos
+            </button>
+          </div>
         </>
+      )}
+
+      {/* Logo management sub-view */}
+      {step === 'manage-logos' && (
+        <LogoManager onClose={() => setStep('lookup')} />
       )}
 
       {/* Preview step */}
