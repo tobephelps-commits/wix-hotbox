@@ -98,7 +98,7 @@ export function buildProductPreview(
     }
   }
   const availableSizes = Array.from(sizeMap.entries())
-    .sort((a, b) => a[1].localeCompare(b[1]))
+    .sort((a, b) => String(a[1]).localeCompare(String(b[1])))
     .map(([size]) => size);
 
   // Determine if inventory data is available

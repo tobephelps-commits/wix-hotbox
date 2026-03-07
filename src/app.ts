@@ -73,7 +73,10 @@ export async function buildApp(config: Config, db: Database.Database) {
   await app.register(apiRoutes, { prefix: '/api' });
 
   // Static file serving for built frontend (production)
-  const publicDir = join(__dirname, 'public');
+  // When running via tsx, __dirname is src/; when compiled, it's dist/
+  const publicDir = existsSync(join(__dirname, 'public'))
+    ? join(__dirname, 'public')
+    : join(__dirname, '..', 'dist', 'public');
   const hasPublicDir = existsSync(publicDir);
 
   if (hasPublicDir) {
