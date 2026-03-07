@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 50 of 56 (Order Management Advanced) -- COMPLETE
-Plan: 03 complete (Pipeline view and bulk operations)
-Status: Phase 50 complete, ready for phase 51
-Last activity: 2026-03-07 - Plan 03 complete, PipelineView kanban with aging/attention badges, BulkToolbar with multi-select and batch operations
+Phase: 51 of 56 (Inventory Sync) -- IN PROGRESS
+Plan: 02 complete (Stock sync foundation: migration, types, product-map, notifications)
+Status: Plan 02 complete, ready for plan 03
+Last activity: 2026-03-07 - Plan 02 complete, SQLite product mappings, sync types with SyncHealth, SMTP notifications
 
-Progress: ██░░░░░░░░ 18% (v2.0)
+Progress: ██░░░░░░░░ 21% (v2.0)
 
 ## Performance Metrics
 
@@ -371,10 +371,19 @@ None (cleared for new milestone)
 | 49 | Self-contained WIX API calls in wix-sync.ts | Different API base (ecom/v1 vs stores/v1), different auth patterns; avoids coupling to pipeline module |
 | 49 | Config parameter for WIX sync auth | Matches v2.0 pattern where route handlers pass fastify.config; pure functions, no module-level state |
 
+### Phase 51 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 51 | SyncConfig reduced to NotificationConfig only | db passed as function parameter per v2.0 conventions; no dataDir needed |
+| 51 | SyncHealth interface in types.ts | Was inline in sync-poller.ts in v1.x; centralized for reuse |
+| 51 | vendor required on ProductMapping | SQLite column has DEFAULT 'sanmar'; TypeScript mirrors DB schema |
+| 51 | sendSyncNotification config-first signature | (config, results, alerts?, auditResult?) -- config is the dependency |
+
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Phase 50 complete, ready for phase 51
+Stopped at: Phase 51, plan 02 complete, ready for plan 03
 Resume file: None
 
 ## Milestones Shipped
