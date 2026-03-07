@@ -71,3 +71,8 @@ export type {
   SyncOptions,
   RetryOptions,
 } from './wix-sync.js';
+
+// PDF generators
+export { generateProductionSheet } from './production-sheet.js';
+export { generateInvoice } from './invoice-generator.js';
+export { setDataDir as setPdfDataDir } from './pdf-template.js';
