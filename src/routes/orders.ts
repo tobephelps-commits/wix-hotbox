@@ -8,6 +8,9 @@
  * - GET    /api/orders/errors       -- Orders with unresolved errors
  * - POST   /api/orders/bulk/status  -- Bulk status update
  * - POST   /api/orders/bulk/production-sheets -- Bulk production sheet ZIP
+ * - GET    /api/orders/cart/preview  -- Preview consolidated cart items
+ * - POST   /api/orders/cart/fill     -- Trigger browser cart automation
+ * - GET    /api/orders/cart/history  -- Cart fill history
  * - POST   /api/orders/sync         -- Trigger WIX order sync
  * - POST   /api/orders/sync/reset   -- Reset and resync all WIX orders
  * - GET    /api/orders/:id          -- Get order details
@@ -17,11 +20,12 @@
  * - PATCH  /api/orders/:id/status   -- Update order status
  * - DELETE /api/orders/:id          -- Delete order
  *
- * Route ordering: Bulk/named endpoints registered BEFORE parameterized /:id
+ * Route ordering: Bulk/cart/named endpoints registered BEFORE parameterized /:id
  * routes to prevent path collisions (Phase 41 lesson).
  *
  * Phase 49: Order Management Core
  * Phase 50: PDF generation endpoints
+ * Phase 52: Cart automation endpoints
  */
 
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
@@ -31,6 +35,7 @@ import type {
   OrderFilter,
   CreateOrderInput,
 } from '../orders/index.js';
+import type { VendorId } from '../vendors/types.js';
 import {
   listOrders,
   getOrder,
@@ -46,8 +51,16 @@ import {
   generateProductionSheet,
   generateInvoice,
   setPdfDataDir,
+  buildCartFillRequest,
+  fillSanMarCart,
+  fillSSCart,
+  markOrdersAsOrdered,
+  markSSOrdersAsOrdered,
+  addOrderError,
 } from '../orders/index.js';
 import archiver from 'archiver';
+import { mkdirSync, writeFileSync, readdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 
 export default async function orderRoutes(
   fastify: FastifyInstance,
@@ -219,6 +232,181 @@ export default async function orderRoutes(
 
       archive.finalize();
     });
+  });
+
+  // =========================================================================
+  // GET /cart/preview -- Preview consolidated cart items for a vendor
+  // (Registered BEFORE /:id to prevent "cart" matching as an id parameter)
+  // =========================================================================
+
+  fastify.get<{
+    Querystring: { vendor?: string };
+  }>('/cart/preview', async (request, reply) => {
+    const vendor = request.query.vendor as VendorId | undefined;
+
+    if (vendor && vendor !== 'sanmar' && vendor !== 'ss') {
+      return reply.status(400).send({ error: 'vendor must be "sanmar" or "ss"' });
+    }
+
+    const cartRequest = buildCartFillRequest(fastify.db, vendor);
+    return {
+      items: cartRequest.items,
+      orderCount: cartRequest.orderNumbers.length,
+      itemCount: cartRequest.items.length,
+    };
+  });
+
+  // =========================================================================
+  // POST /cart/fill -- Trigger browser cart automation for a vendor
+  // =========================================================================
+
+  fastify.post<{
+    Body: { vendor: 'sanmar' | 'ss'; headless?: boolean };
+  }>('/cart/fill', async (request, reply) => {
+    const { vendor, headless } = request.body;
+
+    if (!vendor || (vendor !== 'sanmar' && vendor !== 'ss')) {
+      return reply.status(400).send({ error: 'vendor must be "sanmar" or "ss"' });
+    }
+
+    // Build cart fill request from eligible orders
+    const cartRequest = buildCartFillRequest(fastify.db, vendor);
+    if (cartRequest.items.length === 0) {
+      return reply.status(400).send({ error: 'No eligible orders for cart fill' });
+    }
+
+    // Extract web credentials from config
+    const credentials =
+      vendor === 'sanmar'
+        ? { username: fastify.config.sanmarWebUsername, password: fastify.config.sanmarWebPassword }
+        : { username: fastify.config.ssWebUsername, password: fastify.config.ssWebPassword };
+
+    if (!credentials.username || !credentials.password) {
+      return reply.status(400).send({ error: `Web credentials not configured for ${vendor}` });
+    }
+
+    const options = { headless: headless ?? true };
+
+    try {
+      // Execute cart fill
+      const result =
+        vendor === 'sanmar'
+          ? await fillSanMarCart(fastify.db, cartRequest, credentials, options)
+          : await fillSSCart(fastify.db, cartRequest, credentials, options);
+
+      // Transition successful orders to "ordered" status
+      if (result.status === 'success' || result.status === 'partial') {
+        if (vendor === 'sanmar') {
+          await markOrdersAsOrdered(fastify.db, result);
+        } else {
+          await markSSOrdersAsOrdered(fastify.db, result);
+        }
+      }
+
+      // Log errors to order_errors table for any failed items
+      for (const itemResult of result.itemResults) {
+        if (!itemResult.success && itemResult.error) {
+          // Find order IDs for the source orders of this failed item
+          for (const orderNumber of itemResult.item.sourceOrders) {
+            const row = fastify.db
+              .prepare('SELECT id FROM orders WHERE order_number = ?')
+              .get(orderNumber) as { id: string } | undefined;
+            if (row) {
+              addOrderError(fastify.db, row.id, {
+                operation: 'cart-fill',
+                message: `Failed to add ${itemResult.item.vendorStyle} ${itemResult.item.color} ${itemResult.item.size}: ${itemResult.error}`,
+              });
+            }
+          }
+        }
+      }
+
+      // Persist result for audit trail
+      const fillsDir = path.resolve(fastify.config.dataDir, 'cart-fills');
+      mkdirSync(fillsDir, { recursive: true });
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      writeFileSync(
+        path.join(fillsDir, `${timestamp}-${vendor}.json`),
+        JSON.stringify(result, null, 2),
+      );
+
+      return result;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+
+      // Detect login failures
+      if (message.toLowerCase().includes('login')) {
+        return reply.status(401).send({ error: 'Vendor login failed', details: message });
+      }
+
+      // Playwright launch or other failures
+      return reply.status(500).send({ error: 'Cart fill failed', details: message });
+    }
+  });
+
+  // =========================================================================
+  // GET /cart/history -- Cart fill history
+  // =========================================================================
+
+  fastify.get<{
+    Querystring: { vendor?: string; limit?: string };
+  }>('/cart/history', async (request, reply) => {
+    const vendor = request.query.vendor as VendorId | undefined;
+    const limit = request.query.limit ? parseInt(request.query.limit, 10) : 10;
+
+    if (vendor && vendor !== 'sanmar' && vendor !== 'ss') {
+      return reply.status(400).send({ error: 'vendor must be "sanmar" or "ss"' });
+    }
+
+    const fillsDir = path.resolve(fastify.config.dataDir, 'cart-fills');
+
+    let files: string[];
+    try {
+      files = readdirSync(fillsDir).filter((f) => f.endsWith('.json'));
+    } catch {
+      // Directory doesn't exist yet -- no history
+      return [];
+    }
+
+    // Filter by vendor if specified
+    if (vendor) {
+      files = files.filter((f) => f.endsWith(`-${vendor}.json`));
+    }
+
+    // Sort descending by filename (timestamp-based)
+    files.sort((a, b) => b.localeCompare(a));
+
+    // Limit results
+    files = files.slice(0, limit);
+
+    // Read and summarize each result
+    const summaries = files.map((file) => {
+      const raw = readFileSync(path.join(fillsDir, file), 'utf-8');
+      const result = JSON.parse(raw) as {
+        status: string;
+        request: { items: unknown[]; orderNumbers: number[] };
+        itemResults: { success: boolean }[];
+        completedAt: string;
+      };
+
+      const itemCount = result.itemResults.length;
+      const successCount = result.itemResults.filter((r) => r.success).length;
+      const failedCount = itemCount - successCount;
+
+      // Extract vendor from filename (last segment before .json)
+      const fileVendor = file.replace('.json', '').split('-').pop() || '';
+
+      return {
+        status: result.status,
+        vendor: fileVendor,
+        itemCount,
+        successCount,
+        failedCount,
+        completedAt: result.completedAt,
+      };
+    });
+
+    return summaries;
   });
 
   // =========================================================================
