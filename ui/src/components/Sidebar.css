@@ -144,6 +144,6 @@
 
   .sidebar-tab__label {
     display: block;
-    font-size: 0.7rem;
+    font-size: var(--font-xs);
   }
 }

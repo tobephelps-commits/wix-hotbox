@@ -270,8 +270,8 @@
 
 .tracked-product-item__delete-btn {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: var(--touch-min);
+  height: var(--touch-min);
   display: flex;
   align-items: center;
   justify-content: center;
