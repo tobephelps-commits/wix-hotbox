@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 # HotBox Pi Appliance — X11 init file for startx
 # Symlinked to /home/hotbox/.xinitrc by install-kiosk.sh
 
-source /home/hotbox/app/pi/config/hotbox.conf
-exec /home/hotbox/app/pi/kiosk/kiosk.sh
+. /home/hotbox/app/pi/config/hotbox.conf
+exec /bin/bash /home/hotbox/app/pi/kiosk/kiosk.sh
