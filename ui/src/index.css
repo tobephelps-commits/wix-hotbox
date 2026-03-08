@@ -14,10 +14,36 @@
   --color-text-muted: #888;
   --color-accent: #6c63ff;
   --color-border: #2a2a3e;
+  --color-surface-hover: #222240;
+  --color-surface-active: #12122a;
+  --color-accent-hover: #5a52e0;
+  --color-accent-glow: rgba(108, 99, 255, 0.25);
+  --color-shadow: rgba(0, 0, 0, 0.3);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  --touch-min: 56px;
+  --touch-lg: 64px;
+
+  --font-xs: 0.8rem;
+  --font-sm: 0.9rem;
+  --font-base: 1rem;
+  --font-lg: 1.15rem;
+  --font-xl: 1.35rem;
+  --font-2xl: 1.6rem;
+  --font-3xl: 2rem;
+
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
 }
 
 html {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 body {
@@ -29,6 +55,7 @@ body {
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-gutter: stable;
 }
 
 #root {
@@ -37,7 +64,7 @@ body {
 
 /* Scrollbar styling for Chromium */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -46,7 +73,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: 3px;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -58,13 +85,23 @@ button,
 a,
 [role="button"],
 .touchable {
-  min-height: 44px;
+  min-height: var(--touch-min);
   -webkit-tap-highlight-color: transparent;
 }
 
 .touchable:active {
-  opacity: 0.7;
-  transition: opacity 50ms;
+  transform: scale(0.97);
+  transition: transform 50ms;
+}
+
+/* Touch ripple animation */
+@keyframes touch-ripple {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.press-feedback:active {
+  animation: touch-ripple var(--transition-fast) ease-out;
 }
 
 /* Utility classes */
