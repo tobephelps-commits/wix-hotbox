@@ -29,7 +29,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   // Worker-scoped: server + seeded data
   seededServer: [async ({}, use) => {
-    const server = await startTestServer(3458);
+    const server = await startTestServer();
     seedTestOrders(server.dataDir);
     seedTestCustomers(server.dataDir);
     seedTestLogos(server.dataDir);

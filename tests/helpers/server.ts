@@ -14,13 +14,22 @@ export interface TestServer {
  * Start a test server instance with an isolated temp data directory.
  * Sets dummy credentials so the app boots without real vendor APIs.
  */
-export async function startTestServer(port = 3457): Promise<TestServer> {
+/**
+ * Get a random available port in the ephemeral range.
+ * Uses a random offset to avoid collisions between parallel workers.
+ */
+function randomPort(): number {
+  return 10000 + Math.floor(Math.random() * 50000);
+}
+
+export async function startTestServer(port?: number): Promise<TestServer> {
+  const listenPort = port ?? randomPort();
   const dataDir = mkdtempSync(join(tmpdir(), 'hotbox-test-'));
   const logDir = join(dataDir, 'logs');
   mkdirSync(logDir, { recursive: true });
 
   // Set env vars before importing app modules (they read process.env at import time)
-  process.env.PORT = String(port);
+  process.env.PORT = String(listenPort);
   process.env.DATA_DIR = dataDir;
   process.env.NODE_ENV = 'test';
   process.env.LOG_DIR = logDir;
@@ -40,9 +49,12 @@ export async function startTestServer(port = 3457): Promise<TestServer> {
   runMigrations(db);
 
   const app = await buildApp(config, db);
-  await app.listen({ port, host: '127.0.0.1' });
+  await app.listen({ port: listenPort, host: '127.0.0.1' });
 
-  const baseUrl = `http://127.0.0.1:${port}`;
+  // Resolve the actual port
+  const address = app.server.address();
+  const actualPort = typeof address === 'object' && address ? address.port : listenPort;
+  const baseUrl = `http://127.0.0.1:${actualPort}`;
 
   const cleanup = async () => {
     await app.close();
