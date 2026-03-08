@@ -32,7 +32,7 @@ Services restart on failure. Hardware watchdog resets the Pi if the system hangs
 ### 1. Flash the SD Card
 
 1. Download and install [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
-2. Select **Raspberry Pi OS Lite (64-bit, Bookworm)** as the operating system
+2. Select **Raspberry Pi OS Lite (64-bit)** as the operating system (Trixie or Bookworm)
    - No desktop environment needed; we install only what the kiosk requires
    - ARM64 required for Node.js 20+ compatibility
 3. Select your microSD card as the target

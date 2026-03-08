@@ -102,27 +102,61 @@ mkdir -p /etc/X11/xorg.conf.d
 
 cat > /etc/X11/xorg.conf.d/10-blanking.conf <<'XORGCONF'
 # HotBox: Disable screen blanking and DPMS for kiosk mode
-Section "ServerFlags"
-    Option "BlankTime"  "0"
-    Option "StandbyTime" "0"
-    Option "SuspendTime" "0"
-    Option "OffTime"     "0"
-EndSection
-
-Section "ServerLayout"
-    Identifier "ServerLayout0"
-    Option "BlankTime"  "0"
-    Option "StandbyTime" "0"
-    Option "SuspendTime" "0"
-    Option "OffTime"     "0"
-EndSection
-
 Section "Monitor"
     Identifier "Monitor0"
     Option "DPMS" "false"
 EndSection
 XORGCONF
 echo "[4/4] Created /etc/X11/xorg.conf.d/10-blanking.conf"
+
+# ---------- 4b. Pi 5 GPU configuration ----------
+# Pi 5 has two DRI devices: card0 (v3d 3D accelerator) and card1 (display controller).
+# Xorg must use card1 for display output. AutoAddGPU=false prevents loading both
+# which causes "Cannot run in framebuffer mode" errors.
+echo "[4/4] Configuring Xorg for Pi 5 GPU (modesetting on card1)..."
+cat > /etc/X11/xorg.conf.d/20-modesetting.conf <<'XORGCONF'
+# HotBox: Pi 5 display configuration
+# Forces modesetting driver on the display controller (card1)
+# and prevents conflict with v3d accelerator (card0)
+Section "ServerFlags"
+    Option "AutoAddGPU" "false"
+    Option "BlankTime"  "0"
+    Option "StandbyTime" "0"
+    Option "SuspendTime" "0"
+    Option "OffTime"     "0"
+EndSection
+
+Section "Device"
+    Identifier "vc4"
+    Driver "modesetting"
+    Option "kmsdev" "/dev/dri/card1"
+EndSection
+
+Section "Screen"
+    Identifier "default"
+    Device "vc4"
+EndSection
+
+Section "ServerLayout"
+    Identifier "default"
+    Screen "default"
+    Option "BlankTime"  "0"
+    Option "StandbyTime" "0"
+    Option "SuspendTime" "0"
+    Option "OffTime"     "0"
+EndSection
+XORGCONF
+echo "[4/4] Created /etc/X11/xorg.conf.d/20-modesetting.conf"
+
+# ---------- 4c. Xwrapper permissions ----------
+# Allow non-root users to start X (required for systemd service)
+echo "[4/4] Configuring Xwrapper for non-root X startup..."
+mkdir -p /etc/X11
+cat > /etc/X11/Xwrapper.config <<'XWRAP'
+allowed_users=anybody
+needs_root_rights=yes
+XWRAP
+echo "[4/4] Xwrapper configured for non-root X startup."
 
 # ---------- Symlink xinitrc ----------
 echo ""
