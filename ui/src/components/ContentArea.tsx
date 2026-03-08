@@ -2,6 +2,7 @@ import type { TabId } from './Sidebar';
 import ProductsTab from './products/ProductsTab';
 import OrdersTab from './orders/OrdersTab';
 import InventoryTab from './inventory/InventoryTab';
+import CustomersTab from './customers/CustomersTab';
 
 const tabInfo: Record<TabId, { label: string; phase: string }> = {
   products: { label: 'Products', phase: 'Phase 47' },
@@ -26,6 +27,10 @@ function ContentArea({ activeTab }: ContentAreaProps) {
 
   if (activeTab === 'inventory') {
     return <InventoryTab />;
+  }
+
+  if (activeTab === 'customers') {
+    return <CustomersTab />;
   }
 
   const info = tabInfo[activeTab];
