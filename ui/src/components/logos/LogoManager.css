@@ -1,29 +1,30 @@
 /* =============================================================================
- * Logo Manager — Dark theme, touch-friendly logo management UI
- * Phase 48: Logo System
+ * Logo Manager -- Dark theme, touch-friendly logo management UI
+ * Phase 58-05: Kiosk Touch UI Modernization
  * ============================================================================= */
 
 /* Header */
 .logo-manager__header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .logo-manager__back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--touch-min);
+  height: var(--touch-min);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
   flex-shrink: 0;
+  transition: background var(--transition-base);
 }
 
 .logo-manager__back-btn:hover {
@@ -31,7 +32,7 @@
 }
 
 .logo-manager__title {
-  font-size: 1.25rem;
+  font-size: var(--font-xl);
   font-weight: 600;
   color: var(--color-text);
 }
@@ -39,18 +40,18 @@
 /* Upload toggle button */
 .logo-manager__upload-toggle {
   width: 100%;
-  height: 52px;
-  font-size: 1rem;
+  height: var(--touch-lg);
+  font-size: var(--font-base);
   font-weight: 700;
   font-family: inherit;
   letter-spacing: 0.04em;
   border: 2px dashed var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: transparent;
   color: var(--color-accent);
   cursor: pointer;
-  margin-bottom: 20px;
-  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 24px;
+  transition: border-color var(--transition-base), background var(--transition-base);
 }
 
 .logo-manager__upload-toggle:hover {
@@ -62,23 +63,24 @@
 .logo-manager__upload-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 20px;
+  gap: 16px;
+  padding: 24px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
-  margin-bottom: 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px var(--color-shadow);
+  margin-bottom: 24px;
 }
 
 /* Shared field layout */
 .logo-manager__field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .logo-manager__label {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -86,20 +88,21 @@
 }
 
 .logo-manager__input {
-  height: 44px;
-  padding: 0 14px;
-  font-size: 0.95rem;
+  height: var(--touch-min);
+  padding: 0 16px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .logo-manager__input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .logo-manager__input::placeholder {
@@ -107,24 +110,25 @@
 }
 
 .logo-manager__file-input {
-  font-size: 0.9rem;
+  font-size: var(--font-sm);
   font-family: inherit;
   color: var(--color-text);
-  padding: 10px 0;
+  padding: 12px 0;
 }
 
 .logo-manager__file-input::file-selector-button {
-  height: 36px;
-  padding: 0 16px;
-  font-size: 0.85rem;
+  height: var(--touch-min);
+  padding: 0 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
-  margin-right: 12px;
+  margin-right: 14px;
+  transition: background var(--transition-base);
 }
 
 .logo-manager__file-input::file-selector-button:hover {
@@ -133,12 +137,12 @@
 
 /* Upload submit */
 .logo-manager__upload-btn {
-  height: 48px;
-  font-size: 1rem;
+  height: var(--touch-lg);
+  font-size: var(--font-base);
   font-weight: 700;
   font-family: inherit;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-accent);
   color: #fff;
   cursor: pointer;
@@ -146,7 +150,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: opacity 0.15s;
+  transition: opacity var(--transition-base);
 }
 
 .logo-manager__upload-btn:hover:not(:disabled) {
@@ -160,9 +164,9 @@
 
 /* Messages */
 .logo-manager__message {
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: var(--font-sm);
+  border-radius: var(--radius-md);
 }
 
 .logo-manager__message--error {
@@ -182,26 +186,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 40px 0;
+  gap: 12px;
+  padding: 48px 0;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--font-base);
 }
 
 /* Empty state */
 .logo-manager__empty {
-  padding: 48px 20px;
+  padding: 56px 24px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 1rem;
+  font-size: var(--font-lg);
   line-height: 1.6;
 }
 
 /* Spinner */
 .logo-manager__spinner {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 2px solid rgba(108, 99, 255, 0.3);
   border-top-color: var(--color-accent);
   border-radius: 50%;
@@ -220,8 +224,8 @@
 
 .logo-manager__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 /* Card */
@@ -229,9 +233,10 @@
   position: relative;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px var(--color-shadow);
   overflow: hidden;
-  transition: border-color 0.15s;
+  transition: border-color var(--transition-base);
 }
 
 .logo-manager__card:hover {
@@ -248,11 +253,11 @@
 
 .logo-manager__card-main {
   cursor: pointer;
-  padding: 16px 14px 12px;
+  padding: 20px 16px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* Thumbnail */
@@ -263,7 +268,7 @@
   align-items: center;
   justify-content: center;
   background: #fff;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -278,11 +283,11 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .logo-manager__card-name {
-  font-size: 0.9rem;
+  font-size: var(--font-base);
   font-weight: 600;
   color: var(--color-text);
   overflow: hidden;
@@ -291,7 +296,7 @@
 }
 
 .logo-manager__card-key {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
   font-family: monospace;
   overflow: hidden;
@@ -301,38 +306,38 @@
 
 .logo-manager__card-badges {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-top: 4px;
 }
 
 .logo-manager__badge {
-  padding: 2px 8px;
-  font-size: 0.7rem;
+  padding: 4px 12px;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-text-muted);
   background: var(--color-bg);
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
 }
 
 /* Delete button (positioned in top-right of card) */
 .logo-manager__delete-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 107, 107, 0.12);
   color: #ff6b6b;
-  font-size: 0.9rem;
+  font-size: 1rem;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s, background 0.15s;
+  transition: opacity var(--transition-base), background var(--transition-base);
 }
 
 .logo-manager__card:hover .logo-manager__delete-btn {
@@ -350,19 +355,19 @@
 .logo-manager__edit-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px;
+  gap: 14px;
+  padding: 16px;
   border-top: 1px solid var(--color-border);
   background: var(--color-bg);
 }
 
 .logo-manager__range {
   width: 100%;
-  height: 6px;
+  height: 8px;
   -webkit-appearance: none;
   appearance: none;
   background: var(--color-border);
-  border-radius: 3px;
+  border-radius: var(--radius-pill);
   outline: none;
   cursor: pointer;
 }
@@ -370,8 +375,8 @@
 .logo-manager__range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--color-accent);
   cursor: pointer;
@@ -379,8 +384,8 @@
 }
 
 .logo-manager__range::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--color-accent);
   cursor: pointer;
@@ -388,16 +393,17 @@
 }
 
 .logo-manager__select {
-  height: 44px;
-  padding: 0 14px;
-  font-size: 0.9rem;
+  height: var(--touch-min);
+  padding: 0 16px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
   cursor: pointer;
+  transition: border-color var(--transition-base);
 }
 
 .logo-manager__select:focus {
@@ -412,14 +418,14 @@
 }
 
 .logo-manager__btn {
-  min-height: 40px;
-  padding: 8px 18px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 8px 20px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+  transition: opacity var(--transition-base), background var(--transition-base), border-color var(--transition-base);
 }
 
 .logo-manager__btn--cancel {
@@ -470,22 +476,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
 }
 
 .logo-manager__dialog {
   width: 100%;
-  max-width: 360px;
-  padding: 24px;
+  max-width: 400px;
+  padding: 28px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px var(--color-shadow);
 }
 
 .logo-manager__dialog-text {
-  font-size: 1rem;
+  font-size: var(--font-base);
   color: var(--color-text);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   line-height: 1.5;
 }
 
@@ -501,7 +508,7 @@
 
 @media (max-width: 560px) {
   .logo-manager__grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 
   /* Always show delete button on touch devices */
