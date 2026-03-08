@@ -1,6 +1,6 @@
 /* =============================================================================
  * PipelineView -- Kanban-style order pipeline visualization
- * Phase 50: Order Management Advanced (Plan 03)
+ * Phase 58-04: Kiosk Touch UI Modernization
  * ============================================================================= */
 
 /* Loading state */
@@ -8,9 +8,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 48px;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--font-base);
 }
 
 /* Wrapper for attention + kanban */
@@ -27,8 +27,8 @@
 
 .pipeline-attention {
   display: flex;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 10px;
+  padding: 12px 20px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -43,18 +43,18 @@
 .pipeline-attention__badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  min-height: 36px;
-  font-size: 0.8rem;
+  gap: 8px;
+  padding: 8px 16px;
+  min-height: var(--touch-min);
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
-  border-radius: 18px;
+  border-radius: var(--radius-pill);
   border: 2px solid transparent;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: border-color 0.15s, opacity 0.15s;
+  transition: border-color var(--transition-base), opacity var(--transition-base);
 }
 
 .pipeline-attention__badge--blue {
@@ -93,18 +93,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  font-size: 0.7rem;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  font-size: var(--font-xs);
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   background: currentColor;
   color: #0d0d1a;
 }
 
 .pipeline-attention__badge-label {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
 }
 
 /* =============================================================================
@@ -122,7 +122,7 @@
 }
 
 .pipeline-container::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 
 .pipeline-container::-webkit-scrollbar-track {
@@ -131,7 +131,7 @@
 
 .pipeline-container::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 /* =============================================================================
@@ -141,8 +141,8 @@
 .pipeline-stage {
   display: flex;
   flex-direction: column;
-  min-width: 250px;
-  max-width: 300px;
+  min-width: 270px;
+  max-width: 320px;
   flex-shrink: 0;
   scroll-snap-align: start;
   border-right: 1px solid var(--color-border);
@@ -156,15 +156,15 @@
 .pipeline-stage__header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
+  gap: 10px;
+  padding: 14px 18px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--color-border);
 }
 
 .pipeline-stage__dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -178,7 +178,7 @@
 .pipeline-stage__dot--shipped { background: #00bcd4; }
 
 .pipeline-stage__name {
-  font-size: 0.8rem;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-text);
   text-transform: uppercase;
@@ -189,18 +189,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  font-size: 0.7rem;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
+  font-size: var(--font-xs);
   font-weight: 700;
-  border-radius: 11px;
+  border-radius: var(--radius-pill);
   background: var(--color-border);
   color: var(--color-text-muted);
 }
 
 .pipeline-stage__value {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-text-muted);
   margin-left: auto;
@@ -211,16 +211,16 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding: 8px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .pipeline-stage__empty {
-  padding: 20px 10px;
+  padding: 24px 12px;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   color: var(--color-text-muted);
 }
 
@@ -231,17 +231,18 @@
 .pipeline-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
+  gap: 6px;
+  padding: 14px 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px var(--color-shadow);
   cursor: pointer;
   font-family: inherit;
   color: inherit;
   text-align: left;
   width: 100%;
-  transition: border-color 0.12s, background 0.12s;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
   border-left-width: 3px;
 }
 
@@ -266,17 +267,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 
 .pipeline-card__number {
-  font-size: 0.85rem;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .pipeline-card__customer {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -287,8 +288,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  font-size: 0.75rem;
+  gap: 8px;
+  font-size: var(--font-xs);
 }
 
 .pipeline-card__items {
@@ -307,10 +308,10 @@
 .pipeline-aging {
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
-  font-size: 0.65rem;
+  padding: 3px 8px;
+  font-size: var(--font-xs);
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
   flex-shrink: 0;
 }
