@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 57.1 (Remaining Tab UIs) -- IN PROGRESS
-Plan: 01 complete (Inventory Tab UI)
-Status: Ready for plan 02
-Last activity: 2026-03-08 - InventoryTab with tracked products CRUD, SKU snapshot grid, alert management, poll trigger, sync status; wired into ContentArea
+Plan: 02 complete (Customers Tab UI)
+Status: Ready for plan 03
+Last activity: 2026-03-08 - CustomersTab with CRUD, pricing calculator, royalty report with PDF download; wired into ContentArea
 
 Progress: ██████████ 100% (v2.0)
 
@@ -406,7 +406,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Phase 57.1, plan 01 complete
+Stopped at: Phase 57.1, plan 02 complete
 Resume file: None
 
 ## Milestones Shipped
