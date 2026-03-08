@@ -1,14 +1,14 @@
 /* =============================================================================
  * Inventory Tab -- Dark theme, touch-friendly inventory monitoring UI
- * Phase 57.1: Remaining Tab UIs (Plan 01)
+ * Phase 58-05: Kiosk Touch UI Modernization
  * ============================================================================= */
 
 /* Master-detail layout */
 .inventory-layout {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: 0;
-  height: calc(100dvh - 56px - 48px);
+  height: calc(100dvh - 64px - 48px);
 }
 
 .inventory-layout__list-panel {
@@ -46,14 +46,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--color-border);
   gap: 12px;
   flex-shrink: 0;
 }
 
 .inventory-header__title {
-  font-size: 1.1rem;
+  font-size: var(--font-xl);
   font-weight: 700;
   color: var(--color-text);
   display: flex;
@@ -68,20 +68,20 @@
 }
 
 .inventory-header__btn {
-  min-height: 44px;
-  padding: 0 16px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-accent);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: rgba(108, 99, 255, 0.12);
   color: var(--color-accent);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--transition-base), color var(--transition-base);
   white-space: nowrap;
 }
 
@@ -109,8 +109,8 @@
 
 .inventory-header__spinner {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border: 2px solid rgba(108, 99, 255, 0.3);
   border-top-color: currentColor;
   border-radius: 50%;
@@ -125,14 +125,14 @@
 .inventory-header__sync-status {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
+  gap: 8px;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
 .inventory-header__sync-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -150,12 +150,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  font-size: 0.7rem;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  font-size: var(--font-xs);
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   background: #ff6b6b;
   color: #fff;
 }
@@ -165,27 +165,28 @@
  * ============================================================================= */
 
 .inventory-search {
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
 .inventory-search__input {
   width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  font-size: 0.95rem;
+  height: var(--touch-min);
+  padding: 0 16px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .inventory-search__input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .inventory-search__input::placeholder {
@@ -206,8 +207,8 @@
 .tracked-product-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 14px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--color-border);
   background: transparent;
   border-left: 3px solid transparent;
@@ -216,8 +217,8 @@
   font-family: inherit;
   color: inherit;
   cursor: pointer;
-  transition: background 0.12s;
-  min-height: 64px;
+  transition: background var(--transition-fast);
+  min-height: 76px;
   border-right: none;
   border-top: none;
 }
@@ -246,13 +247,13 @@
 }
 
 .tracked-product-item__style {
-  font-size: 0.9rem;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .tracked-product-item__name {
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
   color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -263,14 +264,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
 .tracked-product-item__delete-btn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -278,9 +279,9 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: background 0.12s, color 0.12s;
+  border-radius: var(--radius-sm);
+  font-size: 1.1rem;
+  transition: background var(--transition-base), color var(--transition-base);
 }
 
 .tracked-product-item__delete-btn:hover {
@@ -295,12 +296,12 @@
 .vendor-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  font-size: 0.65rem;
+  padding: 4px 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
 }
 
@@ -321,12 +322,12 @@
 .priority-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  font-size: 0.65rem;
+  padding: 4px 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
 }
 
@@ -352,12 +353,12 @@
 .alert-type-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  font-size: 0.65rem;
+  padding: 4px 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
 }
 
@@ -403,12 +404,12 @@
  * ============================================================================= */
 
 .add-product-form {
-  padding: 12px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   animation: add-form-slide 0.2s ease;
   flex-shrink: 0;
 }
@@ -428,26 +429,27 @@
 
 .add-product-form__row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .add-product-form__input {
   flex: 1;
-  height: 44px;
-  padding: 0 12px;
-  font-size: 0.9rem;
+  height: var(--touch-min);
+  padding: 0 14px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
   min-width: 0;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .add-product-form__input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .add-product-form__input::placeholder {
@@ -455,42 +457,43 @@
 }
 
 .add-product-form__select {
-  height: 44px;
-  padding: 0 12px;
-  font-size: 0.9rem;
+  height: var(--touch-min);
+  padding: 0 14px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
   cursor: pointer;
   min-width: 120px;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .add-product-form__select:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .add-product-form__priority-selector {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .add-product-form__priority-btn {
   flex: 1;
-  min-height: 44px;
-  padding: 8px 12px;
-  font-size: 0.8rem;
+  min-height: var(--touch-min);
+  padding: 10px 14px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 2px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  transition: border-color var(--transition-base), color var(--transition-base), background var(--transition-base);
 }
 
 .add-product-form__priority-btn:hover {
@@ -510,17 +513,17 @@
 }
 
 .add-product-form__submit {
-  min-height: 44px;
-  padding: 0 20px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0 24px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-accent);
   color: #fff;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--transition-base);
 }
 
 .add-product-form__submit:hover:not(:disabled) {
@@ -533,17 +536,17 @@
 }
 
 .add-product-form__cancel {
-  min-height: 44px;
-  padding: 0 16px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0 20px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color var(--transition-base), color var(--transition-base);
 }
 
 .add-product-form__cancel:hover {
@@ -556,10 +559,10 @@
  * ============================================================================= */
 
 .inventory-detail {
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .inventory-detail__empty {
@@ -567,57 +570,58 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 40px;
+  padding: 48px;
   color: var(--color-text-muted);
-  font-size: 1rem;
+  font-size: var(--font-lg);
 }
 
 .inventory-detail__loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 48px;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--font-base);
 }
 
 /* Product header in detail */
 .inventory-detail__header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .inventory-detail__product-name {
-  font-size: 1.25rem;
+  font-size: var(--font-xl);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .inventory-detail__style {
-  font-size: 0.9rem;
+  font-size: var(--font-sm);
   color: var(--color-text-muted);
 }
 
 .inventory-detail__priority-edit {
   margin-left: auto;
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .inventory-detail__priority-btn {
-  padding: 4px 10px;
-  font-size: 0.7rem;
+  padding: 6px 14px;
+  font-size: var(--font-xs);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
   text-transform: uppercase;
-  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  min-height: 40px;
+  transition: border-color var(--transition-base), color var(--transition-base), background var(--transition-base);
 }
 
 .inventory-detail__priority-btn:hover {
@@ -634,11 +638,11 @@
 .inventory-detail__section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .inventory-detail__section-title {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -646,10 +650,11 @@
 }
 
 .inventory-detail__card {
-  padding: 14px 16px;
+  padding: 18px 20px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px var(--color-shadow);
   overflow-x: auto;
 }
 
@@ -660,17 +665,17 @@
 .snapshot-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
 }
 
 .snapshot-table th {
   text-align: left;
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
@@ -680,10 +685,11 @@
 }
 
 .snapshot-table td {
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
   vertical-align: middle;
+  min-height: var(--touch-min);
 }
 
 .snapshot-table td:not(:first-child) {
@@ -697,16 +703,16 @@
 }
 
 .snapshot-table__timestamp {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .snapshot-empty {
-  padding: 20px;
+  padding: 24px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--font-base);
 }
 
 /* =============================================================================
@@ -716,7 +722,7 @@
 .inventory-alerts__filters {
   display: flex;
   gap: 8px;
-  padding: 0 0 10px;
+  padding: 0 0 12px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -727,19 +733,19 @@
 }
 
 .inventory-alert-pill {
-  min-height: 36px;
-  padding: 6px 12px;
-  font-size: 0.75rem;
+  min-height: var(--touch-min);
+  padding: 8px 16px;
+  font-size: var(--font-xs);
   font-weight: 600;
   font-family: inherit;
   border: 2px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text-muted);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color var(--transition-base), color var(--transition-base), background var(--transition-base);
 }
 
 .inventory-alert-pill:hover {
@@ -756,9 +762,10 @@
 .inventory-alert-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 0;
+  gap: 12px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--color-border);
+  min-height: var(--touch-min);
 }
 
 .inventory-alert-item:last-child {
@@ -781,35 +788,35 @@
 }
 
 .inventory-alert-item__detail {
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
   color: var(--color-text);
 }
 
 .inventory-alert-item__qty-change {
-  font-size: 0.8rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .inventory-alert-item__time {
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
 .inventory-alert-item__ack-btn {
-  min-height: 32px;
-  padding: 4px 12px;
-  font-size: 0.75rem;
+  min-height: var(--touch-min);
+  padding: 8px 16px;
+  font-size: var(--font-xs);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: border-color 0.12s, color 0.12s;
+  transition: border-color var(--transition-base), color var(--transition-base);
 }
 
 .inventory-alert-item__ack-btn:hover {
@@ -822,10 +829,10 @@
 }
 
 .inventory-alerts-empty {
-  padding: 16px 0;
+  padding: 20px 0;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
 }
 
 /* =============================================================================
@@ -837,18 +844,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  gap: 12px;
+  padding: 48px 24px;
+  gap: 14px;
   color: var(--color-text-muted);
   text-align: center;
 }
 
 .inventory-empty__title {
-  font-size: 1rem;
+  font-size: var(--font-lg);
   font-weight: 600;
   color: var(--color-text);
 }
 
 .inventory-empty__text {
-  font-size: 0.85rem;
+  font-size: var(--font-base);
 }

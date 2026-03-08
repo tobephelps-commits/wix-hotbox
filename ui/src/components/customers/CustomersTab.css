@@ -1,14 +1,14 @@
 /* =============================================================================
  * Customers Tab -- Dark theme, touch-friendly customer management UI
- * Phase 57.1: Remaining Tab UIs (Plan 02)
+ * Phase 58-05: Kiosk Touch UI Modernization
  * ============================================================================= */
 
 /* Master-detail layout */
 .customers-layout {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: 0;
-  height: calc(100dvh - 56px - 48px);
+  height: calc(100dvh - 64px - 48px);
 }
 
 .customers-layout__list-panel {
@@ -46,33 +46,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--color-border);
   gap: 12px;
   flex-shrink: 0;
 }
 
 .customers-header__title {
-  font-size: 1.1rem;
+  font-size: var(--font-xl);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .customers-header__new-btn {
-  min-height: 44px;
-  padding: 0 16px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-accent);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: rgba(108, 99, 255, 0.12);
   color: var(--color-accent);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--transition-base), color var(--transition-base);
   white-space: nowrap;
 }
 
@@ -88,19 +88,19 @@
 .customers-filters {
   display: flex;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 10px 20px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--color-border);
 }
 
 .customers-filter-pill {
-  min-height: 44px;
-  padding: 8px 14px;
-  font-size: 0.8rem;
+  min-height: var(--touch-min);
+  padding: 8px 16px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 2px solid var(--color-border);
-  border-radius: 22px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text-muted);
   cursor: pointer;
@@ -109,7 +109,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color var(--transition-base), color var(--transition-base), background var(--transition-base);
 }
 
 .customers-filter-pill:hover {
@@ -128,27 +128,28 @@
  * ============================================================================= */
 
 .customers-search {
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
 .customers-search__input {
   width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  font-size: 0.95rem;
+  height: var(--touch-min);
+  padding: 0 16px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .customers-search__input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .customers-search__input::placeholder {
@@ -169,8 +170,8 @@
 .customer-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 14px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--color-border);
   background: transparent;
   border-left: 3px solid transparent;
@@ -179,8 +180,8 @@
   font-family: inherit;
   color: inherit;
   cursor: pointer;
-  transition: background 0.12s;
-  min-height: 64px;
+  transition: background var(--transition-fast);
+  min-height: 76px;
   border-right: none;
   border-top: none;
 }
@@ -209,7 +210,7 @@
 }
 
 .customer-item__name {
-  font-size: 0.9rem;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-text);
   overflow: hidden;
@@ -221,7 +222,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
@@ -242,12 +243,12 @@
 .active-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  font-size: 0.65rem;
+  padding: 4px 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
 }
 
@@ -270,20 +271,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  gap: 12px;
+  padding: 48px 24px;
+  gap: 14px;
   color: var(--color-text-muted);
   text-align: center;
 }
 
 .customers-empty__title {
-  font-size: 1rem;
+  font-size: var(--font-lg);
   font-weight: 600;
   color: var(--color-text);
 }
 
 .customers-empty__text {
-  font-size: 0.85rem;
+  font-size: var(--font-base);
 }
 
 /* =============================================================================
@@ -291,10 +292,10 @@
  * ============================================================================= */
 
 .customer-detail {
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .customer-detail__empty {
@@ -302,20 +303,20 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 40px;
+  padding: 48px;
   color: var(--color-text-muted);
-  font-size: 1rem;
+  font-size: var(--font-lg);
 }
 
 .customer-detail__header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .customer-detail__title {
-  font-size: 1.25rem;
+  font-size: var(--font-xl);
   font-weight: 700;
   color: var(--color-text);
 }
@@ -329,17 +330,17 @@
 }
 
 .customer-detail__edit-btn {
-  min-height: 44px;
-  padding: 8px 16px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 8px 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-accent);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: rgba(108, 99, 255, 0.12);
   color: var(--color-accent);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--transition-base), color var(--transition-base);
 }
 
 .customer-detail__edit-btn:hover {
@@ -348,17 +349,17 @@
 }
 
 .customer-detail__delete-btn {
-  min-height: 44px;
-  padding: 8px 16px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 8px 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid rgba(255, 107, 107, 0.3);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: #ff6b6b;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--transition-base), border-color var(--transition-base);
 }
 
 .customer-detail__delete-btn:hover {
@@ -370,21 +371,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
   color: #ff6b6b;
 }
 
 .customer-detail__delete-confirm-btn {
-  min-height: 36px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
+  min-height: var(--touch-min);
+  padding: 8px 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid #ff6b6b;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: rgba(255, 107, 107, 0.12);
   color: #ff6b6b;
   cursor: pointer;
+  transition: background var(--transition-base), color var(--transition-base);
 }
 
 .customer-detail__delete-confirm-btn:hover {
@@ -393,16 +395,17 @@
 }
 
 .customer-detail__delete-cancel-btn {
-  min-height: 36px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
+  min-height: var(--touch-min);
+  padding: 8px 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  transition: border-color var(--transition-base), color var(--transition-base);
 }
 
 .customer-detail__delete-cancel-btn:hover {
@@ -414,11 +417,11 @@
 .customer-detail__section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .customer-detail__section-title {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -426,13 +429,14 @@
 }
 
 .customer-detail__card {
-  padding: 14px 16px;
+  padding: 18px 20px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px var(--color-shadow);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* Field (label/value pair) */
@@ -440,7 +444,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
 }
 
 .customer-detail__field-label {
@@ -463,17 +467,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .customer-detail__pricing-value {
-  font-size: 1.5rem;
+  font-size: var(--font-2xl);
   font-weight: 700;
   color: var(--color-accent);
 }
 
 .customer-detail__pricing-label {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
@@ -484,16 +488,16 @@
 .customer-detail__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .customer-detail__chip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  font-size: 0.75rem;
+  padding: 4px 12px;
+  font-size: var(--font-xs);
   font-weight: 600;
-  border-radius: 14px;
+  border-radius: var(--radius-pill);
   background: rgba(108, 99, 255, 0.12);
   color: var(--color-accent);
   border: 1px solid rgba(108, 99, 255, 0.25);
@@ -501,7 +505,7 @@
 
 /* Notes */
 .customer-detail__notes {
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
   color: var(--color-text);
   white-space: pre-wrap;
   line-height: 1.5;
@@ -511,7 +515,7 @@
 .customer-detail__timestamps {
   display: flex;
   gap: 16px;
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
@@ -526,11 +530,11 @@
 }
 
 .customer-form__error {
-  padding: 10px 14px;
+  padding: 12px 16px;
   background: rgba(255, 107, 107, 0.08);
   border: 1px solid rgba(255, 107, 107, 0.25);
-  border-radius: 8px;
-  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
   color: #ff6b6b;
 }
 
@@ -558,7 +562,7 @@
 }
 
 .customer-form__label {
-  font-size: 0.8rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
@@ -567,54 +571,56 @@
 
 .customer-form__input {
   width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  font-size: 0.95rem;
+  height: var(--touch-min);
+  padding: 0 16px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .customer-form__input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .customer-form__textarea {
   width: 100%;
-  padding: 10px 14px;
-  font-size: 0.95rem;
+  padding: 12px 16px;
+  font-size: var(--font-base);
   font-family: inherit;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   outline: none;
   resize: vertical;
-  min-height: 80px;
+  min-height: 90px;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .customer-form__textarea:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.25);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .customer-form__checkbox-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 10px;
+  font-size: var(--font-base);
   font-weight: 500;
   color: var(--color-text);
   cursor: pointer;
 }
 
 .customer-form__checkbox-label input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   accent-color: var(--color-accent);
   cursor: pointer;
 }
@@ -626,17 +632,17 @@
 }
 
 .customer-form__save-btn {
-  min-height: 44px;
+  min-height: var(--touch-min);
   padding: 0 24px;
-  font-size: 0.9rem;
+  font-size: var(--font-base);
   font-weight: 600;
   font-family: inherit;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-accent);
   color: #fff;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--transition-base);
 }
 
 .customer-form__save-btn:hover:not(:disabled) {
@@ -649,17 +655,17 @@
 }
 
 .customer-form__cancel-btn {
-  min-height: 44px;
+  min-height: var(--touch-min);
   padding: 0 24px;
-  font-size: 0.9rem;
+  font-size: var(--font-base);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color var(--transition-base), color var(--transition-base);
 }
 
 .customer-form__cancel-btn:hover:not(:disabled) {
@@ -685,7 +691,7 @@
 }
 
 .customer-detail__collapse-icon {
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
@@ -694,17 +700,17 @@
  * ============================================================================= */
 
 .customer-detail__calc-btn {
-  min-height: 44px;
-  padding: 0 20px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0 24px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-accent);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: rgba(108, 99, 255, 0.12);
   color: var(--color-accent);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--transition-base), color var(--transition-base);
   align-self: flex-start;
 }
 
@@ -721,15 +727,15 @@
 .customer-detail__pricing-results {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding-top: 8px;
+  gap: 8px;
+  padding-top: 10px;
   border-top: 1px solid var(--color-border);
 }
 
 .customer-detail__pricing-result-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
   color: var(--color-text-muted);
 }
 
@@ -739,10 +745,10 @@
 }
 
 .customer-detail__pricing-result-row--highlight {
-  font-size: 1rem;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-text);
-  padding-top: 4px;
+  padding-top: 6px;
   border-top: 1px solid var(--color-border);
 }
 
@@ -760,20 +766,20 @@
 }
 
 .customer-detail__pdf-btn {
-  min-height: 44px;
-  padding: 0 16px;
-  font-size: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0 18px;
+  font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: border-color 0.15s, color 0.15s;
+  gap: 8px;
+  transition: border-color var(--transition-base), color var(--transition-base);
 }
 
 .customer-detail__pdf-btn:hover {
@@ -784,15 +790,15 @@
 .customer-detail__royalty-report {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 8px;
+  gap: 14px;
+  padding-top: 10px;
   border-top: 1px solid var(--color-border);
 }
 
 .customer-detail__royalty-summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 
 @media (max-width: 600px) {
@@ -805,20 +811,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 8px;
+  gap: 4px;
+  padding: 12px;
   background: rgba(108, 99, 255, 0.06);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .customer-detail__royalty-stat-value {
-  font-size: 1.1rem;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .customer-detail__royalty-stat-label {
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
@@ -826,11 +832,11 @@
 }
 
 .customer-detail__royalty-discount-note {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   color: #f39c12;
-  padding: 6px 10px;
+  padding: 8px 12px;
   background: rgba(243, 156, 18, 0.08);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .customer-detail__royalty-table-wrap {
@@ -841,17 +847,17 @@
 .customer-detail__royalty-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
 }
 
 .customer-detail__royalty-table th {
   text-align: left;
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
-  padding: 8px 8px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
@@ -861,9 +867,9 @@
 }
 
 .customer-detail__royalty-table td {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   color: var(--color-text);
-  padding: 8px;
+  padding: 10px;
   border-bottom: 1px solid var(--color-border);
   vertical-align: top;
 }
@@ -878,17 +884,17 @@
 }
 
 .royalty-row__variant {
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
 
 .royalty-row__discounted-badge {
   display: inline-flex;
   margin-left: 4px;
-  padding: 1px 5px;
-  font-size: 0.6rem;
+  padding: 2px 8px;
+  font-size: var(--font-xs);
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: rgba(243, 156, 18, 0.15);
   color: #f39c12;
   text-transform: uppercase;
@@ -896,7 +902,7 @@
 
 .customer-detail__royalty-empty {
   text-align: center;
-  padding: 20px;
-  font-size: 0.85rem;
+  padding: 24px;
+  font-size: var(--font-base);
   color: var(--color-text-muted);
 }
