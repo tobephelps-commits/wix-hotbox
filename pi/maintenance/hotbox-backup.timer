@@ -1,0 +1,10 @@
+[Unit]
+Description=HotBox Daily Database Backup Timer
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

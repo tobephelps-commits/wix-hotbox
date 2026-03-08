@@ -16,25 +16,45 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Phase 1: Base bootstrap
-echo "[1/5] Running base bootstrap..."
+echo "[1/6] Running base bootstrap..."
 bash "$SCRIPT_DIR/bootstrap.sh"
 
 # Phase 2: Kiosk installation
-echo "[2/5] Installing kiosk display..."
+echo "[2/6] Installing kiosk display..."
 bash "$SCRIPT_DIR/kiosk/install-kiosk.sh"
 
 # Phase 3: Touch calibration
-echo "[3/5] Configuring touchscreen..."
+echo "[3/6] Configuring touchscreen..."
 bash "$SCRIPT_DIR/kiosk/touch-calibrate.sh"
 
 # Phase 4: systemd services
-echo "[4/5] Installing services..."
+echo "[4/6] Installing services..."
 bash "$SCRIPT_DIR/systemd/install-services.sh"
 
 # Phase 5: Boot resilience
-echo "[5/5] Configuring boot resilience..."
+echo "[5/6] Configuring boot resilience..."
 bash "$SCRIPT_DIR/resilience/setup-readonly.sh"
 bash "$SCRIPT_DIR/resilience/setup-watchdog.sh"
+
+# Phase 6: Health monitoring and maintenance timers
+echo "[6/6] Installing health check and maintenance timers..."
+
+# Health check
+chmod +x "$SCRIPT_DIR/health/health-check.sh"
+cp "$SCRIPT_DIR/health/hotbox-health.service" /etc/systemd/system/
+cp "$SCRIPT_DIR/health/hotbox-health.timer" /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now hotbox-health.timer
+
+# Database backup
+chmod +x "$SCRIPT_DIR/maintenance/backup-db.sh"
+cp "$SCRIPT_DIR/maintenance/hotbox-backup.service" /etc/systemd/system/
+cp "$SCRIPT_DIR/maintenance/hotbox-backup.timer" /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now hotbox-backup.timer
+
+# App update script
+chmod +x "$SCRIPT_DIR/maintenance/update-app.sh"
 
 echo ""
 echo "=========================================="

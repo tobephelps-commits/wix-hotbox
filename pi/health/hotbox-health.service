@@ -1,0 +1,8 @@
+[Unit]
+Description=HotBox Health Check
+After=hotbox-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/hotbox/app/pi/health/health-check.sh
+User=root

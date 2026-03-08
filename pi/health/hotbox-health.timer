@@ -1,0 +1,10 @@
+[Unit]
+Description=HotBox Health Check Timer
+
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=120
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

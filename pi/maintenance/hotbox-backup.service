@@ -1,0 +1,9 @@
+[Unit]
+Description=HotBox Database Backup
+After=hotbox-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/hotbox/app/pi/maintenance/backup-db.sh
+User=hotbox
+Group=hotbox
