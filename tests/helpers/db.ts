@@ -11,32 +11,34 @@ export function seedTestOrders(dataDir: string): void {
 
   db.exec(`
     INSERT OR IGNORE INTO orders (
-      id, order_number, wix_id, status, customer_name, customer_email,
-      shipping_address, billing_address, subtotal, tax, total,
-      item_count, created_at, updated_at
+      id, order_number, wix_order_id, source, status,
+      customer_first_name, customer_last_name, customer_email,
+      shipping_address, billing_address,
+      subtotal, tax, total,
+      created_at, updated_at
     ) VALUES (
-      'test-order-001', 1001, 'wix-order-abc', 'new',
-      'Test Customer', 'test@example.com',
+      'test-order-001', 1001, 'wix-order-abc', 'wix', 'new',
+      'Test', 'Customer', 'test@example.com',
       '{"street":"123 Test St","city":"Testville","state":"CA","zip":"90210","country":"US"}',
       '{"street":"123 Test St","city":"Testville","state":"CA","zip":"90210","country":"US"}',
-      45.98, 3.68, 49.66, 2,
+      45.98, 3.68, 49.66,
       datetime('now'), datetime('now')
     );
 
     INSERT OR IGNORE INTO order_items (
-      id, order_id, product_name, variant_description, sku,
+      order_id, product_name, sku,
       vendor_style, vendor, color, size,
-      quantity, price, total
+      quantity, unit_price, total_price
     ) VALUES
     (
-      'test-item-001', 'test-order-001',
-      'Test Tee', 'Black / M', 'TST-BLK-M',
+      'test-order-001',
+      'Test Tee', 'TST-BLK-M',
       'TST001', 'sanmar', 'Black', 'M',
       1, 22.99, 22.99
     ),
     (
-      'test-item-002', 'test-order-001',
-      'Test Tee', 'Black / L', 'TST-BLK-L',
+      'test-order-001',
+      'Test Tee', 'TST-BLK-L',
       'TST001', 'sanmar', 'Black', 'L',
       1, 22.99, 22.99
     );
@@ -54,10 +56,10 @@ export function seedTestCustomers(dataDir: string): void {
 
   db.exec(`
     INSERT OR IGNORE INTO customers (
-      id, name, email, markup_percent, logo_keys, notes,
+      id, name, contact_name, email, markup_percent, logo_keys, notes,
       created_at, updated_at
     ) VALUES (
-      'test-customer-001', 'Test Corp', 'orders@testcorp.com',
+      'test-customer-001', 'Test Corp', 'John Doe', 'orders@testcorp.com',
       20.0, '[]', 'Test customer for E2E tests',
       datetime('now'), datetime('now')
     );

@@ -5,6 +5,7 @@ import { seedTestOrders, seedTestCustomers, seedTestLogos } from './helpers/db.j
 
 type TestFixtures = {
   api: ApiClient;
+  seededApi: ApiClient;
 };
 
 type WorkerFixtures = {
@@ -40,6 +41,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   // Per-test: API client connected to the server
   api: async ({ server }, use) => {
     const client = apiClient(server.baseUrl);
+    await use(client);
+  },
+
+  // Per-test: API client connected to the seeded server
+  seededApi: async ({ seededServer }, use) => {
+    const client = apiClient(seededServer.baseUrl);
     await use(client);
   },
 });
