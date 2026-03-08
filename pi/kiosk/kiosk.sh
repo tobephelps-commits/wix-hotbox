@@ -63,8 +63,11 @@ echo "[kiosk] Cursor auto-hide started (pid $UNCLUTTER_PID)."
 KIOSK_URL="http://localhost:${HOTBOX_PORT}"
 echo "[kiosk] Launching Chromium at $KIOSK_URL"
 
+# Bookworm uses 'chromium', older Pi OS used 'chromium-browser'
+CHROMIUM_BIN="$(command -v chromium 2>/dev/null || command -v chromium-browser 2>/dev/null || echo chromium)"
+
 while true; do
-  chromium-browser \
+  "$CHROMIUM_BIN" \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \

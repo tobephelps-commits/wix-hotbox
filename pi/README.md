@@ -63,7 +63,7 @@ Services restart on failure. Hardware watchdog resets the Pi if the system hangs
 ```bash
 # Clone the repository
 sudo apt-get install -y git
-git clone https://github.com/your-org/wix-hotbox.git /home/hotbox/app
+git clone https://github.com/tobephelps-commits/wix-hotbox.git /home/hotbox/app
 cd /home/hotbox/app
 
 # Run the full setup (does everything)

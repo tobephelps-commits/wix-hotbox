@@ -49,7 +49,12 @@ apt-get install -y \
 # ---------- 2. Chromium browser ----------
 echo ""
 echo "[2/4] Installing Chromium browser..."
-apt-get install -y chromium-browser
+# Bookworm uses 'chromium', older Pi OS used 'chromium-browser'
+if apt-cache show chromium >/dev/null 2>&1; then
+  apt-get install -y chromium
+else
+  apt-get install -y chromium-browser
+fi
 
 # Create Chromium profile directory
 CHROMIUM_DIR="/home/$HOTBOX_USER/.config/chromium"
@@ -151,7 +156,7 @@ fi
 echo ""
 echo "========================================"
 echo " HotBox Kiosk Install COMPLETE"
-echo " Chromium: $(chromium-browser --version 2>/dev/null || echo 'installed')"
+echo " Chromium: $(chromium --version 2>/dev/null || chromium-browser --version 2>/dev/null || echo 'installed')"
 echo " X11: minimal (no desktop environment)"
 echo " Start with: sudo -u $HOTBOX_USER startx"
 echo " Log: $LOG_FILE"
