@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 56 of 56 (Appliance Hardening) -- COMPLETE
-Plan: 01 complete (Health monitoring, backups, hardware metrics)
-Status: v2.0 MILESTONE COMPLETE -- all 14 phases (43-56) finished
-Last activity: 2026-03-07 - Phases 54-56 complete (network printing, LAN access, appliance hardening)
+Phase: 57 of 57 (Pi E2E Test Automation) -- IN PROGRESS
+Plan: 01 complete (Playwright config, test fixtures, server harness, DB seeds)
+Status: Ready for plan 02
+Last activity: 2026-03-08 - Test infrastructure foundation established
 
 Progress: ██████████ 100% (v2.0)
 
@@ -237,6 +237,7 @@ None (cleared for new milestone)
 - Milestone v1.2 created: order fulfillment & dashboard redesign, 6 phases (Phase 37-42)
 - Milestone v1.2 shipped: 2026-02-04, 13 plans, 1 day
 - Milestone v2.0 created: Pi Appliance — full rewrite as Raspberry Pi 5 production appliance, 14 phases (Phase 43-56)
+- Phase 57 added: Pi Appliance E2E Test Automation — Playwright/Puppeteer iterative testing on live Pi hardware
 
 ### Phase 30 Decisions
 
@@ -403,8 +404,8 @@ None (cleared for new milestone)
 
 ## Session Continuity
 
-Last session: 2026-03-07
-Stopped at: v2.0 milestone complete
+Last session: 2026-03-08
+Stopped at: Phase 57, plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
