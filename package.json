@@ -51,7 +51,11 @@
     "test": "npx playwright test",
     "test:api": "npx playwright test --project=api",
     "test:ui": "npx playwright test --project=ui",
-    "test:report": "npx playwright show-report"
+    "test:report": "npx playwright show-report",
+    "test:iterative": "tsx tests/iterative-runner.ts",
+    "test:iterative:5": "tsx tests/iterative-runner.ts --passes 5",
+    "test:api:iterative": "tsx tests/iterative-runner.ts --project api",
+    "test:ui:iterative": "tsx tests/iterative-runner.ts --project ui"
   },
   "keywords": [],
   "author": "",
