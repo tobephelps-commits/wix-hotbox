@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 57.1 (Remaining Tab UIs) -- COMPLETE
-Plan: 03 complete (System Tab UI)
-Status: Phase 57.1 complete - all remaining tab UIs built
-Last activity: 2026-03-08 - SystemTab with health dashboard, sync daemon control, printer management; all placeholders removed from ContentArea
+Phase: 58 (Kiosk Touch UI Modernization) -- IN PROGRESS
+Plan: 01 complete (Design System Foundation)
+Status: Design tokens and layout shell modernized
+Last activity: 2026-03-08 - New CSS tokens (colors, radius, typography, transitions), 17px base font, 56px touch targets, shadow-based header/sidebar separation
 
 Progress: ██████████ 100% (v2.0)
 
@@ -239,6 +239,7 @@ None (cleared for new milestone)
 - Milestone v2.0 created: Pi Appliance — full rewrite as Raspberry Pi 5 production appliance, 14 phases (Phase 43-56)
 - Phase 57 added: Pi Appliance E2E Test Automation — Playwright/Puppeteer iterative testing on live Pi hardware
 - Phase 57.1 inserted after Phase 57: Build inventory, customers, and system tab UIs to replace placeholder screens (URGENT)
+- Phase 58 added: Kiosk Touch UI Modernization — rounded corners, larger touch targets, bigger text, push-button-friendly navigation for 15.6" touchscreen
 
 ### Phase 30 Decisions
 
@@ -406,7 +407,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Phase 57.1 complete
+Stopped at: Phase 58, plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
