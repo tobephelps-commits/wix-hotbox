@@ -1,7 +1,9 @@
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import type Database from 'better-sqlite3';
-import { statSync } from 'node:fs';
+import { statSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import os from 'node:os';
+import { execSync } from 'node:child_process';
 import type { Config } from '../config.js';
 import vendorRoutes from './vendors.js';
 import pipelineRoutes from './pipeline.js';
@@ -53,6 +55,56 @@ export default async function apiRoutes(
       fastify.db.prepare('SELECT COUNT(*) as count FROM migrations').get() as { count: number }
     ).count;
 
+    // CPU info
+    const cpu = {
+      loadAvg: os.loadavg(),
+      cores: os.cpus().length,
+    };
+
+    // Memory info
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const memory = {
+      totalMB: Math.round(totalMem / (1024 * 1024)),
+      freeMB: Math.round(freeMem / (1024 * 1024)),
+      usedPercent: Math.round((1 - freeMem / totalMem) * 100),
+    };
+
+    // CPU temperature (Pi only — reads thermal zone)
+    let temperature: number | null = null;
+    try {
+      const raw = readFileSync('/sys/class/thermal/thermal_zone0/temp', 'utf-8');
+      temperature = parseInt(raw.trim(), 10) / 1000;
+    } catch {
+      // Not a Pi or thermal zone unavailable
+    }
+
+    // Disk usage (Linux only — parse df output)
+    let disk: { totalMB: number; usedMB: number; availableMB: number; usedPercent: number } | null = null;
+    if (process.platform === 'linux') {
+      try {
+        const dfOutput = execSync('df -B1 /home/hotbox/app/data 2>/dev/null', { encoding: 'utf-8' });
+        const lines = dfOutput.trim().split('\n');
+        if (lines.length >= 2) {
+          const cols = lines[1].split(/\s+/);
+          const totalBytes = parseInt(cols[1], 10);
+          const usedBytes = parseInt(cols[2], 10);
+          const availBytes = parseInt(cols[3], 10);
+          disk = {
+            totalMB: Math.round(totalBytes / (1024 * 1024)),
+            usedMB: Math.round(usedBytes / (1024 * 1024)),
+            availableMB: Math.round(availBytes / (1024 * 1024)),
+            usedPercent: Math.round((usedBytes / totalBytes) * 100),
+          };
+        }
+      } catch {
+        // df not available or path doesn't exist
+      }
+    }
+
+    // Network info
+    const network = getNetworkInfo(fastify.config.port);
+
     return {
       version: fastify.appVersion,
       uptime: Math.round(process.uptime()),
@@ -65,6 +117,11 @@ export default async function apiRoutes(
         sizeMB: dbSizeMB,
         migrationsApplied: migrationCount,
       },
+      cpu,
+      memory,
+      temperature,
+      disk,
+      network,
     };
   });
 
