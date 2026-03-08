@@ -11,6 +11,7 @@ import monitorRoutes from './monitor.js';
 import syncRoutes from './sync.js';
 import customerRoutes from './customers.js';
 import printingRoutes from './printing.js';
+import { getNetworkInfo } from '../lan/index.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -65,6 +66,11 @@ export default async function apiRoutes(
         migrationsApplied: migrationCount,
       },
     };
+  });
+
+  // Network info (LAN access details for dashboard)
+  fastify.get('/network', async () => {
+    return getNetworkInfo(fastify.config.port);
   });
 
   // Vendor routes
