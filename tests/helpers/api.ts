@@ -18,12 +18,11 @@ export interface ApiClient {
 export function apiClient(baseUrl: string): ApiClient {
   async function request(method: string, path: string, body?: unknown): Promise<ApiResponse> {
     const url = `${baseUrl}${path}`;
-    const options: RequestInit = {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-    };
+    const headers: Record<string, string> = {};
+    const options: RequestInit = { method, headers };
 
     if (body !== undefined) {
+      headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(body);
     }
 
