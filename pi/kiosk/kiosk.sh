@@ -54,6 +54,16 @@ xset -dpms      2>/dev/null || true
 xset s noblank  2>/dev/null || true
 echo "[kiosk] Screen blanking disabled via xset."
 
+# ---------- Configure touchscreen ----------
+TOUCH_SCRIPT="$SCRIPT_DIR/touch-calibrate.sh"
+if [[ -f "$TOUCH_SCRIPT" ]]; then
+  echo "[kiosk] Running touch calibration..."
+  DISPLAY="${DISPLAY:-:0}" bash "$TOUCH_SCRIPT" 2>&1 || \
+    echo "[kiosk] WARNING: Touch calibration failed (non-fatal)."
+else
+  echo "[kiosk] No touch-calibrate.sh found, skipping."
+fi
+
 # ---------- Hide cursor ----------
 unclutter -idle 0.5 -root &
 UNCLUTTER_PID=$!
