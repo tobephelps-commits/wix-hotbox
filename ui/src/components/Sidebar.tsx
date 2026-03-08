@@ -26,6 +26,7 @@ function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const renderTab = (tab: Tab) => (
     <button
       key={tab.id}
+      type="button"
       className={`sidebar-tab${activeTab === tab.id ? ' sidebar-tab--active' : ''}`}
       onClick={() => onTabChange(tab.id)}
       aria-current={activeTab === tab.id ? 'page' : undefined}
