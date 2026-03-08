@@ -4,11 +4,13 @@
 
 import { createHash } from 'node:crypto';
 import { Bonjour } from 'bonjour-service';
-import { Printer as IppPrinter } from 'ipp';
+import ipp from 'ipp';
 import type {
   GetPrinterAttributesRequest,
   GetPrinterAttributesResponse,
 } from 'ipp';
+
+const IppPrinter = ipp.Printer;
 import type { PrinterInfo } from './types.js';
 
 /** Cache of recently discovered printers keyed by printer id. */

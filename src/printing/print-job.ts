@@ -2,7 +2,7 @@
  * IPP print job submission, status checking, and cancellation.
  */
 
-import { Printer as IppPrinter } from 'ipp';
+import ipp from 'ipp';
 import type {
   PrintJobRequest as IppPrintJobRequest,
   PrintJobResponse,
@@ -11,6 +11,8 @@ import type {
   CancelReleaseJobRequest,
   SimpleResponse,
 } from 'ipp';
+
+const IppPrinter = ipp.Printer;
 import type { PrintJobRequest, PrintJobResult } from './types.js';
 
 /** Map our mediaSize shorthand to IPP media keyword. */
