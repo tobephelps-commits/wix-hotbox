@@ -10,6 +10,7 @@ import orderRoutes from './orders.js';
 import monitorRoutes from './monitor.js';
 import syncRoutes from './sync.js';
 import customerRoutes from './customers.js';
+import printingRoutes from './printing.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -86,4 +87,7 @@ export default async function apiRoutes(
 
   // Customer routes (CRUD, pricing, royalty reports, PDF statements)
   await fastify.register(customerRoutes, { prefix: '/customers' });
+
+  // Printing routes (printer discovery, saved printers, print jobs)
+  await fastify.register(printingRoutes, { prefix: '/printing' });
 }
