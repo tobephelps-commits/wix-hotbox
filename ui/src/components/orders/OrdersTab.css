@@ -117,6 +117,30 @@
   border-left: 1px solid var(--color-border);
 }
 
+/* New Order button */
+.orders-header__new-btn {
+  min-height: var(--touch-min);
+  padding: 0 20px;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid #2ecc71;
+  border-radius: var(--radius-md);
+  background: rgba(46, 204, 113, 0.12);
+  color: #2ecc71;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--transition-base), color var(--transition-base);
+  white-space: nowrap;
+}
+
+.orders-header__new-btn:hover {
+  background: #2ecc71;
+  color: #fff;
+}
+
 .orders-header__sync-btn {
   min-height: var(--touch-min);
   padding: 0 20px;
