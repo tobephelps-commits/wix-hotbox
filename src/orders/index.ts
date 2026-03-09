@@ -94,4 +94,5 @@ export { fillSSCart, markSSOrdersAsOrdered } from './ss-cart-filler.js';
 // PDF generators
 export { generateProductionSheet } from './production-sheet.js';
 export { generateInvoice } from './invoice-generator.js';
+export { generateLabel } from './label-template.js';
 export { setDataDir as setPdfDataDir } from './pdf-template.js';
