@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 58 (Kiosk Touch UI Modernization) -- COMPLETE
-Plan: 06 complete (Integration Polish & Build Validation)
-Status: All hardcoded CSS values replaced with design tokens, :focus-visible accessibility added, select element styling normalized, production build clean
-Last activity: 2026-03-08 - Cross-tab token audit, focus-visible styles, select appearance, production build validation
+Phase: 59 (v1.x Feature Parity Audit) -- IN PROGRESS
+Plan: 01 complete (Manual Order Creation Form)
+Status: OrderCreateForm modal added with source, customer, address, line items, notes, financials; New Order button wired into OrdersTab
+Last activity: 2026-03-09 - Manual order creation form UI
 
 Progress: ██████████ 100% (v2.0)
 
@@ -240,6 +240,7 @@ None (cleared for new milestone)
 - Phase 57 added: Pi Appliance E2E Test Automation — Playwright/Puppeteer iterative testing on live Pi hardware
 - Phase 57.1 inserted after Phase 57: Build inventory, customers, and system tab UIs to replace placeholder screens (URGENT)
 - Phase 58 added: Kiosk Touch UI Modernization — rounded corners, larger touch targets, bigger text, push-button-friendly navigation for 15.6" touchscreen
+- Phase 59 added: v1.x Feature Parity Audit & Remediation — compare all v1.x desktop features against v2.0 Pi app, build missing UI (manual orders, labels, royalty, cart automation, batch creation)
 
 ### Phase 30 Decisions
 
@@ -406,8 +407,8 @@ None (cleared for new milestone)
 
 ## Session Continuity
 
-Last session: 2026-03-08
-Stopped at: Phase 58 complete (plan 06)
+Last session: 2026-03-09
+Stopped at: Phase 59 plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
