@@ -1,0 +1,480 @@
+/* =============================================================================
+ * Cart Fill Modal -- Vendor cart automation UI
+ * Phase 59-03: v1.x Feature Parity Audit
+ * ============================================================================= */
+
+/* Modal overlay */
+.cart-fill-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Modal card */
+.cart-fill-modal {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-depth-2);
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.cart-fill-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.cart-fill-modal__title {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.cart-fill-modal__close-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.cart-fill-modal__close-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Body */
+.cart-fill-modal__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* =============================================================================
+ * Vendor Selection Buttons
+ * ============================================================================= */
+
+.cart-fill-modal__vendor-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.cart-fill-modal__vendor-btn {
+  min-height: 56px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-base);
+  font-weight: 700;
+  font-family: inherit;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+
+.cart-fill-modal__vendor-btn:hover {
+  border-color: var(--color-accent);
+}
+
+.cart-fill-modal__vendor-btn--active {
+  border-color: var(--color-accent);
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--color-accent);
+}
+
+/* =============================================================================
+ * Preview Summary
+ * ============================================================================= */
+
+.cart-fill-modal__summary {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm) 0;
+}
+
+.cart-fill-modal__summary-item {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.cart-fill-modal__summary-item strong {
+  color: var(--color-text);
+  font-size: var(--font-lg);
+  margin-right: 4px;
+}
+
+/* =============================================================================
+ * Items List (preview + results)
+ * ============================================================================= */
+
+.cart-fill-modal__items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cart-fill-modal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface);
+  gap: var(--spacing-md);
+}
+
+.cart-fill-modal__item + .cart-fill-modal__item {
+  border-top: 1px solid var(--color-border);
+}
+
+.cart-fill-modal__item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cart-fill-modal__item-style {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cart-fill-modal__item-detail {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.cart-fill-modal__item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cart-fill-modal__item-qty {
+  font-size: var(--font-base);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.cart-fill-modal__item-orders {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+/* =============================================================================
+ * Loading / Empty / Error States
+ * ============================================================================= */
+
+.cart-fill-modal__loading {
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+.cart-fill-modal__empty {
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+.cart-fill-modal__error {
+  padding: var(--spacing-md);
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  border-radius: var(--radius-md);
+  color: #ff6b6b;
+  font-size: var(--font-sm);
+}
+
+/* =============================================================================
+ * Footer Actions
+ * ============================================================================= */
+
+.cart-fill-modal__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  margin-top: auto;
+}
+
+.cart-fill-modal__fill-btn {
+  min-height: 56px;
+  padding: 0 var(--spacing-xl);
+  font-size: var(--font-base);
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.cart-fill-modal__fill-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.cart-fill-modal__fill-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cart-fill-modal__history-btn,
+.cart-fill-modal__back-btn {
+  min-height: 56px;
+  padding: 0 var(--spacing-lg);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color var(--transition-base), color var(--transition-base);
+}
+
+.cart-fill-modal__history-btn:hover,
+.cart-fill-modal__back-btn:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.cart-fill-modal__done-btn {
+  min-height: 56px;
+  padding: 0 var(--spacing-xl);
+  font-size: var(--font-base);
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid #2ecc71;
+  border-radius: var(--radius-md);
+  background: #2ecc71;
+  color: #fff;
+  cursor: pointer;
+  margin-left: auto;
+  transition: opacity var(--transition-fast);
+}
+
+.cart-fill-modal__done-btn:hover {
+  opacity: 0.85;
+}
+
+/* =============================================================================
+ * Filling Progress
+ * ============================================================================= */
+
+.cart-fill-modal__progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl) 0;
+  font-size: var(--font-base);
+  color: var(--color-text);
+}
+
+.cart-fill-modal__spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(108, 99, 255, 0.3);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: cart-fill-spin 0.6s linear infinite;
+}
+
+@keyframes cart-fill-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =============================================================================
+ * Fill Results
+ * ============================================================================= */
+
+.cart-fill-modal__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.cart-fill-modal__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-pill);
+  width: fit-content;
+}
+
+.cart-fill-modal__status--success {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.12);
+}
+
+.cart-fill-modal__status--partial {
+  color: #f39c12;
+  background: rgba(243, 156, 18, 0.12);
+}
+
+.cart-fill-modal__status--failed {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.cart-fill-modal__results-summary {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.cart-fill-modal__results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cart-fill-modal__result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface);
+  flex-wrap: wrap;
+}
+
+.cart-fill-modal__result-item + .cart-fill-modal__result-item {
+  border-top: 1px solid var(--color-border);
+}
+
+.cart-fill-modal__result-indicator {
+  font-size: var(--font-base);
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.cart-fill-modal__result-item--success .cart-fill-modal__result-indicator {
+  color: #2ecc71;
+}
+
+.cart-fill-modal__result-item--failed .cart-fill-modal__result-indicator {
+  color: #ff6b6b;
+}
+
+.cart-fill-modal__result-detail {
+  font-size: var(--font-sm);
+  color: var(--color-text);
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-fill-modal__result-error {
+  font-size: var(--font-xs);
+  color: #ff6b6b;
+  width: 100%;
+  padding-left: 28px;
+}
+
+/* =============================================================================
+ * History View
+ * ============================================================================= */
+
+.cart-fill-modal__history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cart-fill-modal__history-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+}
+
+.cart-fill-modal__history-entry + .cart-fill-modal__history-entry {
+  border-top: 1px solid var(--color-border);
+}
+
+.cart-fill-modal__history-main {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.cart-fill-modal__history-vendor {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cart-fill-modal__history-detail {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.cart-fill-modal__history-success {
+  color: #2ecc71;
+}
+
+.cart-fill-modal__history-failed {
+  color: #ff6b6b;
+}
+
+.cart-fill-modal__history-date {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
