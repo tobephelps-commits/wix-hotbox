@@ -108,7 +108,7 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
     }
   }, [order, fetchOrder, onOrderUpdated]);
 
-  const handleDownloadPdf = useCallback(async (type: 'production-sheet' | 'invoice') => {
+  const handleDownloadPdf = useCallback(async (type: 'production-sheet' | 'invoice' | 'label') => {
     if (!order) return;
     try {
       const res = await fetch(`/api/orders/${order.id}/${type}`);
@@ -117,8 +117,12 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        const prefix = type === 'production-sheet' ? 'PS' : 'INV';
-        a.download = `${prefix}-${order.orderNumber}.pdf`;
+        const prefixMap: Record<string, string> = {
+          'production-sheet': 'PS',
+          'invoice': 'INV',
+          'label': 'LABEL',
+        };
+        a.download = `${prefixMap[type] ?? type}-${order.orderNumber}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -237,6 +241,14 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
             onClick={() => handleDownloadPdf('invoice')}
           >
             Invoice
+          </button>
+          <button
+            className="order-detail__pdf-btn"
+            onClick={() => handleDownloadPdf('label')}
+            disabled={!order.shippingAddress}
+            title={!order.shippingAddress ? 'No shipping address' : undefined}
+          >
+            Label
           </button>
         </div>
       </div>

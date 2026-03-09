@@ -50,6 +50,7 @@ import {
   syncWithRetry,
   generateProductionSheet,
   generateInvoice,
+  generateLabel,
   setPdfDataDir,
   buildCartFillRequest,
   fillSanMarCart,
@@ -483,6 +484,30 @@ export default async function orderRoutes(
       .header(
         'Content-Disposition',
         `attachment; filename="INV-${order.orderNumber}.pdf"`,
+      )
+      .send(buffer);
+  });
+
+  // =========================================================================
+  // GET /:id/label -- Generate shipping label PDF for single order
+  // =========================================================================
+
+  fastify.get<{ Params: { id: string } }>('/:id/label', async (request, reply) => {
+    const order = getOrder(fastify.db, request.params.id);
+    if (!order) {
+      return reply.status(404).send({ error: 'Order not found' });
+    }
+
+    if (!order.shippingAddress) {
+      return reply.status(400).send({ error: 'Order has no shipping address' });
+    }
+
+    const buffer = await generateLabel(order);
+    return reply
+      .type('application/pdf')
+      .header(
+        'Content-Disposition',
+        `attachment; filename="LABEL-${order.orderNumber}.pdf"`,
       )
       .send(buffer);
   });
