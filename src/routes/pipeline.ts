@@ -4,12 +4,14 @@
  * Fastify plugin providing REST endpoints for the product creation pipeline:
  * - GET  /api/pipeline/preview/:vendorId/:style  -- Style lookup and preview
  * - POST /api/pipeline/create                    -- Create WIX product from curated selections
+ * - POST /api/pipeline/batch                     -- Batch create multiple WIX products with SSE progress
  * - GET  /api/pipeline/presets                   -- List available pricing presets
  * - GET  /api/pipeline/templates                 -- List saved templates
  * - POST /api/pipeline/templates                 -- Save a template
  * - DELETE /api/pipeline/templates/:name         -- Delete a template
  *
  * Phase 47: Product Pipeline Creation UI
+ * Phase 59: Batch product creation endpoint
  */
 
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
@@ -206,6 +208,149 @@ export default async function pipelineRoutes(
         error: err instanceof Error ? err.message : String(err),
       });
     }
+  });
+
+  // =========================================================================
+  // POST /batch -- Batch create multiple WIX products with SSE progress
+  // =========================================================================
+
+  fastify.post<{
+    Body: {
+      items: Array<{ vendorId: string; styleNumber: string }>;
+      pricingConfig?: PricingConfig;
+      presetKey?: string;
+      decorationCost?: number;
+      decorationType?: string;
+      collections?: string[];
+    };
+  }>('/batch', async (request, reply) => {
+    const {
+      items,
+      pricingConfig: customPricingConfig,
+      presetKey,
+      decorationCost,
+      decorationType,
+      collections,
+    } = request.body;
+
+    // Validate batch size
+    if (!items || items.length === 0) {
+      return reply.status(400).send({ error: 'items array is required and must not be empty' });
+    }
+    if (items.length > 50) {
+      return reply.status(400).send({ error: 'Batch limited to 50 items maximum' });
+    }
+
+    // Determine pricing config
+    const pricingConfig: PricingConfig = customPricingConfig
+      ?? getPresetConfig(presetKey ?? 'standard-tee');
+
+    // Set up SSE stream
+    reply.raw.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    });
+
+    const sendEvent = (event: string, data: unknown) => {
+      reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
+    const total = items.length;
+    let created = 0;
+    let failed = 0;
+    const results: Array<{ style: string; success: boolean; productId?: string; error?: string }> = [];
+
+    for (let i = 0; i < total; i++) {
+      const item = items[i];
+      const { vendorId, styleNumber } = item;
+
+      // Validate vendor
+      if (!isVendorRegistered(vendorId as VendorId)) {
+        sendEvent('progress', {
+          index: i, total, style: styleNumber,
+          status: 'error', message: `Unknown vendor: "${vendorId}"`,
+        });
+        failed++;
+        results.push({ style: styleNumber, success: false, error: `Unknown vendor: "${vendorId}"` });
+        continue;
+      }
+
+      try {
+        // Fetch product data
+        sendEvent('progress', {
+          index: i, total, style: styleNumber, status: 'fetching',
+          message: `Fetching ${styleNumber} from ${vendorId}...`,
+        });
+
+        const { preview, rawData } = await fetchProductPreview(styleNumber, vendorId as VendorId);
+
+        // Cache for potential single-product follow-up
+        const cacheKey = `${vendorId}:${styleNumber}`;
+        setCachedRawData(cacheKey, rawData);
+
+        // Build curated product with all in-stock colors and all sizes
+        sendEvent('progress', {
+          index: i, total, style: styleNumber, status: 'creating',
+          message: `Creating ${styleNumber}...`,
+        });
+
+        const selectedColors: CuratedColor[] = preview.availableColors
+          .filter((c) => c.inStock || c.stockUnknown)
+          .map((c) => ({ catalogColor: c.catalogColor, displayColor: c.displayColor }));
+
+        if (selectedColors.length === 0) {
+          // Fall back to all colors if none in stock
+          selectedColors.push(
+            ...preview.availableColors.map((c) => ({
+              catalogColor: c.catalogColor,
+              displayColor: c.displayColor,
+            })),
+          );
+        }
+
+        const firstPricing = rawData.pricing[0];
+        const wholesaleCost = firstPricing
+          ? (firstPricing.salePrice ?? firstPricing.piecePrice)
+          : 0;
+
+        const firstProduct = rawData.products[0];
+        const curated: CuratedProduct = {
+          style: styleNumber,
+          brandName: firstProduct?.brandName ?? '',
+          vendor: vendorId as VendorId,
+          productTitle: firstProduct?.productTitle ?? '',
+          description: firstProduct?.description ?? '',
+          selectedColors,
+          selectedSizes: preview.availableSizes,
+          pricingConfig,
+          wholesaleCost,
+          ...(collections && collections.length > 0 ? { collections } : {}),
+          ...(decorationCost != null && decorationCost > 0 ? { decorationCost, decorationType } : {}),
+        };
+
+        const result = await createWixProduct(curated, rawData);
+
+        sendEvent('progress', {
+          index: i, total, style: styleNumber, status: 'done',
+          message: `Created ${styleNumber} (${result.productId})`,
+        });
+        created++;
+        results.push({ style: styleNumber, success: true, productId: result.productId });
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        sendEvent('progress', {
+          index: i, total, style: styleNumber, status: 'error',
+          message: errorMsg,
+        });
+        failed++;
+        results.push({ style: styleNumber, success: false, error: errorMsg });
+      }
+    }
+
+    // Send completion event
+    sendEvent('complete', { created, failed, results });
+    reply.raw.end();
   });
 
   // =========================================================================
