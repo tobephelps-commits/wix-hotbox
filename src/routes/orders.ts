@@ -2,6 +2,7 @@
  * Order API Routes
  *
  * Fastify plugin providing REST endpoints for order management:
+ * - GET    /api/orders/catalog      -- Search product catalog for picker
  * - GET    /api/orders              -- List orders (filterable, paginated)
  * - GET    /api/orders/summary      -- Order summary (status counts)
  * - GET    /api/orders/summary/extended -- Extended summary with metrics
@@ -26,6 +27,7 @@
  * Phase 49: Order Management Core
  * Phase 50: PDF generation endpoints
  * Phase 52: Cart automation endpoints
+ * Phase 62: Product catalog search for manual order picker
  */
 
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
@@ -98,6 +100,60 @@ export default async function orderRoutes(
 ) {
   // Initialize PDF template with data directory for logo resolution
   setPdfDataDir(fastify.config.dataDir);
+
+  // =========================================================================
+  // GET /catalog -- Search product catalog (product_mappings table)
+  // Phase 62: Product picker for manual order creation
+  // =========================================================================
+
+  fastify.get<{
+    Querystring: {
+      search?: string;
+      vendor?: string;
+      limit?: string;
+    };
+  }>('/catalog', async (request) => {
+    const { search, vendor, limit: limitStr } = request.query;
+    const limit = Math.min(Math.max(1, parseInt(limitStr || '20', 10) || 20), 50);
+
+    let sql = 'SELECT style, vendor, wix_product_id, product_name FROM product_mappings';
+    const conditions: string[] = [];
+    const params: (string | number)[] = [];
+
+    if (search) {
+      conditions.push('(product_name LIKE ? OR style LIKE ?)');
+      const term = `%${search}%`;
+      params.push(term, term);
+    }
+
+    if (vendor && (vendor === 'sanmar' || vendor === 'ss')) {
+      conditions.push('vendor = ?');
+      params.push(vendor);
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    sql += ' ORDER BY product_name LIMIT ?';
+    params.push(limit);
+
+    const rows = fastify.db.prepare(sql).all(...params) as Array<{
+      style: string;
+      vendor: string;
+      wix_product_id: string;
+      product_name: string;
+    }>;
+
+    return {
+      products: rows.map((row) => ({
+        style: row.style,
+        vendor: row.vendor,
+        productName: row.product_name,
+        wixProductId: row.wix_product_id,
+      })),
+    };
+  });
 
   // =========================================================================
   // GET / -- List orders (filterable, paginated)
