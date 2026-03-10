@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import OrderList from './OrderList';
 import OrderDetail from './OrderDetail';
 import OrderCreateForm from './OrderCreateForm';
+import CartFillModal from './CartFillModal';
 import PipelineView from './PipelineView';
 import BulkToolbar from './BulkToolbar';
 import type { OrderStatus } from './types';
@@ -44,6 +45,7 @@ function OrdersTab() {
   const [offset, setOffset] = useState(0);
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCartFill, setShowCartFill] = useState(false);
 
   // Multi-select handlers
   const handleToggleSelect = useCallback((id: string) => {
@@ -231,6 +233,13 @@ function OrdersTab() {
             </button>
 
             <button
+              className="orders-header__cart-btn"
+              onClick={() => setShowCartFill(true)}
+            >
+              Fill Cart
+            </button>
+
+            <button
               className="orders-header__sync-btn"
               onClick={handleSync}
               disabled={syncing}
@@ -291,6 +300,17 @@ function OrdersTab() {
             setOffset(0);
           }}
           onCancel={() => setShowCreateForm(false)}
+        />
+      )}
+
+      {showCartFill && (
+        <CartFillModal
+          onClose={() => setShowCartFill(false)}
+          onComplete={() => {
+            fetchOrders(statusFilter, search, 0, false);
+            fetchSummary();
+            setOffset(0);
+          }}
         />
       )}
     </div>

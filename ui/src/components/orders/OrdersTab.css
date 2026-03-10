@@ -141,6 +141,30 @@
   color: #fff;
 }
 
+/* Fill Cart button */
+.orders-header__cart-btn {
+  min-height: var(--touch-min);
+  padding: 0 20px;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid #f39c12;
+  border-radius: var(--radius-md);
+  background: rgba(243, 156, 18, 0.12);
+  color: #f39c12;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--transition-base), color var(--transition-base);
+  white-space: nowrap;
+}
+
+.orders-header__cart-btn:hover {
+  background: #f39c12;
+  color: #fff;
+}
+
 .orders-header__sync-btn {
   min-height: var(--touch-min);
   padding: 0 20px;

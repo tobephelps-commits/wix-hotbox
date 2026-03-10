@@ -10,6 +10,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import CartFillModal from './CartFillModal';
 import type { OrderStatus } from './types';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -41,6 +42,7 @@ function BulkToolbar({
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [showCartFill, setShowCartFill] = useState(false);
 
   const count = selectedOrderIds.size;
 
@@ -173,6 +175,15 @@ function BulkToolbar({
           )}
         </div>
 
+        {/* Fill Cart */}
+        <button
+          className="bulk-toolbar__btn"
+          onClick={() => setShowCartFill(true)}
+          disabled={processing}
+        >
+          Fill Cart
+        </button>
+
         {/* Batch Production Sheets */}
         <button
           className="bulk-toolbar__btn"
@@ -194,6 +205,14 @@ function BulkToolbar({
 
       {/* Toast notification */}
       {toast && <div className="bulk-toolbar__toast">{toast}</div>}
+
+      {/* Cart fill modal */}
+      {showCartFill && (
+        <CartFillModal
+          onClose={() => setShowCartFill(false)}
+          onComplete={onOrdersUpdated}
+        />
+      )}
     </div>
   );
 }
