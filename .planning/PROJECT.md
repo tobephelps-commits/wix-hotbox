@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A full-stack operations platform for HotBox Clothing (hotboxclothing.shop), a custom apparel brand selling decorated blanks on WIX. The system connects multiple wholesale vendors (SanMar, S&S Activewear) to WIX via automated pipeline, streamlines product creation with template presets and logo overlay compositing, manages orders with invoice/label PDF generation and SanMar cart automation, tracks profitability with cost/margin dashboards and sale/promo tooling, and monitors multi-warehouse inventory with real-time priority-based polling and email alerts. All operations accessible via CLI, REST API, and browser-based preview dashboard.
+A self-contained Raspberry Pi 5 production appliance for HotBox Clothing (hotboxclothing.shop), a custom apparel brand selling decorated blanks on WIX. The Pi appliance runs a Fastify + SQLite backend with Vite/React touch-first frontend, accessible via 15.6" touchscreen kiosk and LAN web browser. The system connects multiple wholesale vendors (SanMar, S&S Activewear) to WIX via automated pipeline, streamlines product creation with template presets and logo overlay compositing, manages orders with invoice/label/production sheet PDF generation and dual-vendor cart automation, tracks B2B customer royalties with branded PDF statements, monitors multi-warehouse inventory with priority-based polling and email alerts, and prints to network printers via CUPS/IPP. Discoverable on LAN via mDNS (hotbox.local), resilient to power cycles via systemd watchdog and boot hardening.
 
 ## Core Value
 
@@ -56,6 +56,21 @@ Effortless product creation — enter a style number from any supported vendor a
 - ✓ S&S Activewear cart automation — v1.2 (browser automation, CLI, dashboard modal)
 - ✓ Order pipeline visualization — v1.2 (kanban stages, aging indicators, attention badges)
 - ✓ Bulk order operations — v1.2 (multi-select, batch status, batch production sheets, ZIP download)
+- ✓ Raspberry Pi 5 appliance with Pi OS Lite, headless bootstrap, Chromium kiosk mode — v2.0
+- ✓ Fastify + SQLite backend architecture with WAL mode, migration system, plugin architecture — v2.0
+- ✓ Vite + React touch-first frontend with sidebar navigation, CSS design tokens — v2.0
+- ✓ Full vendor pipeline port (SanMar SOAP + S&S REST) with unified product types — v2.0
+- ✓ Logo system port: upload, multi-angle overlay compositing, drag-and-drop placement editor — v2.0
+- ✓ Order management port: WIX sync, lifecycle, invoice/label/production sheet PDFs, pipeline UI, bulk ops — v2.0
+- ✓ Inventory sync port: priority polling daemon, multi-warehouse tracking, WIX stock sync, email alerts — v2.0
+- ✓ Cart automation port: vendor-agnostic consolidator, Playwright automation for SanMar + S&S — v2.0
+- ✓ Customer & royalty system port: B2B accounts, markup pricing, royalty calculation, PDF statements — v2.0
+- ✓ Network printing via CUPS/IPP with auto-discovery — v2.0
+- ✓ mDNS LAN discovery (hotbox.local) for browser access from any device — v2.0
+- ✓ Appliance hardening: systemd watchdog, graceful shutdown, health monitoring, log rotation — v2.0
+- ✓ Comprehensive Playwright E2E test automation on live Pi — v2.0
+- ✓ Touch UI modernization: 48px+ targets, rounded corners, design tokens, smooth transitions — v2.0
+- ✓ Full v1.x feature parity: manual orders, shipping labels, cart automation UI, batch creation — v2.0
 
 ### Active
 
@@ -73,10 +88,11 @@ Effortless product creation — enter a style number from any supported vendor a
 
 ## Context
 
-Shipped v1.2 with ~53,000 LOC TypeScript/HTML across 100+ source files.
-Tech stack: Node.js 18+, TypeScript (ESM/NodeNext), SOAP (SanMar API), REST (WIX V1 API, WIX Inventory V2 API, S&S Activewear API), Nodemailer (SMTP), Sharp (image compositing), PDFKit (PDF generation), Playwright (browser automation, site verification), Archiver (ZIP generation).
-System modules (8): pipeline (product creation, preview server, wizard), sanmar (API client, SOAP), ss-activewear (REST client), vendor (adapter abstraction), monitor (inventory alerts), sync (stock polling, WIX sync, daemon control), orders (lifecycle, invoices, labels, production sheets, cart automation for both vendors), customers (accounts, royalties, pricing).
-Preview server (localhost:3456) features: tabbed dashboard (Products/Orders/Inventory/Customers), Operations Dashboard with daemon controls, product creation wizard, migration browser, order pipeline visualization with aging indicators, bulk order operations, production sheet generation, dual-vendor cart automation, inventory monitoring, profitability analysis, promotion management, customer accounts, royalty reporting, batch operations, and logo placement.
+Shipped v2.0 Pi Appliance with ~37,459 LOC TypeScript/TSX/CSS across 324 files (20,894 backend, 16,565 frontend).
+Tech stack: Raspberry Pi 5 (ARM64), Pi OS Lite 64-bit Bookworm, Node.js 20 LTS, TypeScript (ESM/NodeNext), Fastify (HTTP server), better-sqlite3 (SQLite with WAL mode), Vite + React (frontend), SOAP (SanMar API), REST (WIX V1 API, WIX Inventory V2 API, S&S Activewear API), Nodemailer (SMTP), Sharp (image compositing), PDFKit (PDF generation), Playwright (browser automation, E2E testing), CUPS/IPP (network printing), mDNS/Avahi (LAN discovery), systemd (service management, watchdog).
+Backend modules: pipeline (product creation, vendor adapters, WIX publish), orders (WIX sync, lifecycle, PDFs, cart automation), inventory (polling daemon, stock sync, alerts), customers (B2B accounts, royalties, pricing), logos (upload, overlay compositing, placement), printing (CUPS/IPP discovery, PDF print jobs), system (health, config, network info).
+Frontend: React SPA with sidebar navigation, 6 tabs (Products, Orders, Inventory, Customers, System, Logos), touch-optimized with CSS design tokens, 48px+ touch targets, rounded corners, smooth transitions.
+Accessible via Chromium kiosk on 15.6" touchscreen and LAN browser at hotbox.local:3000.
 Store has 105 products across 10 collections. 30 WIX Editor manual fixes pending for store owner.
 
 ## Constraints
@@ -118,6 +134,15 @@ Store has 105 products across 10 collections. 30 WIX Editor manual fixes pending
 | Aging thresholds per stage | Operational visibility for orders needing attention | ✓ Good — actionable attention bar |
 | Partial failure for bulk operations | One invalid order doesn't block the rest | ✓ Good — better UX for batch processing |
 | Sticky toolbar at bottom | Visible during scroll, doesn't obscure orders | ✓ Good — accessible bulk actions |
+| Pi OS Lite 64-bit (no desktop) | Lighter, faster boot, fewer attack surfaces | ✓ Good — ARM64 for Node.js 20+, minimal footprint |
+| Fastify over Express | Better TypeScript support, plugin architecture, schema validation | ✓ Good — clean decorator pattern, type-safe routes |
+| SQLite with WAL mode | Single-file database, zero setup, optimal for single-user appliance | ✓ Good — no PostgreSQL overhead, better-sqlite3 sync API |
+| Vite + React frontend | Fast HMR, modern build tooling, component-based UI | ✓ Good — replaced monolithic preview.html with proper SPA |
+| setDataDir/setConfig init patterns | Decouple modules from config imports, pure functions | ✓ Good — testable, no module-level state |
+| CSS custom properties for design tokens | Single source of truth for touch-optimized theme | ✓ Good — consistent 48px+ targets, rounded corners throughout |
+| mDNS for LAN discovery | hotbox.local accessible without IP address lookup | ✓ Good — zero-config LAN access from any device |
+| Unified vendor cart consolidator | Single vendor-agnostic module replaces separate SanMar/S&S cart modules | ✓ Good — less duplication, CartItem includes vendor field |
+| systemd watchdog + graceful shutdown | Quick recovery without false resets, clean database close | ✓ Good — 15s timeout, power cycle resilient |
 
 ---
-*Last updated: 2026-02-04 after v1.2 milestone*
+*Last updated: 2026-03-10 after v2.0 milestone*

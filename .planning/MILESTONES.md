@@ -1,5 +1,45 @@
 # Project Milestones: HotBox Clothing Store Enhancement
 
+## v2.0 Pi Appliance (Shipped: 2026-03-10)
+
+**Delivered:** Full ground-up rewrite of HotBox as a self-contained Raspberry Pi 5 production appliance. Replaced v1.x Node.js CLI/desktop application with Fastify + SQLite backend, Vite/React touch-first frontend, Pi OS infrastructure with Chromium kiosk mode, network printing via CUPS/IPP, mDNS LAN discovery, systemd appliance hardening, and comprehensive Playwright E2E test automation. All v1.x features ported with touch-optimized UI for 15.6" kiosk display.
+
+**Phases completed:** 43-59 (60 plans total across 18 phases)
+
+**Key accomplishments:**
+
+- Built Pi OS bootstrap with headless setup, Chromium kiosk mode, touchscreen calibration, and systemd services with watchdog
+- Created Fastify + TypeScript backend with SQLite (WAL mode), migration system, and plugin architecture
+- Built Vite + React frontend with touch-first sidebar navigation, CSS design tokens, and responsive layout
+- Ported complete vendor pipeline: SanMar SOAP + S&S Activewear REST clients, unified product types, style lookup, preview, pricing, variant selection, WIX publish
+- Ported logo system: upload/management, multi-angle Sharp overlay compositing, drag-and-drop placement editor
+- Ported order management: WIX sync, lifecycle tracking, invoice/label/production sheet PDFs, pipeline visualization, bulk operations
+- Ported inventory sync: priority-based polling daemon, multi-warehouse tracking, thresholds, WIX stock sync, email alerts
+- Ported cart automation: vendor-agnostic consolidator, Playwright browser automation for both vendors
+- Ported customer system: B2B accounts, markup pricing, royalty calculation, PDF statement generation
+- Added network printing via CUPS/IPP with auto-discovery and PDF print jobs
+- Added mDNS (hotbox.local) for LAN access from any device
+- Added appliance hardening: systemd watchdog, graceful shutdown, health monitoring, log rotation
+- Built comprehensive Playwright E2E test suite (7 plans) testing all APIs and UI flows
+- Built remaining tab UIs: inventory monitoring, customer management, system health dashboard
+- Modernized entire UI for touchscreen: 48px+ touch targets, rounded corners, design tokens, smooth transitions
+- Achieved full v1.x feature parity: manual orders, shipping labels, cart automation UI, batch creation
+
+**Stats:**
+
+- 324 files changed
+- 58,837 insertions
+- 20,894 lines backend TypeScript
+- 16,565 lines frontend (TSX/TS/CSS)
+- 18 phases, 60 plans
+- 4 days (2026-03-07 to 2026-03-10)
+
+**Git range:** `5be79ac2` to `cbeedea`
+
+**What's next:** Store operator uses Pi appliance for daily operations. All features accessible via touchscreen kiosk and LAN web access.
+
+---
+
 ## v1.2 Order Fulfillment & Dashboard Redesign (Shipped: 2026-02-04)
 
 **Delivered:** Modern tabbed dashboard UX with Products/Orders/Inventory/Customers tabs, production sheet PDF generation for garment decoration, S&S Activewear cart automation matching SanMar pattern, order pipeline visualization with aging indicators and attention badges, and bulk order operations with multi-select, batch status updates, and batch production sheet downloads.
