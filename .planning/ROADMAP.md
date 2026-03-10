@@ -16,7 +16,7 @@ None
 - ✅ **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (shipped 2026-02-04)
 - ✅ **v1.2 Order Fulfillment & Dashboard Redesign** -- Phases 37-42 (shipped 2026-02-04)
 - ✅ **v2.0 Pi Appliance** -- Phases 43-59 (shipped 2026-03-09)
-- 🚧 **v2.1 Customer Operations** -- Phases 60-64 (in progress)
+- ✅ **v2.1 Customer Operations** -- Phases 60-64 (shipped 2026-03-10)
 
 ## Completed Milestones
 
@@ -29,7 +29,7 @@ None
 
 ## Phases
 
-### 🚧 v2.1 Customer Operations (In Progress)
+### ✅ v2.1 Customer Operations (Shipped 2026-03-10)
 
 **Milestone Goal:** Connect customers from WIX, communicate order progress via email/SMS, and streamline manual order creation with product selection and production notes.
 
@@ -75,15 +75,15 @@ Plans:
 Plans:
 - [x] 63-01: Production Notes (DB migration, form input, detail view, PDF rendering)
 
-#### Phase 64: Integration & Polish
+#### Phase 64: Integration & Polish ✅
 
 **Goal**: Cross-feature testing, UI refinement, edge case handling across all v2.1 features
 **Depends on**: Phase 63
-**Research**: Unlikely (internal testing)
-**Plans**: TBD
+**Completed**: 2026-03-10
 
 Plans:
-- [ ] 64-01: TBD
+- [x] 64-01: WIX Contacts & Notification API Tests
+- [x] 64-02: Notification Code Polish & UI Tests
 
 <details>
 <summary>✅ v2.0 Pi Appliance (Phases 43-59) — SHIPPED 2026-03-10</summary>
@@ -252,4 +252,4 @@ Phases execute in numeric order: 60 → 61 → 62 → 63 → 64
 | 61. Notification System | v2.1 | 4/4 | Complete | 2026-03-10 |
 | 62. Manual Order Product Picker | v2.1 | 2/2 | Complete | 2026-03-10 |
 | 63. Manual Order Production Notes | v2.1 | 1/1 | Complete | 2026-03-10 |
-| 64. Integration & Polish | v2.1 | 0/? | Not started | - |
+| 64. Integration & Polish | v2.1 | 2/2 | Complete | 2026-03-10 |
