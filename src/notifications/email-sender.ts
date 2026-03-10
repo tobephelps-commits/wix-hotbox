@@ -50,7 +50,17 @@ export function buildOrderStatusEmail(
   subjectTemplate: string,
 ): { subject: string; html: string; text: string } {
   const subject = renderTemplate(subjectTemplate, context);
-  const renderedBody = renderTemplate(bodyTemplate, context);
+
+  // Escape all user-supplied context fields before inserting into HTML body
+  const htmlSafeContext: NotificationContext = {
+    ...context,
+    customerName: escapeHtml(context.customerName),
+    orderNumber: escapeHtml(context.orderNumber),
+    storeName: escapeHtml(context.storeName),
+    customerEmail: context.customerEmail ? escapeHtml(context.customerEmail) : undefined,
+    customerPhone: context.customerPhone ? escapeHtml(context.customerPhone) : undefined,
+  };
+  const renderedBody = renderTemplate(bodyTemplate, htmlSafeContext);
 
   const html = `<!DOCTYPE html>
 <html lang="en">

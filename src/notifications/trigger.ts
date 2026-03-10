@@ -87,8 +87,9 @@ export function resolveCustomerContact(
             .join(' ') || 'Customer';
         }
       }
-    } catch {
+    } catch (err) {
       // Best-effort: WIX contact lookup failure doesn't block notifications
+      console.warn(`[Notifications] WIX contact lookup failed for ${email}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -122,6 +123,13 @@ export async function triggerOrderNotifications(
   orderId: string,
   newStatus: OrderStatus,
 ): Promise<SendResult[]> {
+  // 0. Validate orderId is a valid number
+  const parsedOrderId = parseInt(orderId, 10);
+  if (isNaN(parsedOrderId) || parsedOrderId <= 0) {
+    console.error(`[Notifications] Invalid orderId: ${orderId}`);
+    return [{ success: false, error: `Invalid orderId: ${orderId}` }];
+  }
+
   // 1. Get enabled templates for this status stage
   let templates: NotificationTemplate[];
   try {
@@ -175,7 +183,7 @@ export async function triggerOrderNotifications(
         result = await sendOrderEmail(
           notificationConfig,
           db,
-          parseInt(orderId, 10) || 0,
+          parsedOrderId,
           template,
           context,
         );
@@ -183,7 +191,7 @@ export async function triggerOrderNotifications(
         result = await sendOrderSms(
           config,
           db,
-          parseInt(orderId, 10) || 0,
+          parsedOrderId,
           template,
           context,
         );
