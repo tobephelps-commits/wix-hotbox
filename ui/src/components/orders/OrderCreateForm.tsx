@@ -23,6 +23,7 @@ interface FormLineItem {
   unitPrice: number;
   vendor?: 'sanmar' | 'ss';
   imageUrl?: string | null;
+  notes?: string;
 }
 
 interface OrderCreateFormProps {
@@ -187,6 +188,7 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
         totalPrice: Math.round(it.quantity * it.unitPrice * 100) / 100,
         vendor: it.vendor || undefined,
         imageUrl: it.imageUrl || undefined,
+        notes: it.notes || undefined,
       })),
     };
 
@@ -497,6 +499,16 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
                         onChange={(e) => updateItem(idx, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
                       />
                     </div>
+                  </div>
+                  <div className="order-create-form__field order-create-form__field--full">
+                    <label className="order-create-form__label">Production Notes</label>
+                    <textarea
+                      className="order-create-form__input"
+                      rows={1}
+                      value={item.notes || ''}
+                      onChange={(e) => updateItem(idx, 'notes', e.target.value)}
+                      placeholder="e.g., Left chest logo, 3-color"
+                    />
                   </div>
                   <div className="order-create-form__item-total">
                     Line Total: ${(item.quantity * item.unitPrice).toFixed(2)}

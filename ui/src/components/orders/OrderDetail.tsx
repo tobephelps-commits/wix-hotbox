@@ -355,6 +355,11 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
                               item.size,
                             ].filter(Boolean).join(' / ')}
                           </div>
+                          {item.notes && (
+                            <div style={{ fontSize: '0.85em', color: '#666', fontStyle: 'italic', marginTop: 2 }}>
+                              {item.notes}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
