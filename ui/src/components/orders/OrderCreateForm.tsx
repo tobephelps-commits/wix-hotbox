@@ -9,6 +9,8 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { OrderSource, OrderAddress } from './types';
+import ProductPicker from './ProductPicker';
+import type { PickedProduct } from './ProductPicker';
 import './OrderCreateForm.css';
 
 /** A line item in the form (before submission). */
@@ -19,6 +21,8 @@ interface FormLineItem {
   size: string;
   quantity: number;
   unitPrice: number;
+  vendor?: 'sanmar' | 'ss';
+  imageUrl?: string | null;
 }
 
 interface OrderCreateFormProps {
@@ -72,6 +76,9 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
   const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
 
+  // Product picker
+  const [showPicker, setShowPicker] = useState(false);
+
   // Submission state
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +113,22 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
       if (prev.length <= 1) return prev;
       return prev.filter((_, i) => i !== index);
     });
+  }, []);
+
+  // Handle product picker selection
+  const handlePick = useCallback((product: PickedProduct) => {
+    const newItem: FormLineItem = {
+      productName: product.productName,
+      vendorStyle: product.vendorStyle,
+      color: product.color,
+      size: product.size,
+      quantity: 1,
+      unitPrice: product.unitPrice,
+      vendor: product.vendor,
+      imageUrl: product.imageUrl,
+    };
+    setItems((prev) => [...prev, newItem]);
+    setShowPicker(false);
   }, []);
 
   // Address field handler
@@ -162,6 +185,8 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
         quantity: it.quantity,
         unitPrice: it.unitPrice,
         totalPrice: Math.round(it.quantity * it.unitPrice * 100) / 100,
+        vendor: it.vendor || undefined,
+        imageUrl: it.imageUrl || undefined,
       })),
     };
 
@@ -380,96 +405,121 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
             <legend className="order-create-form__legend">Line Items</legend>
             {items.map((item, idx) => (
               <div key={idx} className="order-create-form__item-card">
-                <div className="order-create-form__item-header">
-                  <span className="order-create-form__item-number">Item {idx + 1}</span>
-                  {items.length > 1 && (
-                    <button
-                      type="button"
-                      className="order-create-form__remove-btn"
-                      onClick={() => removeItem(idx)}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-                <div className="order-create-form__row">
-                  <div className="order-create-form__field order-create-form__field--grow">
-                    <label className="order-create-form__label">Product Name *</label>
-                    <input
-                      className="order-create-form__input"
-                      type="text"
-                      value={item.productName}
-                      onChange={(e) => updateItem(idx, 'productName', e.target.value)}
-                      placeholder="Product name"
-                      required
-                    />
+                {item.imageUrl && (
+                  <img
+                    className="order-create-form__item-thumb"
+                    src={item.imageUrl}
+                    alt={item.productName}
+                  />
+                )}
+                <div className="order-create-form__item-fields">
+                  <div className="order-create-form__item-header">
+                    <span className="order-create-form__item-number">
+                      Item {idx + 1}
+                      {item.vendor && (
+                        <span className={`order-create-form__vendor-badge order-create-form__vendor-badge--${item.vendor}`}>
+                          {item.vendor === 'sanmar' ? 'SanMar' : 'S&S'}
+                        </span>
+                      )}
+                    </span>
+                    {items.length > 1 && (
+                      <button
+                        type="button"
+                        className="order-create-form__remove-btn"
+                        onClick={() => removeItem(idx)}
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
-                  <div className="order-create-form__field">
-                    <label className="order-create-form__label">Vendor Style</label>
-                    <input
-                      className="order-create-form__input"
-                      type="text"
-                      value={item.vendorStyle}
-                      onChange={(e) => updateItem(idx, 'vendorStyle', e.target.value)}
-                      placeholder="Style #"
-                    />
+                  <div className="order-create-form__row">
+                    <div className="order-create-form__field order-create-form__field--grow">
+                      <label className="order-create-form__label">Product Name *</label>
+                      <input
+                        className="order-create-form__input"
+                        type="text"
+                        value={item.productName}
+                        onChange={(e) => updateItem(idx, 'productName', e.target.value)}
+                        placeholder="Product name"
+                        required
+                      />
+                    </div>
+                    <div className="order-create-form__field">
+                      <label className="order-create-form__label">Vendor Style</label>
+                      <input
+                        className="order-create-form__input"
+                        type="text"
+                        value={item.vendorStyle}
+                        onChange={(e) => updateItem(idx, 'vendorStyle', e.target.value)}
+                        placeholder="Style #"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="order-create-form__row order-create-form__row--quad">
-                  <div className="order-create-form__field">
-                    <label className="order-create-form__label">Color</label>
-                    <input
-                      className="order-create-form__input"
-                      type="text"
-                      value={item.color}
-                      onChange={(e) => updateItem(idx, 'color', e.target.value)}
-                      placeholder="Color"
-                    />
+                  <div className="order-create-form__row order-create-form__row--quad">
+                    <div className="order-create-form__field">
+                      <label className="order-create-form__label">Color</label>
+                      <input
+                        className="order-create-form__input"
+                        type="text"
+                        value={item.color}
+                        onChange={(e) => updateItem(idx, 'color', e.target.value)}
+                        placeholder="Color"
+                      />
+                    </div>
+                    <div className="order-create-form__field">
+                      <label className="order-create-form__label">Size</label>
+                      <input
+                        className="order-create-form__input"
+                        type="text"
+                        value={item.size}
+                        onChange={(e) => updateItem(idx, 'size', e.target.value)}
+                        placeholder="Size"
+                      />
+                    </div>
+                    <div className="order-create-form__field">
+                      <label className="order-create-form__label">Qty *</label>
+                      <input
+                        className="order-create-form__input"
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => updateItem(idx, 'quantity', Math.max(1, parseInt(e.target.value) || 1))}
+                      />
+                    </div>
+                    <div className="order-create-form__field">
+                      <label className="order-create-form__label">Unit Price *</label>
+                      <input
+                        className="order-create-form__input"
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={item.unitPrice}
+                        onChange={(e) => updateItem(idx, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
+                      />
+                    </div>
                   </div>
-                  <div className="order-create-form__field">
-                    <label className="order-create-form__label">Size</label>
-                    <input
-                      className="order-create-form__input"
-                      type="text"
-                      value={item.size}
-                      onChange={(e) => updateItem(idx, 'size', e.target.value)}
-                      placeholder="Size"
-                    />
+                  <div className="order-create-form__item-total">
+                    Line Total: ${(item.quantity * item.unitPrice).toFixed(2)}
                   </div>
-                  <div className="order-create-form__field">
-                    <label className="order-create-form__label">Qty *</label>
-                    <input
-                      className="order-create-form__input"
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) => updateItem(idx, 'quantity', Math.max(1, parseInt(e.target.value) || 1))}
-                    />
-                  </div>
-                  <div className="order-create-form__field">
-                    <label className="order-create-form__label">Unit Price *</label>
-                    <input
-                      className="order-create-form__input"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      value={item.unitPrice}
-                      onChange={(e) => updateItem(idx, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
-                    />
-                  </div>
-                </div>
-                <div className="order-create-form__item-total">
-                  Line Total: ${(item.quantity * item.unitPrice).toFixed(2)}
                 </div>
               </div>
             ))}
-            <button
-              type="button"
-              className="order-create-form__add-item-btn"
-              onClick={addItem}
-            >
-              + Add Item
-            </button>
+            <div className="order-create-form__item-actions">
+              <button
+                type="button"
+                className="order-create-form__add-item-btn"
+                onClick={addItem}
+              >
+                + Add Item
+              </button>
+              <button
+                type="button"
+                className="order-create-form__browse-btn"
+                onClick={() => setShowPicker(true)}
+              >
+                Browse Catalog
+              </button>
+            </div>
           </fieldset>
 
           {/* Notes */}
@@ -553,6 +603,12 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
           </button>
         </div>
       </div>
+      {showPicker && (
+        <ProductPicker
+          onPick={handlePick}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }

@@ -268,8 +268,48 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.order-create-form__item-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+}
+
+.order-create-form__item-fields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.order-create-form__vendor-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.order-create-form__vendor-badge--sanmar {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.order-create-form__vendor-badge--ss {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
 }
 
 .order-create-form__item-header {
@@ -311,9 +351,14 @@
   border-top: 1px solid var(--color-border);
 }
 
-/* Add Item button */
+/* Item action buttons */
+.order-create-form__item-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .order-create-form__add-item-btn {
-  width: 100%;
+  flex: 1;
   min-height: var(--touch-min);
   font-size: var(--font-sm);
   font-weight: 600;
@@ -328,6 +373,24 @@
 
 .order-create-form__add-item-btn:hover {
   background: rgba(108, 99, 255, 0.15);
+}
+
+.order-create-form__browse-btn {
+  flex: 1;
+  min-height: var(--touch-min);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.order-create-form__browse-btn:hover {
+  background: var(--color-accent-hover);
 }
 
 /* =============================================================================
