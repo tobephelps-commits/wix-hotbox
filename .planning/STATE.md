@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Effortless product creation — enter a style number from any supported vendor and get a draft WIX product with pricing, variants, and images ready for review.
-**Current focus:** Planning next milestone
+**Current focus:** v2.1 Customer Operations
 
 ## Current Position
 
-Phase: 59 (v1.x Feature Parity Audit) -- COMPLETE
-Plan: 05 complete (Integration Polish & Build Validation)
-Status: v2.0 Pi Appliance milestone SHIPPED
-Last activity: 2026-03-10 - Milestone completion, tagging, documentation
+Phase: 60 of 64 (WIX Customer Sync)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-10 - Milestone v2.1 created
 
-Progress: ██████████ 100% (v2.0)
+Progress: ░░░░░░░░░░ 0% (v2.1)
 
 ## Performance Metrics
 
@@ -59,7 +59,7 @@ All v0.1, v0.2, v1.0, v1.1, v1.2, and v2.0 decisions marked with outcomes.
 
 ### Blockers/Concerns
 
-None (cleared for new milestone)
+None
 
 ### Roadmap Evolution
 
@@ -69,11 +69,12 @@ None (cleared for new milestone)
 - Milestone v1.1 shipped: 2026-02-04, 12 plans, 2 days
 - Milestone v1.2 shipped: 2026-02-04, 13 plans, 1 day
 - Milestone v2.0 shipped: 2026-03-10, 60 plans, 4 days
+- Milestone v2.1 created: Customer Operations, 5 phases (Phase 60-64)
 
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: v2.0 milestone shipped
+Stopped at: Milestone v2.1 initialization
 Resume file: None
 
 ## Milestones Shipped

@@ -16,6 +16,7 @@ None
 - ✅ **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (shipped 2026-02-04)
 - ✅ **v1.2 Order Fulfillment & Dashboard Redesign** -- Phases 37-42 (shipped 2026-02-04)
 - ✅ **v2.0 Pi Appliance** -- Phases 43-59 (shipped 2026-03-09)
+- 🚧 **v2.1 Customer Operations** -- Phases 60-64 (in progress)
 
 ## Completed Milestones
 
@@ -27,6 +28,62 @@ None
 - ✅ [v2.0 Pi Appliance](milestones/v2.0-ROADMAP.md) (Phases 43-59) — SHIPPED 2026-03-10
 
 ## Phases
+
+### 🚧 v2.1 Customer Operations (In Progress)
+
+**Milestone Goal:** Connect customers from WIX, communicate order progress via email/SMS, and streamline manual order creation with product selection and production notes.
+
+#### Phase 60: WIX Customer Sync
+
+**Goal**: Pull customer contacts (names, emails, phones) from WIX Contacts API into SQLite database with sync daemon
+**Depends on**: Previous milestone complete
+**Research**: Likely (WIX Contacts API integration)
+**Research topics**: WIX Contacts API endpoints, rate limits, pagination, field mapping
+**Plans**: TBD
+
+Plans:
+- [ ] 60-01: TBD (run /gsd:plan-phase 60 to break down)
+
+#### Phase 61: Notification System
+
+**Goal**: Email + SMS notifications to customers as orders progress through the pipeline with configurable stage triggers
+**Depends on**: Phase 60
+**Research**: Likely (Twilio SMS API, email sending infrastructure)
+**Research topics**: Twilio API setup, email transport (Nodemailer/SendGrid), message templating
+**Plans**: TBD
+
+Plans:
+- [ ] 61-01: TBD
+
+#### Phase 62: Manual Order Product Picker
+
+**Goal**: Product picker that browses both WIX catalog and vendor catalogs (SanMar/S&S), allowing mix-and-match in manual orders
+**Depends on**: Phase 60
+**Research**: Unlikely (internal patterns, vendor APIs already integrated)
+**Plans**: TBD
+
+Plans:
+- [ ] 62-01: TBD
+
+#### Phase 63: Manual Order Production Notes
+
+**Goal**: Free-text production notes per line item for decoration/production instructions, integrated into production sheets
+**Depends on**: Phase 62
+**Research**: Unlikely (internal patterns, production sheet system exists)
+**Plans**: TBD
+
+Plans:
+- [ ] 63-01: TBD
+
+#### Phase 64: Integration & Polish
+
+**Goal**: Cross-feature testing, UI refinement, edge case handling across all v2.1 features
+**Depends on**: Phase 63
+**Research**: Unlikely (internal testing)
+**Plans**: TBD
+
+Plans:
+- [ ] 64-01: TBD
 
 <details>
 <summary>✅ v2.0 Pi Appliance (Phases 43-59) — SHIPPED 2026-03-10</summary>
@@ -127,7 +184,7 @@ None
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 43 → 44 → 45 → 46 → 47 → 48 → 49 → 50 → 51 → 52 → 53 → 54 → 55 → 56 → 57 → 57.1 → 58 → 59
+Phases execute in numeric order: 60 → 61 → 62 → 63 → 64
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|---------------|--------|-----------|
@@ -191,3 +248,8 @@ Phases execute in numeric order: 43 → 44 → 45 → 46 → 47 → 48 → 49 �
 | 57.1. Remaining Tab UIs | v2.0 | 3/3 | Complete | 2026-03-08 |
 | 58. Kiosk Touch UI Modernization | v2.0 | 6/6 | Complete | 2026-03-08 |
 | 59. v1.x Feature Parity Audit | v2.0 | 5/5 | Complete | 2026-03-09 |
+| 60. WIX Customer Sync | v2.1 | 0/? | Not started | - |
+| 61. Notification System | v2.1 | 0/? | Not started | - |
+| 62. Manual Order Product Picker | v2.1 | 0/? | Not started | - |
+| 63. Manual Order Production Notes | v2.1 | 0/? | Not started | - |
+| 64. Integration & Polish | v2.1 | 0/? | Not started | - |
