@@ -36,6 +36,7 @@ interface ProductGroup {
   productName: string;
   vendor?: string;
   imageUrl?: string;
+  notes: string[];
   quantities: Array<{
     color: string;
     size: string;
@@ -63,12 +64,19 @@ function groupLineItemsByStyle(items: OrderLineItem[]): ProductGroup[] {
         productName: item.productName,
         vendor: item.vendor,
         imageUrl: item.imageUrl,
+        notes: [],
         quantities: [],
         totalQty: 0,
       });
     }
 
     const group = groups.get(key)!;
+
+    // Collect unique notes
+    if (item.notes && !group.notes.includes(item.notes)) {
+      group.notes.push(item.notes);
+    }
+
     group.quantities.push({
       color: item.color ?? 'N/A',
       size: item.size ?? 'N/A',
@@ -162,8 +170,9 @@ function drawProductSection(
 ): void {
   const pageWidth = doc.page.width - PAGE_MARGIN * 2;
 
-  // Check if we need a new page (need at least 200px for a product section)
-  if (doc.y > doc.page.height - PAGE_MARGIN - 200) {
+  // Check if we need a new page (need enough space for product section + notes)
+  const notesHeight = group.notes.length * 14;
+  if (doc.y > doc.page.height - PAGE_MARGIN - 200 - notesHeight) {
     doc.addPage();
     doc.y = PAGE_MARGIN;
   }
@@ -201,8 +210,22 @@ function drawProductSection(
       align: 'right',
     });
 
-  // Start quantities table below product info
-  const tableStartY = sectionStartY + 35;
+  // Draw production notes if present
+  let notesOffsetY = 0;
+  if (group.notes.length > 0) {
+    const notesStartY = sectionStartY + (group.vendor ? 32 : 18);
+    doc
+      .font('Helvetica-Oblique')
+      .fontSize(FONT_SIZE_SMALL)
+      .fillColor('#444444');
+    for (let n = 0; n < group.notes.length; n++) {
+      doc.text(`Notes: ${group.notes[n]}`, PAGE_MARGIN + 5, notesStartY + n * 14);
+    }
+    notesOffsetY = group.notes.length * 14;
+  }
+
+  // Start quantities table below product info (+ notes offset)
+  const tableStartY = sectionStartY + 35 + notesOffsetY;
 
   // Table column definitions
   const colWidths = {
