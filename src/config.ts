@@ -25,6 +25,11 @@ export interface Config {
   sanmarWebPassword: string;
   ssWebUsername: string;
   ssWebPassword: string;
+
+  // Twilio SMS credentials
+  twilioAccountSid: string;
+  twilioAuthToken: string;
+  twilioPhoneNumber: string;
 }
 
 export function loadConfig(): Config {
@@ -57,6 +62,11 @@ export function loadConfig(): Config {
   const ssWebUsername = process.env.SS_WEB_USERNAME || '';
   const ssWebPassword = process.env.SS_WEB_PASSWORD || '';
 
+  // Twilio SMS credentials (optional — SMS disabled if empty)
+  const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID || '';
+  const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN || '';
+  const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '';
+
   return {
     port, host, nodeEnv, dataDir, logDir,
     sanmarCustomerNumber, sanmarUsername, sanmarPassword,
@@ -64,5 +74,6 @@ export function loadConfig(): Config {
     wixApiKey, wixSiteId,
     sanmarWebUsername, sanmarWebPassword,
     ssWebUsername, ssWebPassword,
+    twilioAccountSid, twilioAuthToken, twilioPhoneNumber,
   };
 }

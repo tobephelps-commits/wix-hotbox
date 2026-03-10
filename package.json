@@ -73,7 +73,8 @@
     "nodemailer": "^7.0.13",
     "pdfkit": "^0.17.2",
     "sharp": "^0.34.5",
-    "soap": "^1.6.4"
+    "soap": "^1.6.4",
+    "twilio": "^5.12.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
