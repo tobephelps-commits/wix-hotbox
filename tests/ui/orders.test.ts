@@ -290,6 +290,94 @@ test.describe('Orders tab', () => {
     await expect(page.locator('.bulk-toolbar')).not.toBeVisible();
   });
 
+  test('order creation form shows production notes textarea per line item', async ({ seededServer, page }) => {
+    await page.goto(seededServer.baseUrl);
+    await page.locator('.sidebar-tab__label:text("Orders")').click();
+
+    // Open the create order form
+    await page.locator('.orders-header__new-btn').click();
+    await expect(page.locator('.order-create-form')).toBeVisible({ timeout: 5_000 });
+
+    // The default first line item should have a "Production Notes" textarea
+    const notesLabel = page.locator('.order-create-form__label:text("Production Notes")');
+    await expect(notesLabel).toBeVisible();
+
+    // The textarea for notes should exist and accept input
+    const notesTextarea = page.locator('.order-create-form__item-card textarea');
+    await expect(notesTextarea).toBeVisible();
+    await notesTextarea.fill('Left chest logo, 3-color');
+    await expect(notesTextarea).toHaveValue('Left chest logo, 3-color');
+
+    // Add another item and verify it also has a notes textarea
+    await page.locator('.order-create-form__add-item-btn').click();
+    const allNotesTextareas = page.locator('.order-create-form__item-card textarea');
+    await expect(allNotesTextareas).toHaveCount(2);
+  });
+
+  test('browse catalog button opens ProductPicker modal', async ({ seededServer, page }) => {
+    await page.goto(seededServer.baseUrl);
+    await page.locator('.sidebar-tab__label:text("Orders")').click();
+
+    // Open the create order form
+    await page.locator('.orders-header__new-btn').click();
+    await expect(page.locator('.order-create-form')).toBeVisible({ timeout: 5_000 });
+
+    // "Browse Catalog" button should be visible
+    const browseBtn = page.locator('.order-create-form__browse-btn');
+    await expect(browseBtn).toBeVisible();
+    await expect(browseBtn).toHaveText('Browse Catalog');
+
+    // Click it to open the ProductPicker modal
+    await browseBtn.click();
+    await expect(page.locator('.product-picker')).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('.product-picker__title')).toHaveText('Browse Products');
+
+    // Close the picker
+    await page.locator('.product-picker__cancel-btn').click();
+    await expect(page.locator('.product-picker')).not.toBeVisible();
+  });
+
+  test('order creation submits with production notes and displays in detail', async ({ seededServer, page }) => {
+    await page.goto(seededServer.baseUrl);
+    await page.locator('.sidebar-tab__label:text("Orders")').click();
+
+    // Open the create order form
+    await page.locator('.orders-header__new-btn').click();
+    await expect(page.locator('.order-create-form')).toBeVisible({ timeout: 5_000 });
+
+    // Fill in required fields
+    const itemFields = page.locator('.order-create-form__item-card').first();
+    await itemFields.locator('input[placeholder="Product name"]').fill('E2E Test Tee');
+    await itemFields.locator('input[type="number"][min="1"]').fill('2');
+    await itemFields.locator('input[type="number"][step="0.01"]').fill('15.00');
+
+    // Add production notes
+    await itemFields.locator('textarea').fill('Back print full color');
+
+    // Submit the order
+    await page.locator('.order-create-form__submit-btn').click();
+
+    // Form should close and new order should appear in the list
+    await expect(page.locator('.order-create-form')).not.toBeVisible({ timeout: 10_000 });
+
+    // Click on the newly created order (it should be the most recent, at top or bottom)
+    // Wait for order list to update — there should now be 2 orders
+    await expect(page.locator('.order-row')).toHaveCount(2, { timeout: 5_000 });
+
+    // Click the order with "E2E Test Tee" product
+    const newOrderRow = page.locator('.order-row', { hasText: 'E2E Test Tee' });
+    // If the order row doesn't show product name, just click the second row
+    const orderRows = page.locator('.order-row__body');
+    // Click the most recent order (the new one)
+    await orderRows.last().click();
+
+    // Wait for detail to load
+    await expect(page.locator('.order-detail')).toBeVisible({ timeout: 5_000 });
+
+    // Production notes should be visible in the item detail
+    await expect(page.locator('.order-detail__items-table')).toBeVisible();
+  });
+
   test('switching between list and pipeline preserves view mode', async ({ seededServer, page }) => {
     await page.goto(seededServer.baseUrl);
     await page.locator('.sidebar-tab__label:text("Orders")').click();

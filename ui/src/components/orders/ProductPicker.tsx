@@ -541,4 +541,3 @@ function ProductPicker({ onPick, onClose }: ProductPickerProps) {
 }
 
 export default ProductPicker;
-export type { PickedProduct, ProductPickerProps };
