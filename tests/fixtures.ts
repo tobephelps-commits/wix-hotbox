@@ -1,7 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import { startTestServer, type TestServer } from './helpers/server.js';
 import { apiClient, type ApiClient } from './helpers/api.js';
-import { seedTestOrders, seedTestCustomers, seedTestLogos } from './helpers/db.js';
+import { seedTestOrders, seedTestCustomers, seedTestLogos, seedTestWixContacts, seedTestNotifications } from './helpers/db.js';
 
 type TestFixtures = {
   api: ApiClient;
@@ -34,6 +34,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     seedTestOrders(server.dataDir);
     seedTestCustomers(server.dataDir);
     seedTestLogos(server.dataDir);
+    seedTestWixContacts(server.dataDir);
+    seedTestNotifications(server.dataDir);
     await use(server);
     await server.cleanup();
   }, { scope: 'worker' }],
