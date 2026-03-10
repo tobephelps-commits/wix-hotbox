@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 62 of 64 (Manual Order Product Picker) — IN PROGRESS
-Plan: 62-02 complete, ready for 62-03
-Status: Plan 02 complete (ProductPicker integrated into OrderCreateForm)
-Last activity: 2026-03-10 - Plan 62-02 complete
+Phase: 63 of 64 (Manual Order Production Notes) — IN PROGRESS
+Plan: 63-01 complete
+Status: Plan 01 complete (per-item production notes end-to-end)
+Last activity: 2026-03-10 - Plan 63-01 complete
 
 Progress: ███░░░░░░░ 30% (v2.1)
 
@@ -57,6 +57,7 @@ Progress: ███░░░░░░░ 30% (v2.1)
 | 60. WIX Customer Sync | 2/2 | 2026-03-10 |
 | 61. Notification System | 4/4 | 2026-03-10 |
 | 62. Manual Order Product Picker | 2/? | — |
+| 63. Manual Order Production Notes | 1/? | — |
 
 ## Accumulated Context
 
@@ -82,7 +83,7 @@ None
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Phase 62, plan 02 complete, ready for plan 03
+Stopped at: Phase 63, plan 01 complete
 Resume file: None
 
 ## Milestones Shipped
