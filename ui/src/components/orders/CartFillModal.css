@@ -20,7 +20,7 @@
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-depth-2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   width: 100%;
   max-width: 640px;
   max-height: calc(100dvh - 48px);
@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 16px 24px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
@@ -46,12 +46,12 @@
 }
 
 .cart-fill-modal__close-btn {
-  width: 48px;
-  height: 48px;
+  width: var(--touch-min);
+  height: var(--touch-min);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 1.5rem;
   font-family: inherit;
   background: transparent;
   border: none;
@@ -72,10 +72,10 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding: var(--spacing-lg);
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 /* =============================================================================
@@ -85,12 +85,12 @@
 .cart-fill-modal__vendor-select {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .cart-fill-modal__vendor-btn {
   min-height: 56px;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 16px 24px;
   font-size: var(--font-base);
   font-weight: 700;
   font-family: inherit;
@@ -118,8 +118,8 @@
 
 .cart-fill-modal__summary {
   display: flex;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-sm) 0;
+  gap: 24px;
+  padding: 8px 0;
 }
 
 .cart-fill-modal__summary-item {
@@ -152,9 +152,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 16px;
   background: var(--color-surface);
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .cart-fill-modal__item + .cart-fill-modal__item {
@@ -203,21 +203,21 @@
  * ============================================================================= */
 
 .cart-fill-modal__loading {
-  padding: var(--spacing-xl) 0;
+  padding: 32px 0;
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--font-sm);
 }
 
 .cart-fill-modal__empty {
-  padding: var(--spacing-xl) 0;
+  padding: 32px 0;
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--font-sm);
 }
 
 .cart-fill-modal__error {
-  padding: var(--spacing-md);
+  padding: 16px;
   background: rgba(255, 107, 107, 0.08);
   border: 1px solid rgba(255, 107, 107, 0.25);
   border-radius: var(--radius-md);
@@ -233,14 +233,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: var(--spacing-md);
+  padding-top: 16px;
   border-top: 1px solid var(--color-border);
   margin-top: auto;
 }
 
 .cart-fill-modal__fill-btn {
   min-height: 56px;
-  padding: 0 var(--spacing-xl);
+  padding: 0 32px;
   font-size: var(--font-base);
   font-weight: 700;
   font-family: inherit;
@@ -264,7 +264,7 @@
 .cart-fill-modal__history-btn,
 .cart-fill-modal__back-btn {
   min-height: 56px;
-  padding: 0 var(--spacing-lg);
+  padding: 0 24px;
   font-size: var(--font-sm);
   font-weight: 600;
   font-family: inherit;
@@ -284,7 +284,7 @@
 
 .cart-fill-modal__done-btn {
   min-height: 56px;
-  padding: 0 var(--spacing-xl);
+  padding: 0 32px;
   font-size: var(--font-base);
   font-weight: 700;
   font-family: inherit;
@@ -309,8 +309,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl) 0;
+  gap: 16px;
+  padding: 32px 0;
   font-size: var(--font-base);
   color: var(--color-text);
 }
@@ -336,7 +336,7 @@
 .cart-fill-modal__results {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .cart-fill-modal__status {
@@ -383,8 +383,8 @@
 .cart-fill-modal__result-item {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: 8px;
+  padding: 8px 16px;
   background: var(--color-surface);
   flex-wrap: wrap;
 }
@@ -439,7 +439,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: var(--spacing-md);
+  padding: 16px;
   background: var(--color-surface);
 }
 
@@ -450,7 +450,7 @@
 .cart-fill-modal__history-main {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 
 .cart-fill-modal__history-vendor {
@@ -461,7 +461,7 @@
 
 .cart-fill-modal__history-detail {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 16px;
   font-size: var(--font-xs);
   color: var(--color-text-muted);
 }

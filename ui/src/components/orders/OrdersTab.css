@@ -946,9 +946,14 @@
   transition: border-color var(--transition-base), color var(--transition-base);
 }
 
-.order-detail__pdf-btn:hover {
+.order-detail__pdf-btn:hover:not(:disabled) {
   border-color: var(--color-text-muted);
   color: var(--color-text);
+}
+
+.order-detail__pdf-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* =============================================================================
