@@ -14,6 +14,7 @@ import syncRoutes from './sync.js';
 import customerRoutes from './customers.js';
 import printingRoutes from './printing.js';
 import wixContactRoutes from './wix-contacts.js';
+import notificationRoutes from './notifications.js';
 import { getNetworkInfo } from '../lan/index.js';
 
 declare module 'fastify' {
@@ -157,4 +158,7 @@ export default async function apiRoutes(
 
   // WIX Contacts routes (sync control, contact queries, customer linking)
   await fastify.register(wixContactRoutes, { prefix: '/wix-contacts' });
+
+  // Notification routes (template management, delivery log, test notifications)
+  await fastify.register(notificationRoutes, { prefix: '/notifications' });
 }

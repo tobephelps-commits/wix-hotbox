@@ -59,9 +59,38 @@ import {
   markSSOrdersAsOrdered,
   addOrderError,
 } from '../orders/index.js';
+import type { NotificationConfig } from '../sync/types.js';
+import { triggerOrderNotifications } from '../notifications/trigger.js';
 import archiver from 'archiver';
 import { mkdirSync, writeFileSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+
+// =============================================================================
+// Notification Config Helper
+// =============================================================================
+
+/**
+ * Build NotificationConfig from environment variables.
+ * Reuses same SMTP env vars as sync notification system.
+ */
+function getNotificationConfig(): NotificationConfig {
+  const smtpUser = process.env.SMTP_USER ?? '';
+  const smtpPass = process.env.SMTP_PASS ?? '';
+  const enabled = Boolean(smtpUser);
+
+  return {
+    enabled,
+    smtp: {
+      host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT ?? '587', 10),
+      secure: (process.env.SMTP_SECURE ?? 'false').toLowerCase() === 'true',
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    to: '', // Not used for customer emails (recipient comes from order)
+    from: process.env.NOTIFY_FROM ?? smtpUser ?? 'noreply@hotboxclothing.com',
+  };
+}
 
 export default async function orderRoutes(
   fastify: FastifyInstance,
@@ -143,6 +172,14 @@ export default async function orderRoutes(
     }
 
     const result = updateOrderStatusBulk(fastify.db, orderIds, status, note);
+
+    // Fire notifications for each updated order (best-effort)
+    const notificationConfig = getNotificationConfig();
+    for (const orderId of orderIds) {
+      triggerOrderNotifications(fastify.db, fastify.config, notificationConfig, orderId, status)
+        .catch(err => console.error('[Notifications] Trigger error:', err));
+    }
+
     return result;
   });
 
@@ -548,6 +585,12 @@ export default async function orderRoutes(
 
     try {
       const order = updateOrderStatus(fastify.db, id, status, note);
+
+      // Fire notifications (best-effort, don't await)
+      const notificationConfig = getNotificationConfig();
+      triggerOrderNotifications(fastify.db, fastify.config, notificationConfig, id, status)
+        .catch(err => console.error('[Notifications] Trigger error:', err));
+
       return order;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
