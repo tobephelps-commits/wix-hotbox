@@ -150,6 +150,7 @@ export interface OrderLineItem {
   color?: string;
   size?: string;
   imageUrl?: string;
+  notes?: string;
   createdAt: string;
 }
 

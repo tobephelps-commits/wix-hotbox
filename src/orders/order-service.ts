@@ -117,6 +117,7 @@ interface ItemRow {
   color: string | null;
   size: string | null;
   image_url: string | null;
+  notes: string | null;
   created_at: string;
 }
 
@@ -186,6 +187,7 @@ function mapItemRow(row: ItemRow): OrderLineItem {
     color: row.color ?? undefined,
     size: row.size ?? undefined,
     imageUrl: row.image_url ?? undefined,
+    notes: row.notes ?? undefined,
     createdAt: row.created_at,
   };
 }
@@ -257,8 +259,8 @@ export function createOrder(
   const insertItem = db.prepare(`
     INSERT INTO order_items (
       order_id, product_name, sku, quantity, unit_price, total_price,
-      vendor_style, vendor, color, size, image_url
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      vendor_style, vendor, color, size, image_url, notes
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertHistory = db.prepare(`
@@ -298,7 +300,8 @@ export function createOrder(
         item.vendor ?? null,
         item.color ?? null,
         item.size ?? null,
-        item.imageUrl ?? null
+        item.imageUrl ?? null,
+        item.notes ?? null
       );
     }
 
@@ -578,8 +581,8 @@ export function upsertWixOrder(
         db.prepare(`
           INSERT INTO order_items (
             order_id, product_name, sku, quantity, unit_price, total_price,
-            vendor_style, vendor, color, size, image_url
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            vendor_style, vendor, color, size, image_url, notes
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           id,
           item.productName,
@@ -591,7 +594,8 @@ export function upsertWixOrder(
           item.vendor ?? null,
           item.color ?? null,
           item.size ?? null,
-          item.imageUrl ?? null
+          item.imageUrl ?? null,
+          item.notes ?? null
         );
       }
 
@@ -659,8 +663,8 @@ export function upsertWixOrder(
       db.prepare(`
         INSERT INTO order_items (
           order_id, product_name, sku, quantity, unit_price, total_price,
-          vendor_style, vendor, color, size, image_url
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          vendor_style, vendor, color, size, image_url, notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         existing.id,
         item.productName,
@@ -672,7 +676,8 @@ export function upsertWixOrder(
         item.vendor ?? null,
         item.color ?? null,
         item.size ?? null,
-        item.imageUrl ?? null
+        item.imageUrl ?? null,
+        item.notes ?? null
       );
     }
 
