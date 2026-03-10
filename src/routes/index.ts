@@ -13,6 +13,7 @@ import monitorRoutes from './monitor.js';
 import syncRoutes from './sync.js';
 import customerRoutes from './customers.js';
 import printingRoutes from './printing.js';
+import wixContactRoutes from './wix-contacts.js';
 import { getNetworkInfo } from '../lan/index.js';
 
 declare module 'fastify' {
@@ -153,4 +154,7 @@ export default async function apiRoutes(
 
   // Printing routes (printer discovery, saved printers, print jobs)
   await fastify.register(printingRoutes, { prefix: '/printing' });
+
+  // WIX Contacts routes (sync control, contact queries, customer linking)
+  await fastify.register(wixContactRoutes, { prefix: '/wix-contacts' });
 }
