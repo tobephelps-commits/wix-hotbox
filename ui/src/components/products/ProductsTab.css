@@ -41,6 +41,27 @@
   color: var(--color-text);
 }
 
+.products-tab__batch-btn {
+  margin-left: auto;
+  height: var(--touch-min);
+  padding: 0 24px;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  font-family: inherit;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-pill);
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.products-tab__batch-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
 /* Utility button row (below style lookup) */
 .products-tab__utility-row {
   display: flex;

@@ -19,10 +19,11 @@ import type { PricingConfigValues } from './PricingConfig';
 import type { CreationResult as CreationResultData, SelectedColor } from './CreateFlow';
 import LogoManager from '../logos/LogoManager';
 import LogoStep from './LogoStep';
+import BatchCreateForm from './BatchCreateForm';
 import type { AngleOverlayConfig } from './LogoStep';
 import './ProductsTab.css';
 
-type Step = 'lookup' | 'preview' | 'logo' | 'configure' | 'creating' | 'done' | 'manage-logos';
+type Step = 'lookup' | 'preview' | 'logo' | 'configure' | 'creating' | 'done' | 'manage-logos' | 'batch';
 
 function ProductsTab() {
   const [step, setStep] = useState<Step>('lookup');
@@ -125,6 +126,13 @@ function ProductsTab() {
         <>
           <div className="products-tab__header">
             <h2 className="products-tab__title">Create Product</h2>
+            <button
+              type="button"
+              className="products-tab__batch-btn"
+              onClick={() => setStep('batch')}
+            >
+              Batch Create
+            </button>
           </div>
           <StyleLookup onPreviewReady={handlePreviewReady} />
           <div className="products-tab__utility-row">
@@ -137,6 +145,14 @@ function ProductsTab() {
             </button>
           </div>
         </>
+      )}
+
+      {/* Batch create step */}
+      {step === 'batch' && (
+        <BatchCreateForm
+          onComplete={() => setStep('lookup')}
+          onCancel={() => setStep('lookup')}
+        />
       )}
 
       {/* Logo management sub-view */}
