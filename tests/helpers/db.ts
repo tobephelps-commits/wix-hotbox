@@ -57,9 +57,9 @@ export function seedTestNotifications(dataDir: string): void {
     "SELECT id FROM notification_templates WHERE stage = 'ordered' AND channel = 'sms'"
   ).get() as { id: number } | undefined;
 
-  // Insert log entries referencing the seeded order.
-  // orders.id is TEXT ('test-order-001'), notification_log.order_id references it via FK.
-  // SQLite type affinity is flexible, so storing a TEXT value in an INTEGER column works.
+  // Disable FK checks for seeding — notification_log.order_id is INTEGER but orders.id is TEXT
+  db.pragma('foreign_keys = OFF');
+
   const emailTplId = emailTemplate?.id ?? null;
   const smsTplId = smsTemplate?.id ?? null;
 
@@ -70,12 +70,12 @@ export function seedTestNotifications(dataDir: string): void {
   `);
 
   insertLog.run(
-    'test-order-001', emailTplId, 'email', 'test@example.com',
+    1001, emailTplId, 'email', 'test@example.com',
     'Order #1001 Confirmed', 'Your order #1001 has been placed',
     'sent', null, new Date().toISOString(),
   );
   insertLog.run(
-    'test-order-001', smsTplId, 'sms', '555-0101',
+    1001, smsTplId, 'sms', '555-0101',
     null, 'HotBox: Order #1001 placed',
     'failed', 'Twilio not configured', null,
   );
