@@ -15,7 +15,7 @@ None
 - ✅ **v1.0 Visual Branding & Business Operations** -- Phases 21-30 (shipped 2026-02-02)
 - ✅ **v1.1 Storefront Polish & Operations Dashboard** -- Phases 31-36 (shipped 2026-02-04)
 - ✅ **v1.2 Order Fulfillment & Dashboard Redesign** -- Phases 37-42 (shipped 2026-02-04)
-- 🚧 **v2.0 Pi Appliance** -- Phases 43-56 (in progress)
+- ✅ **v2.0 Pi Appliance** -- Phases 43-59 (shipped 2026-03-09)
 
 ## Completed Milestones
 
@@ -27,7 +27,7 @@ None
 
 ## Phases
 
-### 🚧 v2.0 Pi Appliance (In Progress)
+### ✅ v2.0 Pi Appliance (Shipped 2026-03-09)
 
 **Milestone Goal:** Full ground-up rewrite of HotBox as a self-contained Raspberry Pi 5 production appliance with touch-first UI, LAN access, and network printing
 
@@ -162,6 +162,80 @@ Plans:
 Plans:
 - [ ] 56-01: TBD
 
+#### Phase 57: Pi Appliance E2E Test Automation
+**Goal**: Comprehensive automated end-to-end testing of all UI interfaces and API functions on the live Raspberry Pi appliance using Playwright/Puppeteer, with iterative multi-pass execution to catch intermittent failures
+**Depends on**: Phase 56
+**Research**: Likely (Playwright on ARM64/Pi, headless vs headed testing on kiosk, touch event simulation)
+**Research topics**: Playwright ARM64 support, Puppeteer on Pi 5, touch event automation, iterative test runners, network printer mock strategies
+**Plans**: TBD
+
+Plans:
+- [ ] 57-01: TBD (run /gsd:plan-phase 57 to break down)
+
+#### Phase 57.1: Remaining Tab UIs (INSERTED)
+**Goal**: Build inventory monitoring, customer management, and system health tab UIs to replace placeholder screens. All backend APIs exist — need frontend React components wired into ContentArea.tsx.
+**Depends on**: Phase 57
+**Research**: No (APIs fully explored, existing tab patterns in Products/Orders to follow)
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 57.1 to break down)
+
+**Details:**
+ContentArea.tsx currently shows "Coming in Phase XX" placeholders for inventory, customers, and system tabs. The backend APIs are complete:
+- Inventory: /api/monitor/* (tracked products, alerts, polling, snapshots)
+- Customers: /api/customers/* (CRUD, pricing calc, royalty reports/PDFs)
+- System: /api/system, /api/health, /api/printing/*, /api/sync/health
+
+#### Phase 58: Kiosk Touch UI Modernization
+**Goal**: Redesign entire UI for 15.6" touchscreen kiosk — rounded corners, larger touch targets (56px+ buttons), bigger text, push-button-friendly navigation, smooth transitions. Use frontend-design skill for production-grade, distinctive interface quality.
+**Depends on**: Phase 57.1
+**Research**: No (existing UI components to restyle, no new APIs)
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 58 to break down)
+
+**Details:**
+Current UI was built for functional completeness, not touch-first ergonomics. This phase modernizes every surface for comfortable finger operation on a 15.6" 1920x1080 touchscreen:
+- Global design tokens: rounded corners (12-16px), generous padding, larger font sizes
+- Sidebar: bigger icons and labels, wider touch targets, active state with rounded highlight
+- Cards/panels: rounded surfaces with soft shadows, comfortable spacing
+- Buttons: minimum 48x48px touch targets, clear visual hierarchy, press feedback
+- Tables/lists: larger row heights, touch-friendly selection, swipe-friendly scrolling
+- Forms/inputs: oversized input fields, large dropdowns, prominent action buttons
+- Modals/dialogs: centered with backdrop blur, large close targets
+- Typography: minimum 16px body, 20px+ headings, high contrast
+- Transitions: smooth 200ms ease for state changes, touch ripple effects
+
+#### Phase 59: v1.x Feature Parity Audit & Remediation
+**Goal**: Systematically compare all v1.x desktop application functionality against the v2.0 Pi appliance, identify every missing feature/UI element, and build out the gaps to achieve full feature parity. Critical missing items include: manual order creation form, shipping label generation/printing, royalty calculation & reporting UI, cart automation UI, batch product creation UI, and complete inventory/customers tab wiring.
+**Depends on**: Phase 58
+**Research**: No (auditing existing codebase, all APIs already built)
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 59 to break down)
+
+**Details:**
+The v2.0 Pi rewrite ported all backend APIs but several user-facing features are missing from the touch UI. Key gaps identified:
+
+**HIGH PRIORITY (blocking daily operations):**
+- Manual order creation — API exists (POST /api/orders) but no button or form in Orders tab
+- Shipping label PDF — not ported from v1.x, no print button in order detail
+- Royalty calculation & PDF reporting — types ported but engine, API routes, and UI missing
+- Cart automation UI — consolidation API ready but no Playwright automation or trigger UI
+
+**MEDIUM PRIORITY (reducing operator efficiency):**
+- Batch product creation UI — SSE progress logic ported but no multi-product form
+- Product migration browser — discover/import existing WIX products
+- Inventory sync daemon wiring — core logic exists, needs systemd integration and dashboard controls
+- Logo upload UI in Logo Manager — API ready, drag-and-drop upload missing
+
+**LOW PRIORITY (v1.x CLI-only features):**
+- Margin/profit reports
+- Sale pricing management
+
 <details>
 <summary>✅ v1.2 Order Fulfillment & Dashboard Redesign (Phases 37-42) — SHIPPED 2026-02-04</summary>
 
@@ -237,7 +311,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 43 → 44 → 45 → 46 → 47 → 48 → 49 → 50 → 51 → 52 → 53 → 54 → 55 → 56
+Phases execute in numeric order: 43 → 44 → 45 → 46 → 47 → 48 → 49 → 50 → 51 → 52 → 53 → 54 → 55 → 56 → 57 → 57.1 → 58 → 59
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|---------------|--------|-----------|
@@ -297,3 +371,7 @@ Phases execute in numeric order: 43 → 44 → 45 → 46 → 47 → 48 → 49 �
 | 54. Network Printing | v2.0 | 0/? | Not started | - |
 | 55. LAN Web Access | v2.0 | 0/? | Not started | - |
 | 56. Appliance Hardening | v2.0 | 0/? | Not started | - |
+| 57. Pi E2E Test Automation | v2.0 | 0/? | Not started | - |
+| 57.1. Remaining Tab UIs | v2.0 | 0/? | Not started | - |
+| 58. Kiosk Touch UI Modernization | v2.0 | 0/? | Not started | - |
+| 59. v1.x Feature Parity Audit | v2.0 | 5/5 | Complete | 2026-03-09 |

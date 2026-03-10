@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 59 (v1.x Feature Parity Audit) -- IN PROGRESS
-Plan: 04 complete (Batch Product Creation)
-Status: POST /api/pipeline/batch SSE endpoint, BatchCreateForm with multi-style input, shared pricing, real-time progress, results summary
-Last activity: 2026-03-09 - Batch product creation UI and API endpoint
+Phase: 59 (v1.x Feature Parity Audit) -- COMPLETE
+Plan: 05 complete (Integration Polish & Build Validation)
+Status: All CSS tokens validated, undefined tokens replaced, production builds clean, phase 59 complete
+Last activity: 2026-03-09 - Integration polish, CSS audit, build validation
 
 Progress: ██████████ 100% (v2.0)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 125 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 8 v2.0)
+- Total plans completed: 130 (34 v0.1 + 38 v0.2 + 24 v1.0 + 9 v1.1 + 12 v1.2 + 13 v2.0)
 - Average duration: ~1 session per plan
 - v0.1: 34 plans across 3 days (2026-01-29 to 2026-01-31)
 - v0.2: 38 plans across 4 days (2026-01-29 to 2026-02-01)
@@ -220,6 +220,17 @@ All v0.1 and v0.2 decisions marked with outcomes. See PROJECT.md for full list.
 | 53 | Content-Disposition: inline for royalty PDF | Browser preview preferred over download for statement review |
 | 53 | setRoyaltyStatementDataDir at route registration | Matches v2.0 setDataDir init pattern from pdf-template.ts |
 
+### Phase 59 Decisions
+
+| Phase | Decision | Rationale |
+|-------|----------|-----------|
+| 59 | Orange accent (#f39c12) for Fill Cart button | Visual differentiation from New Order (green) and Sync (purple) |
+| 59 | Non-null assertion for shippingAddress in label PDF | Guard throw before Promise; TypeScript can't track across callback boundary |
+| 59 | Three-view state machine for CartFillModal | Preview -> filling -> results with history as alternate view |
+| 59 | All in-stock colors auto-selected in batch mode | No per-product curation in batch; use single flow for individual control |
+| 59 | SSE via reply.raw for batch streaming | Fastify reply.raw.writeHead + write pattern for SSE responses |
+| 59 | Replace undefined --spacing-* and --shadow-depth-* tokens | CartFillModal used nonexistent design tokens; replaced with concrete values |
+
 ### Blockers/Concerns
 
 None (cleared for new milestone)
@@ -408,7 +419,7 @@ None (cleared for new milestone)
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Phase 59 plan 04 complete
+Stopped at: Phase 59 complete (all 5 plans)
 Resume file: None
 
 ## Milestones Shipped
