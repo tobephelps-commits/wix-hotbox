@@ -10,3 +10,4 @@ export * from './types.js';
 export * from './store.js';
 export { sendOrderEmail, buildOrderStatusEmail } from './email-sender.js';
 export { sendOrderSms, formatPhoneE164, isTwilioConfigured } from './sms-sender.js';
+export { triggerOrderNotifications, resolveCustomerContact } from './trigger.js';
