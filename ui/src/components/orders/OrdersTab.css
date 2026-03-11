@@ -661,6 +661,9 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .order-detail__card {
@@ -896,6 +899,108 @@
   color: var(--color-text);
   white-space: pre-wrap;
   line-height: 1.5;
+}
+
+.order-detail__notes-edit-btn {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  min-height: auto;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.order-detail__notes-edit-btn:hover {
+  text-decoration: underline;
+}
+
+.order-detail__notes-empty {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.order-detail__notes-empty:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.order-detail__notes-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  font-size: var(--font-sm);
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  resize: vertical;
+  line-height: 1.5;
+  transition: border-color var(--transition-fast);
+}
+
+.order-detail__notes-textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.order-detail__notes-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.order-detail__notes-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.order-detail__notes-cancel-btn {
+  min-height: 34px;
+  padding: 0 16px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.order-detail__notes-cancel-btn:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.order-detail__notes-save-btn {
+  min-height: 34px;
+  padding: 0 20px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.order-detail__notes-save-btn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.order-detail__notes-save-btn:disabled,
+.order-detail__notes-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Status Transition Buttons */

@@ -60,6 +60,9 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
   const [loading, setLoading] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
 
   const fetchOrder = useCallback(async (id: string) => {
     setLoading(true);
@@ -134,6 +137,32 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
       // Could show error toast
     }
   }, [order]);
+
+  const handleEditNotes = useCallback(() => {
+    setNotesValue(order?.notes ?? '');
+    setEditingNotes(true);
+  }, [order]);
+
+  const handleSaveNotes = useCallback(async () => {
+    if (!order) return;
+    setSavingNotes(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: notesValue }),
+      });
+      if (res.ok) {
+        setEditingNotes(false);
+        await fetchOrder(order.id);
+        onOrderUpdated();
+      }
+    } catch {
+      // Could show error toast
+    } finally {
+      setSavingNotes(false);
+    }
+  }, [order, notesValue, fetchOrder, onOrderUpdated]);
 
   // Empty state
   if (!orderId) {
@@ -444,15 +473,59 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
         </div>
       )}
 
-      {/* Notes */}
-      {order.notes && (
-        <div className="order-detail__section">
-          <div className="order-detail__section-title">Notes</div>
+      {/* Notes -- always visible, inline editable */}
+      <div className="order-detail__section">
+        <div className="order-detail__section-title">
+          Notes
+          {!editingNotes && (
+            <button
+              className="order-detail__notes-edit-btn"
+              onClick={handleEditNotes}
+            >
+              {order.notes ? 'Edit' : '+ Add Notes'}
+            </button>
+          )}
+        </div>
+        {editingNotes ? (
           <div className="order-detail__card">
+            <textarea
+              className="order-detail__notes-textarea"
+              value={notesValue}
+              onChange={(e) => setNotesValue(e.target.value)}
+              placeholder="Add notes to this order..."
+              rows={4}
+              autoFocus
+            />
+            <div className="order-detail__notes-actions">
+              <button
+                className="order-detail__notes-cancel-btn"
+                onClick={() => setEditingNotes(false)}
+                disabled={savingNotes}
+              >
+                Cancel
+              </button>
+              <button
+                className="order-detail__notes-save-btn"
+                onClick={handleSaveNotes}
+                disabled={savingNotes}
+              >
+                {savingNotes ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        ) : order.notes ? (
+          <div className="order-detail__card" onClick={handleEditNotes} style={{ cursor: 'pointer' }}>
             <div className="order-detail__notes">{order.notes}</div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div
+            className="order-detail__card order-detail__notes-empty"
+            onClick={handleEditNotes}
+          >
+            Click to add notes...
+          </div>
+        )}
+      </div>
 
       {/* Edit modal */}
       {editing && (
