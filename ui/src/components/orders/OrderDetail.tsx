@@ -11,6 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { OrderWithDetails, OrderStatus } from './types';
 import { ORDER_STATUS_TRANSITIONS } from './types';
+import OrderCreateForm from './OrderCreateForm';
 
 /** Status display labels */
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -58,6 +59,7 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
   const [order, setOrder] = useState<OrderWithDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const fetchOrder = useCallback(async (id: string) => {
     setLoading(true);
@@ -190,6 +192,12 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
         <span className="order-detail__date">
           {formatDate(order.createdAt)}
         </span>
+        <button
+          className="order-detail__edit-btn"
+          onClick={() => setEditing(true)}
+        >
+          Edit
+        </button>
       </div>
 
       {/* Error banner */}
@@ -444,6 +452,19 @@ function OrderDetail({ orderId, onOrderUpdated }: OrderDetailProps) {
             <div className="order-detail__notes">{order.notes}</div>
           </div>
         </div>
+      )}
+
+      {/* Edit modal */}
+      {editing && (
+        <OrderCreateForm
+          editOrder={order}
+          onCreated={() => {
+            setEditing(false);
+            fetchOrder(order.id);
+            onOrderUpdated();
+          }}
+          onCancel={() => setEditing(false)}
+        />
       )}
     </div>
   );

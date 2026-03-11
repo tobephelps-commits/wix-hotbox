@@ -21,6 +21,7 @@ export type {
   OrderFilter,
   OrderSummary,
   CreateOrderInput,
+  UpdateOrderInput,
 } from './types.js';
 
 export {
@@ -40,6 +41,7 @@ export {
   getOrderByNumber,
   getOrderByWixId,
   listOrders,
+  updateOrder,
   updateOrderStatus,
   updateOrderStatusBulk,
   upsertWixOrder,

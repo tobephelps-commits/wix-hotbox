@@ -28,6 +28,7 @@ import type {
   OrderSource,
   OrderErrorOperation,
   CreateOrderInput,
+  UpdateOrderInput,
 } from './types.js';
 import {
   ORDER_STATUSES,
@@ -692,6 +693,133 @@ export function upsertWixOrder(
   txn();
 
   return { order: getOrder(db, existing.id)!, action: 'updated' };
+}
+
+/**
+ * Update an existing order's editable fields.
+ * Accepts partial input — only provided fields are updated.
+ * Line items are replaced if provided (delete + reinsert).
+ * Wrapped in a transaction for atomicity.
+ */
+export function updateOrder(
+  db: Database.Database,
+  id: string,
+  input: UpdateOrderInput
+): OrderWithDetails {
+  const existing = getOrder(db, id);
+  if (!existing) {
+    throw new Error(`Order not found: ${id}`);
+  }
+
+  const txn = db.transaction(() => {
+    // Build SET clauses for only provided fields
+    const sets: string[] = [];
+    const params: (string | number | null)[] = [];
+
+    if (input.customerFirstName !== undefined) {
+      sets.push('customer_first_name = ?');
+      params.push(input.customerFirstName || null);
+    }
+    if (input.customerLastName !== undefined) {
+      sets.push('customer_last_name = ?');
+      params.push(input.customerLastName || null);
+    }
+    if (input.customerEmail !== undefined) {
+      sets.push('customer_email = ?');
+      params.push(input.customerEmail || null);
+    }
+    if (input.customerPhone !== undefined) {
+      sets.push('customer_phone = ?');
+      params.push(input.customerPhone || null);
+    }
+    if (input.shippingAddress !== undefined) {
+      sets.push('shipping_address = ?');
+      params.push(input.shippingAddress ? JSON.stringify(input.shippingAddress) : null);
+    }
+    if (input.billingAddress !== undefined) {
+      sets.push('billing_address = ?');
+      params.push(input.billingAddress ? JSON.stringify(input.billingAddress) : null);
+    }
+    if (input.collection !== undefined) {
+      sets.push('collection = ?');
+      params.push(input.collection || null);
+    }
+    if (input.notes !== undefined) {
+      sets.push('notes = ?');
+      params.push(input.notes || null);
+    }
+    if (input.shippingCost !== undefined) {
+      sets.push('shipping_cost = ?');
+      params.push(input.shippingCost);
+    }
+    if (input.tax !== undefined) {
+      sets.push('tax = ?');
+      params.push(input.tax);
+    }
+    if (input.discount !== undefined) {
+      sets.push('discount = ?');
+      params.push(input.discount);
+    }
+
+    // If items provided, recalculate subtotal and total
+    if (input.items) {
+      const subtotal = input.items.reduce((sum, it) => sum + it.totalPrice, 0);
+      sets.push('subtotal = ?');
+      params.push(subtotal);
+
+      const shipping = input.shippingCost ?? existing.shippingCost;
+      const tax = input.tax ?? existing.tax;
+      const discount = input.discount ?? existing.discount;
+      const total = subtotal + shipping + tax - discount;
+      sets.push('total = ?');
+      params.push(Math.round(total * 100) / 100);
+    } else if (input.shippingCost !== undefined || input.tax !== undefined || input.discount !== undefined) {
+      // Recalculate total with existing subtotal
+      const shipping = input.shippingCost ?? existing.shippingCost;
+      const tax = input.tax ?? existing.tax;
+      const discount = input.discount ?? existing.discount;
+      const total = existing.subtotal + shipping + tax - discount;
+      sets.push('total = ?');
+      params.push(Math.round(total * 100) / 100);
+    }
+
+    if (sets.length > 0) {
+      sets.push("updated_at = datetime('now')");
+      params.push(id);
+      db.prepare(`UPDATE orders SET ${sets.join(', ')} WHERE id = ?`).run(...params);
+    }
+
+    // Replace line items if provided
+    if (input.items) {
+      db.prepare('DELETE FROM order_items WHERE order_id = ?').run(id);
+      const insertItem = db.prepare(`
+        INSERT INTO order_items (
+          order_id, product_name, sku, quantity, unit_price, total_price,
+          vendor_style, vendor, color, size, image_url, notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const item of input.items) {
+        insertItem.run(
+          id,
+          item.productName,
+          item.sku ?? null,
+          item.quantity,
+          item.unitPrice,
+          item.totalPrice,
+          item.vendorStyle ?? null,
+          item.vendor ?? null,
+          item.color ?? null,
+          item.size ?? null,
+          item.imageUrl ?? null,
+          item.notes ?? null
+        );
+      }
+    }
+  });
+
+  txn();
+
+  return getOrder(db, id)!;
 }
 
 /**

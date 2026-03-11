@@ -18,6 +18,7 @@
  * - GET    /api/orders/:id/production-sheet -- Production sheet PDF
  * - GET    /api/orders/:id/invoice  -- Invoice PDF
  * - POST   /api/orders              -- Create manual order
+ * - PATCH  /api/orders/:id          -- Update order fields
  * - PATCH  /api/orders/:id/status   -- Update order status
  * - DELETE /api/orders/:id          -- Delete order
  *
@@ -36,12 +37,14 @@ import type {
   OrderSource,
   OrderFilter,
   CreateOrderInput,
+  UpdateOrderInput,
 } from '../orders/index.js';
 import type { VendorId } from '../vendors/types.js';
 import {
   listOrders,
   getOrder,
   createOrder,
+  updateOrder,
   updateOrderStatus,
   updateOrderStatusBulk,
   deleteOrder,
@@ -622,6 +625,28 @@ export default async function orderRoutes(
 
     const order = createOrder(fastify.db, body);
     return reply.status(201).send(order);
+  });
+
+  // =========================================================================
+  // PATCH /:id -- Update order fields (customer, notes, items, financials)
+  // =========================================================================
+
+  fastify.patch<{
+    Params: { id: string };
+    Body: UpdateOrderInput;
+  }>('/:id', async (request, reply) => {
+    const { id } = request.params;
+
+    try {
+      const order = updateOrder(fastify.db, id, request.body);
+      return order;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('not found')) {
+        return reply.status(404).send({ error: 'Order not found' });
+      }
+      return reply.status(400).send({ error: message });
+    }
   });
 
   // =========================================================================

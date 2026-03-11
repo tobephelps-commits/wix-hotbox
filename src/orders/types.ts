@@ -275,6 +275,25 @@ export interface CreateOrderInput {
   items: Omit<OrderLineItem, 'id' | 'orderId' | 'createdAt'>[];
 }
 
+/**
+ * Input for updating an existing order.
+ * All fields are optional — only provided fields are updated.
+ */
+export interface UpdateOrderInput {
+  customerFirstName?: string;
+  customerLastName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  billingAddress?: OrderAddress | null;
+  shippingAddress?: OrderAddress | null;
+  collection?: string;
+  notes?: string;
+  shippingCost?: number;
+  tax?: number;
+  discount?: number;
+  items?: Omit<OrderLineItem, 'id' | 'orderId' | 'createdAt'>[];
+}
+
 // =============================================================================
 // Helper Functions
 // =============================================================================

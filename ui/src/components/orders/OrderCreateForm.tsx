@@ -1,14 +1,15 @@
 /**
- * OrderCreateForm -- Modal form for manual order creation.
+ * OrderCreateForm -- Modal form for manual order creation and editing.
  *
  * Collects customer info, line items, shipping address, notes, and financials.
- * Submits to POST /api/orders with CreateOrderInput body.
+ * Create mode: Submits to POST /api/orders with CreateOrderInput body.
+ * Edit mode: Submits to PATCH /api/orders/:id with UpdateOrderInput body.
  *
  * Phase 59: v1.x Feature Parity Audit (Plan 01, Task 1)
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import type { OrderSource, OrderAddress } from './types';
+import type { OrderSource, OrderAddress, OrderWithDetails } from './types';
 import ProductPicker from './ProductPicker';
 import type { PickedProduct } from './ProductPicker';
 import './OrderCreateForm.css';
@@ -29,6 +30,8 @@ interface FormLineItem {
 interface OrderCreateFormProps {
   onCreated: (order: unknown) => void;
   onCancel: () => void;
+  /** If provided, the form operates in edit mode for this order. */
+  editOrder?: OrderWithDetails;
 }
 
 const EMPTY_ITEM: FormLineItem = {
@@ -52,30 +55,48 @@ const EMPTY_ADDRESS: OrderAddress = {
   company: '',
 };
 
-function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
+function OrderCreateForm({ onCreated, onCancel, editOrder }: OrderCreateFormProps) {
+  const isEditMode = Boolean(editOrder);
+
   // Source
-  const [source, setSource] = useState<OrderSource | ''>('manual');
+  const [source, setSource] = useState<OrderSource | ''>(editOrder?.source ?? 'manual');
 
   // Customer info
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [firstName, setFirstName] = useState(editOrder?.customerFirstName ?? '');
+  const [lastName, setLastName] = useState(editOrder?.customerLastName ?? '');
+  const [email, setEmail] = useState(editOrder?.customerEmail ?? '');
+  const [phone, setPhone] = useState(editOrder?.customerPhone ?? '');
 
   // Shipping address
-  const [showAddress, setShowAddress] = useState(false);
-  const [address, setAddress] = useState<OrderAddress>({ ...EMPTY_ADDRESS });
+  const [showAddress, setShowAddress] = useState(Boolean(editOrder?.shippingAddress));
+  const [address, setAddress] = useState<OrderAddress>(
+    editOrder?.shippingAddress ? { ...EMPTY_ADDRESS, ...editOrder.shippingAddress } : { ...EMPTY_ADDRESS }
+  );
 
   // Line items
-  const [items, setItems] = useState<FormLineItem[]>([{ ...EMPTY_ITEM }]);
+  const [items, setItems] = useState<FormLineItem[]>(
+    editOrder?.items?.length
+      ? editOrder.items.map((it) => ({
+          productName: it.productName,
+          vendorStyle: it.vendorStyle ?? '',
+          color: it.color ?? '',
+          size: it.size ?? '',
+          quantity: it.quantity,
+          unitPrice: it.unitPrice,
+          vendor: (it.vendor as 'sanmar' | 'ss') || undefined,
+          imageUrl: it.imageUrl,
+          notes: it.notes,
+        }))
+      : [{ ...EMPTY_ITEM }]
+  );
 
   // Notes
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(editOrder?.notes ?? '');
 
   // Financials (editable overrides)
-  const [shippingCost, setShippingCost] = useState(0);
-  const [tax, setTax] = useState(0);
-  const [discount, setDiscount] = useState(0);
+  const [shippingCost, setShippingCost] = useState(editOrder?.shippingCost ?? 0);
+  const [tax, setTax] = useState(editOrder?.tax ?? 0);
+  const [discount, setDiscount] = useState(editOrder?.discount ?? 0);
 
   // Product picker
   const [showPicker, setShowPicker] = useState(false);
@@ -193,8 +214,11 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
     };
 
     try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
+      const url = isEditMode ? `/api/orders/${editOrder!.id}` : '/api/orders';
+      const method = isEditMode ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
@@ -211,13 +235,13 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
     } finally {
       setSubmitting(false);
     }
-  }, [validate, source, firstName, lastName, email, phone, showAddress, address, notes, subtotal, shippingCost, tax, discount, total, items, onCreated]);
+  }, [validate, source, firstName, lastName, email, phone, showAddress, address, notes, subtotal, shippingCost, tax, discount, total, items, onCreated, isEditMode, editOrder]);
 
   return (
     <div className="order-create-form__overlay" onClick={onCancel}>
       <div className="order-create-form" onClick={(e) => e.stopPropagation()}>
         <div className="order-create-form__header">
-          <h2 className="order-create-form__title">New Order</h2>
+          <h2 className="order-create-form__title">{isEditMode ? `Edit Order #${editOrder!.orderNumber}` : 'New Order'}</h2>
           <button
             className="order-create-form__close-btn"
             onClick={onCancel}
@@ -611,7 +635,7 @@ function OrderCreateForm({ onCreated, onCancel }: OrderCreateFormProps) {
             onClick={handleSubmit}
             disabled={submitting}
           >
-            {submitting ? 'Creating...' : 'Create Order'}
+            {submitting ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Order')}
           </button>
         </div>
       </div>
