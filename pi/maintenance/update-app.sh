@@ -25,10 +25,10 @@ cd "$APP_DIR"
 logger -t hotbox-update "Checking for updates..."
 
 # Fetch latest from remote
-git fetch origin main
+git fetch origin master
 
 LOCAL_HEAD=$(git rev-parse HEAD)
-REMOTE_HEAD=$(git rev-parse origin/main)
+REMOTE_HEAD=$(git rev-parse origin/master)
 
 if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
   logger -t hotbox-update "Already up to date (${LOCAL_HEAD:0:8})"
@@ -39,7 +39,7 @@ logger -t hotbox-update "Update available: ${LOCAL_HEAD:0:8} -> ${REMOTE_HEAD:0:
 
 # Pull changes
 logger -t hotbox-update "Pulling latest code..."
-git pull origin main
+git pull origin master
 
 # Install dependencies
 logger -t hotbox-update "Installing dependencies..."
